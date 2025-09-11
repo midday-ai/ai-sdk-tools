@@ -1,3 +1,7 @@
+![AI SDK Devtools](image.png)
+
+<br />
+
 # AI SDK Devtools
 
 A powerful debugging and monitoring tool for AI SDKs that provides real-time insights into AI streaming events, tool calls, and performance metrics.
