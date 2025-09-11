@@ -189,7 +189,6 @@ Or enable globally:
 ```javascript
 window.__AI_DEVTOOLS_DEBUG = true;
 ```
-```
 
 ## Requirements
 
