@@ -1,0 +1,63 @@
+{
+  "name": "ai-sdk-devtools",
+  "version": "0.3.0",
+  "author": "Midday",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/midday-ai/midday.git",
+    "directory": "packages/ai-devtools"
+  },
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "style": "dist/style.css",
+  "exports": {
+    ".": {
+      "import": "./dist/index.esm.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./style.css": "./dist/style.css"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^5.0.2",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.5",
+    "vite-plugin-dts": "^4.5.4"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0",
+    "@ai-sdk/react": ">=0.0.1"
+  },
+  "description": "AI development tools for debugging and monitoring AI SDKs streams",
+  "files": ["dist"],
+  "keywords": [
+    "ai",
+    "devtools",
+    "debugging",
+    "chat",
+    "streaming",
+    "development"
+  ],
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "dev": "vite build --watch",
+    "build": "vite build && tsc --emitDeclarationOnly",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
+  },
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.3.2",
+    "@mui/material": "^7.3.2",
+    "ai": "^5.0.40",
+    "tokenlens": "^1.2.1"
+  }
+}

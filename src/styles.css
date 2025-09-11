@@ -1,0 +1,2003 @@
+@import url("https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&display=swap");
+
+/* Scope ALL styles to devtools only */
+.ai-devtools {
+  /* Reset any inherited styles from host application */
+  all: initial;
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace;
+  display: block;
+  box-sizing: border-box;
+
+  /* Font antialiasing for better text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.ai-devtools *,
+.ai-devtools *::before,
+.ai-devtools *::after {
+  box-sizing: border-box;
+}
+
+.ai-devtools button {
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ai-devtools input,
+.ai-devtools textarea {
+  all: unset;
+  display: block;
+}
+
+.ai-devtools div {
+  display: block;
+}
+
+.ai-devtools span {
+  display: inline;
+}
+
+/* Ensure devtools always appear on top */
+.ai-devtools-panel,
+.ai-devtools-button {
+  z-index: 999999 !important;
+  position: fixed !important;
+}
+
+/* Button styles */
+.ai-devtools-button {
+  bottom: 1rem !important;
+  right: 1rem !important;
+  width: 3rem !important;
+  height: 3rem !important;
+  background-color: #000000 !important; /* Pure black background */
+  color: #ffffff !important; /* White text */
+  border: 1px solid #333333 !important; /* Dark gray border */
+  border-radius: 50% !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+  font-size: 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.3s ease !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+}
+
+.ai-devtools-button-icon {
+  font-size: 1.75rem !important;
+  transition: all 0.3s ease !important;
+}
+
+.ai-devtools-button:hover {
+  background-color: #1a1a1a !important; /* Slightly lighter black on hover */
+  border-color: #555555 !important; /* Lighter border on hover */
+}
+
+/* Panel styles */
+.ai-devtools-panel {
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  background-color: #000000 !important; /* Pure black background */
+  color: #ffffff !important; /* White text */
+  border-top: 1px solid #333333 !important; /* Dark gray border */
+  box-shadow: none !important;
+  font-size: 0.75rem !important;
+  line-height: 1rem !important;
+  overflow: visible !important;
+  position: fixed !important;
+  z-index: 2147483647 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Resize Handle */
+.ai-devtools-resize-handle {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 4px !important;
+  background-color: transparent !important;
+  cursor: ns-resize !important;
+  z-index: 2147483648 !important;
+}
+
+/* Utility classes */
+.ai-devtools .flex {
+  display: flex !important;
+}
+
+.ai-devtools .items-center {
+  align-items: center !important;
+}
+
+.ai-devtools .justify-between {
+  justify-content: space-between !important;
+}
+
+.ai-devtools .px-3 {
+  padding-left: 0.75rem !important;
+  padding-right: 0.75rem !important;
+}
+
+.ai-devtools .py-1\.5 {
+  padding-top: 0.375rem !important;
+  padding-bottom: 0.375rem !important;
+}
+
+.ai-devtools .header-bg {
+  background-color: rgba(0, 0, 0, 0.8) !important; /* Black with opacity */
+}
+
+.ai-devtools .border-bottom {
+  border-bottom-width: 1px !important;
+}
+
+.ai-devtools .border-dark {
+  border-color: #333333 !important; /* Dark gray border */
+}
+
+.ai-devtools .text-small {
+  font-size: 0.75rem !important;
+  line-height: 1rem !important;
+}
+
+.ai-devtools .text-primary {
+  color: #ffffff !important; /* White for primary text */
+}
+
+.ai-devtools .text-secondary {
+  color: #cccccc !important; /* Light gray for secondary text */
+}
+
+.ai-devtools .text-muted {
+  color: #888888 !important; /* Medium gray for muted text */
+}
+
+.ai-devtools .w-1 {
+  width: 0.25rem !important;
+}
+
+.ai-devtools .h-1 {
+  height: 0.25rem !important;
+}
+
+.ai-devtools .animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite !important;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Button content styles */
+.ai-devtools-button-icon {
+  width: 0.75rem !important; /* w-3 */
+  height: 0.75rem !important; /* h-3 */
+  margin-bottom: 0.125rem !important; /* mb-0.5 */
+}
+
+.ai-devtools-button-count {
+  font-size: 8px !important; /* text-[8px] */
+  line-height: 1 !important; /* leading-none */
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important; /* font-mono */
+}
+
+/* Header styles */
+.ai-devtools-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 0.375rem 0.75rem !important;
+  background-color: rgba(0, 0, 0, 0.8) !important; /* Black with opacity */
+  border-bottom: 1px solid #333333 !important; /* Dark gray border */
+  overflow: visible !important;
+}
+
+.ai-devtools-header-left {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+}
+
+.ai-devtools-context-circle-header {
+  margin-left: 0.75rem !important;
+  flex-shrink: 0 !important;
+  order: -1 !important; /* Place before other buttons */
+}
+
+.ai-devtools-count {
+  font-size: 10px !important;
+  color: #cccccc !important; /* Light gray text */
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important;
+}
+
+.ai-devtools-rec {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.25rem !important;
+  font-size: 10px !important;
+  color: #ffffff !important; /* White text */
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important;
+}
+
+.ai-devtools-rec-dot {
+  width: 0.25rem !important;
+  height: 0.25rem !important;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite !important;
+  color: #cccccc !important; /* Light gray for recording dot */
+}
+
+/* Header right section */
+.ai-devtools-header-right {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+}
+
+/* Main Search Bar */
+.ai-devtools-search-bar {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  background-color: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  flex: 1 !important;
+  margin-right: 1rem !important;
+  min-height: 2.5rem !important;
+  overflow: visible !important;
+}
+
+.ai-devtools-search-input-container {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  width: 100% !important;
+  min-height: 2.5rem !important;
+  padding: 0.5rem 0.75rem !important;
+  background-color: transparent !important;
+  border: none !important;
+  border-right: 1px solid #333333 !important;
+  border-radius: 0 !important;
+  position: relative !important;
+}
+
+.ai-devtools-search-input-main {
+  flex: 1 !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  color: #ffffff !important;
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-size: 0.875rem !important;
+  line-height: 1.2 !important;
+}
+
+.ai-devtools-search-input-main::placeholder {
+  color: #555555 !important;
+  font-size: 0.75rem !important;
+}
+
+/* Filter Chips */
+.ai-devtools-filter-chip {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.25rem !important;
+  padding: 0.25rem 0.5rem !important;
+  background-color: #333333 !important;
+  border: 1px solid #555555 !important;
+  border-radius: 0 !important;
+  color: #ffffff !important;
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-size: 0.75rem !important;
+  white-space: nowrap !important;
+}
+
+.ai-devtools-filter-chip-icon {
+  font-size: 0.75rem !important;
+  width: 0.875rem !important;
+  text-align: center !important;
+}
+
+.ai-devtools-filter-chip-label {
+  font-weight: 500 !important;
+}
+
+.ai-devtools-filter-chip-remove {
+  background: none !important;
+  border: none !important;
+  color: #cccccc !important;
+  cursor: pointer !important;
+  font-size: 1rem !important;
+  line-height: 1 !important;
+  padding: 0 !important;
+  margin-left: 0.25rem !important;
+  width: 1rem !important;
+  height: 1rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.ai-devtools-filter-chip-remove:hover {
+  color: #ffffff !important;
+  background-color: #555555 !important;
+}
+
+/* Filter Indicator */
+.ai-devtools-filter-indicator {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0.25rem 0.5rem !important;
+  background-color: #333333 !important;
+  border: 1px solid #555555 !important;
+  color: #cccccc !important;
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  border-radius: 0 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  flex-shrink: 0 !important;
+  min-width: 1.5rem !important;
+  height: 1.5rem !important;
+}
+
+.ai-devtools-filter-indicator:hover {
+  background-color: #444444 !important;
+  border-color: #666666 !important;
+  color: #ffffff !important;
+}
+
+.ai-devtools-filter-indicator-count {
+  color: #ffffff !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  text-align: center !important;
+}
+
+/* Filter Badges */
+.ai-devtools-filter-badges {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.5rem !important;
+  padding: 0.5rem 1rem !important;
+  background-color: #1a1a1a !important;
+  border-bottom: 1px solid #333333 !important;
+}
+
+.ai-devtools-filter-group {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  flex-wrap: wrap !important;
+}
+
+.ai-devtools-filter-group-label {
+  color: #888888 !important;
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  margin-right: 0.25rem !important;
+}
+
+.ai-devtools-filter-badge {
+  background-color: #2a2a2a !important;
+  border: 1px solid #404040 !important;
+  color: #888888 !important;
+  padding: 0.25rem 0.5rem !important;
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.25rem !important;
+  border-radius: 0 !important;
+}
+
+.ai-devtools-filter-badge:hover {
+  background-color: #404040 !important;
+  color: #ffffff !important;
+}
+
+.ai-devtools-filter-badge.active {
+  background-color: #404040 !important;
+  color: #ffffff !important;
+  border-color: #666666 !important;
+}
+
+.ai-devtools-filter-badge.clear {
+  background-color: #ff4444 !important;
+  color: #ffffff !important;
+  border-color: #ff6666 !important;
+}
+
+.ai-devtools-filter-badge.clear:hover {
+  background-color: #ff6666 !important;
+}
+
+.ai-devtools-filter-remove {
+  color: #ff6666 !important;
+  font-weight: bold !important;
+  margin-left: 0.25rem !important;
+}
+
+/* Filter Dropdown */
+.ai-devtools-filter-dropdown {
+  position: absolute !important;
+  top: 100% !important;
+  left: 1rem !important;
+  right: 1rem !important;
+  background-color: #1a1a1a !important;
+  border: 1px solid #404040 !important;
+  border-top: none !important;
+  z-index: 2147483647 !important;
+  max-height: 400px !important;
+  overflow-y: auto !important;
+}
+
+.ai-devtools-filter-dropdown-content {
+  padding: 1rem !important;
+}
+
+.ai-devtools-filter-section {
+  margin-bottom: 1.5rem !important;
+}
+
+.ai-devtools-filter-section:last-child {
+  margin-bottom: 0 !important;
+}
+
+.ai-devtools-filter-section-title {
+  color: #ffffff !important;
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  margin-bottom: 0.75rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+
+.ai-devtools-filter-options {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+  gap: 0.5rem !important;
+}
+
+.ai-devtools-filter-option {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  padding: 0.5rem 0.75rem !important;
+  background-color: #2a2a2a !important;
+  border: 1px solid #404040 !important;
+  color: #888888 !important;
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-size: 0.75rem !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  text-align: left !important;
+  border-radius: 0 !important;
+}
+
+.ai-devtools-filter-option:hover {
+  background-color: #404040 !important;
+  color: #ffffff !important;
+}
+
+.ai-devtools-filter-option.active {
+  background-color: #404040 !important;
+  color: #ffffff !important;
+  border-color: #666666 !important;
+}
+
+.ai-devtools-filter-option-icon {
+  font-size: 0.875rem !important;
+  width: 1rem !important;
+  text-align: center !important;
+}
+
+.ai-devtools-filter-option-label {
+  flex: 1 !important;
+  font-weight: 500 !important;
+}
+
+.ai-devtools-filter-option-count {
+  color: #666666 !important;
+  font-size: 0.6875rem !important;
+  background-color: #333333 !important;
+  padding: 0.125rem 0.375rem !important;
+  border-radius: 0 !important;
+}
+
+.ai-devtools-filter-actions {
+  border-top: 1px solid #333333 !important;
+  padding-top: 1rem !important;
+  margin-top: 1rem !important;
+}
+
+.ai-devtools-filter-clear-all {
+  background-color: #ff4444 !important;
+  color: #ffffff !important;
+  border: 1px solid #ff6666 !important;
+  padding: 0.5rem 1rem !important;
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  border-radius: 0 !important;
+  width: 100% !important;
+}
+
+.ai-devtools-filter-clear-all:hover {
+  background-color: #ff6666 !important;
+}
+
+/* Search Suggestions */
+.ai-devtools-search-suggestions {
+  position: absolute !important;
+  top: calc(100% + 2px) !important;
+  left: 0 !important;
+  right: 0 !important;
+  background-color: #000000 !important;
+  border: 1px solid #333333 !important;
+  z-index: 2147483647 !important;
+  max-height: 300px !important;
+  overflow-y: auto !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8) !important;
+  display: block !important;
+  visibility: visible !important;
+}
+
+.ai-devtools-search-suggestions-content {
+  padding: 0 !important;
+  background-color: #000000 !important;
+}
+
+.ai-devtools-suggestion-section {
+  margin-bottom: 0 !important;
+}
+
+.ai-devtools-suggestion-section:last-child {
+  margin-bottom: 0 !important;
+}
+
+.ai-devtools-suggestion-section-title {
+  color: #666666 !important;
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-size: 0.7rem !important;
+  font-weight: 600 !important;
+  margin: 0 !important;
+  padding: 0.5rem 0.75rem 0.25rem 0.75rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  background-color: #111111 !important;
+  border-bottom: 1px solid #222222 !important;
+}
+
+.ai-devtools-suggestion-options {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+}
+
+.ai-devtools-suggestion-option {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.25rem !important;
+  padding: 0.5rem 0.75rem !important;
+  padding-right: 2.5rem !important;
+  background-color: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid #222222 !important;
+  color: #cccccc !important;
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-size: 0.75rem !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  text-align: left !important;
+  border-radius: 0 !important;
+  width: 100% !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.ai-devtools-suggestion-option:hover {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+}
+
+.ai-devtools-suggestion-option.active {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border-left: 3px solid #666666 !important;
+}
+
+.ai-devtools-suggestion-icon {
+  font-size: 0.875rem !important;
+  width: 1rem !important;
+  text-align: center !important;
+}
+
+.ai-devtools-suggestion-label {
+  flex: 1 !important;
+  font-weight: 500 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  margin-right: 1.5rem !important;
+}
+
+.ai-devtools-suggestion-count {
+  position: absolute !important;
+  right: 0.75rem !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  color: #888888 !important;
+  font-size: 0.6875rem !important;
+  background-color: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  font-weight: 400 !important;
+  min-width: 1.5rem !important;
+  text-align: right !important;
+}
+
+.ai-devtools-suggestion-actions {
+  border-top: 1px solid #333333 !important;
+  padding-top: 1rem !important;
+  margin-top: 1rem !important;
+}
+
+.ai-devtools-suggestion-no-results {
+  color: #888888 !important;
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-size: 0.75rem !important;
+  text-align: center !important;
+  padding: 1rem !important;
+  font-style: italic !important;
+}
+
+/* Button styles */
+.ai-devtools-btn {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.25rem !important;
+  padding: 0.125rem 0.375rem !important;
+  font-size: 10px !important;
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  border: 1px solid #333333 !important; /* Dark gray border */
+  background-color: transparent !important;
+  color: #cccccc !important; /* Light gray text */
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+.ai-devtools-btn:hover {
+  background-color: #1a1a1a !important; /* Dark background on hover */
+  border-color: #555555 !important; /* Lighter border on hover */
+}
+
+.ai-devtools-btn.active {
+  background-color: #333333 !important; /* Dark gray active background */
+  color: #ffffff !important; /* White active text */
+  border-color: #555555 !important; /* Lighter active border */
+}
+
+.ai-devtools-btn-icon {
+  width: 0.625rem !important;
+  height: 0.625rem !important;
+}
+
+.ai-devtools-close-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0.125rem !important;
+  color: #cccccc !important; /* Light gray text */
+  cursor: pointer !important;
+  transition: color 0.15s ease !important;
+}
+
+.ai-devtools-close-btn:hover {
+  color: #ffffff !important; /* White on hover */
+}
+
+.ai-devtools-close-icon {
+  width: 0.75rem !important;
+  height: 0.75rem !important;
+}
+
+/* Content styles */
+.ai-devtools-content {
+  display: flex !important;
+  height: 100% !important;
+  background-color: #000000 !important; /* Pure black background */
+}
+
+.ai-devtools-filters {
+  width: 20rem !important;
+  border-right: 1px solid #333333 !important; /* Dark gray border */
+  overflow-y: auto !important;
+  background-color: rgba(0, 0, 0, 0.9) !important; /* Black with opacity */
+}
+
+.ai-devtools-events {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  padding: 0.5rem !important;
+  background-color: #000000 !important; /* Pure black background */
+}
+
+/* Event item styles */
+.ai-devtools-event-item {
+  border-bottom: 1px solid #222222 !important; /* Subtle border like terminal */
+}
+
+.ai-devtools-event-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 0.25rem 0.75rem !important; /* More compact padding */
+  cursor: pointer !important;
+  transition: background-color 0.15s ease !important;
+  min-height: 1.5rem !important; /* More compact height */
+  border-left: 2px solid transparent !important; /* Thinner left border */
+  font-size: 0.75rem !important; /* Smaller text */
+}
+
+.ai-devtools-event-header:hover {
+  background-color: #1a1a1a !important; /* Dark hover background */
+}
+
+/* Color-coded left borders for different event types */
+.ai-devtools-event-item[data-type="tool-call-result"]
+  .ai-devtools-event-header {
+  border-left-color: #00ff00 !important; /* Green for success */
+}
+
+.ai-devtools-event-item[data-type="tool-call-error"] .ai-devtools-event-header {
+  border-left-color: #ff0000 !important; /* Red for errors */
+}
+
+.ai-devtools-event-item[data-type="message-complete"]
+  .ai-devtools-event-header {
+  border-left-color: #00ff00 !important; /* Green for completion */
+}
+
+.ai-devtools-event-item[data-type="finish"] .ai-devtools-event-header {
+  border-left-color: #00ff00 !important; /* Green for finish */
+}
+
+.ai-devtools-event-item[data-type="stream-done"] .ai-devtools-event-header {
+  border-left-color: #00ff00 !important; /* Green for stream done */
+}
+
+.ai-devtools-event-item[data-type="text-delta"] .ai-devtools-event-header {
+  border-left-color: #888888 !important; /* Gray for text deltas */
+}
+
+.ai-devtools-event-item[data-type="message-chunk"] .ai-devtools-event-header {
+  border-left-color: #888888 !important; /* Gray for chunks */
+}
+
+.ai-devtools-event-content {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.75rem !important; /* More spacing for better readability */
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+.ai-devtools-event-indicator {
+  width: 0.25rem !important; /* Slightly bigger indicator */
+  height: 0.25rem !important;
+  border-radius: 50% !important;
+  flex-shrink: 0 !important;
+  background-color: #888888 !important; /* Medium gray */
+  margin-right: 0.5rem !important; /* More spacing */
+}
+
+.ai-devtools-event-icon {
+  font-size: 0.6875rem !important; /* Slightly smaller icon */
+  flex-shrink: 0 !important;
+  color: #cccccc !important; /* Light gray */
+  margin-right: 0.5rem !important; /* More spacing */
+  font-weight: bold !important; /* Make icons more visible */
+}
+
+.ai-devtools-event-description {
+  flex: 1 !important;
+  min-width: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.25rem !important;
+}
+
+.ai-devtools-event-text {
+  font-size: 0.75rem !important; /* Smaller text */
+  color: #ffffff !important; /* White text */
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important; /* Monospace font */
+  line-height: 1.2 !important; /* Tighter line height */
+  font-weight: 400 !important; /* Normal weight */
+  letter-spacing: 0.025em !important; /* Slight letter spacing */
+}
+
+.ai-devtools-event-duration {
+  color: #888888 !important; /* Slightly dimmer for duration */
+  font-size: 0.5625rem !important; /* Even smaller for duration */
+}
+
+/* Tool call session styles */
+.ai-devtools-session {
+  border: 1px solid #2a2a2a !important; /* Lighter border */
+  margin-bottom: 0.25rem !important; /* Tighter spacing */
+  background-color: #0f0f0f !important; /* Slightly lighter background */
+}
+
+.ai-devtools-session-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 0.375rem 0.75rem !important; /* More compact padding */
+  cursor: pointer !important;
+  transition: background-color 0.15s ease !important;
+  background-color: #141414 !important; /* Slightly lighter header background */
+  border-bottom: 1px solid #2a2a2a !important; /* Lighter border */
+  min-height: 2rem !important; /* More compact height */
+}
+
+.ai-devtools-session-header:hover {
+  background-color: #1a1a1a !important; /* Hover background */
+}
+
+.ai-devtools-session-content {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  flex: 1 !important;
+}
+
+.ai-devtools-session-indicator {
+  width: 0.375rem !important; /* Smaller indicator */
+  height: 0.375rem !important;
+  border-radius: 50% !important; /* Round indicator */
+  flex-shrink: 0 !important;
+  margin-right: 0.5rem !important; /* Add spacing */
+}
+
+/* Status-specific indicator colors */
+.ai-devtools-session[data-status="completed"] .ai-devtools-session-indicator {
+  background-color: #00ff00 !important; /* Green for completed */
+}
+
+.ai-devtools-session[data-status="running"] .ai-devtools-session-indicator {
+  background-color: #ffaa00 !important; /* Orange for running */
+}
+
+.ai-devtools-session[data-status="error"] .ai-devtools-session-indicator {
+  background-color: #ff0000 !important; /* Red for error */
+}
+
+.ai-devtools-session-icon {
+  font-size: 0.75rem !important;
+  flex-shrink: 0 !important;
+  color: #cccccc !important;
+  font-weight: bold !important;
+}
+
+.ai-devtools-session-info {
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+.ai-devtools-session-tool-name {
+  font-size: 0.8125rem !important; /* Slightly smaller */
+  color: #ffffff !important;
+  font-weight: 500 !important; /* Lighter weight for cleaner look */
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  margin-bottom: 0.0625rem !important; /* Tighter spacing */
+  letter-spacing: 0.025em !important; /* Slight letter spacing */
+}
+
+.ai-devtools-session-summary {
+  font-size: 0.6875rem !important; /* Smaller text */
+  color: #999999 !important; /* Lighter gray */
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-weight: 400 !important; /* Normal weight */
+}
+
+.ai-devtools-session-timestamp {
+  font-size: 0.6875rem !important;
+  color: #888888 !important;
+  flex-shrink: 0 !important;
+  margin-left: 0.75rem !important;
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important;
+}
+
+.ai-devtools-session-expand {
+  margin-left: 0.5rem !important;
+  flex-shrink: 0 !important;
+}
+
+.ai-devtools-session-arrow {
+  width: 1rem !important;
+  height: 1rem !important;
+  color: #888888 !important;
+  transition: transform 0.15s ease !important;
+}
+
+.ai-devtools-session-arrow-expanded {
+  transform: rotate(180deg) !important;
+}
+
+.ai-devtools-session-events {
+  background-color: #0a0a0a !important; /* Session events background */
+  border-top: 1px solid #222222 !important;
+}
+
+.ai-devtools-session-event {
+  border-left: 2px solid #333333 !important; /* Indent session events */
+  margin-left: 1rem !important;
+  border-bottom: none !important; /* Remove individual event borders */
+}
+
+.ai-devtools-session-event:last-child {
+  border-bottom: 1px solid #222222 !important; /* Add border to last event */
+}
+
+.ai-devtools-event-timestamp {
+  font-size: 0.6875rem !important; /* Slightly smaller timestamp */
+  color: #888888 !important; /* Medium gray */
+  flex-shrink: 0 !important;
+  margin-left: 0.75rem !important; /* More spacing */
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important; /* Monospace font */
+  line-height: 1.2 !important; /* Slightly tighter line height */
+}
+
+.ai-devtools-event-expand {
+  margin-left: 0.5rem !important;
+  flex-shrink: 0 !important;
+}
+
+.ai-devtools-event-arrow {
+  width: 0.75rem !important;
+  height: 0.75rem !important;
+  color: #888888 !important; /* Medium gray */
+  transition: transform 0.15s ease !important;
+}
+
+.ai-devtools-event-arrow-expanded {
+  transform: rotate(180deg) !important;
+}
+
+.ai-devtools-event-expanded {
+  border-top: 1px solid #333333 !important; /* Dark gray border */
+  background-color: rgba(0, 0, 0, 0.8) !important; /* Black with opacity */
+}
+
+.ai-devtools-event-details {
+  padding: 0.75rem !important;
+}
+
+.ai-devtools-event-metadata {
+  margin-bottom: 0.75rem !important;
+}
+
+.ai-devtools-event-metadata-title {
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  color: #ffffff !important; /* White text */
+  margin-bottom: 0.5rem !important;
+}
+
+.ai-devtools-event-metadata-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 0.5rem !important;
+  font-size: 0.75rem !important;
+}
+
+.ai-devtools-event-metadata-item {
+  color: #cccccc !important; /* Light gray */
+}
+
+.ai-devtools-event-metadata-label {
+  font-weight: 500 !important;
+  color: #ffffff !important; /* White text */
+}
+
+.ai-devtools-event-data-title {
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  color: #ffffff !important; /* White text */
+  margin-bottom: 0.5rem !important;
+}
+
+.ai-devtools-event-data-content {
+  font-size: 0.75rem !important;
+  background-color: #1a1a1a !important; /* Dark background */
+  padding: 0.5rem !important;
+  border: 1px solid #333333 !important; /* Dark gray border */
+  overflow-x: auto !important;
+  max-height: 10rem !important;
+  overflow-y: auto !important;
+  color: #ffffff !important; /* White text */
+}
+
+.ai-devtools-event-metadata-section {
+  margin-top: 0.75rem !important;
+}
+
+.ai-devtools-event-metadata-content {
+  font-size: 0.75rem !important;
+  background-color: #1a1a1a !important; /* Dark background */
+  padding: 0.5rem !important;
+  border: 1px solid #333333 !important; /* Dark gray border */
+  overflow-x: auto !important;
+  max-height: 8rem !important;
+  overflow-y: auto !important;
+  color: #ffffff !important; /* White text */
+}
+
+/* Panel content area - scrollable */
+.ai-devtools-panel-content {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Event list styles */
+.ai-devtools-event-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important; /* No gap between items like terminal */
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-size: 0.75rem !important; /* Smaller, more compact text */
+  line-height: 1.2 !important; /* Tighter line height */
+}
+
+.ai-devtools-empty-state {
+  margin-top: 1rem;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 8rem !important;
+  color: #cccccc !important; /* Light gray */
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important;
+}
+
+.ai-devtools-empty-content {
+  text-align: center !important;
+}
+
+.ai-devtools-empty-title {
+  font-size: 0.875rem !important;
+  margin-bottom: 0.5rem !important;
+  color: #ffffff !important; /* White text */
+}
+
+.ai-devtools-empty-subtitle {
+  font-size: 0.75rem !important;
+  color: #888888 !important; /* Medium gray */
+}
+
+/* Filter styles */
+.ai-devtools-filters-container {
+  background-color: #000000 !important; /* Pure black background */
+  border-bottom: 1px solid #333333 !important; /* Dark gray border */
+}
+
+.ai-devtools-filters-content {
+  padding: 1rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1rem !important;
+}
+
+.ai-devtools-filter-label {
+  display: block !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  color: #ffffff !important; /* White text */
+  margin-bottom: 0.5rem !important;
+}
+
+.ai-devtools-search-container {
+  position: relative !important;
+}
+
+.ai-devtools-search-input {
+  width: 100% !important;
+  padding: 0.5rem 0.75rem !important;
+  border: 1px solid #333333 !important; /* Dark gray border */
+  font-size: 0.875rem !important;
+  background-color: #1a1a1a !important; /* Dark background */
+  color: #ffffff !important; /* White text */
+  outline: none !important;
+  transition: border-color 0.15s ease !important;
+}
+
+.ai-devtools-search-input:focus {
+  border-color: #555555 !important; /* Lighter border on focus */
+  box-shadow: 0 0 0 2px rgba(85, 85, 85, 0.2) !important; /* Focus ring */
+}
+
+.ai-devtools-search-clear {
+  position: absolute !important;
+  right: 0.5rem !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  color: #888888 !important; /* Medium gray */
+  background: none !important;
+  border: none !important;
+  cursor: pointer !important;
+  padding: 0.25rem !important;
+  transition: color 0.15s ease !important;
+}
+
+.ai-devtools-search-clear:hover {
+  color: #cccccc !important; /* Light gray on hover */
+}
+
+.ai-devtools-search-clear-icon {
+  width: 1rem !important;
+  height: 1rem !important;
+}
+
+.ai-devtools-filter-options {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.25rem !important;
+  max-height: 8rem !important;
+  overflow-y: auto !important;
+}
+
+.ai-devtools-filter-option {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  padding: 0.5rem !important;
+  cursor: pointer !important;
+  transition: background-color 0.15s ease !important;
+}
+
+.ai-devtools-filter-option:hover {
+  background-color: #1a1a1a !important; /* Dark hover background */
+}
+
+.ai-devtools-filter-option-selected {
+  background-color: #333333 !important; /* Dark selected background */
+  border: 1px solid #555555 !important; /* Lighter border */
+}
+
+.ai-devtools-checkbox {
+  width: 1rem !important;
+  height: 1rem !important;
+  color: #ffffff !important; /* White accent color */
+  background-color: #1a1a1a !important; /* Dark background */
+  border: 1px solid #333333 !important; /* Dark gray border */
+  cursor: pointer !important;
+}
+
+.ai-devtools-checkbox:checked {
+  background-color: #ffffff !important; /* White when checked */
+  border-color: #ffffff !important;
+}
+
+.ai-devtools-type-indicator {
+  width: 0.75rem !important;
+  height: 0.75rem !important;
+  border-radius: 50% !important;
+  flex-shrink: 0 !important;
+}
+
+.ai-devtools-type-icon {
+  font-size: 1.125rem !important;
+}
+
+.ai-devtools-type-label {
+  font-size: 0.875rem !important;
+  flex: 1 !important;
+  color: #ffffff !important; /* White text */
+}
+
+.ai-devtools-type-count {
+  font-size: 0.75rem !important;
+  color: #888888 !important; /* Medium gray */
+  background-color: #1a1a1a !important; /* Dark background */
+  padding: 0.125rem 0.5rem !important;
+}
+
+.ai-devtools-tool-name {
+  font-size: 0.875rem !important;
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  color: #ffffff !important; /* White text */
+}
+
+.ai-devtools-clear-filters {
+  padding-top: 0.5rem !important;
+  border-top: 1px solid #333333 !important; /* Dark gray border */
+}
+
+.ai-devtools-clear-button {
+  font-size: 0.875rem !important;
+  color: #cccccc !important; /* Light gray */
+  background: none !important;
+  border: none !important;
+  cursor: pointer !important;
+  font-weight: 500 !important;
+  transition: color 0.15s ease !important;
+}
+
+.ai-devtools-clear-button:hover {
+  color: #ffffff !important; /* White on hover */
+}
+
+/* Tooltip styles */
+.ai-devtools-tooltip-container {
+  position: relative !important;
+  display: inline-block !important;
+}
+
+.ai-devtools-tooltip {
+  position: absolute !important;
+  bottom: 100% !important;
+  left: 50% !important;
+  transform: translateX(-30%) !important;
+  margin-bottom: 8px !important;
+  padding: 0 !important;
+  background-color: #1a1a1a !important;
+  border: 1px solid #333333 !important;
+  border-radius: 4px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8) !important;
+  z-index: 2147483648 !important;
+  min-width: 200px !important;
+  max-width: 400px !important;
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-size: 0.75rem !important;
+  line-height: 1.4 !important;
+  pointer-events: none !important;
+}
+
+.ai-devtools-tooltip::after {
+  content: "" !important;
+  position: absolute !important;
+  top: 100% !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  border: 4px solid transparent !important;
+  border-top-color: #1a1a1a !important;
+}
+
+.ai-devtools-tooltip-content {
+  padding: 0.75rem !important;
+}
+
+.ai-devtools-tooltip-title {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  margin-bottom: 0.5rem !important;
+  font-size: 0.8rem !important;
+}
+
+.ai-devtools-tooltip-params {
+  color: #cccccc !important;
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-size: 0.7rem !important;
+  line-height: 1.3 !important;
+  margin: 0 !important;
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+  max-height: 200px !important;
+  overflow-y: auto !important;
+}
+
+/* Parameters indicator */
+.ai-devtools-session-params-indicator {
+  margin-left: 0.5rem !important;
+  font-size: 0.7rem !important;
+  opacity: 0.7 !important;
+  transition: opacity 0.2s ease !important;
+}
+
+.ai-devtools-session-header:hover .ai-devtools-session-params-indicator {
+  opacity: 1 !important;
+}
+
+/* Removed recPulse animation to prevent bleeding */
+
+@keyframes sparkle {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.2) rotate(180deg);
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
+  }
+}
+
+@keyframes sparklePulse {
+  0% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  25% {
+    transform: scale(1.3) rotate(90deg);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.1) rotate(180deg);
+    opacity: 1;
+  }
+  75% {
+    transform: scale(1.3) rotate(270deg);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
+    opacity: 1;
+  }
+}
+
+/* Enhanced button effects when receiving events */
+.ai-devtools-button.receiving-events {
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.4) !important;
+  border-color: #333333 !important;
+  animation: buttonPulse 0.8s ease-in-out infinite !important;
+}
+
+.ai-devtools-button.receiving-events .ai-devtools-button-icon {
+  color: #22c55e !important;
+  animation: iconColorPulse 1.2s ease-in-out infinite !important;
+}
+
+@keyframes buttonPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(34, 197, 94, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.3);
+  }
+}
+
+@keyframes iconColorPulse {
+  0% {
+    color: #22c55e;
+    filter: brightness(1);
+  }
+  25% {
+    color: #16a34a;
+    filter: brightness(1.2);
+  }
+  50% {
+    color: #15803d;
+    filter: brightness(1.4);
+  }
+  75% {
+    color: #16a34a;
+    filter: brightness(1.2);
+  }
+  100% {
+    color: #22c55e;
+    filter: brightness(1);
+  }
+}
+
+/* Context Insights Component */
+.ai-devtools-context-insights {
+  display: flex !important;
+  align-items: center !important;
+  gap: 1rem !important;
+  padding: 0.5rem 0.75rem !important;
+  background-color: #111111 !important;
+  border: 1px solid #333333 !important;
+  border-radius: 0 !important;
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-size: 0.75rem !important;
+  color: #ffffff !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  text-rendering: optimizeLegibility !important;
+}
+
+/* Context Circle */
+.ai-devtools-context-circle {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100px !important;
+  height: 100px !important;
+  flex-shrink: 0 !important;
+}
+
+.ai-devtools-context-svg {
+  width: 100px !important;
+  height: 100px !important;
+  transform: rotate(-90deg) !important;
+}
+
+.ai-devtools-context-bg {
+  stroke: #333333 !important;
+  stroke-width: 8 !important;
+  fill: none !important;
+}
+
+.ai-devtools-context-progress {
+  stroke-width: 8 !important;
+  fill: none !important;
+  stroke-linecap: round !important;
+  transition: stroke-dashoffset 0.3s ease !important;
+}
+
+.ai-devtools-context-text {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  text-align: center !important;
+  z-index: 1 !important;
+}
+
+.ai-devtools-context-percent {
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+  color: #ffffff !important;
+  line-height: 1 !important;
+  margin-bottom: 0.125rem !important;
+}
+
+.ai-devtools-context-label {
+  font-size: 0.625rem !important;
+  color: #888888 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  line-height: 1 !important;
+}
+
+/* Context Details */
+.ai-devtools-context-details {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.25rem !important;
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+.ai-devtools-context-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 0.5rem !important;
+  padding: 0.125rem 0 !important;
+}
+
+.ai-devtools-context-row.ai-devtools-context-warning {
+  color: #fbbf24 !important;
+  background-color: rgba(251, 191, 36, 0.1) !important;
+  padding: 0.25rem 0.5rem !important;
+  border-radius: 2px !important;
+  border: 1px solid rgba(251, 191, 36, 0.3) !important;
+}
+
+.ai-devtools-context-row .ai-devtools-context-label {
+  font-size: 0.6875rem !important;
+  color: #888888 !important;
+  font-weight: 500 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.025em !important;
+  flex-shrink: 0 !important;
+}
+
+.ai-devtools-context-row .ai-devtools-context-value {
+  font-size: 0.75rem !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  text-align: right !important;
+  flex-shrink: 0 !important;
+}
+
+/* Model Info */
+.ai-devtools-model-info {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.125rem !important;
+  align-items: flex-end !important;
+  text-align: right !important;
+  flex-shrink: 0 !important;
+  min-width: 120px !important;
+}
+
+.ai-devtools-model-name {
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  color: #ffffff !important;
+  line-height: 1.2 !important;
+  margin-bottom: 0.0625rem !important;
+}
+
+.ai-devtools-model-provider {
+  font-size: 0.625rem !important;
+  color: #888888 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  line-height: 1 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .ai-devtools-context-insights {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.75rem !important;
+  }
+
+  .ai-devtools-context-circle {
+    align-self: center !important;
+  }
+
+  .ai-devtools-model-info {
+    align-items: center !important;
+    text-align: center !important;
+  }
+}
+
+/* Compact Context Circle */
+.ai-devtools-context-circle {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 36px !important;
+  height: 36px !important;
+  flex-shrink: 0 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+/* Hover scaling removed */
+
+.ai-devtools-context-circle-compact {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 36px !important;
+  height: 36px !important;
+}
+
+.ai-devtools-context-svg-compact {
+  width: 36px !important;
+  height: 36px !important;
+  transform: rotate(-90deg) !important;
+}
+
+.ai-devtools-context-bg-compact {
+  stroke: #333333 !important;
+  stroke-width: 2 !important;
+  fill: none !important;
+}
+
+.ai-devtools-context-progress-compact {
+  stroke-width: 2 !important;
+  fill: none !important;
+  stroke-linecap: round !important;
+  transition: stroke-dashoffset 0.3s ease !important;
+}
+
+.ai-devtools-context-text-compact {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  text-align: center !important;
+  z-index: 1 !important;
+}
+
+.ai-devtools-context-percent-compact {
+  font-size: 0.625rem !important;
+  font-weight: 600 !important;
+  color: #ffffff !important;
+  line-height: 1 !important;
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important;
+}
+
+/* Context Circle Tooltip */
+.ai-devtools-context-tooltip {
+  position: absolute !important;
+  bottom: calc(100% + 8px) !important;
+  right: -20px !important;
+  transform: none !important;
+  background-color: #0a0a0a !important;
+  border: 1px solid #222222 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  z-index: 2147483648 !important;
+  width: 200px !important;
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-size: 0.65rem !important;
+  line-height: 1.3 !important;
+  pointer-events: none !important;
+  opacity: 1 !important;
+}
+
+@keyframes contextTooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Arrow removed */
+
+.ai-devtools-context-tooltip-content {
+  padding: 1rem !important;
+}
+
+/* Progress Section */
+.ai-devtools-context-tooltip-progress-section {
+  margin-bottom: 0.75rem !important;
+}
+
+.ai-devtools-context-tooltip-progress-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.ai-devtools-context-tooltip-percentage {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  font-size: 0.8rem !important;
+}
+
+.ai-devtools-context-tooltip-token-count {
+  color: #888888 !important;
+  font-size: 0.6rem !important;
+}
+
+.ai-devtools-context-tooltip-progress-bar {
+  width: 100% !important;
+  height: 4px !important;
+  background-color: #404040 !important;
+  border-radius: 0 !important;
+  overflow: hidden !important;
+}
+
+.ai-devtools-context-tooltip-progress-fill {
+  height: 100% !important;
+  background-color: #ffffff !important;
+  border-radius: 0 !important;
+  transition: width 0.3s ease !important;
+}
+
+/* Usage Section */
+.ai-devtools-context-tooltip-usage-section {
+  margin-bottom: 0.75rem !important;
+  padding-top: 0.75rem !important;
+  border-top: 1px solid #404040 !important;
+}
+
+.ai-devtools-context-tooltip-usage-row {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 0.25rem !important;
+}
+
+.ai-devtools-context-tooltip-usage-row:last-child {
+  margin-bottom: 0 !important;
+}
+
+.ai-devtools-context-tooltip-usage-label {
+  color: #888888 !important;
+  font-size: 0.6rem !important;
+}
+
+.ai-devtools-context-tooltip-usage-value {
+  color: #ffffff !important;
+  font-size: 0.6rem !important;
+}
+
+/* Cost Section */
+.ai-devtools-context-tooltip-cost-section {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding-top: 0.75rem !important;
+  border-top: 1px solid #404040 !important;
+}
+
+.ai-devtools-context-tooltip-cost-label {
+  color: #888888 !important;
+  font-size: 0.6rem !important;
+}
+
+.ai-devtools-context-tooltip-cost-value {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  font-size: 0.6rem !important;
+}
+
+.ai-devtools-context-tooltip-section {
+  margin-bottom: 0.75rem !important;
+}
+
+.ai-devtools-context-tooltip-section:last-child {
+  margin-bottom: 0 !important;
+}
+
+.ai-devtools-context-tooltip-title {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  font-size: 0.7rem !important;
+  margin-bottom: 0.25rem !important;
+  line-height: 1.2 !important;
+}
+
+.ai-devtools-context-tooltip-subtitle {
+  color: #888888 !important;
+  font-size: 0.6rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.ai-devtools-context-tooltip-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 0.5rem !important;
+  padding: 0.125rem 0 !important;
+  font-size: 0.6rem !important;
+}
+
+.ai-devtools-context-tooltip-row.ai-devtools-context-tooltip-warning {
+  color: #fbbf24 !important;
+  background-color: rgba(251, 191, 36, 0.1) !important;
+  padding: 0.25rem 0.5rem !important;
+  border-radius: 3px !important;
+  border: 1px solid rgba(251, 191, 36, 0.3) !important;
+  margin: 0.25rem 0 !important;
+}
+
+.ai-devtools-context-tooltip-label {
+  color: #888888 !important;
+  font-weight: 500 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.025em !important;
+  flex-shrink: 0 !important;
+}
+
+.ai-devtools-context-tooltip-value {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  text-align: right !important;
+  flex-shrink: 0 !important;
+}
+
+/* Context Insights Demo */
+.ai-devtools-context-insights-demo {
+  padding: 1rem !important;
+  background-color: #111111 !important;
+  border: 1px solid #333333 !important;
+  border-radius: 4px !important;
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  color: #ffffff !important;
+}
+
+.ai-devtools-context-insights-demo h3 {
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  color: #ffffff !important;
+  margin-bottom: 1rem !important;
+  text-align: center !important;
+}
+
+.ai-devtools-model-section {
+  margin-bottom: 1.5rem !important;
+  padding: 0.75rem !important;
+  background-color: #1a1a1a !important;
+  border: 1px solid #333333 !important;
+  border-radius: 4px !important;
+}
+
+.ai-devtools-model-section:last-child {
+  margin-bottom: 0 !important;
+}
+
+.ai-devtools-model-section h4 {
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  color: #cccccc !important;
+  margin-bottom: 0.5rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+
+/* Bottom Stats Section */
+.ai-devtools-bottom-stats {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 0.125rem 0.75rem !important;
+  border-top: 1px solid #333333 !important;
+  background-color: transparent !important;
+  min-height: 18px !important;
+  overflow: visible !important;
+}
+
+.ai-devtools-tokens-section {
+  display: flex !important;
+  align-items: center !important;
+}
+
+.ai-devtools-context-section {
+  display: flex !important;
+  align-items: center !important;
+  overflow: visible !important;
+  padding: 0rem 1rem !important;
+}
+
+.ai-devtools-context-circle-bottom {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+/* Streaming Speed Metrics */
+.ai-devtools-speed-metrics {
+  display: flex !important;
+  gap: 1rem !important;
+  align-items: center !important;
+  font-family: "Geist Mono", "SF Mono", Monaco, "Cascadia Code", "Roboto Mono",
+    Consolas, "Courier New", monospace !important;
+  font-size: 0.625rem !important;
+  color: #888888 !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  text-rendering: optimizeLegibility !important;
+}
+
+.ai-devtools-speed-metric {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.25rem !important;
+}
+
+.ai-devtools-speed-value {
+  font-weight: 600 !important;
+  color: #cccccc !important;
+  font-size: 0.625rem !important;
+  line-height: 1 !important;
+}
+
+.ai-devtools-speed-label {
+  font-size: 0.5rem !important;
+  color: #666666 !important;
+  line-height: 1 !important;
+}
+
+/* Context Layout */
+.ai-devtools-context-layout {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  margin-right: 0.5rem !important;
+  gap: 0.375rem !important;
+  width: 60px !important;
+  height: 20px !important;
+}
+
+.ai-devtools-context-percentage-text {
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-size: 0.6rem !important;
+  font-weight: 400 !important;
+  color: #cccccc !important;
+  line-height: 1 !important;
+  width: 2.5rem !important;
+  text-align: right !important;
+  flex-shrink: 0 !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  text-rendering: optimizeLegibility !important;
+}
+
+/* Small Context Circle */
+.ai-devtools-context-circle-small {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 20px !important;
+  height: 20px !important;
+  flex-shrink: 0 !important;
+  transition: all 0.2s ease !important;
+}
+
+.ai-devtools-context-svg-small {
+  width: 20px !important;
+  height: 20px !important;
+  transform: rotate(-90deg) !important;
+}
+
+.ai-devtools-context-bg-small {
+  stroke: #666666 !important;
+  stroke-width: 1.5 !important;
+  fill: none !important;
+}
+
+.ai-devtools-context-progress-small {
+  stroke: #cccccc !important;
+  stroke-width: 1.5 !important;
+  fill: none !important;
+  stroke-linecap: round !important;
+  transition: stroke-dashoffset 0.3s ease !important;
+}
