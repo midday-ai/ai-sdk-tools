@@ -45,7 +45,6 @@ function App() {
 ### Next.js — place in `app/layout.tsx`
 
 ```tsx
-// app/layout.tsx (Server Component)
 import type { Metadata } from 'next';
 import { AIDevtools } from 'ai-sdk-devtools';
 
