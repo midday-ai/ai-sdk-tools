@@ -246,11 +246,6 @@ export function ContextCircle({
 
   const {
     percentUsed,
-    remaining,
-    health,
-    needsCompaction,
-    tokensToRemove,
-    cost,
     contextWindow,
   } = contextMetrics;
 

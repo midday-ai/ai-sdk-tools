@@ -22,8 +22,7 @@ export function formatTimestamp(timestamp: number): string {
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
-    fractionalSecondDigits: 3,
-  });
+  }) + `.${date.getMilliseconds().toString().padStart(3, '0')}`;
 }
 
 /**

@@ -82,12 +82,8 @@
 
 /* Panel styles */
 .ai-devtools-panel {
-  bottom: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
   background-color: #000000 !important; /* Pure black background */
   color: #ffffff !important; /* White text */
-  border-top: 1px solid #333333 !important; /* Dark gray border */
   box-shadow: none !important;
   font-size: 0.75rem !important;
   line-height: 1rem !important;
@@ -98,16 +94,45 @@
   flex-direction: column !important;
 }
 
+/* Bottom panel positioning */
+.ai-devtools-panel-bottom {
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  border-top: 1px solid #333333 !important; /* Dark gray border */
+}
+
+/* Right panel positioning */
+.ai-devtools-panel-right {
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  border-left: 1px solid #333333 !important; /* Dark gray border */
+}
+
 /* Resize Handle */
 .ai-devtools-resize-handle {
   position: absolute !important;
+  background-color: transparent !important;
+  z-index: 2147483648 !important;
+}
+
+/* Bottom panel resize handle */
+.ai-devtools-resize-handle-bottom {
   top: 0 !important;
   left: 0 !important;
   right: 0 !important;
   height: 4px !important;
-  background-color: transparent !important;
   cursor: ns-resize !important;
-  z-index: 2147483648 !important;
+}
+
+/* Right panel resize handle */
+.ai-devtools-resize-handle-right {
+  top: 0 !important;
+  left: 0 !important;
+  bottom: 0 !important;
+  width: 4px !important;
+  cursor: ew-resize !important;
 }
 
 /* Utility classes */
@@ -737,6 +762,34 @@
 .ai-devtools-close-icon {
   width: 0.75rem !important;
   height: 0.75rem !important;
+}
+
+/* Position Toggle Button */
+.ai-devtools-position-toggle-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 22px !important;
+  height: 22px !important;
+  padding: 0 !important;
+  font-size: 10px !important;
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  border: 1px solid #333333 !important; /* Dark gray border */
+  background-color: transparent !important;
+  color: #cccccc !important; /* Light gray text */
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+.ai-devtools-position-toggle-btn:hover {
+  background-color: #1a1a1a !important; /* Dark background on hover */
+  border-color: #555555 !important; /* Lighter border on hover */
+}
+
+.ai-devtools-position-toggle-icon {
+  width: 12px !important;
+  height: 12px !important;
 }
 
 /* Content styles */

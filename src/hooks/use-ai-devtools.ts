@@ -30,7 +30,7 @@ export function useAIDevtools(
 
   // Throttling state
   const throttleQueue = useRef<AIEvent[]>([]);
-  const throttleTimer = useRef<NodeJS.Timeout | null>(null);
+  const throttleTimer = useRef<number | null>(null);
   const lastEventTimes = useRef<Map<string, number>>(new Map());
 
   // Check if event should be throttled

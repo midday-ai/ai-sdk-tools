@@ -1,12 +1,24 @@
 {
-  "extends": "@midday/tsconfig/react-library.json",
-  "include": ["src"],
-  "exclude": ["dist", "node_modules"],
   "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
     "outDir": "dist",
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true,
-    "jsx": "react-jsx"
-  }
+    "sourceMap": true
+  },
+  "include": ["src"],
+  "exclude": ["dist", "node_modules"]
 }

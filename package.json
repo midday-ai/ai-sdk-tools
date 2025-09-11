@@ -1,22 +1,22 @@
 {
   "name": "ai-sdk-devtools",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "author": "Midday",
   "repository": {
     "type": "git",
     "url": "https://github.com/midday-ai/midday.git",
     "directory": "packages/ai-devtools"
   },
-  "main": "dist/index.js",
+  "main": "dist/index.esm.js",
   "module": "dist/index.esm.js",
-  "style": "dist/style.css",
+  "style": "dist/ai-sdk-devtools.css",
   "exports": {
     ".": {
       "import": "./dist/index.esm.js",
-      "require": "./dist/index.js",
+      "require": "./dist/index.umd.js",
       "types": "./dist/index.d.ts"
     },
-    "./style.css": "./dist/style.css"
+    "./style.css": "./dist/ai-sdk-devtools.css"
   },
   "devDependencies": {
     "@types/react": "^19.1.12",

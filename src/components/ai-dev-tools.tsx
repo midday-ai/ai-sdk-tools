@@ -43,6 +43,7 @@ export function AIDevtools({
   const [isOpen, setIsOpen] = useState(false);
   const [hasNewEvents, setHasNewEvents] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [position, setPosition] = useState<"bottom" | "right">("bottom");
   const previousEventCountRef = useRef(0);
 
   // Load panel state from localStorage on mount
@@ -51,6 +52,10 @@ export function AIDevtools({
       const savedState = localStorage.getItem("ai-devtools-panel-open");
       if (savedState !== null) {
         setIsOpen(JSON.parse(savedState));
+      }
+      const savedPosition = localStorage.getItem("ai-devtools-panel-position");
+      if (savedPosition && (savedPosition === "bottom" || savedPosition === "right")) {
+        setPosition(savedPosition);
       }
     }
   }, [isMounted]);
@@ -62,7 +67,19 @@ export function AIDevtools({
     }
   }, [isOpen, isMounted]);
 
-  const finalConfig = { ...defaultConfig, ...config };
+  // Save position state to localStorage when it changes
+  useEffect(() => {
+    if (isMounted) {
+      localStorage.setItem("ai-devtools-panel-position", position);
+    }
+  }, [position, isMounted]);
+
+  const finalConfig = { ...defaultConfig, ...config, position };
+
+  // Toggle position between bottom and right
+  const togglePosition = () => {
+    setPosition(prev => prev === "bottom" ? "right" : "bottom");
+  };
 
   // Always call hooks (to maintain hook order)
   const { events, isCapturing, clearEvents, toggleCapturing } = useAIDevtools({
@@ -123,6 +140,7 @@ export function AIDevtools({
           onToggleCapturing={toggleCapturing}
           onClearEvents={clearEvents}
           onClose={() => setIsOpen(false)}
+          onTogglePosition={togglePosition}
           config={finalConfig}
           modelId={modelId}
         />

@@ -5,6 +5,8 @@ import {
   Close as CloseIcon,
   Pause as PauseIcon,
   PlayArrow as PlayArrowIcon,
+  ViewSidebar as RightPanelIcon,
+  ViewList as BottomPanelIcon,
 } from "@mui/icons-material";
 import React, { useState, useMemo, useRef, useCallback } from "react";
 import type { AIEvent, DevtoolsConfig, FilterOptions } from "../types";
@@ -54,6 +56,7 @@ interface DevtoolsPanelProps {
   onToggleCapturing: () => void;
   onClearEvents: () => void;
   onClose: () => void;
+  onTogglePosition: () => void;
   config: DevtoolsConfig;
   className?: string;
   modelId?: string; // Optional model ID for context insights
@@ -65,12 +68,12 @@ export function DevtoolsPanel({
   onToggleCapturing,
   onClearEvents,
   onClose,
+  onTogglePosition,
   config,
   className = "",
   modelId,
 }: DevtoolsPanelProps) {
-  const [showFilters, setShowFilters] = useState(false);
-  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const [showFilters] = useState(false);
   const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
   const [filters, setFilters] = useState<FilterOptions>({
     types: [],
@@ -81,6 +84,7 @@ export function DevtoolsPanel({
   // Resize functionality
   const [isResizing, setIsResizing] = useState(false);
   const [panelHeight, setPanelHeight] = useState(config.height || 300);
+  const [panelWidth, setPanelWidth] = useState(config.width || 500);
   const panelRef = useRef<HTMLDivElement>(null);
   const resizeRef = useRef<HTMLDivElement>(null);
 
@@ -183,13 +187,19 @@ export function DevtoolsPanel({
     (e: MouseEvent) => {
       if (!isResizing) return;
 
-      const newHeight = window.innerHeight - e.clientY;
-      const minHeight = 200;
-      const maxHeight = window.innerHeight * 0.8;
-
-      setPanelHeight(Math.max(minHeight, Math.min(maxHeight, newHeight)));
+      if (config.position === "bottom") {
+        const newHeight = window.innerHeight - e.clientY;
+        const minHeight = 200;
+        const maxHeight = window.innerHeight * 0.8;
+        setPanelHeight(Math.max(minHeight, Math.min(maxHeight, newHeight)));
+      } else {
+        const newWidth = window.innerWidth - e.clientX;
+        const minWidth = 500;
+        const maxWidth = window.innerWidth * 0.8;
+        setPanelWidth(Math.max(minWidth, Math.min(maxWidth, newWidth)));
+      }
     },
-    [isResizing],
+    [isResizing, config.position],
   );
 
   const handleMouseUp = useCallback(() => {
@@ -201,7 +211,7 @@ export function DevtoolsPanel({
     if (isResizing) {
       document.addEventListener("mousemove", handleMouseMove);
       document.addEventListener("mouseup", handleMouseUp);
-      document.body.style.cursor = "ns-resize";
+      document.body.style.cursor = config.position === "bottom" ? "ns-resize" : "ew-resize";
       document.body.style.userSelect = "none";
     } else {
       document.removeEventListener("mousemove", handleMouseMove);
@@ -299,15 +309,16 @@ export function DevtoolsPanel({
   return (
     <div
       ref={panelRef}
-      className={`ai-devtools-panel ${className}`}
+      className={`ai-devtools-panel ai-devtools-panel-${config.position} ${className}`}
       style={{
-        height: panelHeight,
+        height: config.position === "bottom" ? panelHeight : undefined,
+        width: config.position === "right" ? panelWidth : undefined,
       }}
     >
       {/* Resize Handle */}
       <div
         ref={resizeRef}
-        className="ai-devtools-resize-handle"
+        className={`ai-devtools-resize-handle ai-devtools-resize-handle-${config.position}`}
         onMouseDown={handleMouseDown}
       />
 
@@ -488,6 +499,20 @@ export function DevtoolsPanel({
           >
             <ClearIcon className="ai-devtools-btn-icon" />
             <span>clear</span>
+          </button>
+
+          {/* Position Toggle Button */}
+          <button
+            type="button"
+            onClick={onTogglePosition}
+            className="ai-devtools-position-toggle-btn"
+            title={`Switch to ${config.position === "bottom" ? "right" : "bottom"} panel`}
+          >
+            {config.position === "bottom" ? (
+              <RightPanelIcon className="ai-devtools-position-toggle-icon" />
+            ) : (
+              <BottomPanelIcon className="ai-devtools-position-toggle-icon" />
+            )}
           </button>
 
           {/* Close */}
