@@ -33,12 +33,7 @@ export class StreamInterceptor {
     // or if it's a chat-related endpoint
     const shouldIntercept = this.options.endpoints.some((endpoint) => {
       // Direct match
-      if (url.includes(endpoint) || url.endsWith(endpoint)) {
-        return true;
-      }
-
-      // If endpoint is "/api/chat", also match URLs containing "chat"
-      if (endpoint.includes("chat") && url.includes("chat")) {
+      if (url.includes(endpoint)) {
         return true;
       }
 
@@ -121,7 +116,7 @@ export class StreamInterceptor {
           const event = parseSSEEvent(
             eventData,
             eventType,
-            this.generateEventId(),
+            this.generateEventId()
           );
           if (event) {
             debugLog("[AI Devtools] Event parsed successfully:", event.type);
@@ -160,7 +155,7 @@ export class StreamInterceptor {
 
     (window.fetch as any) = async (
       input: RequestInfo | URL,
-      init?: RequestInit,
+      init?: RequestInit
     ): Promise<Response> => {
       const url = typeof input === "string" ? input : input.toString();
 
