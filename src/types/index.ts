@@ -1,3 +1,5 @@
+import type { LanguageModelUsage } from "ai";
+
 // Event types that can be captured from the AI stream
 export type AIEventType =
   | "tool-call-start"
@@ -22,7 +24,7 @@ export interface AIEvent {
   id: string;
   timestamp: number;
   type: AIEventType;
-  data: any; // Use AI SDK stream part types
+  data: any & { usage: LanguageModelUsage }; // Use AI SDK stream part types
   metadata?: {
     toolName?: string;
     toolCallId?: string;

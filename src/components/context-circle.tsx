@@ -1,29 +1,19 @@
 import { useMemo, useState } from "react";
 import {
-  type ModelId,
-  contextHealth,
-  costFromUsage,
-  getContextWindow,
-  modelMeta,
-  normalizeUsage,
-  percentOfContextUsed,
-  shouldCompact,
-  tokensRemaining,
-  tokensToCompact,
-} from "tokenlens";
+  getUsage,
+} from "tokenlens/helpers";
+import { getModels, } from "tokenlens/models";
 import type { AIEvent } from "../types";
+import type { LanguageModelUsage } from "ai";
+import { ProviderModel, getModelMeta } from "tokenlens";
 
 interface ContextCircleProps {
   events: AIEvent[];
-  modelId?: ModelId;
+  modelId?: string;
   className?: string;
 }
 
-interface UsageData {
-  inputTokens: number;
-  outputTokens: number;
-  totalTokens: number;
-}
+const providers = getModels()
 
 export function ContextCircle({
   events,
@@ -33,7 +23,7 @@ export function ContextCircle({
   const [isHovered, setIsHovered] = useState(false);
 
   // Extract usage data from events
-  const usageData = useMemo((): UsageData | null => {
+  const usageData = useMemo((): LanguageModelUsage | null => {
     // Look for usage data in finish events or message-complete events
     const finishEvents = events.filter(
       (event) => event.type === "finish" || event.type === "message-complete",
@@ -44,31 +34,22 @@ export function ContextCircle({
     const latestFinish = finishEvents[finishEvents.length - 1];
     if (!latestFinish) return null;
 
-    const usage = latestFinish.data?.usage || latestFinish.data?.usageMetadata;
+    const usage = latestFinish.data?.usage as LanguageModelUsage || latestFinish.data?.usageMetadata;
 
-    if (!usage) return null;
-
-    // Normalize usage data to TokenLens format
-    const normalizedUsage = normalizeUsage(usage);
+    if (!usage.inputTokens || !usage.outputTokens || !usage.totalTokens) return null;
 
     return {
       inputTokens:
-        (normalizedUsage as any).input_tokens ||
-        (normalizedUsage as any).inputTokens ||
-        0,
+        usage.inputTokens,
       outputTokens:
-        (normalizedUsage as any).completion_tokens ||
-        (normalizedUsage as any).outputTokens ||
-        0,
+        usage.outputTokens,
       totalTokens:
-        (normalizedUsage as any).total_tokens ||
-        (normalizedUsage as any).totalTokens ||
-        0,
+        usage.totalTokens,
     };
   }, [events]);
 
   // Estimate usage from text-delta events if no explicit usage data
-  const estimatedUsage = useMemo((): UsageData | null => {
+  const estimatedUsage = useMemo((): LanguageModelUsage | null => {
     if (usageData) return null;
 
     const textDeltas = events.filter((event) => event.type === "text-delta");
@@ -92,69 +73,33 @@ export function ContextCircle({
 
   const currentUsage = usageData || estimatedUsage;
 
-  // Get model metadata
-  const modelInfo = useMemo(() => {
+
+  const modelMeta = useMemo(() => {
     if (!modelId) return null;
-    try {
-      return modelMeta(modelId);
-    } catch {
-      return null;
-    }
+    return getModelMeta({ model: modelId, providers }) as ProviderModel;
   }, [modelId]);
 
   // Calculate context metrics
   const contextMetrics = useMemo(() => {
     if (!currentUsage || !modelId) return null;
 
-    try {
-      const usage = {
-        inputTokens: currentUsage.inputTokens,
-        outputTokens: currentUsage.outputTokens,
-        totalTokens: currentUsage.totalTokens,
-      };
+    const modelMeta = getUsage({ modelId, usage: currentUsage, providers });
+    if (!modelMeta) return null;
 
-      const percentUsed = percentOfContextUsed({
-        id: modelId,
-        usage,
-        reserveOutput: 256,
-      });
-      const remaining = tokensRemaining({
-        id: modelId,
-        usage,
-        reserveOutput: 256,
-      });
-      const health = contextHealth({ modelId, usage });
-      const needsCompaction = shouldCompact({ modelId, usage });
-      const tokensToRemove = needsCompaction
-        ? tokensToCompact({ modelId, usage })
-        : 0;
-      const cost = costFromUsage({ id: modelId, usage });
-      const contextWindow = modelInfo ? getContextWindow(modelId) : undefined;
+    try {
+      const percentUsed = modelMeta.context?.totalMax ? modelMeta.context.totalMax / (currentUsage.totalTokens || 0) : 0;
+      const contextWindow = modelMeta.context?.totalMax || 0;
 
       return {
         percentUsed,
-        remaining,
-        health,
-        needsCompaction,
-        tokensToRemove,
-        cost,
         contextWindow,
       };
     } catch {
       return null;
     }
-  }, [currentUsage, modelId, modelInfo]);
+  }, [currentUsage, modelId]);
 
   if (!contextMetrics || contextMetrics === null) {
-    const modelInfo = modelId
-      ? (() => {
-          try {
-            return modelMeta(modelId);
-          } catch {
-            return null;
-          }
-        })()
-      : null;
 
     return (
       <div
@@ -197,7 +142,7 @@ export function ContextCircle({
                     0%
                   </span>
                   <span className="ai-devtools-context-tooltip-token-count">
-                    0 / {modelInfo?.maxTokens?.toLocaleString() || "128K"}
+                    0 / {modelMeta?.limit?.context?.toLocaleString() || "128K"}
                   </span>
                 </div>
                 <div className="ai-devtools-context-tooltip-progress-bar">
@@ -320,8 +265,8 @@ export function ContextCircle({
                   {currentUsage?.totalTokens?.toLocaleString() || "0"} /{" "}
                   {typeof contextWindow === "number"
                     ? (contextWindow as number).toLocaleString()
-                    : (contextWindow as any)?.combinedMax?.toLocaleString() ||
-                      "128K"}
+                    : (contextWindow as number).toLocaleString() ||
+                    "128K"}
                 </span>
               </div>
               <div className="ai-devtools-context-tooltip-progress-bar">
@@ -340,14 +285,16 @@ export function ContextCircle({
                     Input
                   </span>
                   <span className="ai-devtools-context-tooltip-usage-value">
-                    {currentUsage.inputTokens > 1000
+                    {currentUsage.inputTokens && currentUsage.inputTokens > 1000
                       ? `${Math.round(currentUsage.inputTokens / 1000)}K`
                       : currentUsage.inputTokens}{" "}
                     • $
                     {(
-                      currentUsage.inputTokens *
-                      (modelInfo?.pricePerTokenIn || 0)
+                      currentUsage.inputTokens && currentUsage.inputTokens > 0 ?
+                        currentUsage.inputTokens *
+                        (modelMeta?.cost?.input || 0) : 0
                     ).toFixed(4)}
+
                   </span>
                 </div>
                 <div className="ai-devtools-context-tooltip-usage-row">
@@ -355,13 +302,13 @@ export function ContextCircle({
                     Output
                   </span>
                   <span className="ai-devtools-context-tooltip-usage-value">
-                    {currentUsage.outputTokens > 1000
+                    {currentUsage.outputTokens && currentUsage.outputTokens > 1000
                       ? `${Math.round(currentUsage.outputTokens / 1000)}K`
                       : currentUsage.outputTokens}{" "}
                     • $
                     {(
                       currentUsage.outputTokens *
-                      (modelInfo?.pricePerTokenOut || 0)
+                      (modelMeta?.cost?.output || 0)
                     ).toFixed(4)}
                   </span>
                 </div>
@@ -378,9 +325,9 @@ export function ContextCircle({
                   $
                   {(
                     currentUsage.inputTokens *
-                      (modelInfo?.pricePerTokenIn || 0) +
+                    (modelMeta?.cost?.input || 0) +
                     currentUsage.outputTokens *
-                      (modelInfo?.pricePerTokenOut || 0)
+                    (modelMeta?.cost?.output || 0)
                   ).toFixed(4)}
                 </span>
               </div>
