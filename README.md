@@ -42,6 +42,27 @@ function App() {
 }
 ```
 
+### Next.js — place in `app/layout.tsx`
+
+```tsx
+import type { Metadata } from 'next';
+import { AIDevtools } from 'ai-sdk-devtools';
+
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>
+        {children}
+        {process.env.NODE_ENV === 'development' && (
+          <AIDevtools />
+        )}
+      </body>
+    </html>
+  );
+}
+```
+
+
 ### With useChat Integration
 
 ```tsx
