@@ -1,7 +1,4 @@
 import { useMemo, useState } from "react";
-import {
-  getUsage,
-} from "tokenlens/helpers";
 import { getModels, } from "tokenlens/models";
 import type { AIEvent } from "../types";
 import type { LanguageModelUsage } from "ai";
@@ -36,7 +33,7 @@ export function ContextCircle({
 
     const usage = latestFinish.data?.usage as LanguageModelUsage || latestFinish.data?.usageMetadata;
 
-    if (!usage.inputTokens || !usage.outputTokens || !usage.totalTokens) return null;
+    if (!usage || !usage.inputTokens || !usage.outputTokens || !usage.totalTokens) return null;
 
     return {
       inputTokens:
@@ -76,19 +73,46 @@ export function ContextCircle({
 
   const modelMeta = useMemo(() => {
     if (!modelId) return null;
-    return getModelMeta({ model: modelId, providers }) as ProviderModel;
+    
+    // Try getModelMeta first
+    const meta = getModelMeta({ model: modelId, providers }) as ProviderModel;
+    if (meta) return meta;
+    
+    // Try with openai: prefix
+    const altMeta1 = getModelMeta({ model: `openai:${modelId}`, providers }) as ProviderModel;
+    if (altMeta1) return altMeta1;
+    
+    // If not found, try to find the model directly in the providers
+    if (providers.openai?.models) {
+      const openaiModels = Object.keys(providers.openai.models);
+      
+      // Find exact match first, then fallback to partial match
+      let matchingModel = openaiModels.find(model => model === modelId);
+      if (!matchingModel) {
+        matchingModel = openaiModels.find(model => model.includes(modelId));
+      }
+      
+      if (matchingModel && providers.openai.models) {
+        const modelsObj = providers.openai.models as any;
+        const directModelData = modelsObj[matchingModel];
+        
+        if (directModelData) {
+          return directModelData as ProviderModel;
+        }
+      }
+    }
+    
+    return null;
   }, [modelId]);
 
   // Calculate context metrics
   const contextMetrics = useMemo(() => {
-    if (!currentUsage || !modelId) return null;
-
-    const modelMeta = getUsage({ modelId, usage: currentUsage, providers });
-    if (!modelMeta) return null;
+    if (!currentUsage || !modelMeta) return null;
 
     try {
-      const percentUsed = modelMeta.context?.totalMax ? modelMeta.context.totalMax / (currentUsage.totalTokens || 0) : 0;
-      const contextWindow = modelMeta.context?.totalMax || 0;
+      // Use the limit.context from our modelMeta (which now contains the direct model data)
+      const contextWindow = modelMeta.limit?.context || 0;
+      const percentUsed = contextWindow ? (currentUsage.totalTokens || 0) / contextWindow : 0;
 
       return {
         percentUsed,
@@ -97,7 +121,7 @@ export function ContextCircle({
     } catch {
       return null;
     }
-  }, [currentUsage, modelId]);
+  }, [currentUsage, modelMeta]);
 
   if (!contextMetrics || contextMetrics === null) {
 
@@ -292,7 +316,7 @@ export function ContextCircle({
                     {(
                       currentUsage.inputTokens && currentUsage.inputTokens > 0 ?
                         currentUsage.inputTokens *
-                        (modelMeta?.cost?.input || 0) : 0
+                        ((modelMeta?.cost?.input || 0) / 1000000) : 0
                     ).toFixed(4)}
 
                   </span>
@@ -308,7 +332,7 @@ export function ContextCircle({
                     • $
                     {(
                       (currentUsage.outputTokens || 0) *
-                      (modelMeta?.cost?.output || 0)
+                      ((modelMeta?.cost?.output || 0) / 1000000)
                     ).toFixed(4)}
                   </span>
                 </div>
@@ -325,9 +349,9 @@ export function ContextCircle({
                   $
                   {(
                     (currentUsage.inputTokens || 0) *
-                    (modelMeta?.cost?.input || 0) +
+                    ((modelMeta?.cost?.input || 0) / 1000000) +
                     (currentUsage.outputTokens || 0) *
-                    (modelMeta?.cost?.output || 0)
+                    ((modelMeta?.cost?.output || 0) / 1000000)
                   ).toFixed(4)}
                 </span>
               </div>

@@ -48,7 +48,6 @@
     "access": "public"
   },
   "scripts": {
-    "dev": "vite build --watch",
     "build": "vite build && tsc --emitDeclarationOnly",
     "clean": "rm -rf dist",
     "prepublishOnly": "npm run build"
