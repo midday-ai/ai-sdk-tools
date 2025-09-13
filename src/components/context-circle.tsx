@@ -307,7 +307,7 @@ export function ContextCircle({
                       : currentUsage.outputTokens}{" "}
                     • $
                     {(
-                      currentUsage.outputTokens *
+                      (currentUsage.outputTokens || 0) *
                       (modelMeta?.cost?.output || 0)
                     ).toFixed(4)}
                   </span>
@@ -324,9 +324,9 @@ export function ContextCircle({
                 <span className="ai-devtools-context-tooltip-cost-value">
                   $
                   {(
-                    currentUsage.inputTokens *
+                    (currentUsage.inputTokens || 0) *
                     (modelMeta?.cost?.input || 0) +
-                    currentUsage.outputTokens *
+                    (currentUsage.outputTokens || 0) *
                     (modelMeta?.cost?.output || 0)
                   ).toFixed(4)}
                 </span>
