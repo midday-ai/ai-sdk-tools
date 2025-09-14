@@ -1,6 +1,3 @@
-// Import styles - this ensures CSS is bundled
-import "./styles.css";
-
 export { AIDevtools } from "./components/ai-dev-tools";
 
 // Export other components for advanced usage
