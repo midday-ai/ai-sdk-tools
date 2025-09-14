@@ -865,6 +865,18 @@
   border-left-color: #888888 !important; /* Gray for chunks */
 }
 
+.ai-devtools-event-item[data-type="start"] .ai-devtools-event-header {
+  border-left-color: #87ceeb !important; /* Light blue for start */
+}
+
+.ai-devtools-event-item[data-type="reasoning-start"] .ai-devtools-event-header {
+  border-left-color: #9c27b0 !important; /* Purple for reasoning start */
+}
+
+.ai-devtools-event-item[data-type="reasoning-end"] .ai-devtools-event-header {
+  border-left-color: #9c27b0 !important; /* Purple for reasoning end */
+}
+
 .ai-devtools-event-content {
   display: flex !important;
   align-items: center !important;

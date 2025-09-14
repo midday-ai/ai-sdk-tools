@@ -234,6 +234,39 @@ export function parseEventFromDataPart(
   }
 
   // New streaming event types
+  if (dataPart.type === "start") {
+    return {
+      id: eventId,
+      timestamp,
+      type: "start",
+      data: dataPart,
+    };
+  }
+
+  if (dataPart.type === "reasoning-start") {
+    return {
+      id: eventId,
+      timestamp,
+      type: "reasoning-start",
+      data: dataPart,
+      metadata: {
+        messageId: dataPart.id,
+      },
+    };
+  }
+
+  if (dataPart.type === "reasoning-end") {
+    return {
+      id: eventId,
+      timestamp,
+      type: "reasoning-end",
+      data: dataPart,
+      metadata: {
+        messageId: dataPart.id,
+      },
+    };
+  }
+
   if (dataPart.type === "start-step") {
     return {
       id: eventId,
@@ -617,6 +650,15 @@ export function getEventDescription(event: AIEvent): string {
 
     case "message-complete":
       return "MESSAGE DONE";
+
+    case "start":
+      return "STREAM START";
+
+    case "reasoning-start":
+      return "REASONING START";
+
+    case "reasoning-end":
+      return "REASONING END";
 
     case "start-step":
       return "STEP START";

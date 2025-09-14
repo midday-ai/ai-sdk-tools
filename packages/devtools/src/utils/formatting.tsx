@@ -7,6 +7,7 @@ import {
   DataObject as DataObjectIcon,
   ErrorOutline as ErrorOutlineIcon,
   Help as HelpIcon,
+  Psychology as PsychologyIcon,
   Send as SendIcon,
   Settings as SettingsIcon,
 } from "@mui/icons-material";
@@ -39,6 +40,9 @@ export function getEventTypeColor(type: string): string {
     "text-start": "#ffffff", // white
     "text-delta": "#888888", // medium gray
     "text-end": "#ffffff", // white
+    "reasoning-start": "#9c27b0", // purple for reasoning
+    "reasoning-end": "#9c27b0", // purple for reasoning
+    "start": "#87ceeb", // light blue
     "start-step": "#888888", // medium gray
     "finish-step": "#00ff00", // green for success
     finish: "#00ff00", // green for success
@@ -70,11 +74,16 @@ export function getEventTypeIcon(type: string): React.ReactElement {
     "text-delta": <CircleIcon sx={{ fontSize: "0.4rem" }} />,
     "text-end": <CodeIcon sx={{ fontSize: "0.75rem" }} />,
 
+    // Reasoning events - using Psychology icon
+    "reasoning-start": <PsychologyIcon sx={{ fontSize: "0.75rem" }} />,
+    "reasoning-end": <PsychologyIcon sx={{ fontSize: "0.75rem" }} />,
+
     // Steps - using Settings/PlayArrow for process steps
     "start-step": <SettingsIcon sx={{ fontSize: "0.75rem" }} />,
     "finish-step": <CheckCircleIcon sx={{ fontSize: "0.75rem" }} />,
 
     // Stream events - using Api/Done icons
+    "start": <ApiIcon sx={{ fontSize: "0.75rem" }} />,
     finish: <ApiIcon sx={{ fontSize: "0.75rem" }} />,
     "stream-done": <ApiIcon sx={{ fontSize: "0.75rem" }} />,
 
