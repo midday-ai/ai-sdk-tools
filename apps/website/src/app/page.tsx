@@ -27,11 +27,11 @@ export default function Home() {
               AI applications.
           </h1>
             
-            <p className="text-base text-secondary max-w-3xl leading-relaxed font-light">
-              A collection of essential utilities for AI development. State management, 
-              debugging tools, and artifact handling - everything you need to build 
-              production-ready AI applications.
-            </p>
+                   <p className="text-base text-secondary max-w-3xl leading-relaxed font-light">
+                     Essential utilities that extend and improve the Vercel AI SDK experience. 
+                     State management, debugging tools, and streaming data management - everything you need 
+                     to build advanced AI interfaces like canvas, workflows, and more.
+                   </p>
             
 
                       
@@ -167,10 +167,10 @@ export default function Home() {
           </div>
           
           <div>
-            <h3 className="text-base font-medium mb-3">Artifact Handling</h3>
+            <h3 className="text-base font-medium mb-3">Streaming Data Management</h3>
             <p className="text-xs text-secondary font-light leading-relaxed">
-              Seamlessly manage AI-generated artifacts and file outputs with built-in 
-              utilities for processing and storing generated content.
+              Handle real-time data streams, user interactions, and complex state updates 
+              for advanced interfaces like canvas tools and workflow builders.
             </p>
           </div>
           

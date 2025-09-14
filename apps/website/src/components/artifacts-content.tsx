@@ -13,9 +13,9 @@ export function ArtifactsContent() {
               AI applications.
             </h1>
             <p className="text-base text-secondary max-w-3xl leading-relaxed font-light">
-              A comprehensive solution for managing AI-generated artifacts. 
-              Handle files, images, documents, and other outputs with ease, 
-              providing a seamless experience for your users.
+              Extends Vercel AI SDK with comprehensive artifact handling for advanced streaming interfaces. 
+              Perfect for canvas & workflow-based UIs, handling data and actions with ease, 
+              going beyond simple chat interfaces.
             </p>
             
             {/* Terminal */}

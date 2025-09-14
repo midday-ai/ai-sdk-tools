@@ -16,9 +16,9 @@ export function DevtoolsContent() {
             </h1>
             
             <p className="text-base text-secondary max-w-3xl leading-relaxed font-light">
-              A development debugging tool that integrates directly into your app. 
-              Just like react-query-devtools, it provides real-time insights into your AI workflows 
-              during local development.
+              Extends Vercel AI SDK with development-only debugging tools that integrate directly 
+              into your app. Just like react-query-devtools, it provides real-time insights 
+              into your AI workflows during local development.
             </p>
             
             {/* Terminal */}

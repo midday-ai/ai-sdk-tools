@@ -16,8 +16,8 @@ export function StoreContent() {
             </h1>
             
             <p className="text-base text-secondary max-w-3xl leading-relaxed font-light">
-              AI SDK Zustand eliminates prop drilling within your chat components, 
-              ensuring better performance and cleaner architecture.
+              Extends Vercel AI SDK with powerful state management that eliminates prop drilling 
+              within your chat components, ensuring better performance and cleaner architecture.
             </p>
             
             {/* Terminal */}

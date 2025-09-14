@@ -2,7 +2,7 @@
 
 ![AI SDK Tools](image.png)
 
-A collection of essential utilities for AI development. State management, debugging tools, and artifact handling - everything you need to build production-ready AI applications.
+Essential utilities that extend and improve the Vercel AI SDK experience. State management, debugging tools, and artifact handling - everything you need to build production-ready AI applications with enhanced developer experience.
 
 ## Packages
 
