@@ -43,7 +43,7 @@ export function Header() {
         </nav>
         
         <a 
-            href="https://github.com/midday-ai/ai-sdk-zustand" 
+            href="https://github.com/midday-ai/ai-sdk-tools" 
             target="_blank" 
             rel="noopener noreferrer"
             className="text-secondary hover:text-[#d4d4d4] transition-colors"
