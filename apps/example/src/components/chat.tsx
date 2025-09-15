@@ -3,7 +3,7 @@
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
 import { useState } from 'react';
-import { AIDevtools } from 'ai-sdk-devtools';
+import { AIDevtools } from '@ai-sdk-tools/devtools';
 
 export default function Chat() {
   const { messages, sendMessage, status } = useChat({

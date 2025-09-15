@@ -1,6 +1,6 @@
 'use client';
 
-import { useChatMessages, useChatStatus } from 'ai-sdk-zustand';
+import { useChatMessages, useChatStatus } from '@ai-sdk-tools/store';
 import type { UIMessage } from 'ai';
 
 interface MessageListProps {}

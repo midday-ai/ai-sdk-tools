@@ -1,4 +1,4 @@
-# ai-sdk-zustand
+# @ai-sdk-tools/store
 
 Drop-in replacement for `@ai-sdk/react` that gives you global state access to your AI chats. No prop drilling, better performance, simplified architecture.
 
@@ -9,7 +9,7 @@ Drop-in replacement for `@ai-sdk/react` that gives you global state access to yo
 **Solution**: Same `useChat` API + global Zustand store access from any component.
 
 ```bash
-npm i ai-sdk-zustand
+npm i @ai-sdk-tools/store
 ```
 
 ## Migration (30 seconds)
@@ -19,7 +19,7 @@ npm i ai-sdk-zustand
 import { useChat } from '@ai-sdk/react'
 
 // After - ONLY CHANGE NEEDED
-import { useChat } from 'ai-sdk-zustand'
+import { useChat } from '@ai-sdk-tools/store'
 ```
 
 Everything else works exactly the same.
@@ -35,7 +35,7 @@ function App() {
   return <Layout messages={messages} sendMessage={sendMessage} />
 }
 
-// ✅ ai-sdk-zustand - access anywhere
+// ✅ @ai-sdk-tools/store - access anywhere
 function App() {
   useChat({ api: '/api/chat' }) // Initialize once
   return <Layout />
@@ -57,7 +57,7 @@ function Chat() {
   // Re-renders when ANY of these change
 }
 
-// ✅ ai-sdk-zustand - selective subscriptions  
+// ✅ @ai-sdk-tools/store - selective subscriptions  
 function MessageCount() {
   const count = useChatMessageCount() // Only re-renders when count changes
 }
@@ -91,7 +91,7 @@ const toolCallCount = useChatProperty(
 ### 4. **Custom Zustand Stores**
 
 ```tsx
-import { createCustomChatStore } from 'ai-sdk-zustand'
+import { createCustomChatStore } from '@ai-sdk-tools/store'
 import { persist } from 'zustand/middleware'
 
 // Custom store with persistence
@@ -149,7 +149,7 @@ useChatProperty(state => state.status === 'streaming') // Use status instead of 
 ### Custom Stores
 
 ```tsx
-import { createCustomChatStore } from 'ai-sdk-zustand'
+import { createCustomChatStore } from '@ai-sdk-tools/store'
 import { devtools, persist } from 'zustand/middleware'
 
 // With persistence
@@ -186,7 +186,7 @@ const messages = useChatMessages<MyMessage>() // Fully typed!
 
 ## When to Use This vs Regular useChat
 
-**Use ai-sdk-zustand when:**
+**Use @ai-sdk-tools/store when:**
 - Multiple components need chat data
 - Building complex chat UIs  
 - Need performance optimization

@@ -4,7 +4,7 @@ import {
   useChatStatus,
    useChatError,
   useChatProperty,
- } from 'ai-sdk-zustand';
+ } from '@ai-sdk-tools/store';
 import type { CustomUIMessage } from '../types/custom-message';
 
 interface SelectorDemoProps {}
@@ -57,13 +57,13 @@ export function SelectorDemo({}: SelectorDemoProps) {
           <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
           <div className="w-3 h-3 rounded-full bg-green-500"></div>
         </div>
-        <div className="text-gray-400 text-xs ml-2">ai-sdk-zustand@latest selector-demo</div>
+        <div className="text-gray-400 text-xs ml-2">@ai-sdk-tools/store@latest selector-demo</div>
       </div>
 
       {/* Terminal Content */}
       <div className="p-4 space-y-4">
         <div>
-          <span className="text-gray-500">$</span> <span className="text-white">npx ai-sdk-zustand@latest demo</span>
+          <span className="text-gray-500">$</span> <span className="text-white">npx @ai-sdk-tools/store@latest demo</span>
         </div>
 
         {/* Stats Output */}

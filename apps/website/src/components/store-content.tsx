@@ -22,12 +22,12 @@ export function StoreContent() {
             
             {/* Terminal */}
             <div className="flex items-center justify-between border border-dashed border-[#2a2a2a] px-3 py-1.5 max-w-md">
-              <span className="text-[#d4d4d4] text-xs font-mono">npm i ai-sdk-zustand</span>
+              <span className="text-[#d4d4d4] text-xs font-mono">npm i @ai-sdk-tools/store</span>
               <button
                 type="button"
-                onClick={() => navigator.clipboard.writeText('npm i ai-sdk-zustand')}
+                onClick={() => navigator.clipboard.writeText('npm i @ai-sdk-tools/store')}
                 className="text-secondary hover:text-[#d4d4d4] transition-colors p-1"
-                title={`Copy "npm i ai-sdk-zustand" to clipboard`}
+                title={`Copy "npm i @ai-sdk-tools/store" to clipboard`}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-label="Copy command">
                   <title>Copy to clipboard</title>
@@ -172,13 +172,13 @@ function Chat() {
             </div>
             
             <div className="space-y-4">
-              <div className="text-xs text-secondary">◇ After (ai-sdk-zustand)</div>
+              <div className="text-xs text-secondary">◇ After (@ai-sdk-tools/store)</div>
               <div className="bg-[#0f0f0f] border border-[#2a2a2a] p-6 h-[32rem] overflow-y-auto">
                 <pre
                   className="text-xs text-[#d4d4d4] leading-relaxed"
                   dangerouslySetInnerHTML={{
                     __html: highlight(`// Chat.tsx - Clean initialization
-import { useChat } from 'ai-sdk-zustand'
+import { useChat } from '@ai-sdk-tools/store'
 import { DefaultChatTransport } from 'ai'
 
 function Chat() {
@@ -228,11 +228,11 @@ function MessageList() {
             <div className="text-sm flex items-center justify-between">
               <div>
                 <span className="text-secondary">git: (main)$ </span>
-                <span className="text-white">npm i ai-sdk-zustand</span>
+                <span className="text-white">npm i @ai-sdk-tools/store</span>
               </div>
               <button 
                 type="button"
-                onClick={() => navigator.clipboard.writeText('npm i ai-sdk-zustand')}
+                onClick={() => navigator.clipboard.writeText('npm i @ai-sdk-tools/store')}
                 className="text-secondary hover:text-white transition-colors ml-4"
                 title="Copy to clipboard"
               >

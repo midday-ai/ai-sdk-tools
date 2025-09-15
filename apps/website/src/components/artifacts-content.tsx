@@ -20,12 +20,12 @@ export function ArtifactsContent() {
             
             {/* Terminal */}
             <div className="flex items-center justify-between border border-dashed border-[#2a2a2a] px-3 py-1.5 max-w-md">
-              <span className="text-[#d4d4d4] text-xs font-mono">npm i @ai-sdk/artifacts</span>
+              <span className="text-[#d4d4d4] text-xs font-mono">npm i @ai-sdk-tools/artifacts</span>
               <button
                 type="button"
-                onClick={() => navigator.clipboard.writeText('npm i @ai-sdk/artifacts')}
+                onClick={() => navigator.clipboard.writeText('npm i @ai-sdk-tools/artifacts')}
                 className="text-secondary hover:text-[#d4d4d4] transition-colors p-1"
-                title={`Copy "npm i @ai-sdk/artifacts" to clipboard`}
+                title={`Copy "npm i @ai-sdk-tools/artifacts" to clipboard`}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-label="Copy command">
                   <title>Copy to clipboard</title>
@@ -228,7 +228,7 @@ export function ArtifactsContent() {
                   className="text-xs text-[#d4d4d4] font-mono"
                   dangerouslySetInnerHTML={{
                     __html: highlight(`
-import { ArtifactManager } from '@ai-sdk/artifacts'
+import { ArtifactManager } from '@ai-sdk-tools/artifacts'
 
 const manager = new ArtifactManager({
   storage: 'local',
@@ -261,8 +261,8 @@ const retrieved = await manager.get(artifact.id)
                   className="text-xs text-[#d4d4d4] font-mono"
                   dangerouslySetInnerHTML={{
                     __html: highlight(`
-import { ArtifactManager } from '@ai-sdk/artifacts'
-import { S3Storage } from '@ai-sdk/artifacts/s3'
+import { ArtifactManager } from '@ai-sdk-tools/artifacts'
+import { S3Storage } from '@ai-sdk-tools/artifacts/s3'
 
 const manager = new ArtifactManager({
   storage: new S3Storage({
@@ -291,10 +291,10 @@ const manager = new ArtifactManager({
         <div className="text-center space-y-6">
           <div className="border border-dashed border-muted-foreground p-6 max-w-xl mx-auto">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-mono">npm i @ai-sdk/artifacts</span>
+              <span className="text-sm font-mono">npm i @ai-sdk-tools/artifacts</span>
               <button
                 type="button"
-                onClick={() => navigator.clipboard.writeText('npm i @ai-sdk/artifacts')}
+                onClick={() => navigator.clipboard.writeText('npm i @ai-sdk-tools/artifacts')}
                 className="text-secondary hover:text-[#d4d4d4] transition-colors p-1"
                 title="Copy to clipboard"
               >

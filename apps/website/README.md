@@ -1,6 +1,6 @@
 # AI SDK Zustand Example
 
-This example demonstrates the full capabilities of `ai-sdk-zustand`, showing how to:
+This example demonstrates the full capabilities of `@ai-sdk-tools/store`, showing how to:
 
 - ✅ **Split components** for better organization and performance
 - ✅ **Use custom message types** with tool calls, data parts, and metadata
@@ -207,7 +207,7 @@ To use this in your own project, simply:
 import { useChat } from '@ai-sdk/react'
 
 // After - ONLY CHANGE NEEDED
-import { useChat } from 'ai-sdk-zustand'
+import { useChat } from '@ai-sdk-tools/store'
 ```
 
 Everything else works exactly the same, but now you get:
@@ -250,4 +250,4 @@ Everything else works exactly the same, but now you get:
 - **Multiple instances**: Efficient handling of multiple chat sessions
 - **Custom selectors**: Fine-grained control over what triggers re-renders
 
-This example shows the full power of `ai-sdk-zustand` - a drop-in replacement for `@ai-sdk/react` that gives you global state management with zero breaking changes!
+This example shows the full power of `@ai-sdk-tools/store` - a drop-in replacement for `@ai-sdk/react` that gives you global state management with zero breaking changes!

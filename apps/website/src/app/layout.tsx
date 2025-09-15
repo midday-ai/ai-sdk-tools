@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "AI SDK Tools",
-  description: "A collection of tools for AI SDK, including ai-sdk-zustand and ai-sdk-devtools.",
+  description: "A collection of tools for AI SDK, including @ai-sdk-tools/store and @ai-sdk-tools/devtools.",
 };
 
 export default function RootLayout({

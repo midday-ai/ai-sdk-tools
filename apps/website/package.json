@@ -12,7 +12,7 @@
   "dependencies": {
     "@ai-sdk/openai": "^2.0.30",
     "ai": "^5.0.44",
-    "ai-sdk-zustand": "^0.1.0",
+    "@ai-sdk-tools/store": "^0.1.0",
     "i": "^0.3.7",
     "next": "15.5.3",
     "react": "19.1.1",

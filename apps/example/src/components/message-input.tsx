@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useChatSendMessage, useChatStatus } from 'ai-sdk-zustand';
+import { useChatSendMessage, useChatStatus } from '@ai-sdk-tools/store';
 
 interface MessageInputProps {
   placeholder?: string;

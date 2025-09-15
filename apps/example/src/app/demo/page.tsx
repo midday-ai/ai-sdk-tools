@@ -26,7 +26,7 @@ export default function Home() {
               <span className="text-gray-500 text-xs">terminal</span>
             </div>
             <div>
-              <span className="text-gray-500">$</span> <span className="text-green-400">bun add</span> <span className="text-white">ai-sdk-zustand</span>
+              <span className="text-gray-500">$</span> <span className="text-green-400">bun add</span> <span className="text-white">@ai-sdk-tools/store</span>
             </div>
           </div>
 
@@ -89,7 +89,7 @@ export default function Home() {
               </h3>
               <div className="bg-black border border-gray-700 rounded p-4 font-mono text-sm">
                 <div className="text-gray-500">// Global state access</div>
-                <div className="text-blue-400">import</div> <span className="text-white">{'{ useChat }'}</span> <div className="text-blue-400">from</div> <span className="text-green-400">'ai-sdk-zustand'</span>
+                <div className="text-blue-400">import</div> <span className="text-white">{'{ useChat }'}</span> <div className="text-blue-400">from</div> <span className="text-green-400">'@ai-sdk-tools/store'</span>
                 <div className="mt-2 text-gray-500">// Access from anywhere! 🎉</div>
               </div>
             </div>
@@ -99,7 +99,7 @@ export default function Home() {
         {/* Footer */}
         <footer className="text-center text-gray-400 text-sm border-t border-gray-800 pt-8">
           <p>
-            Built with ai-sdk-zustand • Drop-in replacement for @ai-sdk/react with global state
+            Built with @ai-sdk-tools/store • Drop-in replacement for @ai-sdk/react with global state
           </p>
         </footer>
       </div>

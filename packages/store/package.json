@@ -51,12 +51,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/midday-ai/ai-sdk-zustand.git"
+    "url": "https://github.com/midday-ai/ai-sdk-tools.git"
   },
   "bugs": {
-    "url": "https://github.com/midday-ai/ai-sdk-zustand/issues"
+    "url": "https://github.com/midday-ai/ai-sdk-tools/issues"
   },
-  "homepage": "https://github.com/midday-ai/ai-sdk-zustand#readme",
+  "homepage": "https://github.com/midday-ai/ai-sdk-tools#readme",
   "publishConfig": {
     "access": "public"
   }

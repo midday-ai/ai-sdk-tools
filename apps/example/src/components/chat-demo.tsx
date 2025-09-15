@@ -1,6 +1,6 @@
 'use client';
 
-import { useChat } from 'ai-sdk-zustand';
+import { useChat } from '@ai-sdk-tools/store';
 import { DefaultChatTransport } from 'ai';
 import { MessageList } from './message-list';
 import { MessageInput } from './message-input';
