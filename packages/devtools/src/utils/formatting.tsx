@@ -41,6 +41,7 @@ export function getEventTypeColor(type: string): string {
     "text-delta": "#888888", // medium gray
     "text-end": "#ffffff", // white
     "reasoning-start": "#9c27b0", // purple for reasoning
+    "reasoning-delta": "#888888", // medium gray (same as text-delta)
     "reasoning-end": "#9c27b0", // purple for reasoning
     "start": "#87ceeb", // light blue
     "start-step": "#888888", // medium gray
@@ -76,6 +77,7 @@ export function getEventTypeIcon(type: string): React.ReactElement {
 
     // Reasoning events - using Psychology icon
     "reasoning-start": <PsychologyIcon sx={{ fontSize: "0.75rem" }} />,
+    "reasoning-delta": <CircleIcon sx={{ fontSize: "0.4rem" }} />,
     "reasoning-end": <PsychologyIcon sx={{ fontSize: "0.75rem" }} />,
 
     // Steps - using Settings/PlayArrow for process steps

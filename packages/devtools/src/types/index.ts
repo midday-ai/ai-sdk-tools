@@ -14,6 +14,7 @@ export type AIEventType =
   | "text-delta"
   | "text-end"
   | "reasoning-start"
+  | "reasoning-delta"
   | "reasoning-end"
   | "finish-step"
   | "finish"

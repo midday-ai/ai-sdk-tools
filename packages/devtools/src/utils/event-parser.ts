@@ -255,6 +255,21 @@ export function parseEventFromDataPart(
     };
   }
 
+  if (dataPart.type === "reasoning-delta") {
+    return {
+      id: eventId,
+      timestamp,
+      type: "reasoning-delta",
+      data: {
+        id: dataPart.id,
+        delta: dataPart.delta || "",
+      },
+      metadata: {
+        messageId: dataPart.id,
+      },
+    };
+  }
+
   if (dataPart.type === "reasoning-end") {
     return {
       id: eventId,
@@ -656,6 +671,11 @@ export function getEventDescription(event: AIEvent): string {
 
     case "reasoning-start":
       return "REASONING START";
+
+    case "reasoning-delta": {
+      const deltaPreview = event.data.delta?.substring(0, 20) || "";
+      return `REASONING "${deltaPreview}${deltaPreview.length >= 20 ? "..." : ""}"`;
+    }
 
     case "reasoning-end":
       return "REASONING END";
