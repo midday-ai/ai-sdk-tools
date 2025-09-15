@@ -1,6 +1,6 @@
 'use client';
 
-import { useChatStatus, useChatError, useChatMessageCount } from 'ai-sdk-zustand';
+import { useChatStatus, useChatError, useChatMessageCount } from '@ai-sdk-tools/store';
 
 interface StatusIndicatorProps {
   showMessageCount?: boolean;

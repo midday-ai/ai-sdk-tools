@@ -212,7 +212,7 @@ export default function Home() {
                 <pre
                   className="text-xs text-[#d4d4d4] leading-relaxed"
                   dangerouslySetInnerHTML={{
-                    __html: highlight(`import { useChat } from 'ai-sdk-zustand'
+                    __html: highlight(`import { useChat } from '@ai-sdk-tools/store'
 
 function Chat() {
   useChat({
@@ -251,7 +251,7 @@ function MessageList() {
                 <pre
                   className="text-xs text-[#d4d4d4] leading-relaxed"
                   dangerouslySetInnerHTML={{
-                    __html: highlight(`import { AIDevtools } from '@ai-sdk/devtools'
+                    __html: highlight(`import { AIDevtools } from '@ai-sdk-tools/devtools'
 
 function App() {
   return (
@@ -281,7 +281,7 @@ function App() {
                 <pre
                   className="text-xs text-[#d4d4d4] leading-relaxed"
                   dangerouslySetInnerHTML={{
-                    __html: highlight(`import { useArtifacts } from '@ai-sdk/artifacts'
+                    __html: highlight(`import { useArtifacts } from '@ai-sdk-tools/artifacts'
 
 function ArtifactViewer() {
   const { artifacts, save, load } = useArtifacts()
@@ -330,7 +330,7 @@ function ArtifactViewer() {
                 Devtools →
               </a>
               <a 
-                href="https://github.com/midday-ai/ai-sdk-zustand" 
+                href="https://github.com/midday-ai/@ai-sdk-tools/store" 
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-4 py-2 border border-[#333] hover:border-[#555] transition-colors text-sm"

@@ -1,6 +1,6 @@
 'use client'
 
-import { useChatMessages, useChatStatus, useChatProperty, getChatStore } from 'ai-sdk-zustand'
+import { useChatMessages, useChatStatus, useChatProperty, getChatStore } from '@ai-sdk-tools/store'
 import { useState } from 'react'
 
 export function LiveDemo() {
@@ -43,7 +43,7 @@ export function LiveDemo() {
         "That's a great question! Let me help you with that.",
         "I understand what you're looking for. Here's my take on it.",
         "Interesting point! This is how I'd approach that problem.",
-        "Perfect! This is exactly the kind of use case ai-sdk-zustand excels at.",
+        "Perfect! This is exactly the kind of use case @ai-sdk-tools/store excels at.",
         "Great example! You can see how the selectors update in real-time."
       ]
       

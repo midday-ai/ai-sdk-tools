@@ -20,7 +20,7 @@ AI SDK Devtools helps you debug and monitor AI applications by:
 ## Installation
 
 ```bash
-npm install ai-sdk-devtools
+npm install @ai-sdk-tools/devtools
 ```
 
 ## Quick Start
@@ -28,7 +28,7 @@ npm install ai-sdk-devtools
 ### Basic Usage
 
 ```tsx
-import { AIDevtools } from 'ai-sdk-devtools';
+import { AIDevtools } from '@ai-sdk-tools/devtools';
 
 function App() {
   return (
@@ -46,7 +46,7 @@ function App() {
 
 ```tsx
 import type { Metadata } from 'next';
-import { AIDevtools } from 'ai-sdk-devtools';
+import { AIDevtools } from '@ai-sdk-tools/devtools';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -67,7 +67,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
 ```tsx
 import { useChat } from 'ai/react';
-import { AIDevtools } from 'ai-sdk-devtools';
+import { AIDevtools } from '@ai-sdk-tools/devtools';
 
 function ChatComponent() {
   const { messages, input, handleInputChange, handleSubmit } = useChat({
@@ -140,7 +140,7 @@ function ChatComponent() {
 ### Manual Event Integration
 
 ```tsx
-import { useAIDevtools } from 'ai-sdk-devtools';
+import { useAIDevtools } from '@ai-sdk-tools/devtools';
 
 function MyComponent() {
   const { 
