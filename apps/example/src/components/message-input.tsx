@@ -1,41 +1,41 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useChatSendMessage, useChatStatus } from '@ai-sdk-tools/store';
+import { useChatSendMessage, useChatStatus } from "ai-sdk-zustand";
+import { useState } from "react";
 
 interface MessageInputProps {
   placeholder?: string;
   onSend?: (message: string) => void;
 }
 
-export function MessageInput({ 
-  placeholder = "Type your message...", 
-  onSend 
+export function MessageInput({
+  placeholder = "Type your message...",
+  onSend,
 }: MessageInputProps) {
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const sendMessage = useChatSendMessage();
   const status = useChatStatus();
-  
-  const isDisabled = status !== 'ready';
+
+  const isDisabled = status !== "ready";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!input.trim() || isDisabled) return;
-    
+
     // Custom onSend callback for additional logic
     onSend?.(input);
-    
+
     // Send message with metadata
-    sendMessage({ 
+    sendMessage({
       text: input,
       metadata: {
         timestamp: new Date().toISOString(),
         userAgent: navigator.userAgent,
-      }
+      },
     });
-    
-    setInput('');
+
+    setInput("");
   };
 
   return (
@@ -53,7 +53,7 @@ export function MessageInput({
         disabled={isDisabled || !input.trim()}
         className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
-        {status === 'streaming' ? 'Sending...' : 'Send'}
+        {status === "streaming" ? "Sending..." : "Send"}
       </button>
     </form>
   );

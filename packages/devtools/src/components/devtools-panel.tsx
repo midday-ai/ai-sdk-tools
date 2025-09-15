@@ -1,14 +1,14 @@
 "use client";
 
 import {
+  ViewList as BottomPanelIcon,
   Clear as ClearIcon,
   Close as CloseIcon,
   Pause as PauseIcon,
   PlayArrow as PlayArrowIcon,
   ViewSidebar as RightPanelIcon,
-  ViewList as BottomPanelIcon,
 } from "@mui/icons-material";
-import React, { useState, useMemo, useRef, useCallback } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import type { AIEvent, DevtoolsConfig, FilterOptions } from "../types";
 import { formatToolName, getEventTypeIcon } from "../utils/formatting";
 import { ContextCircle } from "./context-circle";
@@ -211,7 +211,8 @@ export function DevtoolsPanel({
     if (isResizing) {
       document.addEventListener("mousemove", handleMouseMove);
       document.addEventListener("mouseup", handleMouseUp);
-      document.body.style.cursor = config.position === "bottom" ? "ns-resize" : "ew-resize";
+      document.body.style.cursor =
+        config.position === "bottom" ? "ns-resize" : "ew-resize";
       document.body.style.userSelect = "none";
     } else {
       document.removeEventListener("mousemove", handleMouseMove);

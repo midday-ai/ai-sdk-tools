@@ -1,8 +1,8 @@
-import { useMemo, useState } from "react";
-import { getModels, } from "tokenlens/models";
-import type { AIEvent } from "../types";
 import type { LanguageModelUsage } from "ai";
-import { ProviderModel, getModelMeta } from "tokenlens";
+import { useMemo, useState } from "react";
+import { getModelMeta, type ProviderModel } from "tokenlens";
+import { getModels } from "tokenlens/models";
+import type { AIEvent } from "../types";
 
 interface ContextCircleProps {
   events: AIEvent[];
@@ -10,7 +10,7 @@ interface ContextCircleProps {
   className?: string;
 }
 
-const providers = getModels()
+const providers = getModels();
 
 export function ContextCircle({
   events,
@@ -31,17 +31,22 @@ export function ContextCircle({
     const latestFinish = finishEvents[finishEvents.length - 1];
     if (!latestFinish) return null;
 
-    const usage = latestFinish.data?.usage as LanguageModelUsage || latestFinish.data?.usageMetadata;
+    const usage =
+      (latestFinish.data?.usage as LanguageModelUsage) ||
+      latestFinish.data?.usageMetadata;
 
-    if (!usage || !usage.inputTokens || !usage.outputTokens || !usage.totalTokens) return null;
+    if (
+      !usage ||
+      !usage.inputTokens ||
+      !usage.outputTokens ||
+      !usage.totalTokens
+    )
+      return null;
 
     return {
-      inputTokens:
-        usage.inputTokens,
-      outputTokens:
-        usage.outputTokens,
-      totalTokens:
-        usage.totalTokens,
+      inputTokens: usage.inputTokens,
+      outputTokens: usage.outputTokens,
+      totalTokens: usage.totalTokens,
     };
   }, [events]);
 
@@ -70,38 +75,40 @@ export function ContextCircle({
 
   const currentUsage = usageData || estimatedUsage;
 
-
   const modelMeta = useMemo(() => {
     if (!modelId) return null;
-    
+
     // Try getModelMeta first
     const meta = getModelMeta({ model: modelId, providers }) as ProviderModel;
     if (meta) return meta;
-    
+
     // Try with openai: prefix
-    const altMeta1 = getModelMeta({ model: `openai:${modelId}`, providers }) as ProviderModel;
+    const altMeta1 = getModelMeta({
+      model: `openai:${modelId}`,
+      providers,
+    }) as ProviderModel;
     if (altMeta1) return altMeta1;
-    
+
     // If not found, try to find the model directly in the providers
     if (providers.openai?.models) {
       const openaiModels = Object.keys(providers.openai.models);
-      
+
       // Find exact match first, then fallback to partial match
-      let matchingModel = openaiModels.find(model => model === modelId);
+      let matchingModel = openaiModels.find((model) => model === modelId);
       if (!matchingModel) {
-        matchingModel = openaiModels.find(model => model.includes(modelId));
+        matchingModel = openaiModels.find((model) => model.includes(modelId));
       }
-      
+
       if (matchingModel && providers.openai.models) {
         const modelsObj = providers.openai.models as any;
         const directModelData = modelsObj[matchingModel];
-        
+
         if (directModelData) {
           return directModelData as ProviderModel;
         }
       }
     }
-    
+
     return null;
   }, [modelId]);
 
@@ -112,7 +119,9 @@ export function ContextCircle({
     try {
       // Use the limit.context from our modelMeta (which now contains the direct model data)
       const contextWindow = modelMeta.limit?.context || 0;
-      const percentUsed = contextWindow ? (currentUsage.totalTokens || 0) / contextWindow : 0;
+      const percentUsed = contextWindow
+        ? (currentUsage.totalTokens || 0) / contextWindow
+        : 0;
 
       return {
         percentUsed,
@@ -124,7 +133,6 @@ export function ContextCircle({
   }, [currentUsage, modelMeta]);
 
   if (!contextMetrics || contextMetrics === null) {
-
     return (
       <div
         className={`ai-devtools-context-circle ${className}`}
@@ -213,10 +221,7 @@ export function ContextCircle({
     );
   }
 
-  const {
-    percentUsed,
-    contextWindow,
-  } = contextMetrics;
+  const { percentUsed, contextWindow } = contextMetrics;
 
   // Calculate circle progress (0-100%)
   const circleProgress = Math.min(percentUsed * 100, 100);
@@ -289,8 +294,7 @@ export function ContextCircle({
                   {currentUsage?.totalTokens?.toLocaleString() || "0"} /{" "}
                   {typeof contextWindow === "number"
                     ? (contextWindow as number).toLocaleString()
-                    : (contextWindow as number).toLocaleString() ||
-                    "128K"}
+                    : (contextWindow as number).toLocaleString() || "128K"}
                 </span>
               </div>
               <div className="ai-devtools-context-tooltip-progress-bar">
@@ -313,12 +317,11 @@ export function ContextCircle({
                       ? `${Math.round(currentUsage.inputTokens / 1000)}K`
                       : currentUsage.inputTokens}{" "}
                     • $
-                    {(
-                      currentUsage.inputTokens && currentUsage.inputTokens > 0 ?
-                        currentUsage.inputTokens *
-                        ((modelMeta?.cost?.input || 0) / 1000000) : 0
+                    {(currentUsage.inputTokens && currentUsage.inputTokens > 0
+                      ? currentUsage.inputTokens *
+                        ((modelMeta?.cost?.input || 0) / 1000000)
+                      : 0
                     ).toFixed(4)}
-
                   </span>
                 </div>
                 <div className="ai-devtools-context-tooltip-usage-row">
@@ -326,7 +329,8 @@ export function ContextCircle({
                     Output
                   </span>
                   <span className="ai-devtools-context-tooltip-usage-value">
-                    {currentUsage.outputTokens && currentUsage.outputTokens > 1000
+                    {currentUsage.outputTokens &&
+                    currentUsage.outputTokens > 1000
                       ? `${Math.round(currentUsage.outputTokens / 1000)}K`
                       : currentUsage.outputTokens}{" "}
                     • $
@@ -349,9 +353,9 @@ export function ContextCircle({
                   $
                   {(
                     (currentUsage.inputTokens || 0) *
-                    ((modelMeta?.cost?.input || 0) / 1000000) +
+                      ((modelMeta?.cost?.input || 0) / 1000000) +
                     (currentUsage.outputTokens || 0) *
-                    ((modelMeta?.cost?.output || 0) / 1000000)
+                      ((modelMeta?.cost?.output || 0) / 1000000)
                   ).toFixed(4)}
                 </span>
               </div>

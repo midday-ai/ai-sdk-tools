@@ -68,10 +68,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 ```tsx
 import { useChat } from 'ai/react';
 import { AIDevtools } from '@ai-sdk-tools/devtools';
+import { DefaultChatTransport } from 'ai';
 
 function ChatComponent() {
   const { messages, input, handleInputChange, handleSubmit } = useChat({
-    api: '/api/chat',
+    transport: new DefaultChatTransport({
+      api: '/api/chat'
+    }),
     ...
   });
 

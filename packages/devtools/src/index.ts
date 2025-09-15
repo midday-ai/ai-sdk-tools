@@ -1,11 +1,10 @@
 export { AIDevtools } from "./components/ai-dev-tools";
-
+export { ContextCircle } from "./components/context-circle";
 // Export other components for advanced usage
 export { DevtoolsButton } from "./components/devtools-button";
 export { DevtoolsPanel } from "./components/devtools-panel";
-export { EventList } from "./components/event-list";
 export { EventItem } from "./components/event-item";
-export { ContextCircle } from "./components/context-circle";
+export { EventList } from "./components/event-list";
 
 // Hooks
 export { useAIDevtools } from "./hooks/use-ai-devtools";
@@ -30,18 +29,15 @@ export {
   formatEventData,
   getEventDescription,
 } from "./utils/event-parser";
-
-export { StreamInterceptor } from "./utils/stream-interceptor";
-
 export {
   formatTimestamp,
   getEventTypeColor,
   getEventTypeIcon,
 } from "./utils/formatting";
-
 export {
-  groupEventsIntoSessions,
-  getSessionSummary,
   getSessionStatusColor,
   getSessionStatusIcon,
+  getSessionSummary,
+  groupEventsIntoSessions,
 } from "./utils/session-grouper";
+export { StreamInterceptor } from "./utils/stream-interceptor";

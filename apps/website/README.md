@@ -67,6 +67,8 @@ The chat functionality is split into focused, reusable components:
 Full TypeScript support for custom message structures:
 
 ```tsx
+import { DefaultChatTransport } from 'ai';
+
 // Define custom types
 interface CustomUIMessage extends UIMessage<
   UserMetadata,  // metadata type
@@ -75,7 +77,11 @@ interface CustomUIMessage extends UIMessage<
 > {}
 
 // Use with hooks
-const chat = useChat<CustomUIMessage>({ api: '/api/chat' });
+const chat = useChat<CustomUIMessage>({ 
+  transport: new DefaultChatTransport({
+    api: '/api/chat'
+  })
+});
 const messages = useChatMessages<CustomUIMessage>();
 ```
 
@@ -132,15 +138,21 @@ search: tool({
 Different chat instances with specialized types:
 
 ```tsx
+import { DefaultChatTransport } from 'ai';
+
 // Weather-focused chat
 useChat<WeatherMessage>({
-  api: '/api/chat',
+  transport: new DefaultChatTransport({
+    api: '/api/chat'
+  }),
   storeId: 'weather-chat',
 });
 
 // Calculator-focused chat  
 useChat<CalculatorMessage>({
-  api: '/api/chat',
+  transport: new DefaultChatTransport({
+    api: '/api/chat'
+  }),
   storeId: 'calculator-chat',
 });
 
