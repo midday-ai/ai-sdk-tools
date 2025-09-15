@@ -29,6 +29,8 @@ Everything else works exactly the same.
 ### 1. **Access Chat from Any Component**
 
 ```tsx
+import { DefaultChatTransport } from 'ai';
+
 // ❌ Regular useChat - state trapped
 function App() {
   const { messages, sendMessage } = useChat()
@@ -37,7 +39,11 @@ function App() {
 
 // ✅ @ai-sdk-tools/store - access anywhere
 function App() {
-  useChat({ api: '/api/chat' }) // Initialize once
+  useChat({ 
+    transport: new DefaultChatTransport({
+      api: '/api/chat'
+    })
+  }) // Initialize once
   return <Layout />
 }
 
@@ -79,7 +85,11 @@ interface MyMessage extends UIMessage<
 > {}
 
 // Use with full typing
-const chat = useChat<MyMessage>({ api: '/api/chat' })
+const chat = useChat<MyMessage>({ 
+  transport: new DefaultChatTransport({
+    api: '/api/chat'
+  })
+})
 const messages = useChatMessages<MyMessage>() // Fully typed!
 
 // Custom selectors work too
@@ -104,7 +114,9 @@ const persistedStore = createCustomChatStore(
 
 function PersistentChat() {
   const chat = useChat({
-    api: '/api/chat',
+    transport: new DefaultChatTransport({
+      api: '/api/chat'
+    }),
     store: persistedStore // Chat survives page refresh!
   })
 }
@@ -116,7 +128,11 @@ function PersistentChat() {
 
 ```tsx
 // Main hook - same as @ai-sdk/react
-const chat = useChat({ api: '/api/chat' })
+const chat = useChat({ 
+  transport: new DefaultChatTransport({
+    api: '/api/chat'
+  })
+})
 
 // Store access - no parameters needed
 const messages = useChatMessages()
@@ -180,7 +196,11 @@ interface MyMessage extends UIMessage<
 > {}
 
 // Use with full typing
-const chat = useChat<MyMessage>({ api: '/api/chat' })
+const chat = useChat<MyMessage>({ 
+  transport: new DefaultChatTransport({
+    api: '/api/chat'
+  })
+})
 const messages = useChatMessages<MyMessage>() // Fully typed!
 ```
 

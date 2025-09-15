@@ -25,23 +25,32 @@ The artifacts package uses the store package's `useChatMessages` hook to efficie
 
 ## 🔧 Setup
 
-### 1. Wrap Your App with Store Provider
+### 1. Initialize Chat with Store
 
 ```tsx
-import { ChatStoreProvider } from '@ai-sdk-tools/store';
+import { useChat } from '@ai-sdk-tools/store'; // Drop-in replacement for @ai-sdk/react
+import { DefaultChatTransport } from 'ai';
 
-function App() {
+function ChatComponent() {
+  // Initialize chat (same API as @ai-sdk/react)
+  const { messages, input, handleInputChange, handleSubmit } = useChat({
+    transport: new DefaultChatTransport({
+      api: '/api/chat'
+    })
+  });
+
   return (
-    <ChatStoreProvider>
-      <YourChatComponent />
-    </ChatStoreProvider>
+    <div>
+      {/* Your chat UI */}
+      <ArtifactDisplay /> {/* Artifacts work from any component */}
+    </div>
   );
 }
 ```
 
-### 2. Use Artifacts in Your Chat Component
+### 2. Use Artifacts from Any Component
 
-The `useArtifact` hook automatically connects to the chat store to extract artifact data from AI SDK message streams.
+The `useArtifact` hook automatically connects to the global chat store to extract artifact data from message streams - no prop drilling needed!
 
 ## 🚀 Quick Start
 
