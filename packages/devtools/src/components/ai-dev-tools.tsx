@@ -54,7 +54,10 @@ export function AIDevtools({
         setIsOpen(JSON.parse(savedState));
       }
       const savedPosition = localStorage.getItem("ai-devtools-panel-position");
-      if (savedPosition && (savedPosition === "bottom" || savedPosition === "right")) {
+      if (
+        savedPosition &&
+        (savedPosition === "bottom" || savedPosition === "right")
+      ) {
         setPosition(savedPosition);
       }
     }
@@ -78,7 +81,7 @@ export function AIDevtools({
 
   // Toggle position between bottom and right
   const togglePosition = () => {
-    setPosition(prev => prev === "bottom" ? "right" : "bottom");
+    setPosition((prev) => (prev === "bottom" ? "right" : "bottom"));
   };
 
   // Always call hooks (to maintain hook order)
@@ -100,7 +103,7 @@ export function AIDevtools({
   // Hydration-safe mounting check
   useEffect(() => {
     setIsMounted(true);
-  }, [debug]);
+  }, []);
 
   // Track new events for button animation (always call this hook)
   useEffect(() => {

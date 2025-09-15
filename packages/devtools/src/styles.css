@@ -4,8 +4,9 @@
 .ai-devtools {
   /* Reset any inherited styles from host application */
   all: initial;
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
   display: block;
   box-sizing: border-box;
 
@@ -215,8 +216,9 @@
 .ai-devtools-button-count {
   font-size: 8px !important; /* text-[8px] */
   line-height: 1 !important; /* leading-none */
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace !important; /* font-mono */
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important; /* font-mono */
 }
 
 /* Header styles */
@@ -245,8 +247,9 @@
 .ai-devtools-count {
   font-size: 10px !important;
   color: #cccccc !important; /* Light gray text */
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
 }
 
 .ai-devtools-rec {
@@ -255,8 +258,9 @@
   gap: 0.25rem !important;
   font-size: 10px !important;
   color: #ffffff !important; /* White text */
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
 }
 
 .ai-devtools-rec-dot {
@@ -308,8 +312,9 @@
   border: none !important;
   outline: none !important;
   color: #ffffff !important;
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
   font-size: 0.875rem !important;
   line-height: 1.2 !important;
 }
@@ -329,8 +334,9 @@
   border: 1px solid #555555 !important;
   border-radius: 0 !important;
   color: #ffffff !important;
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
   font-size: 0.75rem !important;
   white-space: nowrap !important;
 }
@@ -375,8 +381,9 @@
   background-color: #333333 !important;
   border: 1px solid #555555 !important;
   color: #cccccc !important;
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
   font-size: 0.75rem !important;
   font-weight: 500 !important;
   border-radius: 0 !important;
@@ -419,8 +426,9 @@
 
 .ai-devtools-filter-group-label {
   color: #888888 !important;
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
   font-size: 0.75rem !important;
   font-weight: 500 !important;
   margin-right: 0.25rem !important;
@@ -431,8 +439,9 @@
   border: 1px solid #404040 !important;
   color: #888888 !important;
   padding: 0.25rem 0.5rem !important;
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
   font-size: 0.75rem !important;
   font-weight: 500 !important;
   cursor: pointer !important;
@@ -498,8 +507,9 @@
 
 .ai-devtools-filter-section-title {
   color: #ffffff !important;
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
   font-size: 0.875rem !important;
   font-weight: 600 !important;
   margin-bottom: 0.75rem !important;
@@ -521,8 +531,9 @@
   background-color: #2a2a2a !important;
   border: 1px solid #404040 !important;
   color: #888888 !important;
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
   font-size: 0.75rem !important;
   cursor: pointer !important;
   transition: all 0.2s ease !important;
@@ -571,8 +582,9 @@
   color: #ffffff !important;
   border: 1px solid #ff6666 !important;
   padding: 0.5rem 1rem !important;
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
   font-size: 0.75rem !important;
   font-weight: 500 !important;
   cursor: pointer !important;
@@ -616,8 +628,9 @@
 
 .ai-devtools-suggestion-section-title {
   color: #666666 !important;
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
   font-size: 0.7rem !important;
   font-weight: 600 !important;
   margin: 0 !important;
@@ -644,8 +657,9 @@
   border: none !important;
   border-bottom: 1px solid #222222 !important;
   color: #cccccc !important;
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
   font-size: 0.75rem !important;
   cursor: pointer !important;
   transition: all 0.15s ease !important;
@@ -705,8 +719,9 @@
 
 .ai-devtools-suggestion-no-results {
   color: #888888 !important;
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
   font-size: 0.75rem !important;
   text-align: center !important;
   padding: 1rem !important;
@@ -720,8 +735,9 @@
   gap: 0.25rem !important;
   padding: 0.125rem 0.375rem !important;
   font-size: 10px !important;
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
   border: 1px solid #333333 !important; /* Dark gray border */
   background-color: transparent !important;
   color: #cccccc !important; /* Light gray text */
@@ -773,8 +789,9 @@
   height: 22px !important;
   padding: 0 !important;
   font-size: 10px !important;
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
   border: 1px solid #333333 !important; /* Dark gray border */
   background-color: transparent !important;
   color: #cccccc !important; /* Light gray text */
@@ -836,7 +853,7 @@
 
 /* Color-coded left borders for different event types */
 .ai-devtools-event-item[data-type="tool-call-result"]
-  .ai-devtools-event-header {
+.ai-devtools-event-header {
   border-left-color: #00ff00 !important; /* Green for success */
 }
 
@@ -904,8 +921,9 @@
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace !important; /* Monospace font */
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important; /* Monospace font */
   line-height: 1.2 !important; /* Tighter line height */
   font-weight: 400 !important; /* Normal weight */
   letter-spacing: 0.025em !important; /* Slight letter spacing */
@@ -983,8 +1001,9 @@
   font-size: 0.8125rem !important; /* Slightly smaller */
   color: #ffffff !important;
   font-weight: 500 !important; /* Lighter weight for cleaner look */
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
   margin-bottom: 0.0625rem !important; /* Tighter spacing */
   letter-spacing: 0.025em !important; /* Slight letter spacing */
 }
@@ -992,8 +1011,9 @@
 .ai-devtools-session-summary {
   font-size: 0.6875rem !important; /* Smaller text */
   color: #999999 !important; /* Lighter gray */
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
   font-weight: 400 !important; /* Normal weight */
 }
 
@@ -1002,8 +1022,9 @@
   color: #888888 !important;
   flex-shrink: 0 !important;
   margin-left: 0.75rem !important;
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
 }
 
 .ai-devtools-session-expand {
@@ -1042,8 +1063,9 @@
   color: #888888 !important; /* Medium gray */
   flex-shrink: 0 !important;
   margin-left: 0.75rem !important; /* More spacing */
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace !important; /* Monospace font */
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important; /* Monospace font */
   line-height: 1.2 !important; /* Slightly tighter line height */
 }
 
@@ -1146,8 +1168,9 @@
   display: flex !important;
   flex-direction: column !important;
   gap: 0 !important; /* No gap between items like terminal */
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
   font-size: 0.75rem !important; /* Smaller, more compact text */
   line-height: 1.2 !important; /* Tighter line height */
 }
@@ -1159,8 +1182,9 @@
   justify-content: center !important;
   height: 8rem !important;
   color: #cccccc !important; /* Light gray */
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
 }
 
 .ai-devtools-empty-content {
@@ -1307,8 +1331,9 @@
 
 .ai-devtools-tool-name {
   font-size: 0.875rem !important;
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
   color: #ffffff !important; /* White text */
 }
 
@@ -1351,8 +1376,9 @@
   z-index: 2147483648 !important;
   min-width: 200px !important;
   max-width: 400px !important;
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
   font-size: 0.75rem !important;
   line-height: 1.4 !important;
   pointer-events: none !important;
@@ -1381,8 +1407,9 @@
 
 .ai-devtools-tooltip-params {
   color: #cccccc !important;
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
   font-size: 0.7rem !important;
   line-height: 1.3 !important;
   margin: 0 !important;
@@ -1497,8 +1524,9 @@
   background-color: #111111 !important;
   border: 1px solid #333333 !important;
   border-radius: 0 !important;
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
   font-size: 0.75rem !important;
   color: #ffffff !important;
   -webkit-font-smoothing: antialiased !important;
@@ -1599,8 +1627,9 @@
   font-size: 0.75rem !important;
   color: #ffffff !important;
   font-weight: 600 !important;
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
   text-align: right !important;
   flex-shrink: 0 !important;
 }
@@ -1707,8 +1736,9 @@
   font-weight: 600 !important;
   color: #ffffff !important;
   line-height: 1 !important;
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
 }
 
 /* Context Circle Tooltip */
@@ -1723,8 +1753,9 @@
   box-shadow: none !important;
   z-index: 2147483648 !important;
   width: 200px !important;
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
   font-size: 0.65rem !important;
   line-height: 1.3 !important;
   pointer-events: none !important;
@@ -1887,8 +1918,9 @@
 .ai-devtools-context-tooltip-value {
   color: #ffffff !important;
   font-weight: 600 !important;
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
   text-align: right !important;
   flex-shrink: 0 !important;
 }
@@ -1899,8 +1931,9 @@
   background-color: #111111 !important;
   border: 1px solid #333333 !important;
   border-radius: 4px !important;
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
   color: #ffffff !important;
 }
 
@@ -1967,8 +2000,9 @@
   display: flex !important;
   gap: 1rem !important;
   align-items: center !important;
-  font-family: "Geist Mono", "SF Mono", Monaco, "Cascadia Code", "Roboto Mono",
-    Consolas, "Courier New", monospace !important;
+  font-family:
+    "Geist Mono", "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas,
+    "Courier New", monospace !important;
   font-size: 0.625rem !important;
   color: #888888 !important;
   -webkit-font-smoothing: antialiased !important;
@@ -2009,8 +2043,9 @@
 }
 
 .ai-devtools-context-percentage-text {
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
   font-size: 0.6rem !important;
   font-weight: 400 !important;
   color: #cccccc !important;

@@ -1,10 +1,10 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { defineConfig } from 'tsup'
+import { defineConfig } from "tsup";
 
 export default defineConfig({
-  entry: ['src/index.ts'],
-  format: ['cjs', 'esm'],
+  entry: ["src/index.ts"],
+  format: ["cjs", "esm"],
   dts: true,
   sourcemap: true,
   clean: true,
@@ -12,17 +12,12 @@ export default defineConfig({
   treeshake: true,
   minify: false,
   injectStyle: false, // Don't generate separate CSS files
-  external: [
-    'react',
-    'react-dom',
-    'react/jsx-runtime',
-    '@ai-sdk/react'
-  ],
+  external: ["react", "react-dom", "react/jsx-runtime", "@ai-sdk/react"],
   esbuildOptions(options) {
     options.loader = {
       ...options.loader,
-      '.css': 'text'
-    }
+      ".css": "text",
+    };
   },
   banner: {
     js: `
@@ -31,13 +26,13 @@ export default defineConfig({
   if (typeof document === 'undefined') return;
   if (document.getElementById('ai-devtools-styles')) return;
   
-  const CSS_CONTENT = \`${readFileSync(resolve(__dirname, 'src/styles.css'), 'utf-8').replace(/\`/g, '\\`').replace(/\$/g, '\\$')}\`;
+  const CSS_CONTENT = \`${readFileSync(resolve(__dirname, "src/styles.css"), "utf-8").replace(/`/g, "\\`").replace(/\$/g, "\\$")}\`;
   
   const style = document.createElement('style');
   style.id = 'ai-devtools-styles';
   style.textContent = CSS_CONTENT;
   document.head.appendChild(style);
 })();
-`
-  }
-})
+`,
+  },
+});

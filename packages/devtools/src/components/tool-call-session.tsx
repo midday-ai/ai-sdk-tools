@@ -16,7 +16,11 @@ function Tooltip({
   children,
   content,
   show,
-}: { children: React.ReactNode; content: React.ReactNode; show: boolean }) {
+}: {
+  children: React.ReactNode;
+  content: React.ReactNode;
+  show: boolean;
+}) {
   if (!show) return <>{children}</>;
 
   return (

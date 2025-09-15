@@ -116,7 +116,7 @@ export class StreamInterceptor {
           const event = parseSSEEvent(
             eventData,
             eventType,
-            this.generateEventId()
+            this.generateEventId(),
           );
           if (event) {
             debugLog("[AI Devtools] Event parsed successfully:", event.type);
@@ -155,7 +155,7 @@ export class StreamInterceptor {
 
     (window.fetch as any) = async (
       input: RequestInfo | URL,
-      init?: RequestInit
+      init?: RequestInit,
     ): Promise<Response> => {
       const url = typeof input === "string" ? input : input.toString();
 

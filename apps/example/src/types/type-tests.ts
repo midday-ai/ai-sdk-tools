@@ -1,49 +1,46 @@
 /**
  * TypeScript compilation tests to verify custom types work correctly
  * These tests ensure that our custom message types are properly typed
- * and compatible with @ai-sdk-tools/store hooks.
+ * and compatible with ai-sdk-zustand hooks.
  */
 
-import type { UIMessage } from 'ai';
-import { useChat, useChatMessages, useChatSendMessage } from '@ai-sdk-tools/store';
-import { DefaultChatTransport } from 'ai';
-import type { 
-  CustomUIMessage, 
-  WeatherMessage, 
-  CalculatorMessage, 
-  SearchMessage,
-  WeatherData,
-  UserMetadata,
+import { DefaultChatTransport } from "ai";
+import { useChat, useChatMessages, useChatSendMessage } from "ai-sdk-zustand";
+import type {
+  AllTools,
   AnalyticsData,
-  AllTools 
-} from './custom-message';
+  CalculatorMessage,
+  CustomUIMessage,
+  SearchMessage,
+  UserMetadata,
+  WeatherData,
+  WeatherMessage,
+} from "./custom-message";
 
 // Test 1: Custom message types extend UIMessage correctly
 function testCustomMessageTypes() {
   // These should compile without errors
   const customMessage: CustomUIMessage = {
-    id: 'test-1',
-    role: 'user',
-    parts: [{ type: 'text', text: 'Hello' }],
+    id: "test-1",
+    role: "user",
+    parts: [{ type: "text", text: "Hello" }],
     metadata: {
-      userId: 'user-123',
-      sessionId: 'session-456',
+      userId: "user-123",
+      sessionId: "session-456",
       timestamp: new Date().toISOString(),
-      userAgent: 'test-agent'
-    }
+      userAgent: "test-agent",
+    },
   };
 
   const weatherMessage: WeatherMessage = {
-    id: 'test-2',
-    role: 'assistant',
-    parts: [
-      { type: 'text', text: 'The weather is sunny' }
-    ],
+    id: "test-2",
+    role: "assistant",
+    parts: [{ type: "text", text: "The weather is sunny" }],
     metadata: {
-      userId: 'user-123',
-      sessionId: 'session-456',
-      timestamp: new Date().toISOString()
-    }
+      userId: "user-123",
+      sessionId: "session-456",
+      timestamp: new Date().toISOString(),
+    },
   };
 
   return { customMessage, weatherMessage };
@@ -52,64 +49,62 @@ function testCustomMessageTypes() {
 // Test 2: Hook compatibility with custom types
 function testHookCompatibility() {
   // These should compile with proper type inference
-  
+
   // Default chat with custom types
   const chat1 = useChat<CustomUIMessage>({
-    transport: new DefaultChatTransport({ api: '/api/chat' })
+    transport: new DefaultChatTransport({ api: "/api/chat" }),
   });
 
   // Weather-specific chat
   const chat2 = useChat<WeatherMessage>({
-    transport: new DefaultChatTransport({ api: '/api/chat' }),
-    storeId: 'weather'
+    transport: new DefaultChatTransport({ api: "/api/chat" }),
+    storeId: "weather",
   });
 
   // Calculator-specific chat
   const chat3 = useChat<CalculatorMessage>({
-    transport: new DefaultChatTransport({ api: '/api/chat' }),
-    storeId: 'calculator'
+    transport: new DefaultChatTransport({ api: "/api/chat" }),
+    storeId: "calculator",
   });
 
   // Messages should be properly typed
   const customMessages = useChatMessages<CustomUIMessage>();
-  const weatherMessages = useChatMessages<WeatherMessage>('weather');
-  const calculatorMessages = useChatMessages<CalculatorMessage>('calculator');
+  const weatherMessages = useChatMessages<WeatherMessage>("weather");
+  const calculatorMessages = useChatMessages<CalculatorMessage>("calculator");
 
   // Send message functions should accept proper data types
   const sendCustomMessage = useChatSendMessage();
-  const sendWeatherMessage = useChatSendMessage('weather');
+  const sendWeatherMessage = useChatSendMessage("weather");
 
   return {
     chats: [chat1, chat2, chat3],
     messages: [customMessages, weatherMessages, calculatorMessages],
-    senders: [sendCustomMessage, sendWeatherMessage]
+    senders: [sendCustomMessage, sendWeatherMessage],
   };
 }
 
 // Test 3: Message part type guards work correctly
 function testMessagePartTypeGuards() {
   const message: CustomUIMessage = {
-    id: 'test-3',
-    role: 'assistant',
-    parts: [
-      { type: 'text', text: 'Here is the weather:' }
-    ],
+    id: "test-3",
+    role: "assistant",
+    parts: [{ type: "text", text: "Here is the weather:" }],
     metadata: {
-      userId: 'user-123',
-      sessionId: 'session-456',
-      timestamp: new Date().toISOString()
-    }
+      userId: "user-123",
+      sessionId: "session-456",
+      timestamp: new Date().toISOString(),
+    },
   };
 
   // Type guards should work correctly
-  message.parts?.forEach(part => {
-    if (part.type === 'text') {
+  message.parts?.forEach((part) => {
+    if (part.type === "text") {
       // TypeScript should know this is a text part
       const text: string = part.text;
-      console.log('Text:', text);
-    } else if (part.type.startsWith('tool-')) {
+      console.log("Text:", text);
+    } else if (part.type.startsWith("tool-")) {
       // Handle tool-related parts
-      console.log('Tool part:', part.type);
+      console.log("Tool part:", part.type);
     }
   });
 
@@ -120,26 +115,26 @@ function testMessagePartTypeGuards() {
 function testDataAndMetadataTypes() {
   // UserMetadata should enforce required fields
   const metadata: UserMetadata = {
-    userId: 'user-123',
-    sessionId: 'session-456',
+    userId: "user-123",
+    sessionId: "session-456",
     timestamp: new Date().toISOString(),
-    userAgent: 'Mozilla/5.0...' // optional field
+    userAgent: "Mozilla/5.0...", // optional field
   };
 
   // AnalyticsData should enforce correct types
   const analyticsData: AnalyticsData = {
     messageLength: 100,
     responseTime: 250, // optional
-    tokensUsed: 50     // optional
+    tokensUsed: 50, // optional
   };
 
   // WeatherData should enforce all required fields
   const weatherData: WeatherData = {
-    location: 'New York',
+    location: "New York",
     temperature: 22,
-    condition: 'Sunny',
+    condition: "Sunny",
     humidity: 65,
-    windSpeed: 10
+    windSpeed: 10,
   };
 
   return { metadata, analyticsData, weatherData };
@@ -150,7 +145,7 @@ export {
   testCustomMessageTypes,
   testHookCompatibility,
   testMessagePartTypeGuards,
-  testDataAndMetadataTypes
+  testDataAndMetadataTypes,
 };
 
 // Type-only exports to verify type definitions
@@ -162,7 +157,7 @@ export type {
   WeatherData,
   UserMetadata,
   AnalyticsData,
-  AllTools
+  AllTools,
 };
 
 /**

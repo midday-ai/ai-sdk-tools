@@ -1,9 +1,12 @@
 {
-    "name": "@ai-sdk-tools/root",
-    "version": "0.1.0",
-    "private": true,
-    "workspaces": [
-        "packages/*",
-        "apps/*"
-    ]
+  "name": "@ai-sdk-tools/root",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "dependencies": {
+    "biome": "^0.3.3"
+  }
 }

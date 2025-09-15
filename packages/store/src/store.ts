@@ -1,27 +1,31 @@
-import { create, type StoreApi } from 'zustand'
-import { devtools } from 'zustand/middleware'
-import type { UseChatHelpers, UIMessage } from '@ai-sdk/react'
+import type { UIMessage, UseChatHelpers } from "@ai-sdk/react";
+import { create, type StoreApi } from "zustand";
+import { devtools } from "zustand/middleware";
 
-export interface ChatStore<TMessage extends UIMessage = UIMessage> extends UseChatHelpers<TMessage> {}
+export interface ChatStore<TMessage extends UIMessage = UIMessage>
+  extends UseChatHelpers<TMessage> {}
 
 // Internal sync method for connecting with useChat
-export interface ChatStoreWithSync<TMessage extends UIMessage = UIMessage> extends ChatStore<TMessage> {
-  _syncState: (newState: Partial<ChatStore<TMessage>>) => void
+export interface ChatStoreWithSync<TMessage extends UIMessage = UIMessage>
+  extends ChatStore<TMessage> {
+  _syncState: (newState: Partial<ChatStore<TMessage>>) => void;
 }
 
 // Store instances map (using any for simplicity due to generic constraints)
-const storeInstances = new Map<string, any>()
+const storeInstances = new Map<string, any>();
 
-function createChatStore<TMessage extends UIMessage = UIMessage>(): StoreApi<ChatStoreWithSync<TMessage>> {
+function createChatStore<TMessage extends UIMessage = UIMessage>(): StoreApi<
+  ChatStoreWithSync<TMessage>
+> {
   return create<ChatStoreWithSync<TMessage>>()(
     devtools(
       (set) => ({
         // Default state matching UseChatHelpers interface
-        id: '',
+        id: "",
         messages: [] as TMessage[],
         error: undefined,
-        status: 'ready' as const,
-        
+        status: "ready" as const,
+
         // Default no-op functions (will be replaced by useChat)
         sendMessage: async () => {},
         regenerate: async () => {},
@@ -30,38 +34,38 @@ function createChatStore<TMessage extends UIMessage = UIMessage>(): StoreApi<Cha
         addToolResult: async () => {},
         setMessages: () => {},
         clearError: () => {},
-        
+
         // Internal sync method for useChat integration
         _syncState: (newState: Partial<ChatStore<TMessage>>) => {
-          set(newState, false, 'syncFromUseChat')
+          set(newState, false, "syncFromUseChat");
         },
       }),
       {
-        name: 'ai-chat-store',
-      }
-    )
-  )
+        name: "ai-chat-store",
+      },
+    ),
+  );
 }
 
 export function getChatStore<TMessage extends UIMessage = UIMessage>(
-  storeId: string = 'default'
+  storeId: string = "default",
 ): any {
   if (!storeInstances.has(storeId)) {
-    storeInstances.set(storeId, createChatStore<TMessage>())
+    storeInstances.set(storeId, createChatStore<TMessage>());
   }
-  return storeInstances.get(storeId)!
+  return storeInstances.get(storeId)!;
 }
 
-export function clearChatStore(storeId: string = 'default'): void {
-  storeInstances.delete(storeId)
+export function clearChatStore(storeId: string = "default"): void {
+  storeInstances.delete(storeId);
 }
 
 export function clearAllChatStores(): void {
-  storeInstances.clear()
+  storeInstances.clear();
 }
 
 export function getChatStoreIds(): string[] {
-  return Array.from(storeInstances.keys())
+  return Array.from(storeInstances.keys());
 }
 
 /**
@@ -70,13 +74,13 @@ export function getChatStoreIds(): string[] {
  * @returns A new chat store instance
  */
 export function createCustomChatStore<TMessage extends UIMessage = UIMessage>(
-  middleware?: any
+  middleware?: any,
 ): StoreApi<ChatStore<TMessage>> {
   const storeConfig = (_set: any) => ({
-    id: '',
+    id: "",
     messages: [] as TMessage[],
     error: undefined as Error | undefined,
-    status: 'ready' as const,
+    status: "ready" as const,
     sendMessage: async () => {},
     regenerate: async () => {},
     stop: async () => {},
@@ -84,9 +88,9 @@ export function createCustomChatStore<TMessage extends UIMessage = UIMessage>(
     addToolResult: async () => {},
     setMessages: () => {},
     clearError: () => {},
-  })
-  
+  });
+
   return create<ChatStore<TMessage>>()(
-    middleware ? middleware(storeConfig) : storeConfig
-  )
+    middleware ? middleware(storeConfig) : storeConfig,
+  );
 }

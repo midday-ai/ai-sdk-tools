@@ -17,12 +17,14 @@ import type React from "react";
  */
 export function formatTimestamp(timestamp: number): string {
   const date = new Date(timestamp);
-  return date.toLocaleTimeString("en-US", {
-    hour12: false,
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  }) + `.${date.getMilliseconds().toString().padStart(3, '0')}`;
+  return (
+    date.toLocaleTimeString("en-US", {
+      hour12: false,
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    }) + `.${date.getMilliseconds().toString().padStart(3, "0")}`
+  );
 }
 
 /**
