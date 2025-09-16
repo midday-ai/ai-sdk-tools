@@ -1,0 +1,70 @@
+name: Beta Release
+
+on:
+  push:
+    branches:
+      - beta
+  workflow_dispatch:
+    inputs:
+      beta_tag:
+        description: 'Beta tag (e.g., beta, alpha, rc)'
+        required: true
+        default: 'beta'
+        type: string
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  beta-release:
+    name: Beta Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install Dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build Beta Packages
+        run: bun run build:beta
+
+      - name: Enter Beta Mode
+        run: bun run changeset:beta
+
+      - name: Create Beta Changeset
+        run: |
+          if [ -z "$(ls -A .changeset)" ] || [ ! -f .changeset/*.md ]; then
+            echo "No changesets found, creating empty beta changeset"
+            bun changeset --empty
+          fi
+
+      - name: Version Beta Packages
+        run: bun run version-packages:beta
+
+      - name: Create Beta Release Pull Request
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          publish: bun run release:beta
+          version: bun run version-packages:beta
+          commit: "chore: release beta packages"
+          title: "chore: release beta packages"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Exit Beta Mode
+        if: always()
+        run: bun run changeset:exit-beta

@@ -6,7 +6,27 @@
     "packages/*",
     "apps/*"
   ],
+  "scripts": {
+    "build": "bun run -r --filter='@ai-sdk-tools/store' --filter='@ai-sdk-tools/devtools' --filter='@ai-sdk-tools/artifacts' --filter='@ai-sdk-tools/chrome-extension' build",
+    "build:beta": "bun run -r --filter='@ai-sdk-tools/store' --filter='@ai-sdk-tools/devtools' --filter='@ai-sdk-tools/artifacts' build",
+    "dev": "bun run -r --filter='@ai-sdk-tools/store' --filter='@ai-sdk-tools/devtools' --filter='@ai-sdk-tools/artifacts' --filter='@ai-sdk-tools/chrome-extension' dev",
+    "dev:beta": "bun run -r --filter='@ai-sdk-tools/store' --filter='@ai-sdk-tools/devtools' --filter='@ai-sdk-tools/artifacts' dev",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "changeset publish",
+    "changeset:beta": "changeset pre enter beta",
+    "changeset:exit-beta": "changeset pre exit",
+    "version-packages:beta": "changeset version --snapshot beta",
+    "release:beta": "changeset publish --tag beta",
+    "clean": "bun run -r --filter='@ai-sdk-tools/store' --filter='@ai-sdk-tools/devtools' --filter='@ai-sdk-tools/artifacts' --filter='@ai-sdk-tools/chrome-extension' clean",
+    "clean:beta": "bun run -r --filter='@ai-sdk-tools/store' --filter='@ai-sdk-tools/devtools' --filter='@ai-sdk-tools/artifacts' clean",
+    "type-check": "bun run -r --filter='@ai-sdk-tools/store' --filter='@ai-sdk-tools/devtools' --filter='@ai-sdk-tools/artifacts' --filter='@ai-sdk-tools/chrome-extension' type-check",
+    "type-check:beta": "bun run -r --filter='@ai-sdk-tools/store' --filter='@ai-sdk-tools/devtools' --filter='@ai-sdk-tools/artifacts' type-check"
+  },
   "dependencies": {
     "biome": "^0.3.3"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.29.7"
   }
 }
