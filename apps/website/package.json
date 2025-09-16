@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "build": "bun run build:packages && next build --turbopack",
+    "build:packages": "cd ../../packages/store && bun run build && cd ../devtools && bun run build && cd ../artifacts && bun run build",
     "start": "next start",
     "lint": "biome check",
     "format": "biome format --write"
@@ -15,7 +16,6 @@
     "@ai-sdk-tools/store": "workspace:*",
     "@ai-sdk-tools/devtools": "workspace:*",
     "@ai-sdk-tools/artifacts": "workspace:*",
-    "i": "^0.3.7",
     "next": "15.5.3",
     "react": "19.1.1",
     "react-dom": "19.1.1",
