@@ -35,7 +35,7 @@ export const metadata: Metadata = {
 export default function About() {
   return (
     <div className="min-h-screen text-[#d4d4d4] font-[family-name:var(--font-geist-mono)]">
-      <div className="max-w-[55rem] mx-auto px-4 py-32 relative z-10">
+      <div className="max-w-[55rem] mx-auto px-4 py-32 relative">
         <div className="space-y-24">
           {/* Hero Section */}
           <section className="text-center space-y-4">

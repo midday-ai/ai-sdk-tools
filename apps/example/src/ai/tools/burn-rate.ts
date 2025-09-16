@@ -1,6 +1,7 @@
 import { tool } from "ai";
 import { z } from "zod";
 import { BurnRateArtifact } from "@/ai/artifacts/burn-rate";
+import { getCurrentUser } from "@/ai/context";
 import { delay } from "@/lib/delay";
 
 export const analyzeBurnRateTool = tool({
@@ -20,7 +21,10 @@ export const analyzeBurnRateTool = tool({
       .describe("Array of monthly financial data"),
   }),
   execute: async ({ companyName, monthlyData }) => {
-    // Step 1: Create with loading state
+    // Get current user context
+    const user = getCurrentUser();
+
+    // Step 1: Create with loading state (including user context)
     const analysis = BurnRateArtifact.stream({
       stage: "loading",
       title: `${companyName} Burn Rate Analysis`,
@@ -113,7 +117,7 @@ export const analyzeBurnRateTool = tool({
 
     await delay(400);
 
-    // Step 4: Complete with summary
+    // Step 4: Complete with summary (including user context)
     const finalData = {
       title: `${companyName} Burn Rate Analysis`,
       stage: "complete" as const,
@@ -146,7 +150,7 @@ export const analyzeBurnRateTool = tool({
           },
         },
       ],
-      text: `Completed burn rate analysis for ${companyName}. The analysis shows a ${trend} trend with an average runway of ${avgRunway.toFixed(1)} months. ${alerts.length} alerts and ${recommendations.length} recommendations have been generated.`,
+      text: `Completed burn rate analysis for ${companyName} (User: ${user.fullName} - ${user.id}). The analysis shows a ${trend} trend with an average runway of ${avgRunway.toFixed(1)} months. ${alerts.length} alerts and ${recommendations.length} recommendations have been generated.`,
     };
   },
 });

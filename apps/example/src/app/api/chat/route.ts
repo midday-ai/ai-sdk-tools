@@ -1,5 +1,4 @@
 import { openai } from "@ai-sdk/openai";
-import { artifacts } from "@ai-sdk-tools/artifacts";
 import {
   convertToModelMessages,
   createUIMessageStream,
@@ -7,6 +6,7 @@ import {
   streamText,
   type UIMessage,
 } from "ai";
+import { setContext } from "@/ai/context";
 import { tools } from "@/ai/tools";
 
 // Allow streaming responses up to 30 seconds
@@ -17,8 +17,12 @@ export async function POST(req: Request) {
 
   const stream = createUIMessageStream({
     execute: ({ writer }) => {
-      // Set up artifact context with the streaming response writer
-      artifacts.setContext({ writer });
+      // Set up typed context with user information
+      setContext({
+        writer,
+        userId: "123",
+        fullName: "John Doe",
+      });
 
       const result = streamText({
         model: openai("gpt-4o"),
@@ -36,10 +40,6 @@ Key capabilities:
 Always use the tool when users provide financial data or ask for burn rate analysis.`,
         messages: convertToModelMessages(messages),
         tools,
-        onFinish: async (result) => {
-          // Handle any cleanup or additional processing if needed
-          console.log("Burn rate analysis completed:", result);
-        },
       });
 
       writer.merge(result.toUIMessageStream());

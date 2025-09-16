@@ -18,7 +18,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen text-[#d4d4d4] font-[family-name:var(--font-geist-mono)]">
-      <div className="max-w-[95rem] mx-auto px-8 py-32 relative z-10">
+      <div className="max-w-[95rem] mx-auto px-8 py-32 relative">
         {/* Hero */}
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-40">
           <div className="space-y-12">
@@ -353,25 +353,25 @@ function Dashboard() {
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
               <a
-                href="/store"
+                href="/docs"
                 className="px-4 py-2 border border-[#333] hover:border-[#555] transition-colors text-sm"
               >
-                Store →
+                Documentation →
               </a>
               <a
-                href="/devtools"
+                href="/docs/quickstart"
                 className="px-4 py-2 border border-[#333] hover:border-[#555] transition-colors text-sm"
               >
-                Devtools →
+                Quickstart →
               </a>
               <a
-                href="/artifacts"
+                href="/docs/store"
                 className="px-4 py-2 border border-[#333] hover:border-[#555] transition-colors text-sm"
               >
-                Artifacts →
+                Store Docs →
               </a>
               <a
-                href="https://github.com/midday-ai/@ai-sdk-tools"
+                href="https://github.com/midday-ai/ai-sdk-tools"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-4 py-2 border border-[#333] hover:border-[#555] transition-colors text-sm"
