@@ -1,5 +1,6 @@
 "use client";
 
+import { useArtifact } from "@ai-sdk-tools/artifacts/client";
 import {
   AlertTriangle,
   CheckCircle,
@@ -21,45 +22,26 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-
-interface ChartData {
-  month: string;
-  revenue: number;
-  expenses: number;
-  burnRate: number;
-  runway: number;
-}
-
-interface Summary {
-  currentBurnRate: number;
-  averageRunway: number;
-  trend: "improving" | "stable" | "declining";
-  alerts: string[];
-  recommendations: string[];
-}
+import { BurnRateArtifact } from "@/ai/artifacts/burn-rate";
 
 interface BurnRateChartProps {
   isOpen: boolean;
   onClose: () => void;
-  title: string;
-  stage: "loading" | "processing" | "analyzing" | "complete";
-  progress: number;
-  chartData: ChartData[];
-  summary?: Summary;
-  currency: string;
 }
 
-export function BurnRateChart({
-  isOpen,
-  onClose,
-  title,
-  stage,
-  progress,
-  chartData,
-  summary,
-  currency,
-}: BurnRateChartProps) {
+export function BurnRateChart({ isOpen, onClose }: BurnRateChartProps) {
   const [activeTab, setActiveTab] = useState<"chart" | "insights">("chart");
+
+  // Get data directly from the artifact hook
+  const burnRateData = useArtifact(BurnRateArtifact);
+
+  // Extract data with fallbacks
+  const title = burnRateData?.data?.title || "Burn Rate Analysis";
+  const stage = burnRateData?.data?.stage || "loading";
+  const progress = burnRateData?.data?.progress || 0;
+  const chartData = burnRateData?.data?.chartData || [];
+  const summary = burnRateData?.data?.summary;
+  const currency = burnRateData?.data?.currency || "USD";
 
   // Format currency
   const formatCurrency = (value: number) => {
