@@ -41,16 +41,8 @@ export function Footer() {
 
           {/* Thank you */}
           <p className="text-xs text-secondary font-light">
-            Built with the{" "}
-            <a
-              href="https://sdk.vercel.ai"
-              target="_blank"
-              rel="noopener noreferrer nofollow"
-              className="text-[#d4d4d4] hover:text-white transition-colors underline"
-            >
-              Vercel AI SDK
-            </a>
-            .
+            Thank you to the Vercel team for making AI development accessible
+            and building the foundation that makes these tools possible.
           </p>
         </div>
       </div>
