@@ -32,7 +32,9 @@
       "name": "@ai-sdk-tools/website",
       "version": "0.1.0",
       "dependencies": {
-        "@ai-sdk-tools/store": "^0.1.0",
+        "@ai-sdk-tools/artifacts": "workspace:*",
+        "@ai-sdk-tools/devtools": "workspace:*",
+        "@ai-sdk-tools/store": "workspace:*",
         "@ai-sdk/openai": "^2.0.30",
         "ai": "^5.0.44",
         "i": "^0.3.7",
