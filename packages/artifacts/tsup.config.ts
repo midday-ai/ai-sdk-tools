@@ -1,8 +1,8 @@
-import { defineConfig } from 'tsup'
+import { defineConfig } from "tsup";
 
 export default defineConfig({
-  entry: ['src/index.ts'],
-  format: ['cjs', 'esm'],
+  entry: ["src/index.ts", "src/client.ts"],
+  format: ["cjs", "esm"],
   dts: true,
   sourcemap: true,
   clean: true,
@@ -10,9 +10,15 @@ export default defineConfig({
   treeshake: true,
   minify: false,
   external: [
-    'react',
-    'react-dom',
-    'react/jsx-runtime',
-    '@ai-sdk/react'
+    "react",
+    "react-dom",
+    "react/jsx-runtime",
+    "@ai-sdk/react",
+    "@ai-sdk-tools/store",
   ],
-})
+  esbuildOptions(options) {
+    options.banner = {
+      js: '"use client";',
+    };
+  },
+});
