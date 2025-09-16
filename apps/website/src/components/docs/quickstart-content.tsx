@@ -253,14 +253,14 @@ const burnRateArtifact = createArtifact({
                 href="/docs/store"
                 className="group border border-[#2a2a2a] hover:border-[#404040] transition-colors p-8"
               >
-                <h3 className="text-xl font-normal mb-4 group-hover:text-white transition-colors">
+                <h3 className="text-lg font-medium mb-4 group-hover:text-white transition-colors">
                   Store Documentation
                 </h3>
-                <p className="text-secondary mb-6">
+                <p className="text-sm text-secondary mb-6">
                   Learn about global state management, hooks, and advanced
                   patterns.
                 </p>
-                <div className="text-sm text-[#888] group-hover:text-[#aaa] transition-colors">
+                <div className="text-xs text-[#888] group-hover:text-[#aaa] transition-colors">
                   Read more →
                 </div>
               </Link>
@@ -269,13 +269,13 @@ const burnRateArtifact = createArtifact({
                 href="/docs/devtools"
                 className="group border border-[#2a2a2a] hover:border-[#404040] transition-colors p-8"
               >
-                <h3 className="text-xl font-normal mb-4 group-hover:text-white transition-colors">
+                <h3 className="text-lg font-medium mb-4 group-hover:text-white transition-colors">
                   DevTools Documentation
                 </h3>
-                <p className="text-secondary mb-6">
+                <p className="text-sm text-secondary mb-6">
                   Master debugging and monitoring with our powerful DevTools.
                 </p>
-                <div className="text-sm text-[#888] group-hover:text-[#aaa] transition-colors">
+                <div className="text-xs text-[#888] group-hover:text-[#aaa] transition-colors">
                   Read more →
                 </div>
               </Link>
@@ -284,13 +284,13 @@ const burnRateArtifact = createArtifact({
                 href="/docs/artifacts"
                 className="group border border-[#2a2a2a] hover:border-[#404040] transition-colors p-8"
               >
-                <h3 className="text-xl font-normal mb-4 group-hover:text-white transition-colors">
+                <h3 className="text-lg font-medium mb-4 group-hover:text-white transition-colors">
                   Artifacts Documentation
                 </h3>
-                <p className="text-secondary mb-6">
+                <p className="text-sm text-secondary mb-6">
                   Build advanced streaming interfaces with structured data.
                 </p>
-                <div className="text-sm text-[#888] group-hover:text-[#aaa] transition-colors">
+                <div className="text-xs text-[#888] group-hover:text-[#aaa] transition-colors">
                   Read more →
                 </div>
               </Link>
@@ -299,13 +299,13 @@ const burnRateArtifact = createArtifact({
                 href="/docs/chrome-extension"
                 className="group border border-[#2a2a2a] hover:border-[#404040] transition-colors p-8"
               >
-                <h3 className="text-xl font-normal mb-4 group-hover:text-white transition-colors">
+                <h3 className="text-lg font-medium mb-4 group-hover:text-white transition-colors">
                   Chrome Extension
                 </h3>
-                <p className="text-secondary mb-6">
+                <p className="text-sm text-secondary mb-6">
                   Debug directly in Chrome DevTools with our browser extension.
                 </p>
-                <div className="text-sm text-[#888] group-hover:text-[#aaa] transition-colors">
+                <div className="text-xs text-[#888] group-hover:text-[#aaa] transition-colors">
                   Read more →
                 </div>
               </Link>

@@ -29,14 +29,14 @@ export default function DocsContent() {
               className="h-full flex flex-col group border border-[#2a2a2a] hover:border-[#404040] transition-colors p-8"
             >
               <div className="h-full flex flex-col">
-                <h3 className="text-xl font-normal mb-4 group-hover:text-white transition-colors">
+                <h3 className="text-lg font-medium mb-4 group-hover:text-white transition-colors">
                   Quickstart
                 </h3>
-                <p className="text-secondary mb-6 flex-grow">
+                <p className="text-sm text-secondary mb-6 flex-grow">
                   Get up and running in minutes with our comprehensive
                   quickstart guide.
                 </p>
-                <div className="text-sm text-[#888] group-hover:text-[#aaa] transition-colors">
+                <div className="text-xs text-[#888] group-hover:text-[#aaa] transition-colors">
                   Start building →
                 </div>
               </div>
@@ -47,14 +47,14 @@ export default function DocsContent() {
               className="h-full flex flex-col group border border-[#2a2a2a] hover:border-[#404040] transition-colors p-8"
             >
               <div className="h-full flex flex-col">
-                <h3 className="text-xl font-normal mb-4 group-hover:text-white transition-colors">
+                <h3 className="text-lg font-medium mb-4 group-hover:text-white transition-colors">
                   Installation
                 </h3>
-                <p className="text-secondary mb-6 flex-grow">
+                <p className="text-sm text-secondary mb-6 flex-grow">
                   Install individual packages or get the complete toolkit for
                   your project.
                 </p>
-                <div className="text-sm text-[#888] group-hover:text-[#aaa] transition-colors">
+                <div className="text-xs text-[#888] group-hover:text-[#aaa] transition-colors">
                   Install packages →
                 </div>
               </div>
@@ -65,14 +65,14 @@ export default function DocsContent() {
               className="h-full flex flex-col group border border-[#2a2a2a] hover:border-[#404040] transition-colors p-8"
             >
               <div className="h-full flex flex-col">
-                <h3 className="text-xl font-normal mb-4 group-hover:text-white transition-colors">
+                <h3 className="text-lg font-medium mb-4 group-hover:text-white transition-colors">
                   Migration
                 </h3>
-                <p className="text-secondary mb-6 flex-grow">
+                <p className="text-sm text-secondary mb-6 flex-grow">
                   Migrate from standard AI SDK to our enhanced tools with
                   minimal changes.
                 </p>
-                <div className="text-sm text-[#888] group-hover:text-[#aaa] transition-colors">
+                <div className="text-xs text-[#888] group-hover:text-[#aaa] transition-colors">
                   Migrate now →
                 </div>
               </div>
@@ -88,14 +88,14 @@ export default function DocsContent() {
               href="/docs/store"
               className="group border border-[#2a2a2a] hover:border-[#404040] transition-colors p-8"
             >
-              <h3 className="text-xl font-normal mb-4 group-hover:text-white transition-colors">
+              <h3 className="text-lg font-medium mb-4 group-hover:text-white transition-colors">
                 @ai-sdk-tools/store
               </h3>
-              <p className="text-secondary mb-6">
+              <p className="text-sm text-secondary mb-6">
                 Global state management for AI applications. Drop-in replacement
                 for @ai-sdk/react with global access and optimized performance.
               </p>
-              <div className="text-sm text-[#888] group-hover:text-[#aaa] transition-colors">
+              <div className="text-xs text-[#888] group-hover:text-[#aaa] transition-colors">
                 Learn more →
               </div>
             </Link>
@@ -104,14 +104,14 @@ export default function DocsContent() {
               href="/docs/devtools"
               className="group border border-[#2a2a2a] hover:border-[#404040] transition-colors p-8"
             >
-              <h3 className="text-xl font-normal mb-4 group-hover:text-white transition-colors">
+              <h3 className="text-lg font-medium mb-4 group-hover:text-white transition-colors">
                 @ai-sdk-tools/devtools
               </h3>
-              <p className="text-secondary mb-6">
+              <p className="text-sm text-secondary mb-6">
                 Powerful debugging and monitoring tool for AI applications with
                 real-time insights and performance metrics.
               </p>
-              <div className="text-sm text-[#888] group-hover:text-[#aaa] transition-colors">
+              <div className="text-xs text-[#888] group-hover:text-[#aaa] transition-colors">
                 Learn more →
               </div>
             </Link>
@@ -120,14 +120,14 @@ export default function DocsContent() {
               href="/docs/artifacts"
               className="group border border-[#2a2a2a] hover:border-[#404040] transition-colors p-8"
             >
-              <h3 className="text-xl font-normal mb-4 group-hover:text-white transition-colors">
+              <h3 className="text-lg font-medium mb-4 group-hover:text-white transition-colors">
                 @ai-sdk-tools/artifacts
               </h3>
-              <p className="text-secondary mb-6">
+              <p className="text-sm text-secondary mb-6">
                 Advanced streaming interfaces for AI applications with
                 structured data, progress tracking, and error handling.
               </p>
-              <div className="text-sm text-[#888] group-hover:text-[#aaa] transition-colors">
+              <div className="text-xs text-[#888] group-hover:text-[#aaa] transition-colors">
                 Learn more →
               </div>
             </Link>
@@ -136,14 +136,14 @@ export default function DocsContent() {
               href="/docs/chrome-extension"
               className="group border border-[#2a2a2a] hover:border-[#404040] transition-colors p-8"
             >
-              <h3 className="text-xl font-normal mb-4 group-hover:text-white transition-colors">
+              <h3 className="text-lg font-medium mb-4 group-hover:text-white transition-colors">
                 chrome-extension
               </h3>
-              <p className="text-secondary mb-6">
+              <p className="text-sm text-secondary mb-6">
                 Chrome extension for debugging AI SDK applications directly in
                 Chrome DevTools with native integration.
               </p>
-              <div className="text-sm text-[#888] group-hover:text-[#aaa] transition-colors">
+              <div className="text-xs text-[#888] group-hover:text-[#aaa] transition-colors">
                 Learn more →
               </div>
             </Link>
@@ -158,14 +158,14 @@ export default function DocsContent() {
               href="/store"
               className="group border border-[#2a2a2a] hover:border-[#404040] transition-colors p-8"
             >
-              <h3 className="text-xl font-normal mb-4 group-hover:text-white transition-colors">
+              <h3 className="text-lg font-medium mb-4 group-hover:text-white transition-colors">
                 Live Demo
               </h3>
-              <p className="text-secondary mb-6">
+              <p className="text-sm text-secondary mb-6">
                 Try our tools in action with interactive examples and real-time
                 demonstrations.
               </p>
-              <div className="text-sm text-[#888] group-hover:text-[#aaa] transition-colors">
+              <div className="text-xs text-[#888] group-hover:text-[#aaa] transition-colors">
                 Try it out →
               </div>
             </Link>
@@ -176,14 +176,14 @@ export default function DocsContent() {
               rel="noopener noreferrer"
               className="group border border-[#2a2a2a] hover:border-[#404040] transition-colors p-8"
             >
-              <h3 className="text-xl font-normal mb-4 group-hover:text-white transition-colors">
+              <h3 className="text-lg font-medium mb-4 group-hover:text-white transition-colors">
                 GitHub
               </h3>
-              <p className="text-secondary mb-6">
+              <p className="text-sm text-secondary mb-6">
                 View source code, contribute, and explore more examples in our
                 GitHub repository.
               </p>
-              <div className="text-sm text-[#888] group-hover:text-[#aaa] transition-colors">
+              <div className="text-xs text-[#888] group-hover:text-[#aaa] transition-colors">
                 View on GitHub →
               </div>
             </a>
