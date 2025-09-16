@@ -234,6 +234,54 @@ export function parseEventFromDataPart(
   }
 
   // New streaming event types
+  if (dataPart.type === "start") {
+    return {
+      id: eventId,
+      timestamp,
+      type: "start",
+      data: dataPart,
+    };
+  }
+
+  if (dataPart.type === "reasoning-start") {
+    return {
+      id: eventId,
+      timestamp,
+      type: "reasoning-start",
+      data: dataPart,
+      metadata: {
+        messageId: dataPart.id,
+      },
+    };
+  }
+
+  if (dataPart.type === "reasoning-delta") {
+    return {
+      id: eventId,
+      timestamp,
+      type: "reasoning-delta",
+      data: {
+        id: dataPart.id,
+        delta: dataPart.delta || "",
+      },
+      metadata: {
+        messageId: dataPart.id,
+      },
+    };
+  }
+
+  if (dataPart.type === "reasoning-end") {
+    return {
+      id: eventId,
+      timestamp,
+      type: "reasoning-end",
+      data: dataPart,
+      metadata: {
+        messageId: dataPart.id,
+      },
+    };
+  }
+
   if (dataPart.type === "start-step") {
     return {
       id: eventId,
@@ -617,6 +665,20 @@ export function getEventDescription(event: AIEvent): string {
 
     case "message-complete":
       return "MESSAGE DONE";
+
+    case "start":
+      return "STREAM START";
+
+    case "reasoning-start":
+      return "REASONING START";
+
+    case "reasoning-delta": {
+      const deltaPreview = event.data.delta?.substring(0, 20) || "";
+      return `REASONING "${deltaPreview}${deltaPreview.length >= 20 ? "..." : ""}"`;
+    }
+
+    case "reasoning-end":
+      return "REASONING END";
 
     case "start-step":
       return "STEP START";
