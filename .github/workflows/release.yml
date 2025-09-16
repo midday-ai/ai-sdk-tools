@@ -1,0 +1,87 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Release type'
+        required: true
+        default: 'stable'
+        type: choice
+        options:
+          - stable
+          - beta
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+        with:
+          # This makes Actions fetch all Git history so that Changesets can generate changelogs with the correct commits
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install Dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build Packages
+        run: |
+          if [ "${{ steps.check-type.outputs.type }}" = "beta" ]; then
+            bun run build:beta
+          else
+            bun run build
+          fi
+
+      - name: Check Release Type
+        id: check-type
+        run: |
+          if [ "${{ github.event.inputs.release_type }}" = "beta" ]; then
+            echo "type=beta" >> $GITHUB_OUTPUT
+            echo "publish_cmd=bun run release:beta" >> $GITHUB_OUTPUT
+            echo "version_cmd=bun run version-packages:beta" >> $GITHUB_OUTPUT
+            echo "commit_msg=chore: release beta packages" >> $GITHUB_OUTPUT
+            echo "title=chore: release beta packages" >> $GITHUB_OUTPUT
+          else
+            echo "type=stable" >> $GITHUB_OUTPUT
+            echo "publish_cmd=bun run release" >> $GITHUB_OUTPUT
+            echo "version_cmd=bun run version-packages" >> $GITHUB_OUTPUT
+            echo "commit_msg=chore: release packages" >> $GITHUB_OUTPUT
+            echo "title=chore: release packages" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Enter Beta Mode (if beta release)
+        if: steps.check-type.outputs.type == 'beta'
+        run: bun run changeset:beta
+
+      - name: Create Release Pull Request or Publish to npm
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          publish: ${{ steps.check-type.outputs.publish_cmd }}
+          version: ${{ steps.check-type.outputs.version_cmd }}
+          commit: ${{ steps.check-type.outputs.commit_msg }}
+          title: ${{ steps.check-type.outputs.title }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Exit Beta Mode (if beta release)
+        if: always() && steps.check-type.outputs.type == 'beta'
+        run: bun run changeset:exit-beta
