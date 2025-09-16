@@ -69,6 +69,23 @@
         "react": "^18.0.0 || ^19.0.0",
       },
     },
+    "packages/chrome-extension": {
+      "name": "@ai-sdk-tools/chrome-extension",
+      "version": "1.0.0",
+      "dependencies": {
+        "@ai-sdk-tools/devtools": "workspace:*",
+        "@ai-sdk-tools/store": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/chrome": "^0.0.254",
+        "@types/react": "^19.1.13",
+        "@types/react-dom": "^19.1.9",
+        "react": "^19.1.1",
+        "react-dom": "^19.1.1",
+        "tsup": "^8.5.0",
+        "typescript": "^5.3.3",
+      },
+    },
     "packages/devtools": {
       "name": "@ai-sdk-tools/devtools",
       "version": "0.6.0",
@@ -116,6 +133,8 @@
   },
   "packages": {
     "@ai-sdk-tools/artifacts": ["@ai-sdk-tools/artifacts@workspace:packages/artifacts"],
+
+    "@ai-sdk-tools/chrome-extension": ["@ai-sdk-tools/chrome-extension@workspace:packages/chrome-extension"],
 
     "@ai-sdk-tools/devtools": ["@ai-sdk-tools/devtools@workspace:packages/devtools"],
 
@@ -461,7 +480,15 @@
 
     "@types/argparse": ["@types/argparse@1.0.38", "", {}, "sha512-ebDJ9b0e702Yr7pWgB0jzm+CX4Srzz8RcXtLJDJB+BSccqMa36uyH/zUsSYao5+BD1ytv3k3rPYCq4mAE1hsXA=="],
 
+    "@types/chrome": ["@types/chrome@0.0.254", "", { "dependencies": { "@types/filesystem": "*", "@types/har-format": "*" } }, "sha512-svkOGKwA+6ZZuk9xtrYun8MYpNY/9hD17rgZ19v3KunhsK1ZOKaMESw12/1AXLh1u3UPA8jQIRi2370DXv9wgw=="],
+
     "@types/estree": ["@types/estree@1.0.8", "", {}, "sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w=="],
+
+    "@types/filesystem": ["@types/filesystem@0.0.36", "", { "dependencies": { "@types/filewriter": "*" } }, "sha512-vPDXOZuannb9FZdxgHnqSwAG/jvdGM8Wq+6N4D/d80z+D4HWH+bItqsZaVRQykAn6WEVeEkLm2oQigyHtgb0RA=="],
+
+    "@types/filewriter": ["@types/filewriter@0.0.33", "", {}, "sha512-xFU8ZXTw4gd358lb2jw25nxY9QAgqn2+bKKjKOYfNCzN4DKCFetK7sPtrlpg66Ywe3vWY9FNxprZawAh9wfJ3g=="],
+
+    "@types/har-format": ["@types/har-format@1.2.16", "", {}, "sha512-fluxdy7ryD3MV6h8pTfTYpy/xQzCFC7m89nOH9y94cNqJ1mDIDPut7MnRHI3F6qRmh/cT2fUjG1MLdCNb4hE9A=="],
 
     "@types/node": ["@types/node@24.4.0", "", { "dependencies": { "undici-types": "~7.11.0" } }, "sha512-gUuVEAK4/u6F9wRLznPUU4WGUacSEBDPoC2TrBkw3GAnOLHBL45QdfHOXp1kJ4ypBGLxTOB+t7NJLpKoC3gznQ=="],
 

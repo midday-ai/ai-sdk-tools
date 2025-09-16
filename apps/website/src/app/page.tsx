@@ -330,7 +330,7 @@ function Dashboard() {
       )}
       {data?.data.map(item => (
         <div key={item.month}>
-          {item.month}: ${item.burnRate}
+          {item.month}: \${item.burnRate}
         </div>
       ))}
     </div>

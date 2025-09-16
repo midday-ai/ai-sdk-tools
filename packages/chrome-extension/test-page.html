@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI SDK Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+        .container {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        button {
+            background: #007acc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #005a9e;
+        }
+        .log {
+            background: #333;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>AI SDK DevTools Test Page</h1>
+    
+    <div class="container">
+        <h2>Test AI SDK Events</h2>
+        <p>This page simulates AI SDK events for testing the Chrome extension.</p>
+        
+        <button onclick="simulateToolCall()">Simulate Tool Call</button>
+        <button onclick="simulateMessage()">Simulate Message</button>
+        <button onclick="simulateStream()">Simulate Stream</button>
+        <button onclick="clearLog()">Clear Log</button>
+        
+        <div class="log" id="log"></div>
+    </div>
+
+    <div class="container">
+        <h2>Instructions</h2>
+        <ol>
+            <li>Open Chrome DevTools (F12)</li>
+            <li>Go to the "AI SDK" tab</li>
+            <li>Click the buttons above to simulate AI SDK events</li>
+            <li>Watch the events appear in the DevTools panel</li>
+        </ol>
+    </div>
+
+    <script>
+        // Simulate AI SDK store
+        window.__AI_SDK_STORES__ = new Map();
+        
+        // Create a mock store
+        const mockStore = {
+            getState: () => ({
+                messages: [
+                    { id: '1', role: 'user', content: 'Hello!' },
+                    { id: '2', role: 'assistant', content: 'Hi there! How can I help you?' }
+                ],
+                status: 'idle',
+                error: null
+            })
+        };
+        
+        window.__AI_SDK_STORES__.set('default', mockStore);
+        
+        // Simulate fetch interception
+        const originalFetch = window.fetch;
+        window.fetch = async (url, options) => {
+            if (url.includes('/api/chat')) {
+                // Simulate streaming response
+                const stream = new ReadableStream({
+                    start(controller) {
+                        const events = [
+                            'event: message-start\ndata: {"id": "msg_123"}\n\n',
+                            'event: text-delta\ndata: {"text": "Hello"}\n\n',
+                            'event: text-delta\ndata: {"text": " there"}\n\n',
+                            'event: text-delta\ndata: {"text": "!"}\n\n',
+                            'event: message-complete\ndata: {"id": "msg_123"}\n\n'
+                        ];
+                        
+                        let index = 0;
+                        const interval = setInterval(() => {
+                            if (index < events.length) {
+                                controller.enqueue(new TextEncoder().encode(events[index]));
+                                index++;
+                            } else {
+                                controller.close();
+                                clearInterval(interval);
+                            }
+                        }, 100);
+                    }
+                });
+                
+                return new Response(stream, {
+                    headers: { 'content-type': 'text/event-stream' }
+                });
+            }
+            return originalFetch(url, options);
+        };
+        
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            const time = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `[${time}] ${message}<br>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        function simulateToolCall() {
+            log('🔧 Simulating tool call...');
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: 'Test tool call' })
+            });
+        }
+        
+        function simulateMessage() {
+            log('💬 Simulating message...');
+            // This would trigger the stream interceptor
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: 'Hello AI!' })
+            });
+        }
+        
+        function simulateStream() {
+            log('🌊 Simulating stream...');
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: 'Stream test' })
+            });
+        }
+        
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+        
+        // Log when page loads
+        log('✅ Test page loaded. Open DevTools and go to AI SDK tab!');
+    </script>
+</body>
+</html>

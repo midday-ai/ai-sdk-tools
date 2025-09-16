@@ -24,15 +24,15 @@ export function DevtoolsContent() {
             {/* Terminal */}
             <div className="flex items-center justify-between border border-dashed border-[#2a2a2a] px-3 py-1.5 max-w-md">
               <span className="text-[#d4d4d4] text-xs font-mono">
-                npm i @ai-sdk/devtools
+                npm i @ai-sdk-tools/devtools
               </span>
               <button
                 type="button"
                 onClick={() =>
-                  navigator.clipboard.writeText("npm i @ai-sdk/devtools")
+                  navigator.clipboard.writeText("npm i @ai-sdk-tools/devtools")
                 }
                 className="text-secondary hover:text-[#d4d4d4] transition-colors p-1"
-                title={`Copy "npm i @ai-sdk/devtools" to clipboard`}
+                title={`Copy "npm i @ai-sdk-tools/devtools" to clipboard`}
               >
                 <svg
                   width="14"
@@ -153,7 +153,7 @@ export function DevtoolsContent() {
                   // biome-ignore lint/security/noDangerouslySetInnerHtml: we want to use dangerouslySetInnerHTML
                   dangerouslySetInnerHTML={{
                     __html: highlight(`// App.tsx - Add devtools to your app
-import { AIDevtools } from '@ai-sdk/devtools'
+import { AIDevtools } from '@ai-sdk-tools/devtools'
 
 function App() {
   return (
@@ -190,7 +190,7 @@ function App() {
                   // biome-ignore lint/security/noDangerouslySetInnerHtml: we want to use dangerouslySetInnerHTML
                   dangerouslySetInnerHTML={{
                     __html: highlight(`// Custom configuration
-import { AIDevtools } from '@ai-sdk/devtools'
+import { AIDevtools } from '@ai-sdk-tools/devtools'
 
 function App() {
   return (
@@ -225,12 +225,12 @@ function App() {
             <div className="text-sm flex items-center justify-between">
               <div>
                 <span className="text-secondary">git: (main)$ </span>
-                <span className="text-white">npm i @ai-sdk/devtools</span>
+                <span className="text-white">npm i @ai-sdk-tools/devtools</span>
               </div>
               <button
                 type="button"
                 onClick={() =>
-                  navigator.clipboard.writeText("npm i @ai-sdk/devtools")
+                  navigator.clipboard.writeText("npm i @ai-sdk-tools/devtools")
                 }
                 className="text-secondary hover:text-white transition-colors ml-4"
                 title="Copy to clipboard"
