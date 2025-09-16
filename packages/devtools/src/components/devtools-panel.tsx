@@ -70,10 +70,10 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
 interface DevtoolsPanelProps {
   events: AIEvent[];
   isCapturing: boolean;
-  onToggleCapturing: () => void;
-  onClearEvents: () => void;
-  onClose: () => void;
-  onTogglePosition: () => void;
+  toggleCapturing: () => void;
+  clearEvents: () => void;
+  onClose?: () => void;
+  onTogglePosition?: () => void;
   config: DevtoolsConfig;
   className?: string;
   modelId?: string; // Optional model ID for context insights
@@ -82,14 +82,173 @@ interface DevtoolsPanelProps {
 export function DevtoolsPanel({
   events,
   isCapturing,
-  onToggleCapturing,
-  onClearEvents,
+  toggleCapturing,
+  clearEvents,
   onClose,
   onTogglePosition,
   config,
   className = "",
   modelId,
 }: DevtoolsPanelProps) {
+
+  const [selectedStoreId, setSelectedStoreId] = useState<string | null>(null);
+
+  const { availableStoreIds } =
+    useCurrentState({
+      enabled: true,
+    });
+
+  // Auto-select default store when available
+  useEffect(() => {
+    if (availableStoreIds.length > 0 && !selectedStoreId) {
+      // Prefer "default" store if available, otherwise select the first one
+      const defaultStoreId = availableStoreIds.includes("default")
+        ? "default"
+        : availableStoreIds[0];
+      setSelectedStoreId(defaultStoreId);
+    }
+  }, [availableStoreIds, selectedStoreId]);
+
+  // Resize functionality
+  const [isResizing, setIsResizing] = useState(false);
+  const [panelHeight, setPanelHeight] = useState(config.height || 300);
+  const [panelWidth, setPanelWidth] = useState(config.width || 500);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const resizeRef = useRef<HTMLButtonElement>(null);
+
+  // Resize handlers
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+  }, []);
+
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (!isResizing) return;
+
+      if (config.position === "bottom") {
+        const newHeight = window.innerHeight - e.clientY;
+        const minHeight = 200;
+        const maxHeight = window.innerHeight * 0.8;
+        setPanelHeight(Math.max(minHeight, Math.min(maxHeight, newHeight)));
+      } else {
+        const newWidth = window.innerWidth - e.clientX;
+        const minWidth = 500;
+        const maxWidth = window.innerWidth * 0.8;
+        setPanelWidth(Math.max(minWidth, Math.min(maxWidth, newWidth)));
+      }
+    },
+    [isResizing, config.position],
+  );
+
+  const handleMouseUp = useCallback(() => {
+    setIsResizing(false);
+  }, []);
+
+  // Add global mouse event listeners
+  React.useEffect(() => {
+    if (isResizing) {
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor =
+        config.position === "bottom" ? "ns-resize" : "ew-resize";
+      document.body.style.userSelect = "none";
+    } else {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    }
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+  }, [isResizing, handleMouseMove, handleMouseUp, config.position]);
+
+  // Add keyboard event listener for Escape key
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose?.();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose]);
+
+
+
+
+  return (
+    <div
+      ref={panelRef}
+      className={`ai-devtools-panel ai-devtools-panel-${config.position} ${className}`}
+      style={{
+        height: config.position === "bottom" ? panelHeight : undefined,
+        width: config.position === "right" ? panelWidth : undefined,
+      }}
+    >
+      {/* Resize Handle */}
+      <button
+        ref={resizeRef}
+        type="button"
+        className={`ai-devtools-resize-handle ai-devtools-resize-handle-${config.position}`}
+        onMouseDown={handleMouseDown}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            // Create a synthetic mouse event for keyboard interaction
+            const syntheticEvent = {
+              ...e,
+              preventDefault: e.preventDefault,
+              clientX: 0,
+              clientY: 0,
+              button: 0,
+              buttons: 0,
+              movementX: 0,
+              movementY: 0,
+              pageX: 0,
+              pageY: 0,
+              screenX: 0,
+              screenY: 0,
+              relatedTarget: null,
+            } as unknown as React.MouseEvent<HTMLButtonElement>;
+            handleMouseDown(syntheticEvent);
+          }
+        }}
+      />
+      <DevtoolsPanelContent
+        events={events}
+        isCapturing={isCapturing}
+        toggleCapturing={toggleCapturing}
+        clearEvents={clearEvents}
+        onClose={onClose}
+        onTogglePosition={onTogglePosition}
+        position={config.position}
+        className={className}
+        modelId={modelId}
+      />
+    </div>
+  );
+}
+
+
+export function DevtoolsPanelContent({
+  events,
+  isCapturing,
+  toggleCapturing: onToggleCapturing,
+  clearEvents: onClearEvents,
+  onClose,
+  onTogglePosition,
+  position,
+  modelId,
+}: Omit<DevtoolsPanelProps, "config"> & { position: DevtoolsConfig["position"] | undefined }) {
   const [showFilters] = useState(false);
   const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
   const [filters, setFilters] = useState<FilterOptions>({
@@ -117,13 +276,6 @@ export function DevtoolsPanel({
       setSelectedStoreId(defaultStoreId);
     }
   }, [availableStoreIds, selectedStoreId]);
-
-  // Resize functionality
-  const [isResizing, setIsResizing] = useState(false);
-  const [panelHeight, setPanelHeight] = useState(config.height || 300);
-  const [panelWidth, setPanelWidth] = useState(config.width || 500);
-  const panelRef = useRef<HTMLDivElement>(null);
-  const resizeRef = useRef<HTMLButtonElement>(null);
 
   // Animation state for REC indicator
   const [isReceivingEvents, setIsReceivingEvents] = useState(false);
@@ -214,72 +366,6 @@ export function DevtoolsPanel({
     filters.toolNames.length > 0 ||
     filters.searchQuery.trim().length > 0;
 
-  // Resize handlers
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsResizing(true);
-  }, []);
-
-  const handleMouseMove = useCallback(
-    (e: MouseEvent) => {
-      if (!isResizing) return;
-
-      if (config.position === "bottom") {
-        const newHeight = window.innerHeight - e.clientY;
-        const minHeight = 200;
-        const maxHeight = window.innerHeight * 0.8;
-        setPanelHeight(Math.max(minHeight, Math.min(maxHeight, newHeight)));
-      } else {
-        const newWidth = window.innerWidth - e.clientX;
-        const minWidth = 500;
-        const maxWidth = window.innerWidth * 0.8;
-        setPanelWidth(Math.max(minWidth, Math.min(maxWidth, newWidth)));
-      }
-    },
-    [isResizing, config.position],
-  );
-
-  const handleMouseUp = useCallback(() => {
-    setIsResizing(false);
-  }, []);
-
-  // Add global mouse event listeners
-  React.useEffect(() => {
-    if (isResizing) {
-      document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
-      document.body.style.cursor =
-        config.position === "bottom" ? "ns-resize" : "ew-resize";
-      document.body.style.userSelect = "none";
-    } else {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-      document.body.style.cursor = "";
-      document.body.style.userSelect = "";
-    }
-
-    return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-      document.body.style.cursor = "";
-      document.body.style.userSelect = "";
-    };
-  }, [isResizing, handleMouseMove, handleMouseUp, config.position]);
-
-  // Add keyboard event listener for Escape key
-  React.useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose();
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [onClose]);
-
   // Calculate streaming speed metrics (tokens per second, characters per second)
   const streamingSpeed = useMemo(() => {
     const now = Date.now();
@@ -344,427 +430,389 @@ export function DevtoolsPanel({
     }
   }, [events.length]);
 
-  return (
-    <div
-      ref={panelRef}
-      className={`ai-devtools-panel ai-devtools-panel-${config.position} ${className}`}
-      style={{
-        height: config.position === "bottom" ? panelHeight : undefined,
-        width: config.position === "right" ? panelWidth : undefined,
-      }}
-    >
-      {/* Resize Handle */}
-      <button
-        ref={resizeRef}
-        type="button"
-        className={`ai-devtools-resize-handle ai-devtools-resize-handle-${config.position}`}
-        onMouseDown={handleMouseDown}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            // Create a synthetic mouse event for keyboard interaction
-            const syntheticEvent = {
-              ...e,
-              preventDefault: e.preventDefault,
-              clientX: 0,
-              clientY: 0,
-              button: 0,
-              buttons: 0,
-              movementX: 0,
-              movementY: 0,
-              pageX: 0,
-              pageY: 0,
-              screenX: 0,
-              screenY: 0,
-              relatedTarget: null,
-            } as unknown as React.MouseEvent<HTMLButtonElement>;
-            handleMouseDown(syntheticEvent);
-          }
-        }}
-      />
+  return <div className="ai-devtools-panel-container">
+    {/* Header */}
+    <div className="ai-devtools-header">
+      {/* Main Search Bar */}
+      <div className="ai-devtools-search-bar">
+        <div className="ai-devtools-search-input-container">
+          {/* Search Input */}
+          <input
+            type="text"
+            value={filters.searchQuery}
+            onChange={(e) => {
+              const value = e.target.value;
+              setFilters((prev) => ({ ...prev, searchQuery: value }));
+              // Close suggestions when user types to filter the actual list
+              setShowSearchSuggestions(false);
+            }}
+            onFocus={() => {
+              setShowSearchSuggestions(true);
+            }}
+            onBlur={() => {
+              // Delay hiding to allow clicking on suggestions
+              setTimeout(() => setShowSearchSuggestions(false), 200);
+            }}
+            placeholder={`${filteredEvents.length} total events found...`}
+            className="ai-devtools-search-input-main"
+          />
 
-      {/* Header */}
-      <div className="ai-devtools-header">
-        {/* Main Search Bar */}
-        <div className="ai-devtools-search-bar">
-          <div className="ai-devtools-search-input-container">
-            {/* Search Input */}
-            <input
-              type="text"
-              value={filters.searchQuery}
-              onChange={(e) => {
-                const value = e.target.value;
-                setFilters((prev) => ({ ...prev, searchQuery: value }));
-                // Close suggestions when user types to filter the actual list
-                setShowSearchSuggestions(false);
-              }}
-              onFocus={() => {
-                setShowSearchSuggestions(true);
-              }}
-              onBlur={() => {
-                // Delay hiding to allow clicking on suggestions
-                setTimeout(() => setShowSearchSuggestions(false), 200);
-              }}
-              placeholder={`${filteredEvents.length} total events found...`}
-              className="ai-devtools-search-input-main"
-            />
+          {/* Filter Indicator */}
+          {(filters.types.length > 0 || filters.toolNames.length > 0) && (
+            <div className="ai-devtools-filter-indicator">
+              <span className="ai-devtools-filter-indicator-count">
+                {filters.types.length + filters.toolNames.length}
+              </span>
+            </div>
+          )}
+        </div>
 
-            {/* Filter Indicator */}
-            {(filters.types.length > 0 || filters.toolNames.length > 0) && (
-              <div className="ai-devtools-filter-indicator">
-                <span className="ai-devtools-filter-indicator-count">
-                  {filters.types.length + filters.toolNames.length}
-                </span>
-              </div>
-            )}
-          </div>
-
-          {/* Search Suggestions */}
-          {showSearchSuggestions && (
-            <div className="ai-devtools-search-suggestions">
-              <div className="ai-devtools-search-suggestions-content">
-                {/* Event Types */}
-                {filteredSuggestions.eventTypes.length > 0 && (
-                  <div className="ai-devtools-suggestion-section">
-                    <div className="ai-devtools-suggestion-section-title">
-                      Event Types
-                    </div>
-                    <div className="ai-devtools-suggestion-options">
-                      {filteredSuggestions.eventTypes.map((type) => {
-                        const isActive = filters.types.includes(type);
-                        return (
-                          <button
-                            key={type}
-                            type="button"
-                            className={`ai-devtools-suggestion-option ${isActive ? "active" : ""}`}
-                            onClick={() => {
-                              setFilters((prev) => ({
-                                ...prev,
-                                types: isActive
-                                  ? prev.types.filter((t) => t !== type)
-                                  : [...prev.types, type],
-                              }));
-                            }}
-                          >
-                            <span className="ai-devtools-suggestion-icon">
-                              {getEventTypeIcon(type)}
-                            </span>
-                            <span className="ai-devtools-suggestion-label">
-                              {EVENT_TYPE_LABELS[type]}
-                            </span>
-                            <span className="ai-devtools-suggestion-count">
-                              {eventCounts[type] || 0}
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </div>
+        {/* Search Suggestions */}
+        {showSearchSuggestions && (
+          <div className="ai-devtools-search-suggestions">
+            <div className="ai-devtools-search-suggestions-content">
+              {/* Event Types */}
+              {filteredSuggestions.eventTypes.length > 0 && (
+                <div className="ai-devtools-suggestion-section">
+                  <div className="ai-devtools-suggestion-section-title">
+                    Event Types
                   </div>
-                )}
-
-                {/* Tool Names */}
-                {filteredSuggestions.tools.length > 0 && (
-                  <div className="ai-devtools-suggestion-section">
-                    <div className="ai-devtools-suggestion-section-title">
-                      Tools
-                    </div>
-                    <div className="ai-devtools-suggestion-options">
-                      {filteredSuggestions.tools.map((toolName) => {
-                        const isActive = filters.toolNames.includes(toolName);
-                        return (
-                          <button
-                            key={toolName}
-                            type="button"
-                            className={`ai-devtools-suggestion-option ${isActive ? "active" : ""}`}
-                            onClick={() => {
-                              setFilters((prev) => ({
-                                ...prev,
-                                toolNames: isActive
-                                  ? prev.toolNames.filter((t) => t !== toolName)
-                                  : [...prev.toolNames, toolName],
-                              }));
-                            }}
-                          >
-                            <span className="ai-devtools-suggestion-icon">
-                              🔧
-                            </span>
-                            <span className="ai-devtools-suggestion-label">
-                              {formatToolName(toolName)}
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                {/* Quick Search Examples */}
-                {filteredSuggestions.quickSearches.length > 0 && (
-                  <div className="ai-devtools-suggestion-section">
-                    <div className="ai-devtools-suggestion-section-title">
-                      Quick Search
-                    </div>
-                    <div className="ai-devtools-suggestion-options">
-                      {filteredSuggestions.quickSearches.map((term) => (
+                  <div className="ai-devtools-suggestion-options">
+                    {filteredSuggestions.eventTypes.map((type) => {
+                      const isActive = filters.types.includes(type);
+                      return (
                         <button
-                          key={term}
+                          key={type}
                           type="button"
-                          className="ai-devtools-suggestion-option"
+                          className={`ai-devtools-suggestion-option ${isActive ? "active" : ""}`}
                           onClick={() => {
                             setFilters((prev) => ({
                               ...prev,
-                              searchQuery: term,
+                              types: isActive
+                                ? prev.types.filter((t) => t !== type)
+                                : [...prev.types, type],
                             }));
                           }}
                         >
                           <span className="ai-devtools-suggestion-icon">
-                            {term === "error"
-                              ? "!"
-                              : term === "tool"
-                                ? "▶"
-                                : "T"}
+                            {getEventTypeIcon(type)}
                           </span>
                           <span className="ai-devtools-suggestion-label">
-                            {term}
+                            {EVENT_TYPE_LABELS[type]}
+                          </span>
+                          <span className="ai-devtools-suggestion-count">
+                            {eventCounts[type] || 0}
                           </span>
                         </button>
-                      ))}
-                    </div>
+                      );
+                    })}
                   </div>
-                )}
-              </div>
+                </div>
+              )}
+
+              {/* Tool Names */}
+              {filteredSuggestions.tools.length > 0 && (
+                <div className="ai-devtools-suggestion-section">
+                  <div className="ai-devtools-suggestion-section-title">
+                    Tools
+                  </div>
+                  <div className="ai-devtools-suggestion-options">
+                    {filteredSuggestions.tools.map((toolName) => {
+                      const isActive = filters.toolNames.includes(toolName);
+                      return (
+                        <button
+                          key={toolName}
+                          type="button"
+                          className={`ai-devtools-suggestion-option ${isActive ? "active" : ""}`}
+                          onClick={() => {
+                            setFilters((prev) => ({
+                              ...prev,
+                              toolNames: isActive
+                                ? prev.toolNames.filter((t) => t !== toolName)
+                                : [...prev.toolNames, toolName],
+                            }));
+                          }}
+                        >
+                          <span className="ai-devtools-suggestion-icon">
+                            🔧
+                          </span>
+                          <span className="ai-devtools-suggestion-label">
+                            {formatToolName(toolName)}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Quick Search Examples */}
+              {filteredSuggestions.quickSearches.length > 0 && (
+                <div className="ai-devtools-suggestion-section">
+                  <div className="ai-devtools-suggestion-section-title">
+                    Quick Search
+                  </div>
+                  <div className="ai-devtools-suggestion-options">
+                    {filteredSuggestions.quickSearches.map((term) => (
+                      <button
+                        key={term}
+                        type="button"
+                        className="ai-devtools-suggestion-option"
+                        onClick={() => {
+                          setFilters((prev) => ({
+                            ...prev,
+                            searchQuery: term,
+                          }));
+                        }}
+                      >
+                        <span className="ai-devtools-suggestion-icon">
+                          {term === "error"
+                            ? "!"
+                            : term === "tool"
+                              ? "▶"
+                              : "T"}
+                        </span>
+                        <span className="ai-devtools-suggestion-label">
+                          {term}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-          )}
-        </div>
-
-        <div className="ai-devtools-header-right">
-          {/* State Button - only show if store is available */}
-          {isStoreAvailable && (
-            <button
-              type="button"
-              onClick={() => setShowStatePanel(!showStatePanel)}
-              className={`ai-devtools-btn ${showStatePanel ? "active" : ""}`}
-              title={`${showStatePanel ? "Hide" : "Show"} state monitoring`}
-            >
-              <StateIcon className="ai-devtools-btn-icon" />
-              <span>State</span>
-            </button>
-          )}
-
-          {/* Live Button with Pause/Play */}
-          <button
-            type="button"
-            onClick={onToggleCapturing}
-            className={`ai-devtools-btn ${isReceivingEvents ? "receiving" : ""}`}
-          >
-            {isCapturing ? (
-              <PauseIcon className="ai-devtools-btn-icon" />
-            ) : (
-              <PlayArrowIcon className="ai-devtools-btn-icon" />
-            )}
-            <span>Live</span>
-          </button>
-
-          {/* Clear events */}
-          <button
-            type="button"
-            onClick={onClearEvents}
-            className="ai-devtools-btn"
-          >
-            <ClearIcon className="ai-devtools-btn-icon" />
-            <span>clear</span>
-          </button>
-
-          {/* Position Toggle Button */}
-          <button
-            type="button"
-            onClick={onTogglePosition}
-            className="ai-devtools-position-toggle-btn"
-            title={`Switch to ${config.position === "bottom" ? "right" : "bottom"} panel`}
-          >
-            {config.position === "bottom" ? (
-              <RightPanelIcon className="ai-devtools-position-toggle-icon" />
-            ) : (
-              <BottomPanelIcon className="ai-devtools-position-toggle-icon" />
-            )}
-          </button>
-
-          {/* Close */}
-          <button
-            type="button"
-            onClick={onClose}
-            className="ai-devtools-close-btn"
-          >
-            <CloseIcon className="ai-devtools-close-icon" />
-          </button>
-        </div>
+          </div>
+        )}
       </div>
 
-      {/* Filter Badges */}
-      {showFilters && (
-        <div className="ai-devtools-filter-badges">
-          {/* Event Type Filters */}
-          {filters.types.length > 0 && (
-            <div className="ai-devtools-filter-group">
-              <span className="ai-devtools-filter-group-label">Types:</span>
-              {filters.types.map((type) => (
-                <button
-                  key={type}
-                  type="button"
-                  className="ai-devtools-filter-badge active"
-                  onClick={() => {
-                    setFilters((prev) => ({
-                      ...prev,
-                      types: prev.types.filter((t) => t !== type),
-                    }));
-                  }}
-                >
-                  {type.replace(/-/g, " ")}
-                  <span className="ai-devtools-filter-remove">×</span>
-                </button>
-              ))}
-            </div>
-          )}
+      <div className="ai-devtools-header-right">
+        {/* State Button - only show if store is available */}
+        {isStoreAvailable && (
+          <button
+            type="button"
+            onClick={() => setShowStatePanel(!showStatePanel)}
+            className={`ai-devtools-btn ${showStatePanel ? "active" : ""}`}
+            title={`${showStatePanel ? "Hide" : "Show"} state monitoring`}
+          >
+            <StateIcon className="ai-devtools-btn-icon" />
+            <span>State</span>
+          </button>
+        )}
 
-          {/* Tool Name Filters */}
-          {filters.toolNames.length > 0 && (
-            <div className="ai-devtools-filter-group">
-              <span className="ai-devtools-filter-group-label">Tools:</span>
-              {filters.toolNames.map((toolName) => (
-                <button
-                  key={toolName}
-                  type="button"
-                  className="ai-devtools-filter-badge active"
-                  onClick={() => {
-                    setFilters((prev) => ({
-                      ...prev,
-                      toolNames: prev.toolNames.filter((t) => t !== toolName),
-                    }));
-                  }}
-                >
-                  {formatToolName(toolName)}
-                  <span className="ai-devtools-filter-remove">×</span>
-                </button>
-              ))}
-            </div>
+        {/* Live Button with Pause/Play */}
+        <button
+          type="button"
+          onClick={onToggleCapturing}
+          className={`ai-devtools-btn ${isReceivingEvents ? "receiving" : ""}`}
+        >
+          {isCapturing ? (
+            <PauseIcon className="ai-devtools-btn-icon" />
+          ) : (
+            <PlayArrowIcon className="ai-devtools-btn-icon" />
           )}
+          <span>Live</span>
+        </button>
 
-          {/* Quick Filter Options */}
+        {/* Clear events */}
+        <button
+          type="button"
+          onClick={onClearEvents}
+          className="ai-devtools-btn"
+        >
+          <ClearIcon className="ai-devtools-btn-icon" />
+          <span>clear</span>
+        </button>
+
+        {/* Position Toggle Button */}
+        {onTogglePosition ? <button
+          type="button"
+          onClick={onTogglePosition}
+          className="ai-devtools-position-toggle-btn"
+          title={`Switch to ${position === "bottom" ? "right" : "bottom"} panel`}
+        >
+          {position === "bottom" ? (
+            <RightPanelIcon className="ai-devtools-position-toggle-icon" />
+          ) : (
+            <BottomPanelIcon className="ai-devtools-position-toggle-icon" />
+          )}
+        </button> : null}
+
+        {/* Close */}
+        {onClose ? <button
+          type="button"
+          onClick={onClose}
+          className="ai-devtools-close-btn"
+        >
+          <CloseIcon className="ai-devtools-close-icon" />
+        </button> : null}
+
+      </div>
+    </div>
+
+    {/* Filter Badges */}
+    {showFilters && (
+      <div className="ai-devtools-filter-badges">
+        {/* Event Type Filters */}
+        {filters.types.length > 0 && (
           <div className="ai-devtools-filter-group">
-            <span className="ai-devtools-filter-group-label">Quick:</span>
-            <button
-              type="button"
-              className={`ai-devtools-filter-badge ${filters.types.includes("tool-call-start") ? "active" : ""}`}
-              onClick={() => {
-                const isActive = filters.types.includes("tool-call-start");
-                setFilters((prev) => ({
-                  ...prev,
-                  types: isActive
-                    ? prev.types.filter((t) => t !== "tool-call-start")
-                    : [...prev.types, "tool-call-start"],
-                }));
-              }}
-            >
-              Tool Calls
-            </button>
-            <button
-              type="button"
-              className={`ai-devtools-filter-badge ${filters.types.includes("text-delta") ? "active" : ""}`}
-              onClick={() => {
-                const isActive = filters.types.includes("text-delta");
-                setFilters((prev) => ({
-                  ...prev,
-                  types: isActive
-                    ? prev.types.filter((t) => t !== "text-delta")
-                    : [...prev.types, "text-delta"],
-                }));
-              }}
-            >
-              Text Events
-            </button>
-            <button
-              type="button"
-              className={`ai-devtools-filter-badge ${filters.types.includes("error") ? "active" : ""}`}
-              onClick={() => {
-                const isActive = filters.types.includes("error");
-                setFilters((prev) => ({
-                  ...prev,
-                  types: isActive
-                    ? prev.types.filter((t) => t !== "error")
-                    : [...prev.types, "error"],
-                }));
-              }}
-            >
-              Errors
-            </button>
-            {hasActiveFilters && (
+            <span className="ai-devtools-filter-group-label">Types:</span>
+            {filters.types.map((type) => (
               <button
+                key={type}
                 type="button"
-                className="ai-devtools-filter-badge clear"
+                className="ai-devtools-filter-badge active"
                 onClick={() => {
                   setFilters((prev) => ({
                     ...prev,
-                    types: [],
-                    toolNames: [],
-                    searchQuery: "",
+                    types: prev.types.filter((t) => t !== type),
                   }));
                 }}
               >
-                Clear All
+                {type.replace(/-/g, " ")}
+                <span className="ai-devtools-filter-remove">×</span>
               </button>
-            )}
+            ))}
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Content */}
-      <div className="ai-devtools-panel-content">
-        <div className="ai-devtools-content">
-          {showStatePanel ? (
-            <div className="ai-devtools-state-panel-full">
-              <StateDataExplorer
-                currentState={
-                  selectedStoreId ? currentStates[selectedStoreId] : undefined
-                }
-              />
-            </div>
-          ) : (
-            <div className="ai-devtools-events">
-              <EventList events={filteredEvents} />
-            </div>
+        {/* Tool Name Filters */}
+        {filters.toolNames.length > 0 && (
+          <div className="ai-devtools-filter-group">
+            <span className="ai-devtools-filter-group-label">Tools:</span>
+            {filters.toolNames.map((toolName) => (
+              <button
+                key={toolName}
+                type="button"
+                className="ai-devtools-filter-badge active"
+                onClick={() => {
+                  setFilters((prev) => ({
+                    ...prev,
+                    toolNames: prev.toolNames.filter((t) => t !== toolName),
+                  }));
+                }}
+              >
+                {formatToolName(toolName)}
+                <span className="ai-devtools-filter-remove">×</span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Quick Filter Options */}
+        <div className="ai-devtools-filter-group">
+          <span className="ai-devtools-filter-group-label">Quick:</span>
+          <button
+            type="button"
+            className={`ai-devtools-filter-badge ${filters.types.includes("tool-call-start") ? "active" : ""}`}
+            onClick={() => {
+              const isActive = filters.types.includes("tool-call-start");
+              setFilters((prev) => ({
+                ...prev,
+                types: isActive
+                  ? prev.types.filter((t) => t !== "tool-call-start")
+                  : [...prev.types, "tool-call-start"],
+              }));
+            }}
+          >
+            Tool Calls
+          </button>
+          <button
+            type="button"
+            className={`ai-devtools-filter-badge ${filters.types.includes("text-delta") ? "active" : ""}`}
+            onClick={() => {
+              const isActive = filters.types.includes("text-delta");
+              setFilters((prev) => ({
+                ...prev,
+                types: isActive
+                  ? prev.types.filter((t) => t !== "text-delta")
+                  : [...prev.types, "text-delta"],
+              }));
+            }}
+          >
+            Text Events
+          </button>
+          <button
+            type="button"
+            className={`ai-devtools-filter-badge ${filters.types.includes("error") ? "active" : ""}`}
+            onClick={() => {
+              const isActive = filters.types.includes("error");
+              setFilters((prev) => ({
+                ...prev,
+                types: isActive
+                  ? prev.types.filter((t) => t !== "error")
+                  : [...prev.types, "error"],
+              }));
+            }}
+          >
+            Errors
+          </button>
+          {hasActiveFilters && (
+            <button
+              type="button"
+              className="ai-devtools-filter-badge clear"
+              onClick={() => {
+                setFilters((prev) => ({
+                  ...prev,
+                  types: [],
+                  toolNames: [],
+                  searchQuery: "",
+                }));
+              }}
+            >
+              Clear All
+            </button>
           )}
         </div>
       </div>
+    )}
 
-      {/* Bottom Stats Section */}
-      <div className="ai-devtools-bottom-stats">
-        {/* Tokens per second on the left */}
-        <div className="ai-devtools-tokens-section">
-          <div className="ai-devtools-speed-metrics">
-            <div className="ai-devtools-speed-metric">
-              <span className="ai-devtools-speed-value">
-                {streamingSpeed.tokensPerSecond}
-              </span>
-              <span className="ai-devtools-speed-label">tok/s</span>
-            </div>
-            <div className="ai-devtools-speed-metric">
-              <span className="ai-devtools-speed-value">
-                {streamingSpeed.charactersPerSecond}
-              </span>
-              <span className="ai-devtools-speed-label">char/s</span>
-            </div>
+    {/* Content */}
+    <div className="ai-devtools-panel-content">
+      <div className="ai-devtools-content">
+        {showStatePanel ? (
+          <div className="ai-devtools-state-panel-full">
+            <StateDataExplorer
+              currentState={
+                selectedStoreId ? currentStates[selectedStoreId] : undefined
+              }
+            />
           </div>
-        </div>
-
-        {/* Context Circle on the right */}
-        <div className="ai-devtools-context-section">
-          <ContextCircle
-            events={events}
-            modelId={modelId || detectedModelId || "gpt-4o"}
-            className="ai-devtools-context-circle-bottom"
-          />
-        </div>
+        ) : (
+          <div className="ai-devtools-events">
+            <EventList events={filteredEvents} />
+          </div>
+        )}
       </div>
     </div>
-  );
+
+    {/* Bottom Stats Section */}
+    <div className="ai-devtools-bottom-stats">
+      {/* Tokens per second on the left */}
+      <div className="ai-devtools-tokens-section">
+        <div className="ai-devtools-speed-metrics">
+          <div className="ai-devtools-speed-metric">
+            <span className="ai-devtools-speed-value">
+              {streamingSpeed.tokensPerSecond}
+            </span>
+            <span className="ai-devtools-speed-label">tok/s</span>
+          </div>
+          <div className="ai-devtools-speed-metric">
+            <span className="ai-devtools-speed-value">
+              {streamingSpeed.charactersPerSecond}
+            </span>
+            <span className="ai-devtools-speed-label">char/s</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Context Circle on the right */}
+      <div className="ai-devtools-context-section">
+        <ContextCircle
+          events={events}
+          modelId={modelId || detectedModelId || "gpt-4o"}
+          className="ai-devtools-context-circle-bottom"
+        />
+      </div>
+    </div>
+  </div>
 }

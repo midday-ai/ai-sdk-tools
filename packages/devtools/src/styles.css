@@ -47,157 +47,162 @@
 /* Ensure devtools always appear on top */
 .ai-devtools-panel,
 .ai-devtools-button {
-  z-index: 999999 !important;
-  position: fixed !important;
+  z-index: 999999;
+  position: fixed;
+}
+
+.ai-devtools-panel-container {
+  width: 100%;
+  height: 100%;
 }
 
 /* Button styles */
 .ai-devtools-button {
-  bottom: 1rem !important;
-  right: 1rem !important;
-  width: 3rem !important;
-  height: 3rem !important;
-  background-color: #000000 !important; /* Pure black background */
-  color: #ffffff !important; /* White text */
-  border: 1px solid #333333 !important; /* Dark gray border */
-  border-radius: 50% !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
-  font-size: 10px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  transition: all 0.3s ease !important;
-  cursor: pointer !important;
-  padding: 0 !important;
+  bottom: 1rem;
+  right: 1rem;
+  width: 3rem;
+  height: 3rem;
+  background-color: #000000; /* Pure black background */
+  color: #ffffff; /* White text */
+  border: 1px solid #333333; /* Dark gray border */
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  padding: 0;
 }
 
 .ai-devtools-button-icon {
-  font-size: 1.75rem !important;
-  transition: all 0.3s ease !important;
+  font-size: 1.75rem;
+  transition: all 0.3s ease;
 }
 
 .ai-devtools-button:hover {
-  background-color: #1a1a1a !important; /* Slightly lighter black on hover */
-  border-color: #555555 !important; /* Lighter border on hover */
+  background-color: #1a1a1a; /* Slightly lighter black on hover */
+  border-color: #555555; /* Lighter border on hover */
 }
 
 /* Panel styles */
 .ai-devtools-panel {
-  background-color: #000000 !important; /* Pure black background */
-  color: #ffffff !important; /* White text */
-  box-shadow: none !important;
-  font-size: 0.75rem !important;
-  line-height: 1rem !important;
-  overflow: visible !important;
-  position: fixed !important;
-  z-index: 2147483647 !important;
-  display: flex !important;
-  flex-direction: column !important;
+  background-color: #000000; /* Pure black background */
+  color: #ffffff; /* White text */
+  box-shadow: none;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  overflow: visible;
+  position: fixed;
+  z-index: 2147483647;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Bottom panel positioning */
 .ai-devtools-panel-bottom {
-  bottom: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  border-top: 1px solid #333333 !important; /* Dark gray border */
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border-top: 1px solid #333333; /* Dark gray border */
 }
 
 /* Right panel positioning */
 .ai-devtools-panel-right {
-  top: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  border-left: 1px solid #333333 !important; /* Dark gray border */
+  top: 0;
+  right: 0;
+  bottom: 0;
+  border-left: 1px solid #333333; /* Dark gray border */
 }
 
 /* Resize Handle */
 .ai-devtools-resize-handle {
-  position: absolute !important;
-  background-color: transparent !important;
-  z-index: 2147483648 !important;
+  position: absolute;
+  background-color: transparent;
+  z-index: 2147483648;
 }
 
 /* Bottom panel resize handle */
 .ai-devtools-resize-handle-bottom {
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  height: 4px !important;
-  cursor: ns-resize !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  cursor: ns-resize;
 }
 
 /* Right panel resize handle */
 .ai-devtools-resize-handle-right {
-  top: 0 !important;
-  left: 0 !important;
-  bottom: 0 !important;
-  width: 4px !important;
-  cursor: ew-resize !important;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 4px;
+  cursor: ew-resize;
 }
 
 /* Utility classes */
 .ai-devtools .flex {
-  display: flex !important;
+  display: flex;
 }
 
 .ai-devtools .items-center {
-  align-items: center !important;
+  align-items: center;
 }
 
 .ai-devtools .justify-between {
-  justify-content: space-between !important;
+  justify-content: space-between;
 }
 
 .ai-devtools .px-3 {
-  padding-left: 0.75rem !important;
-  padding-right: 0.75rem !important;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
 }
 
 .ai-devtools .py-1\.5 {
-  padding-top: 0.375rem !important;
-  padding-bottom: 0.375rem !important;
+  padding-top: 0.375rem;
+  padding-bottom: 0.375rem;
 }
 
 .ai-devtools .header-bg {
-  background-color: rgba(0, 0, 0, 0.8) !important; /* Black with opacity */
+  background-color: rgba(0, 0, 0, 0.8); /* Black with opacity */
 }
 
 .ai-devtools .border-bottom {
-  border-bottom-width: 1px !important;
+  border-bottom-width: 1px;
 }
 
 .ai-devtools .border-dark {
-  border-color: #333333 !important; /* Dark gray border */
+  border-color: #333333; /* Dark gray border */
 }
 
 .ai-devtools .text-small {
-  font-size: 0.75rem !important;
-  line-height: 1rem !important;
+  font-size: 0.75rem;
+  line-height: 1rem;
 }
 
 .ai-devtools .text-primary {
-  color: #ffffff !important; /* White for primary text */
+  color: #ffffff; /* White for primary text */
 }
 
 .ai-devtools .text-secondary {
-  color: #cccccc !important; /* Light gray for secondary text */
+  color: #cccccc; /* Light gray for secondary text */
 }
 
 .ai-devtools .text-muted {
-  color: #888888 !important; /* Medium gray for muted text */
+  color: #888888; /* Medium gray for muted text */
 }
 
 .ai-devtools .w-1 {
-  width: 0.25rem !important;
+  width: 0.25rem;
 }
 
 .ai-devtools .h-1 {
-  height: 0.25rem !important;
+  height: 0.25rem;
 }
 
 .ai-devtools .animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite !important;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 @keyframes pulse {
@@ -208,1239 +213,1239 @@
 
 /* Button content styles */
 .ai-devtools-button-icon {
-  width: 0.75rem !important; /* w-3 */
-  height: 0.75rem !important; /* h-3 */
-  margin-bottom: 0.125rem !important; /* mb-0.5 */
+  width: 0.75rem; /* w-3 */
+  height: 0.75rem; /* h-3 */
+  margin-bottom: 0.125rem; /* mb-0.5 */
 }
 
 .ai-devtools-button-count {
-  font-size: 8px !important; /* text-[8px] */
-  line-height: 1 !important; /* leading-none */
+  font-size: 8px; /* text-[8px] */
+  line-height: 1; /* leading-none */
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important; /* font-mono */
+    "Liberation Mono", "Courier New", monospace; /* font-mono */
 }
 
 /* Header styles */
 .ai-devtools-header {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  padding: 0.375rem 0.75rem !important;
-  background-color: rgba(0, 0, 0, 0.8) !important; /* Black with opacity */
-  border-bottom: 1px solid #333333 !important; /* Dark gray border */
-  overflow: visible !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.375rem 0.75rem;
+  background-color: rgba(0, 0, 0, 0.8); /* Black with opacity */
+  border-bottom: 1px solid #333333; /* Dark gray border */
+  overflow: visible;
 }
 
 .ai-devtools-header-left {
-  display: flex !important;
-  align-items: center !important;
-  gap: 0.75rem !important;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .ai-devtools-context-circle-header {
-  margin-left: 0.75rem !important;
-  flex-shrink: 0 !important;
-  order: -1 !important; /* Place before other buttons */
+  margin-left: 0.75rem;
+  flex-shrink: 0;
+  order: -1; /* Place before other buttons */
 }
 
 .ai-devtools-count {
-  font-size: 10px !important;
-  color: #cccccc !important; /* Light gray text */
+  font-size: 10px;
+  color: #cccccc; /* Light gray text */
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
+    "Liberation Mono", "Courier New", monospace;
 }
 
 .ai-devtools-rec {
-  display: flex !important;
-  align-items: center !important;
-  gap: 0.25rem !important;
-  font-size: 10px !important;
-  color: #ffffff !important; /* White text */
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 10px;
+  color: #ffffff; /* White text */
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
+    "Liberation Mono", "Courier New", monospace;
 }
 
 .ai-devtools-rec-dot {
-  width: 0.25rem !important;
-  height: 0.25rem !important;
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite !important;
-  color: #cccccc !important; /* Light gray for recording dot */
+  width: 0.25rem;
+  height: 0.25rem;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  color: #cccccc; /* Light gray for recording dot */
 }
 
 /* Header right section */
 .ai-devtools-header-right {
-  display: flex !important;
-  align-items: center !important;
-  gap: 0.75rem !important;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 /* Main Search Bar */
 .ai-devtools-search-bar {
-  position: relative !important;
-  display: flex !important;
-  align-items: center !important;
-  background-color: transparent !important;
-  border: none !important;
-  border-radius: 0 !important;
-  padding: 0 !important;
-  flex: 1 !important;
-  margin-right: 1rem !important;
-  min-height: 2.5rem !important;
-  overflow: visible !important;
+  position: relative;
+  display: flex;
+  align-items: center;
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  flex: 1;
+  margin-right: 1rem;
+  min-height: 2.5rem;
+  overflow: visible;
 }
 
 .ai-devtools-search-input-container {
-  display: flex !important;
-  align-items: center !important;
-  gap: 0.5rem !important;
-  width: 100% !important;
-  min-height: 2.5rem !important;
-  padding: 0.5rem 0.75rem !important;
-  background-color: transparent !important;
-  border: none !important;
-  border-right: 1px solid #333333 !important;
-  border-radius: 0 !important;
-  position: relative !important;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 2.5rem;
+  padding: 0.5rem 0.75rem;
+  background-color: transparent;
+  border: none;
+  border-right: 1px solid #333333;
+  border-radius: 0;
+  position: relative;
 }
 
 .ai-devtools-search-input-main {
-  flex: 1 !important;
-  background: transparent !important;
-  border: none !important;
-  outline: none !important;
-  color: #ffffff !important;
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ffffff;
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
-  font-size: 0.875rem !important;
-  line-height: 1.2 !important;
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 0.875rem;
+  line-height: 1.2;
 }
 
 .ai-devtools-search-input-main::placeholder {
-  color: #555555 !important;
-  font-size: 0.75rem !important;
+  color: #555555;
+  font-size: 0.75rem;
 }
 
 /* Filter Chips */
 .ai-devtools-filter-chip {
-  display: flex !important;
-  align-items: center !important;
-  gap: 0.25rem !important;
-  padding: 0.25rem 0.5rem !important;
-  background-color: #333333 !important;
-  border: 1px solid #555555 !important;
-  border-radius: 0 !important;
-  color: #ffffff !important;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background-color: #333333;
+  border: 1px solid #555555;
+  border-radius: 0;
+  color: #ffffff;
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
-  font-size: 0.75rem !important;
-  white-space: nowrap !important;
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 0.75rem;
+  white-space: nowrap;
 }
 
 .ai-devtools-filter-chip-icon {
-  font-size: 0.75rem !important;
-  width: 0.875rem !important;
-  text-align: center !important;
+  font-size: 0.75rem;
+  width: 0.875rem;
+  text-align: center;
 }
 
 .ai-devtools-filter-chip-label {
-  font-weight: 500 !important;
+  font-weight: 500;
 }
 
 .ai-devtools-filter-chip-remove {
-  background: none !important;
-  border: none !important;
-  color: #cccccc !important;
-  cursor: pointer !important;
-  font-size: 1rem !important;
-  line-height: 1 !important;
-  padding: 0 !important;
-  margin-left: 0.25rem !important;
-  width: 1rem !important;
-  height: 1rem !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+  background: none;
+  border: none;
+  color: #cccccc;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0;
+  margin-left: 0.25rem;
+  width: 1rem;
+  height: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .ai-devtools-filter-chip-remove:hover {
-  color: #ffffff !important;
-  background-color: #555555 !important;
+  color: #ffffff;
+  background-color: #555555;
 }
 
 /* Filter Indicator */
 .ai-devtools-filter-indicator {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  padding: 0.25rem 0.5rem !important;
-  background-color: #333333 !important;
-  border: 1px solid #555555 !important;
-  color: #cccccc !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.5rem;
+  background-color: #333333;
+  border: 1px solid #555555;
+  color: #cccccc;
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
-  font-size: 0.75rem !important;
-  font-weight: 500 !important;
-  border-radius: 0 !important;
-  cursor: pointer !important;
-  transition: all 0.2s ease !important;
-  flex-shrink: 0 !important;
-  min-width: 1.5rem !important;
-  height: 1.5rem !important;
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  min-width: 1.5rem;
+  height: 1.5rem;
 }
 
 .ai-devtools-filter-indicator:hover {
-  background-color: #444444 !important;
-  border-color: #666666 !important;
-  color: #ffffff !important;
+  background-color: #444444;
+  border-color: #666666;
+  color: #ffffff;
 }
 
 .ai-devtools-filter-indicator-count {
-  color: #ffffff !important;
-  font-size: 10px !important;
-  font-weight: 600 !important;
-  text-align: center !important;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 600;
+  text-align: center;
 }
 
 /* Filter Badges */
 .ai-devtools-filter-badges {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 0.5rem !important;
-  padding: 0.5rem 1rem !important;
-  background-color: #1a1a1a !important;
-  border-bottom: 1px solid #333333 !important;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #1a1a1a;
+  border-bottom: 1px solid #333333;
 }
 
 .ai-devtools-filter-group {
-  display: flex !important;
-  align-items: center !important;
-  gap: 0.5rem !important;
-  flex-wrap: wrap !important;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .ai-devtools-filter-group-label {
-  color: #888888 !important;
+  color: #888888;
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
-  font-size: 0.75rem !important;
-  font-weight: 500 !important;
-  margin-right: 0.25rem !important;
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-right: 0.25rem;
 }
 
 .ai-devtools-filter-badge {
-  background-color: #2a2a2a !important;
-  border: 1px solid #404040 !important;
-  color: #888888 !important;
-  padding: 0.25rem 0.5rem !important;
+  background-color: #2a2a2a;
+  border: 1px solid #404040;
+  color: #888888;
+  padding: 0.25rem 0.5rem;
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
-  font-size: 0.75rem !important;
-  font-weight: 500 !important;
-  cursor: pointer !important;
-  transition: all 0.2s ease !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 0.25rem !important;
-  border-radius: 0 !important;
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: 0;
 }
 
 .ai-devtools-filter-badge:hover {
-  background-color: #404040 !important;
-  color: #ffffff !important;
+  background-color: #404040;
+  color: #ffffff;
 }
 
 .ai-devtools-filter-badge.active {
-  background-color: #404040 !important;
-  color: #ffffff !important;
-  border-color: #666666 !important;
+  background-color: #404040;
+  color: #ffffff;
+  border-color: #666666;
 }
 
 .ai-devtools-filter-badge.clear {
-  background-color: #ff4444 !important;
-  color: #ffffff !important;
-  border-color: #ff6666 !important;
+  background-color: #ff4444;
+  color: #ffffff;
+  border-color: #ff6666;
 }
 
 .ai-devtools-filter-badge.clear:hover {
-  background-color: #ff6666 !important;
+  background-color: #ff6666;
 }
 
 .ai-devtools-filter-remove {
-  color: #ff6666 !important;
-  font-weight: bold !important;
-  margin-left: 0.25rem !important;
+  color: #ff6666;
+  font-weight: bold;
+  margin-left: 0.25rem;
 }
 
 /* Filter Dropdown */
 .ai-devtools-filter-dropdown {
-  position: absolute !important;
-  top: 100% !important;
-  left: 1rem !important;
-  right: 1rem !important;
-  background-color: #1a1a1a !important;
-  border: 1px solid #404040 !important;
-  border-top: none !important;
-  z-index: 2147483647 !important;
-  max-height: 400px !important;
-  overflow-y: auto !important;
+  position: absolute;
+  top: 100%;
+  left: 1rem;
+  right: 1rem;
+  background-color: #1a1a1a;
+  border: 1px solid #404040;
+  border-top: none;
+  z-index: 2147483647;
+  max-height: 400px;
+  overflow-y: auto;
 }
 
 .ai-devtools-filter-dropdown-content {
-  padding: 1rem !important;
+  padding: 1rem;
 }
 
 .ai-devtools-filter-section {
-  margin-bottom: 1.5rem !important;
+  margin-bottom: 1.5rem;
 }
 
 .ai-devtools-filter-section:last-child {
-  margin-bottom: 0 !important;
+  margin-bottom: 0;
 }
 
 .ai-devtools-filter-section-title {
-  color: #ffffff !important;
+  color: #ffffff;
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
-  font-size: 0.875rem !important;
-  font-weight: 600 !important;
-  margin-bottom: 0.75rem !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.05em !important;
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .ai-devtools-filter-options {
-  display: grid !important;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
-  gap: 0.5rem !important;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.5rem;
 }
 
 .ai-devtools-filter-option {
-  display: flex !important;
-  align-items: center !important;
-  gap: 0.5rem !important;
-  padding: 0.5rem 0.75rem !important;
-  background-color: #2a2a2a !important;
-  border: 1px solid #404040 !important;
-  color: #888888 !important;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background-color: #2a2a2a;
+  border: 1px solid #404040;
+  color: #888888;
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
-  font-size: 0.75rem !important;
-  cursor: pointer !important;
-  transition: all 0.2s ease !important;
-  text-align: left !important;
-  border-radius: 0 !important;
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  border-radius: 0;
 }
 
 .ai-devtools-filter-option:hover {
-  background-color: #404040 !important;
-  color: #ffffff !important;
+  background-color: #404040;
+  color: #ffffff;
 }
 
 .ai-devtools-filter-option.active {
-  background-color: #404040 !important;
-  color: #ffffff !important;
-  border-color: #666666 !important;
+  background-color: #404040;
+  color: #ffffff;
+  border-color: #666666;
 }
 
 .ai-devtools-filter-option-icon {
-  font-size: 0.875rem !important;
-  width: 1rem !important;
-  text-align: center !important;
+  font-size: 0.875rem;
+  width: 1rem;
+  text-align: center;
 }
 
 .ai-devtools-filter-option-label {
-  flex: 1 !important;
-  font-weight: 500 !important;
+  flex: 1;
+  font-weight: 500;
 }
 
 .ai-devtools-filter-option-count {
-  color: #666666 !important;
-  font-size: 0.6875rem !important;
-  background-color: #333333 !important;
-  padding: 0.125rem 0.375rem !important;
-  border-radius: 0 !important;
+  color: #666666;
+  font-size: 0.6875rem;
+  background-color: #333333;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0;
 }
 
 .ai-devtools-filter-actions {
-  border-top: 1px solid #333333 !important;
-  padding-top: 1rem !important;
-  margin-top: 1rem !important;
+  border-top: 1px solid #333333;
+  padding-top: 1rem;
+  margin-top: 1rem;
 }
 
 .ai-devtools-filter-clear-all {
-  background-color: #ff4444 !important;
-  color: #ffffff !important;
-  border: 1px solid #ff6666 !important;
-  padding: 0.5rem 1rem !important;
+  background-color: #ff4444;
+  color: #ffffff;
+  border: 1px solid #ff6666;
+  padding: 0.5rem 1rem;
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
-  font-size: 0.75rem !important;
-  font-weight: 500 !important;
-  cursor: pointer !important;
-  transition: all 0.2s ease !important;
-  border-radius: 0 !important;
-  width: 100% !important;
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 0;
+  width: 100%;
 }
 
 .ai-devtools-filter-clear-all:hover {
-  background-color: #ff6666 !important;
+  background-color: #ff6666;
 }
 
 /* Search Suggestions */
 .ai-devtools-search-suggestions {
-  position: absolute !important;
-  top: calc(100% + 2px) !important;
-  left: 0 !important;
-  right: 0 !important;
-  background-color: #000000 !important;
-  border: 1px solid #333333 !important;
-  z-index: 2147483647 !important;
-  max-height: 300px !important;
-  overflow-y: auto !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8) !important;
-  display: block !important;
-  visibility: visible !important;
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  background-color: #000000;
+  border: 1px solid #333333;
+  z-index: 2147483647;
+  max-height: 300px;
+  overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+  display: block;
+  visibility: visible;
 }
 
 .ai-devtools-search-suggestions-content {
-  padding: 0 !important;
-  background-color: #000000 !important;
+  padding: 0;
+  background-color: #000000;
 }
 
 .ai-devtools-suggestion-section {
-  margin-bottom: 0 !important;
+  margin-bottom: 0;
 }
 
 .ai-devtools-suggestion-section:last-child {
-  margin-bottom: 0 !important;
+  margin-bottom: 0;
 }
 
 .ai-devtools-suggestion-section-title {
-  color: #666666 !important;
+  color: #666666;
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
-  font-size: 0.7rem !important;
-  font-weight: 600 !important;
-  margin: 0 !important;
-  padding: 0.5rem 0.75rem 0.25rem 0.75rem !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.05em !important;
-  background-color: #111111 !important;
-  border-bottom: 1px solid #222222 !important;
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin: 0;
+  padding: 0.5rem 0.75rem 0.25rem 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background-color: #111111;
+  border-bottom: 1px solid #222222;
 }
 
 .ai-devtools-suggestion-options {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 0 !important;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
 .ai-devtools-suggestion-option {
-  display: flex !important;
-  align-items: center !important;
-  gap: 0.25rem !important;
-  padding: 0.5rem 0.75rem !important;
-  padding-right: 2.5rem !important;
-  background-color: transparent !important;
-  border: none !important;
-  border-bottom: 1px solid #222222 !important;
-  color: #cccccc !important;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  padding-right: 2.5rem;
+  background-color: transparent;
+  border: none;
+  border-bottom: 1px solid #222222;
+  color: #cccccc;
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
-  font-size: 0.75rem !important;
-  cursor: pointer !important;
-  transition: all 0.15s ease !important;
-  text-align: left !important;
-  border-radius: 0 !important;
-  width: 100% !important;
-  position: relative !important;
-  overflow: hidden !important;
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+  border-radius: 0;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
 }
 
 .ai-devtools-suggestion-option:hover {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
+  background-color: #1a1a1a;
+  color: #ffffff;
 }
 
 .ai-devtools-suggestion-option.active {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border-left: 3px solid #666666 !important;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  border-left: 3px solid #666666;
 }
 
 .ai-devtools-suggestion-icon {
-  font-size: 0.875rem !important;
-  width: 1rem !important;
-  text-align: center !important;
+  font-size: 0.875rem;
+  width: 1rem;
+  text-align: center;
 }
 
 .ai-devtools-suggestion-label {
-  flex: 1 !important;
-  font-weight: 500 !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
-  margin-right: 1.5rem !important;
+  flex: 1;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 1.5rem;
 }
 
 .ai-devtools-suggestion-count {
-  position: absolute !important;
-  right: 0.75rem !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-  color: #888888 !important;
-  font-size: 0.6875rem !important;
-  background-color: transparent !important;
-  padding: 0 !important;
-  border-radius: 0 !important;
-  font-weight: 400 !important;
-  min-width: 1.5rem !important;
-  text-align: right !important;
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888888;
+  font-size: 0.6875rem;
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+  font-weight: 400;
+  min-width: 1.5rem;
+  text-align: right;
 }
 
 .ai-devtools-suggestion-actions {
-  border-top: 1px solid #333333 !important;
-  padding-top: 1rem !important;
-  margin-top: 1rem !important;
+  border-top: 1px solid #333333;
+  padding-top: 1rem;
+  margin-top: 1rem;
 }
 
 .ai-devtools-suggestion-no-results {
-  color: #888888 !important;
+  color: #888888;
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
-  font-size: 0.75rem !important;
-  text-align: center !important;
-  padding: 1rem !important;
-  font-style: italic !important;
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 0.75rem;
+  text-align: center;
+  padding: 1rem;
+  font-style: italic;
 }
 
 /* Button styles */
 .ai-devtools-btn {
-  display: flex !important;
-  align-items: center !important;
-  gap: 0.25rem !important;
-  padding: 0.125rem 0.375rem !important;
-  font-size: 10px !important;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.375rem;
+  font-size: 10px;
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
-  border: 1px solid #333333 !important; /* Dark gray border */
-  background-color: transparent !important;
-  color: #cccccc !important; /* Light gray text */
-  cursor: pointer !important;
-  transition: all 0.15s ease !important;
+    "Liberation Mono", "Courier New", monospace;
+  border: 1px solid #333333; /* Dark gray border */
+  background-color: transparent;
+  color: #cccccc; /* Light gray text */
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
 .ai-devtools-btn:hover {
-  background-color: #1a1a1a !important; /* Dark background on hover */
-  border-color: #555555 !important; /* Lighter border on hover */
+  background-color: #1a1a1a; /* Dark background on hover */
+  border-color: #555555; /* Lighter border on hover */
 }
 
 .ai-devtools-btn.active {
-  background-color: #333333 !important; /* Dark gray active background */
-  color: #ffffff !important; /* White active text */
-  border-color: #555555 !important; /* Lighter active border */
+  background-color: #333333; /* Dark gray active background */
+  color: #ffffff; /* White active text */
+  border-color: #555555; /* Lighter active border */
 }
 
 .ai-devtools-btn-icon {
-  width: 0.625rem !important;
-  height: 0.625rem !important;
+  width: 0.625rem;
+  height: 0.625rem;
 }
 
 .ai-devtools-close-btn {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  padding: 0.125rem !important;
-  color: #cccccc !important; /* Light gray text */
-  cursor: pointer !important;
-  transition: color 0.15s ease !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.125rem;
+  color: #cccccc; /* Light gray text */
+  cursor: pointer;
+  transition: color 0.15s ease;
 }
 
 .ai-devtools-close-btn:hover {
-  color: #ffffff !important; /* White on hover */
+  color: #ffffff; /* White on hover */
 }
 
 .ai-devtools-close-icon {
-  width: 0.75rem !important;
-  height: 0.75rem !important;
+  width: 0.75rem;
+  height: 0.75rem;
 }
 
 /* Position Toggle Button */
 .ai-devtools-position-toggle-btn {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 22px !important;
-  height: 22px !important;
-  padding: 0 !important;
-  font-size: 10px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  font-size: 10px;
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
-  border: 1px solid #333333 !important; /* Dark gray border */
-  background-color: transparent !important;
-  color: #cccccc !important; /* Light gray text */
-  cursor: pointer !important;
-  transition: all 0.15s ease !important;
+    "Liberation Mono", "Courier New", monospace;
+  border: 1px solid #333333; /* Dark gray border */
+  background-color: transparent;
+  color: #cccccc; /* Light gray text */
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
 .ai-devtools-position-toggle-btn:hover {
-  background-color: #1a1a1a !important; /* Dark background on hover */
-  border-color: #555555 !important; /* Lighter border on hover */
+  background-color: #1a1a1a; /* Dark background on hover */
+  border-color: #555555; /* Lighter border on hover */
 }
 
 .ai-devtools-position-toggle-icon {
-  width: 12px !important;
-  height: 12px !important;
+  width: 12px;
+  height: 12px;
 }
 
 /* Content styles */
 .ai-devtools-content {
-  display: flex !important;
-  height: 100% !important;
-  background-color: #000000 !important; /* Pure black background */
+  display: flex;
+  height: 100%;
+  background-color: #000000; /* Pure black background */
 }
 
 .ai-devtools-filters {
-  width: 20rem !important;
-  border-right: 1px solid #333333 !important; /* Dark gray border */
-  overflow-y: auto !important;
-  background-color: rgba(0, 0, 0, 0.9) !important; /* Black with opacity */
+  width: 20rem;
+  border-right: 1px solid #333333; /* Dark gray border */
+  overflow-y: auto;
+  background-color: rgba(0, 0, 0, 0.9); /* Black with opacity */
 }
 
 .ai-devtools-events {
-  flex: 1 !important;
-  overflow-y: auto !important;
-  padding: 0.5rem !important;
-  background-color: #000000 !important; /* Pure black background */
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem;
+  background-color: #000000; /* Pure black background */
 }
 
 /* Event item styles */
 .ai-devtools-event-item {
-  border-bottom: 1px solid #222222 !important; /* Subtle border like terminal */
+  border-bottom: 1px solid #222222; /* Subtle border like terminal */
 }
 
 .ai-devtools-event-header {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  padding: 0.25rem 0.75rem !important; /* More compact padding */
-  cursor: pointer !important;
-  transition: background-color 0.15s ease !important;
-  min-height: 1.5rem !important; /* More compact height */
-  border-left: 2px solid transparent !important; /* Thinner left border */
-  font-size: 0.75rem !important; /* Smaller text */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.25rem 0.75rem; /* More compact padding */
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  min-height: 1.5rem; /* More compact height */
+  border-left: 2px solid transparent; /* Thinner left border */
+  font-size: 0.75rem; /* Smaller text */
 }
 
 .ai-devtools-event-header:hover {
-  background-color: #1a1a1a !important; /* Dark hover background */
+  background-color: #1a1a1a; /* Dark hover background */
 }
 
 /* Color-coded left borders for different event types */
 .ai-devtools-event-item[data-type="tool-call-result"]
 .ai-devtools-event-header {
-  border-left-color: #00ff00 !important; /* Green for success */
+  border-left-color: #00ff00; /* Green for success */
 }
 
 .ai-devtools-event-item[data-type="tool-call-error"] .ai-devtools-event-header {
-  border-left-color: #ff0000 !important; /* Red for errors */
+  border-left-color: #ff0000; /* Red for errors */
 }
 
 .ai-devtools-event-item[data-type="message-complete"]
   .ai-devtools-event-header {
-  border-left-color: #00ff00 !important; /* Green for completion */
+  border-left-color: #00ff00; /* Green for completion */
 }
 
 .ai-devtools-event-item[data-type="finish"] .ai-devtools-event-header {
-  border-left-color: #00ff00 !important; /* Green for finish */
+  border-left-color: #00ff00; /* Green for finish */
 }
 
 .ai-devtools-event-item[data-type="stream-done"] .ai-devtools-event-header {
-  border-left-color: #00ff00 !important; /* Green for stream done */
+  border-left-color: #00ff00; /* Green for stream done */
 }
 
 .ai-devtools-event-item[data-type="text-delta"] .ai-devtools-event-header {
-  border-left-color: #888888 !important; /* Gray for text deltas */
+  border-left-color: #888888; /* Gray for text deltas */
 }
 
 .ai-devtools-event-item[data-type="message-chunk"] .ai-devtools-event-header {
-  border-left-color: #888888 !important; /* Gray for chunks */
+  border-left-color: #888888; /* Gray for chunks */
 }
 
 .ai-devtools-event-item[data-type="start"] .ai-devtools-event-header {
-  border-left-color: #87ceeb !important; /* Light blue for start */
+  border-left-color: #87ceeb; /* Light blue for start */
 }
 
 .ai-devtools-event-item[data-type="reasoning-start"] .ai-devtools-event-header {
-  border-left-color: #9c27b0 !important; /* Purple for reasoning start */
+  border-left-color: #9c27b0; /* Purple for reasoning start */
 }
 
 .ai-devtools-event-item[data-type="reasoning-end"] .ai-devtools-event-header {
-  border-left-color: #9c27b0 !important; /* Purple for reasoning end */
+  border-left-color: #9c27b0; /* Purple for reasoning end */
 }
 
 .ai-devtools-event-content {
-  display: flex !important;
-  align-items: center !important;
-  gap: 0.75rem !important; /* More spacing for better readability */
-  flex: 1 !important;
-  min-width: 0 !important;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem; /* More spacing for better readability */
+  flex: 1;
+  min-width: 0;
 }
 
 .ai-devtools-event-indicator {
-  width: 0.25rem !important; /* Slightly bigger indicator */
-  height: 0.25rem !important;
-  border-radius: 50% !important;
-  flex-shrink: 0 !important;
-  background-color: #888888 !important; /* Medium gray */
-  margin-right: 0.5rem !important; /* More spacing */
+  width: 0.25rem; /* Slightly bigger indicator */
+  height: 0.25rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background-color: #888888; /* Medium gray */
+  margin-right: 0.5rem; /* More spacing */
 }
 
 .ai-devtools-event-icon {
-  font-size: 0.6875rem !important; /* Slightly smaller icon */
-  flex-shrink: 0 !important;
-  color: #cccccc !important; /* Light gray */
-  margin-right: 0.5rem !important; /* More spacing */
-  font-weight: bold !important; /* Make icons more visible */
+  font-size: 0.6875rem; /* Slightly smaller icon */
+  flex-shrink: 0;
+  color: #cccccc; /* Light gray */
+  margin-right: 0.5rem; /* More spacing */
+  font-weight: bold; /* Make icons more visible */
 }
 
 .ai-devtools-event-description {
-  flex: 1 !important;
-  min-width: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 0.25rem !important;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .ai-devtools-event-text {
-  font-size: 0.75rem !important; /* Smaller text */
-  color: #ffffff !important; /* White text */
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
+  font-size: 0.75rem; /* Smaller text */
+  color: #ffffff; /* White text */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important; /* Monospace font */
-  line-height: 1.2 !important; /* Tighter line height */
-  font-weight: 400 !important; /* Normal weight */
-  letter-spacing: 0.025em !important; /* Slight letter spacing */
+    "Liberation Mono", "Courier New", monospace; /* Monospace font */
+  line-height: 1.2; /* Tighter line height */
+  font-weight: 400; /* Normal weight */
+  letter-spacing: 0.025em; /* Slight letter spacing */
 }
 
 .ai-devtools-event-duration {
-  color: #888888 !important; /* Slightly dimmer for duration */
-  font-size: 0.5625rem !important; /* Even smaller for duration */
+  color: #888888; /* Slightly dimmer for duration */
+  font-size: 0.5625rem; /* Even smaller for duration */
 }
 
 /* Tool call session styles */
 .ai-devtools-session {
-  border: 1px solid #2a2a2a !important; /* Lighter border */
-  margin-bottom: 0.25rem !important; /* Tighter spacing */
-  background-color: #0f0f0f !important; /* Slightly lighter background */
+  border: 1px solid #2a2a2a; /* Lighter border */
+  margin-bottom: 0.25rem; /* Tighter spacing */
+  background-color: #0f0f0f; /* Slightly lighter background */
 }
 
 .ai-devtools-session-header {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  padding: 0.375rem 0.75rem !important; /* More compact padding */
-  cursor: pointer !important;
-  transition: background-color 0.15s ease !important;
-  background-color: #141414 !important; /* Slightly lighter header background */
-  border-bottom: 1px solid #2a2a2a !important; /* Lighter border */
-  min-height: 2rem !important; /* More compact height */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.375rem 0.75rem; /* More compact padding */
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  background-color: #141414; /* Slightly lighter header background */
+  border-bottom: 1px solid #2a2a2a; /* Lighter border */
+  min-height: 2rem; /* More compact height */
 }
 
 .ai-devtools-session-header:hover {
-  background-color: #1a1a1a !important; /* Hover background */
+  background-color: #1a1a1a; /* Hover background */
 }
 
 .ai-devtools-session-content {
-  display: flex !important;
-  align-items: center !important;
-  gap: 0.5rem !important;
-  flex: 1 !important;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
 }
 
 .ai-devtools-session-indicator {
-  width: 0.375rem !important; /* Smaller indicator */
-  height: 0.375rem !important;
-  border-radius: 50% !important; /* Round indicator */
-  flex-shrink: 0 !important;
-  margin-right: 0.5rem !important; /* Add spacing */
+  width: 0.375rem; /* Smaller indicator */
+  height: 0.375rem;
+  border-radius: 50%; /* Round indicator */
+  flex-shrink: 0;
+  margin-right: 0.5rem; /* Add spacing */
 }
 
 /* Status-specific indicator colors */
 .ai-devtools-session[data-status="completed"] .ai-devtools-session-indicator {
-  background-color: #00ff00 !important; /* Green for completed */
+  background-color: #00ff00; /* Green for completed */
 }
 
 .ai-devtools-session[data-status="running"] .ai-devtools-session-indicator {
-  background-color: #ffaa00 !important; /* Orange for running */
+  background-color: #ffaa00; /* Orange for running */
 }
 
 .ai-devtools-session[data-status="error"] .ai-devtools-session-indicator {
-  background-color: #ff0000 !important; /* Red for error */
+  background-color: #ff0000; /* Red for error */
 }
 
 .ai-devtools-session-icon {
-  font-size: 0.75rem !important;
-  flex-shrink: 0 !important;
-  color: #cccccc !important;
-  font-weight: bold !important;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+  color: #cccccc;
+  font-weight: bold;
 }
 
 .ai-devtools-session-info {
-  flex: 1 !important;
-  min-width: 0 !important;
+  flex: 1;
+  min-width: 0;
 }
 
 .ai-devtools-session-tool-name {
-  font-size: 0.8125rem !important; /* Slightly smaller */
-  color: #ffffff !important;
-  font-weight: 500 !important; /* Lighter weight for cleaner look */
+  font-size: 0.8125rem; /* Slightly smaller */
+  color: #ffffff;
+  font-weight: 500; /* Lighter weight for cleaner look */
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
-  margin-bottom: 0.0625rem !important; /* Tighter spacing */
-  letter-spacing: 0.025em !important; /* Slight letter spacing */
+    "Liberation Mono", "Courier New", monospace;
+  margin-bottom: 0.0625rem; /* Tighter spacing */
+  letter-spacing: 0.025em; /* Slight letter spacing */
 }
 
 .ai-devtools-session-summary {
-  font-size: 0.6875rem !important; /* Smaller text */
-  color: #999999 !important; /* Lighter gray */
+  font-size: 0.6875rem; /* Smaller text */
+  color: #999999; /* Lighter gray */
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
-  font-weight: 400 !important; /* Normal weight */
+    "Liberation Mono", "Courier New", monospace;
+  font-weight: 400; /* Normal weight */
 }
 
 .ai-devtools-session-timestamp {
-  font-size: 0.6875rem !important;
-  color: #888888 !important;
-  flex-shrink: 0 !important;
-  margin-left: 0.75rem !important;
+  font-size: 0.6875rem;
+  color: #888888;
+  flex-shrink: 0;
+  margin-left: 0.75rem;
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
+    "Liberation Mono", "Courier New", monospace;
 }
 
 .ai-devtools-session-expand {
-  margin-left: 0.5rem !important;
-  flex-shrink: 0 !important;
+  margin-left: 0.5rem;
+  flex-shrink: 0;
 }
 
 .ai-devtools-session-arrow {
-  width: 1rem !important;
-  height: 1rem !important;
-  color: #888888 !important;
-  transition: transform 0.15s ease !important;
+  width: 1rem;
+  height: 1rem;
+  color: #888888;
+  transition: transform 0.15s ease;
 }
 
 .ai-devtools-session-arrow-expanded {
-  transform: rotate(180deg) !important;
+  transform: rotate(180deg);
 }
 
 .ai-devtools-session-events {
-  background-color: #0a0a0a !important; /* Session events background */
-  border-top: 1px solid #222222 !important;
+  background-color: #0a0a0a; /* Session events background */
+  border-top: 1px solid #222222;
 }
 
 .ai-devtools-session-event {
-  border-left: 2px solid #333333 !important; /* Indent session events */
-  margin-left: 1rem !important;
-  border-bottom: none !important; /* Remove individual event borders */
+  border-left: 2px solid #333333; /* Indent session events */
+  margin-left: 1rem;
+  border-bottom: none; /* Remove individual event borders */
 }
 
 .ai-devtools-session-event:last-child {
-  border-bottom: 1px solid #222222 !important; /* Add border to last event */
+  border-bottom: 1px solid #222222; /* Add border to last event */
 }
 
 .ai-devtools-event-timestamp {
-  font-size: 0.6875rem !important; /* Slightly smaller timestamp */
-  color: #888888 !important; /* Medium gray */
-  flex-shrink: 0 !important;
-  margin-left: 0.75rem !important; /* More spacing */
+  font-size: 0.6875rem; /* Slightly smaller timestamp */
+  color: #888888; /* Medium gray */
+  flex-shrink: 0;
+  margin-left: 0.75rem; /* More spacing */
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important; /* Monospace font */
-  line-height: 1.2 !important; /* Slightly tighter line height */
+    "Liberation Mono", "Courier New", monospace; /* Monospace font */
+  line-height: 1.2; /* Slightly tighter line height */
 }
 
 .ai-devtools-event-expand {
-  margin-left: 0.5rem !important;
-  flex-shrink: 0 !important;
+  margin-left: 0.5rem;
+  flex-shrink: 0;
 }
 
 .ai-devtools-event-arrow {
-  width: 0.75rem !important;
-  height: 0.75rem !important;
-  color: #888888 !important; /* Medium gray */
-  transition: transform 0.15s ease !important;
+  width: 0.75rem;
+  height: 0.75rem;
+  color: #888888; /* Medium gray */
+  transition: transform 0.15s ease;
 }
 
 .ai-devtools-event-arrow-expanded {
-  transform: rotate(180deg) !important;
+  transform: rotate(180deg);
 }
 
 .ai-devtools-event-expanded {
-  border-top: 1px solid #333333 !important; /* Dark gray border */
-  background-color: rgba(0, 0, 0, 0.8) !important; /* Black with opacity */
+  border-top: 1px solid #333333; /* Dark gray border */
+  background-color: rgba(0, 0, 0, 0.8); /* Black with opacity */
 }
 
 .ai-devtools-event-details {
-  padding: 0.75rem !important;
+  padding: 0.75rem;
 }
 
 .ai-devtools-event-metadata {
-  margin-bottom: 0.75rem !important;
+  margin-bottom: 0.75rem;
 }
 
 .ai-devtools-event-metadata-title {
-  font-size: 0.75rem !important;
-  font-weight: 500 !important;
-  color: #ffffff !important; /* White text */
-  margin-bottom: 0.5rem !important;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #ffffff; /* White text */
+  margin-bottom: 0.5rem;
 }
 
 .ai-devtools-event-metadata-grid {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr !important;
-  gap: 0.5rem !important;
-  font-size: 0.75rem !important;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  font-size: 0.75rem;
 }
 
 .ai-devtools-event-metadata-item {
-  color: #cccccc !important; /* Light gray */
+  color: #cccccc; /* Light gray */
 }
 
 .ai-devtools-event-metadata-label {
-  font-weight: 500 !important;
-  color: #ffffff !important; /* White text */
+  font-weight: 500;
+  color: #ffffff; /* White text */
 }
 
 .ai-devtools-event-data-title {
-  font-size: 0.75rem !important;
-  font-weight: 500 !important;
-  color: #ffffff !important; /* White text */
-  margin-bottom: 0.5rem !important;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #ffffff; /* White text */
+  margin-bottom: 0.5rem;
 }
 
 .ai-devtools-event-data-content {
-  font-size: 0.75rem !important;
-  background-color: #1a1a1a !important; /* Dark background */
-  padding: 0.5rem !important;
-  border: 1px solid #333333 !important; /* Dark gray border */
-  overflow-x: auto !important;
-  max-height: 10rem !important;
-  overflow-y: auto !important;
-  color: #ffffff !important; /* White text */
+  font-size: 0.75rem;
+  background-color: #1a1a1a; /* Dark background */
+  padding: 0.5rem;
+  border: 1px solid #333333; /* Dark gray border */
+  overflow-x: auto;
+  max-height: 10rem;
+  overflow-y: auto;
+  color: #ffffff; /* White text */
 }
 
 .ai-devtools-event-metadata-section {
-  margin-top: 0.75rem !important;
+  margin-top: 0.75rem;
 }
 
 .ai-devtools-event-metadata-content {
-  font-size: 0.75rem !important;
-  background-color: #1a1a1a !important; /* Dark background */
-  padding: 0.5rem !important;
-  border: 1px solid #333333 !important; /* Dark gray border */
-  overflow-x: auto !important;
-  max-height: 8rem !important;
-  overflow-y: auto !important;
-  color: #ffffff !important; /* White text */
+  font-size: 0.75rem;
+  background-color: #1a1a1a; /* Dark background */
+  padding: 0.5rem;
+  border: 1px solid #333333; /* Dark gray border */
+  overflow-x: auto;
+  max-height: 8rem;
+  overflow-y: auto;
+  color: #ffffff; /* White text */
 }
 
 /* Panel content area - scrollable */
 .ai-devtools-panel-content {
-  flex: 1 !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  display: flex !important;
-  flex-direction: column !important;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Event list styles */
 .ai-devtools-event-list {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 0 !important; /* No gap between items like terminal */
+  display: flex;
+  flex-direction: column;
+  gap: 0; /* No gap between items like terminal */
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
-  font-size: 0.75rem !important; /* Smaller, more compact text */
-  line-height: 1.2 !important; /* Tighter line height */
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 0.75rem; /* Smaller, more compact text */
+  line-height: 1.2; /* Tighter line height */
 }
 
 .ai-devtools-empty-state {
   margin-top: 1rem;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  height: 8rem !important;
-  color: #cccccc !important; /* Light gray */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 8rem;
+  color: #cccccc; /* Light gray */
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
+    "Liberation Mono", "Courier New", monospace;
 }
 
 .ai-devtools-empty-content {
-  text-align: center !important;
+  text-align: center;
 }
 
 .ai-devtools-empty-title {
-  font-size: 0.875rem !important;
-  margin-bottom: 0.5rem !important;
-  color: #ffffff !important; /* White text */
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  color: #ffffff; /* White text */
 }
 
 .ai-devtools-empty-subtitle {
-  font-size: 0.75rem !important;
-  color: #888888 !important; /* Medium gray */
+  font-size: 0.75rem;
+  color: #888888; /* Medium gray */
 }
 
 /* Filter styles */
 .ai-devtools-filters-container {
-  background-color: #000000 !important; /* Pure black background */
-  border-bottom: 1px solid #333333 !important; /* Dark gray border */
+  background-color: #000000; /* Pure black background */
+  border-bottom: 1px solid #333333; /* Dark gray border */
 }
 
 .ai-devtools-filters-content {
-  padding: 1rem !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 1rem !important;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .ai-devtools-filter-label {
-  display: block !important;
-  font-size: 0.875rem !important;
-  font-weight: 500 !important;
-  color: #ffffff !important; /* White text */
-  margin-bottom: 0.5rem !important;
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #ffffff; /* White text */
+  margin-bottom: 0.5rem;
 }
 
 .ai-devtools-search-container {
-  position: relative !important;
+  position: relative;
 }
 
 .ai-devtools-search-input {
-  width: 100% !important;
-  padding: 0.5rem 0.75rem !important;
-  border: 1px solid #333333 !important; /* Dark gray border */
-  font-size: 0.875rem !important;
-  background-color: #1a1a1a !important; /* Dark background */
-  color: #ffffff !important; /* White text */
-  outline: none !important;
-  transition: border-color 0.15s ease !important;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #333333; /* Dark gray border */
+  font-size: 0.875rem;
+  background-color: #1a1a1a; /* Dark background */
+  color: #ffffff; /* White text */
+  outline: none;
+  transition: border-color 0.15s ease;
 }
 
 .ai-devtools-search-input:focus {
-  border-color: #555555 !important; /* Lighter border on focus */
-  box-shadow: 0 0 0 2px rgba(85, 85, 85, 0.2) !important; /* Focus ring */
+  border-color: #555555; /* Lighter border on focus */
+  box-shadow: 0 0 0 2px rgba(85, 85, 85, 0.2); /* Focus ring */
 }
 
 .ai-devtools-search-clear {
-  position: absolute !important;
-  right: 0.5rem !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-  color: #888888 !important; /* Medium gray */
-  background: none !important;
-  border: none !important;
-  cursor: pointer !important;
-  padding: 0.25rem !important;
-  transition: color 0.15s ease !important;
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888888; /* Medium gray */
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  transition: color 0.15s ease;
 }
 
 .ai-devtools-search-clear:hover {
-  color: #cccccc !important; /* Light gray on hover */
+  color: #cccccc; /* Light gray on hover */
 }
 
 .ai-devtools-search-clear-icon {
-  width: 1rem !important;
-  height: 1rem !important;
+  width: 1rem;
+  height: 1rem;
 }
 
 .ai-devtools-filter-options {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 0.25rem !important;
-  max-height: 8rem !important;
-  overflow-y: auto !important;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-height: 8rem;
+  overflow-y: auto;
 }
 
 .ai-devtools-filter-option {
-  display: flex !important;
-  align-items: center !important;
-  gap: 0.5rem !important;
-  padding: 0.5rem !important;
-  cursor: pointer !important;
-  transition: background-color 0.15s ease !important;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
 }
 
 .ai-devtools-filter-option:hover {
-  background-color: #1a1a1a !important; /* Dark hover background */
+  background-color: #1a1a1a; /* Dark hover background */
 }
 
 .ai-devtools-filter-option-selected {
-  background-color: #333333 !important; /* Dark selected background */
-  border: 1px solid #555555 !important; /* Lighter border */
+  background-color: #333333; /* Dark selected background */
+  border: 1px solid #555555; /* Lighter border */
 }
 
 .ai-devtools-checkbox {
-  width: 1rem !important;
-  height: 1rem !important;
-  color: #ffffff !important; /* White accent color */
-  background-color: #1a1a1a !important; /* Dark background */
-  border: 1px solid #333333 !important; /* Dark gray border */
-  cursor: pointer !important;
+  width: 1rem;
+  height: 1rem;
+  color: #ffffff; /* White accent color */
+  background-color: #1a1a1a; /* Dark background */
+  border: 1px solid #333333; /* Dark gray border */
+  cursor: pointer;
 }
 
 .ai-devtools-checkbox:checked {
-  background-color: #ffffff !important; /* White when checked */
-  border-color: #ffffff !important;
+  background-color: #ffffff; /* White when checked */
+  border-color: #ffffff;
 }
 
 .ai-devtools-type-indicator {
-  width: 0.75rem !important;
-  height: 0.75rem !important;
-  border-radius: 50% !important;
-  flex-shrink: 0 !important;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .ai-devtools-type-icon {
-  font-size: 1.125rem !important;
+  font-size: 1.125rem;
 }
 
 .ai-devtools-type-label {
-  font-size: 0.875rem !important;
-  flex: 1 !important;
-  color: #ffffff !important; /* White text */
+  font-size: 0.875rem;
+  flex: 1;
+  color: #ffffff; /* White text */
 }
 
 .ai-devtools-type-count {
-  font-size: 0.75rem !important;
-  color: #888888 !important; /* Medium gray */
-  background-color: #1a1a1a !important; /* Dark background */
-  padding: 0.125rem 0.5rem !important;
+  font-size: 0.75rem;
+  color: #888888; /* Medium gray */
+  background-color: #1a1a1a; /* Dark background */
+  padding: 0.125rem 0.5rem;
 }
 
 .ai-devtools-tool-name {
-  font-size: 0.875rem !important;
+  font-size: 0.875rem;
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
-  color: #ffffff !important; /* White text */
+    "Liberation Mono", "Courier New", monospace;
+  color: #ffffff; /* White text */
 }
 
 .ai-devtools-clear-filters {
-  padding-top: 0.5rem !important;
-  border-top: 1px solid #333333 !important; /* Dark gray border */
+  padding-top: 0.5rem;
+  border-top: 1px solid #333333; /* Dark gray border */
 }
 
 .ai-devtools-clear-button {
-  font-size: 0.875rem !important;
-  color: #cccccc !important; /* Light gray */
-  background: none !important;
-  border: none !important;
-  cursor: pointer !important;
-  font-weight: 500 !important;
-  transition: color 0.15s ease !important;
+  font-size: 0.875rem;
+  color: #cccccc; /* Light gray */
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: color 0.15s ease;
 }
 
 .ai-devtools-clear-button:hover {
-  color: #ffffff !important; /* White on hover */
+  color: #ffffff; /* White on hover */
 }
 
 /* Tooltip styles */
 .ai-devtools-tooltip-container {
-  position: relative !important;
-  display: inline-block !important;
+  position: relative;
+  display: inline-block;
 }
 
 .ai-devtools-tooltip {
-  position: absolute !important;
-  bottom: 100% !important;
-  left: 50% !important;
-  transform: translateX(-30%) !important;
-  margin-bottom: 8px !important;
-  padding: 0 !important;
-  background-color: #1a1a1a !important;
-  border: 1px solid #333333 !important;
-  border-radius: 4px !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8) !important;
-  z-index: 2147483648 !important;
-  min-width: 200px !important;
-  max-width: 400px !important;
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-30%);
+  margin-bottom: 8px;
+  padding: 0;
+  background-color: #1a1a1a;
+  border: 1px solid #333333;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+  z-index: 2147483648;
+  min-width: 200px;
+  max-width: 400px;
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
-  font-size: 0.75rem !important;
-  line-height: 1.4 !important;
-  pointer-events: none !important;
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  pointer-events: none;
 }
 
 .ai-devtools-tooltip::after {
-  content: "" !important;
-  position: absolute !important;
-  top: 100% !important;
-  left: 50% !important;
-  transform: translateX(-50%) !important;
-  border: 4px solid transparent !important;
-  border-top-color: #1a1a1a !important;
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: #1a1a1a;
 }
 
 .ai-devtools-tooltip-content {
-  padding: 0.75rem !important;
+  padding: 0.75rem;
 }
 
 .ai-devtools-tooltip-title {
-  color: #ffffff !important;
-  font-weight: 600 !important;
-  margin-bottom: 0.5rem !important;
-  font-size: 0.8rem !important;
+  color: #ffffff;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
 }
 
 .ai-devtools-tooltip-params {
-  color: #cccccc !important;
+  color: #cccccc;
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
-  font-size: 0.7rem !important;
-  line-height: 1.3 !important;
-  margin: 0 !important;
-  white-space: pre-wrap !important;
-  word-break: break-word !important;
-  max-height: 200px !important;
-  overflow-y: auto !important;
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 0.7rem;
+  line-height: 1.3;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 200px;
+  overflow-y: auto;
 }
 
 /* Parameters indicator */
 .ai-devtools-session-params-indicator {
-  margin-left: 0.5rem !important;
-  font-size: 0.7rem !important;
-  opacity: 0.7 !important;
-  transition: opacity 0.2s ease !important;
+  margin-left: 0.5rem;
+  font-size: 0.7rem;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
 }
 
 .ai-devtools-session-header:hover .ai-devtools-session-params-indicator {
-  opacity: 1 !important;
+  opacity: 1;
 }
 
 /* Removed recPulse animation to prevent bleeding */
@@ -1482,14 +1487,14 @@
 
 /* Enhanced button effects when receiving events */
 .ai-devtools-button.receiving-events {
-  box-shadow: 0 0 20px rgba(34, 197, 94, 0.4) !important;
-  border-color: #333333 !important;
-  animation: buttonPulse 0.8s ease-in-out infinite !important;
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+  border-color: #333333;
+  animation: buttonPulse 0.8s ease-in-out infinite;
 }
 
 .ai-devtools-button.receiving-events .ai-devtools-button-icon {
-  color: #22c55e !important;
-  animation: iconColorPulse 1.2s ease-in-out infinite !important;
+  color: #22c55e;
+  animation: iconColorPulse 1.2s ease-in-out infinite;
 }
 
 @keyframes buttonPulse {
@@ -1529,249 +1534,249 @@
 
 /* Context Insights Component */
 .ai-devtools-context-insights {
-  display: flex !important;
-  align-items: center !important;
-  gap: 1rem !important;
-  padding: 0.5rem 0.75rem !important;
-  background-color: #111111 !important;
-  border: 1px solid #333333 !important;
-  border-radius: 0 !important;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 0.75rem;
+  background-color: #111111;
+  border: 1px solid #333333;
+  border-radius: 0;
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
-  font-size: 0.75rem !important;
-  color: #ffffff !important;
-  -webkit-font-smoothing: antialiased !important;
-  -moz-osx-font-smoothing: grayscale !important;
-  text-rendering: optimizeLegibility !important;
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 0.75rem;
+  color: #ffffff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* Context Circle */
 .ai-devtools-context-circle {
-  position: relative !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 100px !important;
-  height: 100px !important;
-  flex-shrink: 0 !important;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 100px;
+  flex-shrink: 0;
 }
 
 .ai-devtools-context-svg {
-  width: 100px !important;
-  height: 100px !important;
-  transform: rotate(-90deg) !important;
+  width: 100px;
+  height: 100px;
+  transform: rotate(-90deg);
 }
 
 .ai-devtools-context-bg {
-  stroke: #333333 !important;
-  stroke-width: 8 !important;
-  fill: none !important;
+  stroke: #333333;
+  stroke-width: 8;
+  fill: none;
 }
 
 .ai-devtools-context-progress {
-  stroke-width: 8 !important;
-  fill: none !important;
-  stroke-linecap: round !important;
-  transition: stroke-dashoffset 0.3s ease !important;
+  stroke-width: 8;
+  fill: none;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.3s ease;
 }
 
 .ai-devtools-context-text {
-  position: absolute !important;
-  top: 50% !important;
-  left: 50% !important;
-  transform: translate(-50%, -50%) !important;
-  text-align: center !important;
-  z-index: 1 !important;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 1;
 }
 
 .ai-devtools-context-percent {
-  font-size: 1.25rem !important;
-  font-weight: 600 !important;
-  color: #ffffff !important;
-  line-height: 1 !important;
-  margin-bottom: 0.125rem !important;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1;
+  margin-bottom: 0.125rem;
 }
 
 .ai-devtools-context-label {
-  font-size: 0.625rem !important;
-  color: #888888 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.05em !important;
-  line-height: 1 !important;
+  font-size: 0.625rem;
+  color: #888888;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1;
 }
 
 /* Context Details */
 .ai-devtools-context-details {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 0.25rem !important;
-  flex: 1 !important;
-  min-width: 0 !important;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 0;
 }
 
 .ai-devtools-context-row {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 0.5rem !important;
-  padding: 0.125rem 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.125rem 0;
 }
 
 .ai-devtools-context-row.ai-devtools-context-warning {
-  color: #fbbf24 !important;
-  background-color: rgba(251, 191, 36, 0.1) !important;
-  padding: 0.25rem 0.5rem !important;
-  border-radius: 2px !important;
-  border: 1px solid rgba(251, 191, 36, 0.3) !important;
+  color: #fbbf24;
+  background-color: rgba(251, 191, 36, 0.1);
+  padding: 0.25rem 0.5rem;
+  border-radius: 2px;
+  border: 1px solid rgba(251, 191, 36, 0.3);
 }
 
 .ai-devtools-context-row .ai-devtools-context-label {
-  font-size: 0.6875rem !important;
-  color: #888888 !important;
-  font-weight: 500 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.025em !important;
-  flex-shrink: 0 !important;
+  font-size: 0.6875rem;
+  color: #888888;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  flex-shrink: 0;
 }
 
 .ai-devtools-context-row .ai-devtools-context-value {
-  font-size: 0.75rem !important;
-  color: #ffffff !important;
-  font-weight: 600 !important;
+  font-size: 0.75rem;
+  color: #ffffff;
+  font-weight: 600;
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
-  text-align: right !important;
-  flex-shrink: 0 !important;
+    "Liberation Mono", "Courier New", monospace;
+  text-align: right;
+  flex-shrink: 0;
 }
 
 /* Model Info */
 .ai-devtools-model-info {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 0.125rem !important;
-  align-items: flex-end !important;
-  text-align: right !important;
-  flex-shrink: 0 !important;
-  min-width: 120px !important;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  align-items: flex-end;
+  text-align: right;
+  flex-shrink: 0;
+  min-width: 120px;
 }
 
 .ai-devtools-model-name {
-  font-size: 0.75rem !important;
-  font-weight: 600 !important;
-  color: #ffffff !important;
-  line-height: 1.2 !important;
-  margin-bottom: 0.0625rem !important;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.2;
+  margin-bottom: 0.0625rem;
 }
 
 .ai-devtools-model-provider {
-  font-size: 0.625rem !important;
-  color: #888888 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.05em !important;
-  line-height: 1 !important;
+  font-size: 0.625rem;
+  color: #888888;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1;
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .ai-devtools-context-insights {
-    flex-direction: column !important;
-    align-items: stretch !important;
-    gap: 0.75rem !important;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
   }
 
   .ai-devtools-context-circle {
-    align-self: center !important;
+    align-self: center;
   }
 
   .ai-devtools-model-info {
-    align-items: center !important;
-    text-align: center !important;
+    align-items: center;
+    text-align: center;
   }
 }
 
 /* Compact Context Circle */
 .ai-devtools-context-circle {
-  position: relative !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 36px !important;
-  height: 36px !important;
-  flex-shrink: 0 !important;
-  cursor: pointer !important;
-  transition: all 0.2s ease !important;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 /* Hover scaling removed */
 
 .ai-devtools-context-circle-compact {
-  position: relative !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 36px !important;
-  height: 36px !important;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
 }
 
 .ai-devtools-context-svg-compact {
-  width: 36px !important;
-  height: 36px !important;
-  transform: rotate(-90deg) !important;
+  width: 36px;
+  height: 36px;
+  transform: rotate(-90deg);
 }
 
 .ai-devtools-context-bg-compact {
-  stroke: #333333 !important;
-  stroke-width: 2 !important;
-  fill: none !important;
+  stroke: #333333;
+  stroke-width: 2;
+  fill: none;
 }
 
 .ai-devtools-context-progress-compact {
-  stroke-width: 2 !important;
-  fill: none !important;
-  stroke-linecap: round !important;
-  transition: stroke-dashoffset 0.3s ease !important;
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.3s ease;
 }
 
 .ai-devtools-context-text-compact {
-  position: absolute !important;
-  top: 50% !important;
-  left: 50% !important;
-  transform: translate(-50%, -50%) !important;
-  text-align: center !important;
-  z-index: 1 !important;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 1;
 }
 
 .ai-devtools-context-percent-compact {
-  font-size: 0.625rem !important;
-  font-weight: 600 !important;
-  color: #ffffff !important;
-  line-height: 1 !important;
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1;
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
+    "Liberation Mono", "Courier New", monospace;
 }
 
 /* Context Circle Tooltip */
 .ai-devtools-context-tooltip {
-  position: absolute !important;
-  bottom: calc(100% + 8px) !important;
-  right: -20px !important;
-  transform: none !important;
-  background-color: #0a0a0a !important;
-  border: 1px solid #222222 !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  z-index: 2147483648 !important;
-  width: 200px !important;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: -20px;
+  transform: none;
+  background-color: #0a0a0a;
+  border: 1px solid #222222;
+  border-radius: 0;
+  box-shadow: none;
+  z-index: 2147483648;
+  width: 200px;
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
-  font-size: 0.65rem !important;
-  line-height: 1.3 !important;
-  pointer-events: none !important;
-  opacity: 1 !important;
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 0.65rem;
+  line-height: 1.3;
+  pointer-events: none;
+  opacity: 1;
 }
 
 @keyframes contextTooltipFadeIn {
@@ -1788,337 +1793,337 @@
 /* Arrow removed */
 
 .ai-devtools-context-tooltip-content {
-  padding: 1rem !important;
+  padding: 1rem;
 }
 
 /* Progress Section */
 .ai-devtools-context-tooltip-progress-section {
-  margin-bottom: 0.75rem !important;
+  margin-bottom: 0.75rem;
 }
 
 .ai-devtools-context-tooltip-progress-header {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  margin-bottom: 0.5rem !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
 }
 
 .ai-devtools-context-tooltip-percentage {
-  color: #ffffff !important;
-  font-weight: 600 !important;
-  font-size: 0.8rem !important;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.8rem;
 }
 
 .ai-devtools-context-tooltip-token-count {
-  color: #888888 !important;
-  font-size: 0.6rem !important;
+  color: #888888;
+  font-size: 0.6rem;
 }
 
 .ai-devtools-context-tooltip-progress-bar {
-  width: 100% !important;
-  height: 4px !important;
-  background-color: #404040 !important;
-  border-radius: 0 !important;
-  overflow: hidden !important;
+  width: 100%;
+  height: 4px;
+  background-color: #404040;
+  border-radius: 0;
+  overflow: hidden;
 }
 
 .ai-devtools-context-tooltip-progress-fill {
-  height: 100% !important;
-  background-color: #ffffff !important;
-  border-radius: 0 !important;
-  transition: width 0.3s ease !important;
+  height: 100%;
+  background-color: #ffffff;
+  border-radius: 0;
+  transition: width 0.3s ease;
 }
 
 /* Usage Section */
 .ai-devtools-context-tooltip-usage-section {
-  margin-bottom: 0.75rem !important;
-  padding-top: 0.75rem !important;
-  border-top: 1px solid #404040 !important;
+  margin-bottom: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #404040;
 }
 
 .ai-devtools-context-tooltip-usage-row {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  margin-bottom: 0.25rem !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
 }
 
 .ai-devtools-context-tooltip-usage-row:last-child {
-  margin-bottom: 0 !important;
+  margin-bottom: 0;
 }
 
 .ai-devtools-context-tooltip-usage-label {
-  color: #888888 !important;
-  font-size: 0.6rem !important;
+  color: #888888;
+  font-size: 0.6rem;
 }
 
 .ai-devtools-context-tooltip-usage-value {
-  color: #ffffff !important;
-  font-size: 0.6rem !important;
+  color: #ffffff;
+  font-size: 0.6rem;
 }
 
 /* Cost Section */
 .ai-devtools-context-tooltip-cost-section {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  padding-top: 0.75rem !important;
-  border-top: 1px solid #404040 !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.75rem;
+  border-top: 1px solid #404040;
 }
 
 .ai-devtools-context-tooltip-cost-label {
-  color: #888888 !important;
-  font-size: 0.6rem !important;
+  color: #888888;
+  font-size: 0.6rem;
 }
 
 .ai-devtools-context-tooltip-cost-value {
-  color: #ffffff !important;
-  font-weight: 600 !important;
-  font-size: 0.6rem !important;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.6rem;
 }
 
 .ai-devtools-context-tooltip-section {
-  margin-bottom: 0.75rem !important;
+  margin-bottom: 0.75rem;
 }
 
 .ai-devtools-context-tooltip-section:last-child {
-  margin-bottom: 0 !important;
+  margin-bottom: 0;
 }
 
 .ai-devtools-context-tooltip-title {
-  color: #ffffff !important;
-  font-weight: 600 !important;
-  font-size: 0.7rem !important;
-  margin-bottom: 0.25rem !important;
-  line-height: 1.2 !important;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.7rem;
+  margin-bottom: 0.25rem;
+  line-height: 1.2;
 }
 
 .ai-devtools-context-tooltip-subtitle {
-  color: #888888 !important;
-  font-size: 0.6rem !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.05em !important;
-  margin-bottom: 0.5rem !important;
+  color: #888888;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
 }
 
 .ai-devtools-context-tooltip-row {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 0.5rem !important;
-  padding: 0.125rem 0 !important;
-  font-size: 0.6rem !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.125rem 0;
+  font-size: 0.6rem;
 }
 
 .ai-devtools-context-tooltip-row.ai-devtools-context-tooltip-warning {
-  color: #fbbf24 !important;
-  background-color: rgba(251, 191, 36, 0.1) !important;
-  padding: 0.25rem 0.5rem !important;
-  border-radius: 3px !important;
-  border: 1px solid rgba(251, 191, 36, 0.3) !important;
-  margin: 0.25rem 0 !important;
+  color: #fbbf24;
+  background-color: rgba(251, 191, 36, 0.1);
+  padding: 0.25rem 0.5rem;
+  border-radius: 3px;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  margin: 0.25rem 0;
 }
 
 .ai-devtools-context-tooltip-label {
-  color: #888888 !important;
-  font-weight: 500 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.025em !important;
-  flex-shrink: 0 !important;
+  color: #888888;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  flex-shrink: 0;
 }
 
 .ai-devtools-context-tooltip-value {
-  color: #ffffff !important;
-  font-weight: 600 !important;
+  color: #ffffff;
+  font-weight: 600;
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
-  text-align: right !important;
-  flex-shrink: 0 !important;
+    "Liberation Mono", "Courier New", monospace;
+  text-align: right;
+  flex-shrink: 0;
 }
 
 /* Context Insights Demo */
 .ai-devtools-context-insights-demo {
-  padding: 1rem !important;
-  background-color: #111111 !important;
-  border: 1px solid #333333 !important;
-  border-radius: 4px !important;
+  padding: 1rem;
+  background-color: #111111;
+  border: 1px solid #333333;
+  border-radius: 4px;
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
-  color: #ffffff !important;
+    "Liberation Mono", "Courier New", monospace;
+  color: #ffffff;
 }
 
 .ai-devtools-context-insights-demo h3 {
-  font-size: 1rem !important;
-  font-weight: 600 !important;
-  color: #ffffff !important;
-  margin-bottom: 1rem !important;
-  text-align: center !important;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 1rem;
+  text-align: center;
 }
 
 .ai-devtools-model-section {
-  margin-bottom: 1.5rem !important;
-  padding: 0.75rem !important;
-  background-color: #1a1a1a !important;
-  border: 1px solid #333333 !important;
-  border-radius: 4px !important;
+  margin-bottom: 1.5rem;
+  padding: 0.75rem;
+  background-color: #1a1a1a;
+  border: 1px solid #333333;
+  border-radius: 4px;
 }
 
 .ai-devtools-model-section:last-child {
-  margin-bottom: 0 !important;
+  margin-bottom: 0;
 }
 
 .ai-devtools-model-section h4 {
-  font-size: 0.875rem !important;
-  font-weight: 500 !important;
-  color: #cccccc !important;
-  margin-bottom: 0.5rem !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.05em !important;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #cccccc;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 /* Bottom Stats Section */
 .ai-devtools-bottom-stats {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  padding: 0.125rem 0.75rem !important;
-  border-top: 1px solid #333333 !important;
-  background-color: transparent !important;
-  min-height: 18px !important;
-  overflow: visible !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.125rem 0.75rem;
+  border-top: 1px solid #333333;
+  background-color: transparent;
+  min-height: 18px;
+  overflow: visible;
 }
 
 .ai-devtools-tokens-section {
-  display: flex !important;
-  align-items: center !important;
+  display: flex;
+  align-items: center;
 }
 
 .ai-devtools-context-section {
-  display: flex !important;
-  align-items: center !important;
-  overflow: visible !important;
-  padding: 0rem 1rem !important;
+  display: flex;
+  align-items: center;
+  overflow: visible;
+  padding: 0rem 1rem;
 }
 
 .ai-devtools-context-circle-bottom {
-  position: relative !important;
-  overflow: visible !important;
+  position: relative;
+  overflow: visible;
 }
 
 /* Streaming Speed Metrics */
 .ai-devtools-speed-metrics {
-  display: flex !important;
-  gap: 1rem !important;
-  align-items: center !important;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
   font-family:
     "Geist Mono", "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas,
-    "Courier New", monospace !important;
-  font-size: 0.625rem !important;
-  color: #888888 !important;
-  -webkit-font-smoothing: antialiased !important;
-  -moz-osx-font-smoothing: grayscale !important;
-  text-rendering: optimizeLegibility !important;
+    "Courier New", monospace;
+  font-size: 0.625rem;
+  color: #888888;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 .ai-devtools-speed-metric {
-  display: flex !important;
-  align-items: center !important;
-  gap: 0.25rem !important;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .ai-devtools-speed-value {
-  font-weight: 600 !important;
-  color: #cccccc !important;
-  font-size: 0.625rem !important;
-  line-height: 1 !important;
+  font-weight: 600;
+  color: #cccccc;
+  font-size: 0.625rem;
+  line-height: 1;
 }
 
 .ai-devtools-speed-label {
-  font-size: 0.5rem !important;
-  color: #666666 !important;
-  line-height: 1 !important;
+  font-size: 0.5rem;
+  color: #666666;
+  line-height: 1;
 }
 
 /* Context Layout */
 .ai-devtools-context-layout {
-  position: relative !important;
-  display: flex !important;
-  align-items: center !important;
-  cursor: pointer !important;
-  transition: all 0.2s ease !important;
-  margin-right: 0.5rem !important;
-  gap: 0.375rem !important;
-  width: 60px !important;
-  height: 20px !important;
+  position: relative;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-right: 0.5rem;
+  gap: 0.375rem;
+  width: 60px;
+  height: 20px;
 }
 
 .ai-devtools-context-percentage-text {
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
-  font-size: 0.6rem !important;
-  font-weight: 400 !important;
-  color: #cccccc !important;
-  line-height: 1 !important;
-  width: 2.5rem !important;
-  text-align: right !important;
-  flex-shrink: 0 !important;
-  -webkit-font-smoothing: antialiased !important;
-  -moz-osx-font-smoothing: grayscale !important;
-  text-rendering: optimizeLegibility !important;
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 0.6rem;
+  font-weight: 400;
+  color: #cccccc;
+  line-height: 1;
+  width: 2.5rem;
+  text-align: right;
+  flex-shrink: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* Small Context Circle */
 .ai-devtools-context-circle-small {
-  position: relative !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 20px !important;
-  height: 20px !important;
-  flex-shrink: 0 !important;
-  transition: all 0.2s ease !important;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
 }
 
 .ai-devtools-context-svg-small {
-  width: 20px !important;
-  height: 20px !important;
-  transform: rotate(-90deg) !important;
+  width: 20px;
+  height: 20px;
+  transform: rotate(-90deg);
 }
 
 .ai-devtools-context-bg-small {
-  stroke: #666666 !important;
-  stroke-width: 1.5 !important;
-  fill: none !important;
+  stroke: #666666;
+  stroke-width: 1.5;
+  fill: none;
 }
 
 .ai-devtools-context-progress-small {
-  stroke: #cccccc !important;
-  stroke-width: 1.5 !important;
-  fill: none !important;
-  stroke-linecap: round !important;
-  transition: stroke-dashoffset 0.3s ease !important;
+  stroke: #cccccc;
+  stroke-width: 1.5;
+  fill: none;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.3s ease;
 }
 
 /* State Watching Styles */
 .ai-devtools-btn-badge {
-  position: absolute !important;
-  top: -4px !important;
-  right: -4px !important;
-  background: #ef4444 !important;
-  color: white !important;
-  font-size: 0.5rem !important;
-  font-weight: 600 !important;
-  padding: 0.125rem 0.25rem !important;
-  border-radius: 0.375rem !important;
-  min-width: 1rem !important;
-  height: 1rem !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  line-height: 1 !important;
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ef4444;
+  color: white;
+  font-size: 0.5rem;
+  font-weight: 600;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.375rem;
+  min-width: 1rem;
+  height: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
 .ai-devtools-state-panel {
@@ -2146,512 +2151,512 @@
 
 /* State Changes List */
 .ai-devtools-state-changes-empty {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  height: 100% !important;
-  padding: 2rem !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 2rem;
 }
 
 .ai-devtools-state-changes-empty-content {
-  text-align: center !important;
-  color: #666666 !important;
+  text-align: center;
+  color: #666666;
 }
 
 .ai-devtools-state-changes-empty-icon {
-  font-size: 2rem !important;
-  margin-bottom: 0.5rem !important;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
 }
 
 .ai-devtools-state-changes-empty-title {
-  font-size: 0.875rem !important;
-  font-weight: 600 !important;
-  margin-bottom: 0.25rem !important;
-  color: #cccccc !important;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: #cccccc;
 }
 
 .ai-devtools-state-changes-empty-description {
-  font-size: 0.75rem !important;
-  color: #888888 !important;
+  font-size: 0.75rem;
+  color: #888888;
 }
 
 .ai-devtools-state-changes-list {
-  display: flex !important;
-  flex-direction: column !important;
-  height: 100% !important;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .ai-devtools-state-changes-header {
-  padding: 0.75rem 1rem !important;
-  border-bottom: 1px solid #333333 !important;
-  background: #1a1a1a !important;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #333333;
+  background: #1a1a1a;
 }
 
 .ai-devtools-state-changes-title {
-  font-size: 0.875rem !important;
-  font-weight: 600 !important;
-  color: #cccccc !important;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #cccccc;
 }
 
 .ai-devtools-state-changes-content {
-  flex: 1 !important;
-  overflow-y: auto !important;
-  padding: 0.5rem 0 !important;
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem 0;
 }
 
 .ai-devtools-state-change-item {
-  padding: 0.75rem 1rem !important;
-  border-bottom: 1px solid #222222 !important;
-  cursor: pointer !important;
-  transition: background-color 0.2s ease !important;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #222222;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
 .ai-devtools-state-change-item:hover {
-  background: #222222 !important;
+  background: #222222;
 }
 
 .ai-devtools-state-change-item.selected {
-  background: #1e3a8a !important;
+  background: #1e3a8a;
 }
 
 .ai-devtools-state-change-header {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  margin-bottom: 0.5rem !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
 }
 
 .ai-devtools-state-change-type {
-  display: flex !important;
-  align-items: center !important;
-  gap: 0.375rem !important;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
 }
 
 .ai-devtools-state-change-type-icon {
-  font-size: 0.75rem !important;
+  font-size: 0.75rem;
 }
 
 .ai-devtools-state-change-type-label {
-  font-size: 0.75rem !important;
-  font-weight: 500 !important;
-  color: #cccccc !important;
-  text-transform: capitalize !important;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #cccccc;
+  text-transform: capitalize;
 }
 
 .ai-devtools-state-change-timestamp {
-  font-size: 0.625rem !important;
-  color: #888888 !important;
+  font-size: 0.625rem;
+  color: #888888;
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
+    "Liberation Mono", "Courier New", monospace;
 }
 
 .ai-devtools-state-change-details {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 0.25rem !important;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .ai-devtools-state-change-store {
-  font-size: 0.625rem !important;
-  color: #888888 !important;
+  font-size: 0.625rem;
+  color: #888888;
 }
 
 .ai-devtools-state-change-store-id {
-  color: #cccccc !important;
-  font-weight: 500 !important;
+  color: #cccccc;
+  font-weight: 500;
 }
 
 .ai-devtools-state-change-keys {
-  font-size: 0.625rem !important;
+  font-size: 0.625rem;
 }
 
 .ai-devtools-state-change-keys-list {
-  display: flex !important;
-  flex-wrap: wrap !important;
-  gap: 0.25rem !important;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
 }
 
 .ai-devtools-state-change-key {
-  background: #333333 !important;
-  color: #cccccc !important;
-  padding: 0.125rem 0.375rem !important;
-  border-radius: 0.25rem !important;
+  background: #333333;
+  color: #cccccc;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
-  font-size: 0.5rem !important;
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 0.5rem;
 }
 
 .ai-devtools-state-change-key-more {
-  color: #888888 !important;
-  font-style: italic !important;
+  color: #888888;
+  font-style: italic;
 }
 
 .ai-devtools-state-change-keys-none {
-  color: #666666 !important;
-  font-style: italic !important;
+  color: #666666;
+  font-style: italic;
 }
 
 /* State Data Explorer */
 .ai-devtools-state-explorer-empty {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  height: 100% !important;
-  padding: 2rem !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 2rem;
 }
 
 .ai-devtools-state-explorer-empty-content {
-  text-align: center !important;
-  color: #666666 !important;
+  text-align: center;
+  color: #666666;
 }
 
 .ai-devtools-state-explorer-empty-icon {
-  font-size: 2rem !important;
-  margin-bottom: 0.5rem !important;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
 }
 
 .ai-devtools-state-explorer-empty-title {
-  font-size: 0.875rem !important;
-  font-weight: 600 !important;
-  margin-bottom: 0.25rem !important;
-  color: #cccccc !important;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: #cccccc;
 }
 
 .ai-devtools-state-explorer-empty-description {
-  font-size: 0.75rem !important;
-  color: #888888 !important;
+  font-size: 0.75rem;
+  color: #888888;
 }
 
 .ai-devtools-state-explorer {
-  display: flex !important;
-  flex-direction: column !important;
-  height: 100% !important;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .ai-devtools-state-explorer-header {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  padding: 0.75rem 1rem !important;
-  border-bottom: 1px solid #333333 !important;
-  background: #1a1a1a !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #333333;
+  background: #1a1a1a;
 }
 
 .ai-devtools-state-explorer-title {
-  font-size: 0.875rem !important;
-  font-weight: 600 !important;
-  color: #cccccc !important;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #cccccc;
 }
 
 .ai-devtools-state-explorer-subtitle {
-  color: #888888 !important;
-  font-weight: 400 !important;
-  margin-left: 0.5rem !important;
+  color: #888888;
+  font-weight: 400;
+  margin-left: 0.5rem;
 }
 
 .ai-devtools-state-explorer-modes {
-  display: flex !important;
-  gap: 0.25rem !important;
+  display: flex;
+  gap: 0.25rem;
 }
 
 .ai-devtools-state-explorer-mode-btn {
-  padding: 0.25rem 0.5rem !important;
-  font-size: 0.625rem !important;
-  border-radius: 0.25rem !important;
-  background: #333333 !important;
-  color: #888888 !important;
-  transition: all 0.2s ease !important;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.625rem;
+  border-radius: 0.25rem;
+  background: #333333;
+  color: #888888;
+  transition: all 0.2s ease;
 }
 
 .ai-devtools-state-explorer-mode-btn:hover {
-  background: #444444 !important;
-  color: #cccccc !important;
+  background: #444444;
+  color: #cccccc;
 }
 
 .ai-devtools-state-explorer-mode-btn.active {
-  background: #1e3a8a !important;
-  color: #ffffff !important;
+  background: #1e3a8a;
+  color: #ffffff;
 }
 
 .ai-devtools-state-explorer-content {
-  flex: 1 !important;
-  overflow-y: auto !important;
-  padding: 1rem !important;
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
-  font-size: 0.75rem !important;
-  line-height: 1.4 !important;
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 0.75rem;
+  line-height: 1.4;
 }
 
 /* JSON Viewer Styles */
 .ai-devtools-json-null {
-  color: #888888 !important;
-  font-style: italic !important;
+  color: #888888;
+  font-style: italic;
 }
 
 .ai-devtools-json-string {
-  color: #cccccc !important;
+  color: #cccccc;
 }
 
 .ai-devtools-json-primitive {
-  color: #888888 !important;
+  color: #888888;
 }
 
 .ai-devtools-json-array {
-  color: #cccccc !important;
+  color: #cccccc;
 }
 
 .ai-devtools-json-array-content {
-  margin-left: 0.125rem !important;
+  margin-left: 0.125rem;
 }
 
 .ai-devtools-json-array-item {
-  margin-bottom: 0.25rem !important;
-  margin-left: 0 !important;
-  display: block !important;
+  margin-bottom: 0.25rem;
+  margin-left: 0;
+  display: block;
 }
 
 .ai-devtools-json-array-index {
-  color: #888888 !important;
-  margin-right: 0.5rem !important;
+  color: #888888;
+  margin-right: 0.5rem;
 }
 
 .ai-devtools-json-indent {
-  white-space: pre !important;
-  font-family: monospace !important;
-  display: inline !important;
-  flex-shrink: 0 !important;
+  white-space: pre;
+  font-family: monospace;
+  display: inline;
+  flex-shrink: 0;
 }
 
 .ai-devtools-json-inline {
-  display: inline !important;
+  display: inline;
 }
 
 .ai-devtools-json-object {
-  color: #cccccc !important;
+  color: #cccccc;
 }
 
 .ai-devtools-json-object-content {
-  margin-left: 0.125rem !important;
+  margin-left: 0.125rem;
 }
 
 .ai-devtools-json-object-item {
-  margin-bottom: 0.25rem !important;
-  margin-left: 0 !important;
-  display: block !important;
+  margin-bottom: 0.25rem;
+  margin-left: 0;
+  display: block;
 }
 
 .ai-devtools-json-object-key-row {
-  display: flex !important;
-  align-items: flex-start !important;
-  gap: 0.25rem !important;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.25rem;
 }
 
 .ai-devtools-json-expand-btn {
-  background: none !important;
-  border: none !important;
-  color: #888888 !important;
-  cursor: pointer !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  margin-right: 0.25rem !important;
-  font-size: 0.75rem !important;
-  width: 1rem !important;
-  height: 1rem !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  flex-shrink: 0 !important;
+  background: none;
+  border: none;
+  color: #888888;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  margin-right: 0.25rem;
+  font-size: 0.75rem;
+  width: 1rem;
+  height: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .ai-devtools-json-expand-btn:hover {
-  color: #cccccc !important;
+  color: #cccccc;
 }
 
 .ai-devtools-json-key {
-  color: #888888 !important;
-  margin-right: 0.5rem !important;
-  flex-shrink: 0 !important;
+  color: #888888;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
 }
 
 .ai-devtools-json-preview {
-  color: #888888 !important;
-  font-style: italic !important;
+  color: #888888;
+  font-style: italic;
 }
 
 .ai-devtools-json-bracket {
-  color: #cccccc !important;
+  color: #cccccc;
 }
 
 .ai-devtools-json-comma {
-  color: #888888 !important;
-  margin-left: 0.25rem !important;
-  display: inline !important;
+  color: #888888;
+  margin-left: 0.25rem;
+  display: inline;
 }
 
 .ai-devtools-json-truncated {
-  color: #888888 !important;
-  font-style: italic !important;
-  margin-left: 1rem !important;
+  color: #888888;
+  font-style: italic;
+  margin-left: 1rem;
 }
 
 .ai-devtools-json-unknown {
-  color: #888888 !important;
+  color: #888888;
 }
 
 /* React JSON View Lite Styles */
 
 .ai-devtools-json-basic-child {
-  margin: 0 !important;
-  padding: 0 !important;
+  margin: 0;
+  padding: 0;
 }
 
 .ai-devtools-json-label {
-  color: #888888 !important;
+  color: #888888;
 }
 
 .ai-devtools-json-string-value {
-  color: #cccccc !important;
+  color: #cccccc;
 }
 
 .ai-devtools-json-number-value {
-  color: #888888 !important;
+  color: #888888;
 }
 
 .ai-devtools-json-boolean-value {
-  color: #888888 !important;
+  color: #888888;
 }
 
 .ai-devtools-json-null-value {
-  color: #888888 !important;
+  color: #888888;
 }
 
 .ai-devtools-json-undefined-value {
-  color: #888888 !important;
+  color: #888888;
 }
 
 .ai-devtools-json-punctuation {
-  color: #cccccc !important;
+  color: #cccccc;
 }
 
 .ai-devtools-json-collapse-icon::after {
-  content: "▼" !important;
-  color: #cccccc !important;
-  margin-right: 0.25rem !important;
+  content: "▼";
+  color: #cccccc;
+  margin-right: 0.25rem;
 }
 
 .ai-devtools-json-expand-icon::after {
-  content: "▶" !important;
-  color: #cccccc !important;
-  margin-right: 0.25rem !important;
+  content: "▶";
+  color: #cccccc;
+  margin-right: 0.25rem;
 }
 
 .ai-devtools-json-collapsed-content::after {
-  content: "..." !important;
-  color: #888888 !important;
+  content: "...";
+  color: #888888;
 }
 
 .ai-devtools-json-child-fields-container {
-  margin: 0 !important;
-  padding: 0 !important;
-  margin-left: 0.75rem !important;
+  margin: 0;
+  padding: 0;
+  margin-left: 0.75rem;
 }
 
 /* Additional indentation for nested levels */
 .ai-devtools-json-child-fields-container .ai-devtools-json-child-fields-container {
-  margin-left: 1rem !important;
+  margin-left: 1rem;
 }
 
 .ai-devtools-json-child-fields-container .ai-devtools-json-child-fields-container .ai-devtools-json-child-fields-container {
-  margin-left: 1.25rem !important;
+  margin-left: 1.25rem;
 }
 
 .ai-devtools-json-child-fields-container .ai-devtools-json-child-fields-container .ai-devtools-json-child-fields-container .ai-devtools-json-child-fields-container {
-  margin-left: 1.5rem !important;
+  margin-left: 1.5rem;
 }
 
 /* Ensure proper spacing for object and array items */
 .ai-devtools-json-child-fields-container > * {
-  margin-bottom: 0.25rem !important;
+  margin-bottom: 0.25rem;
 }
 
 /* Improve visual hierarchy with better indentation */
 .ai-devtools-json-basic-child {
-  margin: 0 !important;
-  padding: 0 !important;
-  position: relative !important;
+  margin: 0;
+  padding: 0;
+  position: relative;
 }
 
 /* Add visual indentation lines for better structure */
 .ai-devtools-json-child-fields-container::before {
-  content: '' !important;
-  position: absolute !important;
-  left: -0.5rem !important;
-  top: 0 !important;
-  bottom: 0 !important;
-  width: 1px !important;
-  background: #444444 !important;
-  opacity: 0.3 !important;
+  content: '';
+  position: absolute;
+  left: -0.5rem;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: #444444;
+  opacity: 0.3;
 }
 
 /* Style for object and array brackets */
 .ai-devtools-json-punctuation {
-  color: #cccccc !important;
-  font-weight: normal !important;
+  color: #cccccc;
+  font-weight: normal;
 }
 
 /* Better spacing for array items */
 .ai-devtools-json-child-fields-container .ai-devtools-json-basic-child {
-  margin-left: 0.25rem !important;
+  margin-left: 0.25rem;
 }
 
 /* Add subtle background for better readability */
 .ai-devtools-json-child-fields-container {
-  background: rgba(255, 255, 255, 0.02) !important;
-  border-radius: 2px !important;
-  margin-top: 0.125rem !important;
-  margin-bottom: 0.125rem !important;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 2px;
+  margin-top: 0.125rem;
+  margin-bottom: 0.125rem;
 }
 
 /* Improve the visual hierarchy with better spacing */
 .ai-devtools-json-container {
-  font-family: monospace !important;
-  font-size: 12px !important;
-  line-height: 1.5 !important;
-  color: #cccccc !important;
-  background: transparent !important;
-  padding-left: 0.25rem !important;
+  font-family: monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #cccccc;
+  background: transparent;
+  padding-left: 0.25rem;
 }
 
 /* Better visual separation for different nesting levels */
 .ai-devtools-json-child-fields-container:nth-child(odd) {
-  background: rgba(255, 255, 255, 0.01) !important;
+  background: rgba(255, 255, 255, 0.01);
 }
 
 /* Improve readability of nested content */
 .ai-devtools-json-child-fields-container .ai-devtools-json-child-fields-container {
-  border-left: 1px solid rgba(255, 255, 255, 0.05) !important;
-  padding-left: 0.25rem !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.05);
+  padding-left: 0.25rem;
 }
 
 /* Add better visual hierarchy for deeply nested content */
 .ai-devtools-json-child-fields-container .ai-devtools-json-child-fields-container .ai-devtools-json-child-fields-container {
-  border-left: 1px solid rgba(255, 255, 255, 0.08) !important;
-  background: rgba(255, 255, 255, 0.01) !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.01);
 }
 
 /* Ensure proper spacing between items */
 .ai-devtools-json-child-fields-container > * + * {
-  margin-top: 0.125rem !important;
+  margin-top: 0.125rem;
 }
 
 /* Better visual separation for object keys */
 .ai-devtools-json-label {
-  color: #888888 !important;
-  font-weight: 500 !important;
-  margin-right: 0.5rem !important;
+  color: #888888;
+  font-weight: 500;
+  margin-right: 0.5rem;
 }
 

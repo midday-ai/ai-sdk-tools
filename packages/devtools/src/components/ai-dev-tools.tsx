@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useAIDevtools } from "../hooks/use-ai-devtools";
+import { defaultConfig, useAIDevtools } from "../hooks/use-ai-devtools";
 import type { DevtoolsConfig, UseAIDevtoolsOptions } from "../types";
 import { DevtoolsButton } from "./devtools-button";
 import { DevtoolsPanel } from "./devtools-panel";
@@ -13,23 +13,6 @@ interface AIDevtoolsProps extends UseAIDevtoolsOptions {
   modelId?: string; // Optional model ID for context insights
 }
 
-const defaultConfig: DevtoolsConfig = {
-  enabled: true,
-  maxEvents: 1000,
-  position: "bottom",
-  height: 400,
-  theme: "auto",
-  streamCapture: {
-    enabled: true,
-    endpoint: "/api/chat",
-    autoConnect: true,
-  },
-  throttle: {
-    enabled: true,
-    interval: 100, // 100ms throttle by default
-    includeTypes: ["text-delta"], // Only throttle high-frequency text-delta events by default
-  },
-};
 
 export function AIDevtools({
   enabled = true,
@@ -92,10 +75,10 @@ export function AIDevtools({
     debug,
     streamCapture: finalConfig.streamCapture
       ? {
-          enabled: finalConfig.streamCapture.enabled,
-          endpoints: [finalConfig.streamCapture.endpoint],
-          autoConnect: finalConfig.streamCapture.autoConnect,
-        }
+        enabled: finalConfig.streamCapture.enabled,
+        endpoints: [finalConfig.streamCapture.endpoint],
+        autoConnect: finalConfig.streamCapture.autoConnect,
+      }
       : undefined,
     throttle: finalConfig.throttle,
   });
@@ -140,8 +123,8 @@ export function AIDevtools({
         <DevtoolsPanel
           events={events}
           isCapturing={isCapturing}
-          onToggleCapturing={toggleCapturing}
-          onClearEvents={clearEvents}
+          toggleCapturing={toggleCapturing}
+          clearEvents={clearEvents}
           onClose={() => setIsOpen(false)}
           onTogglePosition={togglePosition}
           config={finalConfig}

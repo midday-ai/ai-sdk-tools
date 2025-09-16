@@ -4,14 +4,33 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type {
   AIEvent,
   AIEventType,
+  DevtoolsConfig,
   UseAIDevtoolsOptions,
   UseAIDevtoolsReturn,
 } from "../types";
 import { createDebugLogger } from "../utils/debug";
 import { StreamInterceptor } from "../utils/stream-interceptor";
 
+export const defaultConfig: DevtoolsConfig = {
+  enabled: true,
+  maxEvents: 1000,
+  position: "bottom",
+  height: 400,
+  theme: "auto",
+  streamCapture: {
+    enabled: true,
+    endpoint: "/api/chat",
+    autoConnect: true,
+  },
+  throttle: {
+    enabled: true,
+    interval: 100, // 100ms throttle by default
+    includeTypes: ["text-delta"], // Only throttle high-frequency text-delta events by default
+  },
+};
+
 export function useAIDevtools(
-  options: UseAIDevtoolsOptions = {},
+  options: UseAIDevtoolsOptions = defaultConfig,
 ): UseAIDevtoolsReturn {
   const {
     enabled = true,
@@ -133,12 +152,12 @@ export function useAIDevtools(
       onEvent?.(event);
     },
     [
-      isCapturing,
-      maxEvents,
-      onEvent,
-      shouldThrottleEvent,
-      throttle,
-      processThrottledEvents,
+      isCapturing, 
+      maxEvents, 
+      onEvent, 
+      shouldThrottleEvent, 
+      throttle, 
+      processThrottledEvents, debugLog
     ],
   );
 

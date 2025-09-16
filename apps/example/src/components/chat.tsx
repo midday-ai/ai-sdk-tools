@@ -1,7 +1,7 @@
 "use client";
 
+import { AIDevtools, EmbeddedAiDevtools, useAIDevtools } from "@ai-sdk-tools/devtools";
 import { useChat } from "@ai-sdk-tools/store";
-import { AIDevtools } from "@ai-sdk-tools/devtools";
 import { DefaultChatTransport } from "ai";
 import { useState } from "react";
 
@@ -13,7 +13,7 @@ export default function Chat() {
   });
   const [input, setInput] = useState("");
 
-
+  const props = useAIDevtools();
   return (
     <>
       {messages.map((message) => (
@@ -44,7 +44,7 @@ export default function Chat() {
           Submit
         </button>
       </form>
-
+      <EmbeddedAiDevtools {...props} />
       <AIDevtools />
     </>
   );
