@@ -1,5 +1,21 @@
 # @ai-sdk-tools/artifacts
 
+## 0.3.0
+
+### Minor Changes
+
+- **Fixed dynamic require issue**: Resolved "dynamic usage of require is not supported" error by updating tsup configuration to use static imports instead of dynamic requires
+- **Improved build configuration**: Added proper external dependencies and esbuild options for better compatibility with modern bundlers like Turbopack
+- **Enhanced React compatibility**: Fixed React imports to work properly with both CommonJS and ESM builds
+- **Better TypeScript support**: Improved type definitions and build output for better developer experience
+
+### Technical Improvements
+
+- Updated tsup configuration to properly handle React and store dependencies
+- Fixed build process to generate clean static imports
+- Improved compatibility with modern JavaScript bundlers
+- Enhanced error handling and type safety
+
 ## 0.2.3
 
 ### Patch Changes

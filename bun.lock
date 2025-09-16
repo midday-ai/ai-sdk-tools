@@ -70,7 +70,7 @@
     },
     "packages/artifacts": {
       "name": "@ai-sdk-tools/artifacts",
-      "version": "0.2.3",
+      "version": "0.3.0",
       "dependencies": {
         "zod": "^4.1.8",
       },
