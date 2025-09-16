@@ -182,9 +182,6 @@ export function DevtoolsPanel({
     };
   }, [onClose]);
 
-
-
-
   return (
     <div
       ref={panelRef}
