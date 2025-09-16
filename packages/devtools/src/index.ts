@@ -5,29 +5,38 @@ export { DevtoolsButton } from "./components/devtools-button";
 export { DevtoolsPanel } from "./components/devtools-panel";
 export { EventItem } from "./components/event-item";
 export { EventList } from "./components/event-list";
+export { StoreList } from "./components/store-list";
+export { StateDataExplorer } from "./components/state-data-explorer";
 
 // Hooks
 export { useAIDevtools } from "./hooks/use-ai-devtools";
+export { useCurrentState } from "./hooks/use-current-state";
 
 // Types
 export type {
   AIEvent,
   AIEventType,
-  FilterOptions,
   DevtoolsConfig,
+  FilterOptions,
+  ToolCallSession,
   UseAIDevtoolsOptions,
   UseAIDevtoolsReturn,
-  ToolCallSession,
 } from "./types";
 
 // Utilities
 export { createDebugLogger } from "./utils/debug";
+export {
+  isStorePackageAvailable,
+  getAvailableStoreIds,
+  getStoreState,
+  subscribeToStoreChanges,
+} from "./utils/working-state-detection";
 
 export {
-  parseEventFromDataPart,
-  parseSSEEvent,
   formatEventData,
   getEventDescription,
+  parseEventFromDataPart,
+  parseSSEEvent,
 } from "./utils/event-parser";
 export {
   formatTimestamp,

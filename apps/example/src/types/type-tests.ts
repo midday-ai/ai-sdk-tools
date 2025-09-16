@@ -1,11 +1,11 @@
 /**
  * TypeScript compilation tests to verify custom types work correctly
  * These tests ensure that our custom message types are properly typed
- * and compatible with ai-sdk-zustand hooks.
+ * and compatible with ai-sdk-tools/store hooks.
  */
 
 import { DefaultChatTransport } from "ai";
-import { useChat, useChatMessages, useChatSendMessage } from "ai-sdk-zustand";
+import { useChat, useChatMessages, useChatSendMessage } from "@ai-sdk-tools/store";
 import type {
   AllTools,
   AnalyticsData,
