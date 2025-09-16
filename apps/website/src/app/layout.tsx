@@ -14,9 +14,41 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI SDK Tools",
+  title: {
+    default: "AI SDK Tools - Powerful Tools for Building AI Applications",
+    template: "%s | AI SDK Tools",
+  },
   description:
-    "A collection of tools for AI SDK, including @ai-sdk-tools/store and @ai-sdk-tools/devtools.",
+    "Essential utilities that extend and improve the Vercel AI SDK experience. State management, debugging tools, and structured artifact streaming for building advanced AI interfaces.",
+  keywords: [
+    "AI SDK",
+    "Vercel AI SDK",
+    "React AI",
+    "AI development tools",
+    "AI state management",
+    "AI debugging",
+    "AI artifacts",
+    "TypeScript AI",
+    "AI applications",
+    "AI development",
+    "AI tools",
+    "AI SDK store",
+    "AI SDK devtools",
+    "AI streaming",
+    "AI components",
+  ],
+  authors: [{ name: "AI SDK Tools Team" }],
+  creator: "AI SDK Tools",
+  publisher: "AI SDK Tools",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL("https://ai-sdk-tools.dev"),
+  alternates: {
+    canonical: "/",
+  },
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
@@ -26,6 +58,9 @@ export const metadata: Metadata = {
     ],
     shortcut: "/favicon.svg",
     apple: "/icon.svg",
+  },
+  verification: {
+    google: "your-google-verification-code",
   },
 };
 

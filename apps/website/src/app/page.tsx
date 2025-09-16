@@ -17,13 +17,13 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen text-[#d4d4d4] font-[family-name:var(--font-geist-mono)]">
+    <main className="min-h-screen text-[#d4d4d4] font-[family-name:var(--font-geist-mono)]">
       <div className="max-w-[95rem] mx-auto px-8 py-32 relative z-10">
         {/* Hero */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-40">
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-40">
           <div className="space-y-12">
             <h1 className="text-4xl font-normal leading-tight tracking-wide max-w-[600px]">
-              Powerful tools for building AI applications.
+              Powerful tools for building AI applications
             </h1>
 
             <p className="text-base text-secondary max-w-3xl leading-relaxed font-light">
@@ -62,7 +62,7 @@ export default function Home() {
                       fill="currentColor"
                       aria-label="Copy command"
                     >
-                      <title>Copy to clipboard</title>
+                      <title>Copy command to clipboard</title>
                       <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
                     </svg>
                   </button>
@@ -158,67 +158,67 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </div>
+        </section>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-40">
-          <div>
-            <h3 className="text-base font-medium mb-3">State Management</h3>
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-40">
+          <article>
+            <h2 className="text-base font-medium mb-3">State Management</h2>
             <p className="text-xs text-secondary font-light leading-relaxed">
               Powerful Zustand-based state management for AI applications.
               Eliminate prop drilling and manage chat state globally with full
               TypeScript support.
             </p>
-          </div>
+          </article>
 
-          <div>
-            <h3 className="text-base font-medium mb-3">Development Tools</h3>
+          <article>
+            <h2 className="text-base font-medium mb-3">Development Tools</h2>
             <p className="text-xs text-secondary font-light leading-relaxed">
               Debug and monitor your AI applications with real-time insights
               into tool calls, state changes, and performance metrics.
             </p>
-          </div>
+          </article>
 
-          <div>
-            <h3 className="text-base font-medium mb-3">Artifact Streaming</h3>
+          <article>
+            <h2 className="text-base font-medium mb-3">Artifact Streaming</h2>
             <p className="text-xs text-secondary font-light leading-relaxed">
               Create structured, type-safe artifacts that stream real-time
               updates from AI tools to React components with progress tracking
               and error handling.
             </p>
-          </div>
+          </article>
 
-          <div>
-            <h3 className="text-base font-medium mb-3">Production Ready</h3>
+          <article>
+            <h2 className="text-base font-medium mb-3">Production Ready</h2>
             <p className="text-xs text-secondary font-light leading-relaxed">
               Battle-tested tools used in production applications. Optimized for
               performance, reliability, and scalability in real-world AI
               applications.
             </p>
-          </div>
+          </article>
 
-          <div>
-            <h3 className="text-base font-medium mb-3">TypeScript First</h3>
+          <article>
+            <h2 className="text-base font-medium mb-3">TypeScript First</h2>
             <p className="text-xs text-secondary font-light leading-relaxed">
               Full TypeScript support with intelligent autocompletion, type
               safety, and comprehensive type definitions for all AI SDK tools.
             </p>
-          </div>
+          </article>
 
-          <div>
-            <h3 className="text-base font-medium mb-3">Framework Agnostic</h3>
+          <article>
+            <h2 className="text-base font-medium mb-3">Framework Agnostic</h2>
             <p className="text-xs text-secondary font-light leading-relaxed">
               Works seamlessly with React, Next.js, and other modern frameworks.
               Compatible with SSR, concurrent features, and edge runtime
               environments.
             </p>
-          </div>
-        </div>
+          </article>
+        </section>
 
         <div className="bg-dotted h-[45px] w-full mb-40" />
 
         {/* Package Examples */}
-        <div className="space-y-8 mb-40">
+        <section className="space-y-8 mb-40">
           <h2 className="text-lg font-medium">Getting Started</h2>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -341,12 +341,12 @@ function Dashboard() {
               </div>
             </div>
           </div>
-        </div>
+        </section>
 
         {/* Bottom CTA */}
-        <div className="text-center space-y-6">
+        <section className="text-center space-y-6">
           <div className="space-y-4 max-w-2xl mx-auto">
-            <h3 className="text-lg font-medium">Choose Your Tools</h3>
+            <h2 className="text-lg font-medium">Choose Your Tools</h2>
             <p className="text-xs text-secondary font-light">
               Install individual packages or get the complete toolkit for
               building AI applications.
@@ -380,8 +380,8 @@ function Dashboard() {
               </a>
             </div>
           </div>
-        </div>
+        </section>
       </div>
-    </div>
+    </main>
   );
 }
