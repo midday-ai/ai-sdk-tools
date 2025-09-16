@@ -123,7 +123,7 @@ export default function Home() {
               }}
             >
               <div className="bg-gradient-to-br from-[#1a1a1a] to-[#0f0f0f] p-1 shadow-2xl ">
-                <div className="bg-[#0f0f0f] border border-[#2a2a2a] p-2 ">
+                <div className="border border-[#3c3c3c] p-2 ">
                   <div className="text-xs text-secondary mb-2">
                     ◇ AI SDK Store
                   </div>
@@ -149,7 +149,7 @@ export default function Home() {
               }}
             >
               <div className="bg-gradient-to-br from-[#1a1a1a] to-[#0f0f0f] p-1 shadow-2xl ">
-                <div className="bg-[#0f0f0f] border border-[#2a2a2a] p-2 ">
+                <div className="border border-[#3c3c3c] p-2 ">
                   <div className="text-xs text-secondary mb-2">
                     ◇ AI SDK Devtools
                   </div>
@@ -226,9 +226,9 @@ export default function Home() {
               <div className="text-xs text-secondary">
                 ◇ Store (State Management)
               </div>
-              <div className="bg-[#0f0f0f] border border-[#2a2a2a] p-6 h-[20rem] overflow-y-auto">
+              <div className="border border-[#3c3c3c] p-6 h-[20rem] overflow-y-auto">
                 <pre
-                  className="text-xs text-[#d4d4d4] leading-relaxed"
+                  className="text-xs font-mono leading-relaxed"
                   dangerouslySetInnerHTML={{
                     __html:
                       highlight(`import { useChat } from '@ai-sdk-tools/store'
@@ -271,9 +271,9 @@ function MessageList() {
               <div className="text-xs text-secondary">
                 ◇ Devtools (Debugging)
               </div>
-              <div className="bg-[#0f0f0f] border border-[#2a2a2a] p-6 h-[20rem] overflow-y-auto">
+              <div className="border border-[#3c3c3c] p-6 h-[20rem] overflow-y-auto">
                 <pre
-                  className="text-xs text-[#d4d4d4] leading-relaxed"
+                  className="text-xs font-mono leading-relaxed"
                   dangerouslySetInnerHTML={{
                     __html:
                       highlight(`import { AIDevtools } from '@ai-sdk-tools/devtools'
@@ -304,9 +304,9 @@ function App() {
               <div className="text-xs text-secondary">
                 ◇ Artifacts (Structured Streaming)
               </div>
-              <div className="bg-[#0f0f0f] border border-[#2a2a2a] p-6 h-[20rem] overflow-y-auto">
+              <div className="border border-[#3c3c3c] p-6 h-[20rem] overflow-y-auto">
                 <pre
-                  className="text-xs text-[#d4d4d4] leading-relaxed"
+                  className="text-xs font-mono leading-relaxed"
                   dangerouslySetInnerHTML={{
                     __html:
                       highlight(`import { artifact, useArtifact } from '@ai-sdk-tools/artifacts'

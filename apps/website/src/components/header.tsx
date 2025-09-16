@@ -58,12 +58,16 @@ export function Header() {
           >
             Devtools
           </Link>
-          <span className="text-sm font-medium relative text-secondary cursor-default">
+          <Link
+            href="/artifacts"
+            className={`transition-colors text-sm font-medium ${
+              pathname === "/artifacts"
+                ? "text-[#d4d4d4]"
+                : "text-secondary hover:text-[#d4d4d4]"
+            }`}
+          >
             Artifacts
-            <span className="absolute -top-3.5 -right-5 text-[10px] text-[#555555] font-mono">
-              (soon)
-            </span>
-          </span>
+          </Link>
         </nav>
 
         <a

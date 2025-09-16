@@ -147,9 +147,9 @@ export function DevtoolsContent() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="space-y-4">
               <div className="text-xs text-secondary">◇ Basic Setup</div>
-              <div className="bg-[#0f0f0f] border border-[#2a2a2a] p-6 h-[32rem] overflow-y-auto">
+              <div className="border border-[#3c3c3c] p-6 h-[32rem] overflow-y-auto">
                 <pre
-                  className="text-xs text-[#d4d4d4] leading-relaxed"
+                  className="text-xs font-mono leading-relaxed"
                   // biome-ignore lint/security/noDangerouslySetInnerHtml: we want to use dangerouslySetInnerHTML
                   dangerouslySetInnerHTML={{
                     __html: highlight(`// App.tsx - Add devtools to your app
@@ -184,9 +184,9 @@ function App() {
               <div className="text-xs text-secondary">
                 ◇ Advanced Configuration
               </div>
-              <div className="bg-[#0f0f0f] border border-[#2a2a2a] p-6 h-[32rem] overflow-y-auto">
+              <div className="border border-[#3c3c3c] p-6 h-[32rem] overflow-y-auto">
                 <pre
-                  className="text-xs text-[#d4d4d4] leading-relaxed"
+                  className="text-xs font-mono leading-relaxed"
                   // biome-ignore lint/security/noDangerouslySetInnerHtml: we want to use dangerouslySetInnerHTML
                   dangerouslySetInnerHTML={{
                     __html: highlight(`// Custom configuration

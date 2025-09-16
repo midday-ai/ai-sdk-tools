@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { defineConfig } from "tsup";
 
@@ -34,5 +34,20 @@ export default defineConfig({
   document.head.appendChild(style);
 })();
 `,
+  },
+  onSuccess: async () => {
+    // Inject 'use client' directive into built files
+    const files = ["dist/index.js", "dist/index.mjs"];
+
+    for (const file of files) {
+      try {
+        const content = readFileSync(resolve(__dirname, file), "utf-8");
+        const withUseClient = `"use client";\n\n${content}`;
+        writeFileSync(resolve(__dirname, file), withUseClient);
+        console.log(`✅ Added 'use client' to ${file}`);
+      } catch (error) {
+        console.error(`❌ Failed to add 'use client' to ${file}:`, error);
+      }
+    }
   },
 });
