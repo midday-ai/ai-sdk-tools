@@ -1,6 +1,6 @@
 {
   "name": "@ai-sdk-tools/chrome-extension",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Chrome extension for AI SDK DevTools",
   "main": "index.js",
   "scripts": {
@@ -26,10 +26,9 @@
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "@types/react": "^19.1.13",
-    "@types/react-dom": "^19.1.9"
+    "@types/react-dom": "^19.1.9",
+    "@ai-sdk-tools/store": "workspace:*",
+    "@ai-sdk-tools/devtools": "workspace:*"
   },
-  "dependencies": {
-    "@ai-sdk-tools/devtools": "workspace:*",
-    "@ai-sdk-tools/store": "workspace:*"
-  }
+  "dependencies": {}
 }

@@ -1,6 +1,6 @@
 {
   "name": "@ai-sdk-tools/devtools",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "AI development tools for debugging and monitoring AI SDKs streams",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -48,7 +48,8 @@
     "react-dom": "^19.1.1",
     "tsup": "^8.5.0",
     "typescript": "^5.9.2",
-    "@ai-sdk/react": "^2.0.44"
+    "@ai-sdk/react": "^2.0.44",
+    "@ai-sdk-tools/store": "workspace:*"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
