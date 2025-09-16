@@ -6,6 +6,11 @@
     "packages/*",
     "apps/*"
   ],
+  "scripts": {
+    "transform-deps": "bun scripts/transform-workspace-deps.ts",
+    "restore-deps": "bun scripts/restore-workspace-deps.ts",
+    "check-deps": "bun scripts/check-published-deps.ts"
+  },
   "dependencies": {
     "biome": "^0.3.3"
   }

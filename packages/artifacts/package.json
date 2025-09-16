@@ -22,7 +22,7 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "clean": "rm -rf dist",
-    "prepublishOnly": "bun run clean && bun run build",
+    "prepublishOnly": "bun ../../scripts/transform-workspace-deps.ts && bun run clean && bun run build",
     "type-check": "tsc --noEmit"
   },
   "keywords": [
