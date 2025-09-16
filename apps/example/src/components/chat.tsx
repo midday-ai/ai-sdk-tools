@@ -1,6 +1,6 @@
 "use client";
 
-import { useChat } from "@ai-sdk/react";
+import { useChat } from "@ai-sdk-tools/store";
 import { AIDevtools } from "@ai-sdk-tools/devtools";
 import { DefaultChatTransport } from "ai";
 import { useState } from "react";
@@ -12,6 +12,7 @@ export default function Chat() {
     }),
   });
   const [input, setInput] = useState("");
+
 
   return (
     <>

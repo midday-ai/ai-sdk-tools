@@ -7,12 +7,21 @@ import {
   Pause as PauseIcon,
   PlayArrow as PlayArrowIcon,
   ViewSidebar as RightPanelIcon,
+  Storage as StateIcon,
 } from "@mui/icons-material";
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { useCurrentState } from "../hooks/use-current-state";
 import type { AIEvent, DevtoolsConfig, FilterOptions } from "../types";
 import { formatToolName, getEventTypeIcon } from "../utils/formatting";
 import { ContextCircle } from "./context-circle";
 import { EventList } from "./event-list";
+import { StateDataExplorer } from "./state-data-explorer";
 
 const EVENT_TYPES = [
   "tool-call-start",
@@ -81,12 +90,32 @@ export function DevtoolsPanel({
     searchQuery: "",
   });
 
+  // State watching functionality
+  const [showStatePanel, setShowStatePanel] = useState(false);
+  const [selectedStoreId, setSelectedStoreId] = useState<string | null>(null);
+
+  const { isStoreAvailable, availableStoreIds, currentStates } =
+    useCurrentState({
+      enabled: true,
+    });
+
+  // Auto-select default store when available
+  useEffect(() => {
+    if (availableStoreIds.length > 0 && !selectedStoreId) {
+      // Prefer "default" store if available, otherwise select the first one
+      const defaultStoreId = availableStoreIds.includes("default")
+        ? "default"
+        : availableStoreIds[0];
+      setSelectedStoreId(defaultStoreId);
+    }
+  }, [availableStoreIds, selectedStoreId]);
+
   // Resize functionality
   const [isResizing, setIsResizing] = useState(false);
   const [panelHeight, setPanelHeight] = useState(config.height || 300);
   const [panelWidth, setPanelWidth] = useState(config.width || 500);
   const panelRef = useRef<HTMLDivElement>(null);
-  const resizeRef = useRef<HTMLDivElement>(null);
+  const resizeRef = useRef<HTMLButtonElement>(null);
 
   // Animation state for REC indicator
   const [isReceivingEvents, setIsReceivingEvents] = useState(false);
@@ -137,7 +166,7 @@ export function DevtoolsPanel({
       tools: availableToolNames,
       quickSearches: ["error", "tool", "text", "message", "start", "end"],
     };
-  }, [availableToolNames, showSearchSuggestions]);
+  }, [availableToolNames]);
 
   // Filter events based on current filters
   const filteredEvents = useMemo(() => {
@@ -227,7 +256,7 @@ export function DevtoolsPanel({
       document.body.style.cursor = "";
       document.body.style.userSelect = "";
     };
-  }, [isResizing, handleMouseMove, handleMouseUp]);
+  }, [isResizing, handleMouseMove, handleMouseUp, config.position]);
 
   // Add keyboard event listener for Escape key
   React.useEffect(() => {
@@ -317,10 +346,33 @@ export function DevtoolsPanel({
       }}
     >
       {/* Resize Handle */}
-      <div
+      <button
         ref={resizeRef}
+        type="button"
         className={`ai-devtools-resize-handle ai-devtools-resize-handle-${config.position}`}
         onMouseDown={handleMouseDown}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            // Create a synthetic mouse event for keyboard interaction
+            const syntheticEvent = {
+              ...e,
+              preventDefault: e.preventDefault,
+              clientX: 0,
+              clientY: 0,
+              button: 0,
+              buttons: 0,
+              movementX: 0,
+              movementY: 0,
+              pageX: 0,
+              pageY: 0,
+              screenX: 0,
+              screenY: 0,
+              relatedTarget: null,
+            } as unknown as React.MouseEvent<HTMLButtonElement>;
+            handleMouseDown(syntheticEvent);
+          }
+        }}
       />
 
       {/* Header */}
@@ -478,6 +530,19 @@ export function DevtoolsPanel({
         </div>
 
         <div className="ai-devtools-header-right">
+          {/* State Button - only show if store is available */}
+          {isStoreAvailable && (
+            <button
+              type="button"
+              onClick={() => setShowStatePanel(!showStatePanel)}
+              className={`ai-devtools-btn ${showStatePanel ? "active" : ""}`}
+              title={`${showStatePanel ? "Hide" : "Show"} state monitoring`}
+            >
+              <StateIcon className="ai-devtools-btn-icon" />
+              <span>State</span>
+            </button>
+          )}
+
           {/* Live Button with Pause/Play */}
           <button
             type="button"
@@ -647,10 +712,19 @@ export function DevtoolsPanel({
       {/* Content */}
       <div className="ai-devtools-panel-content">
         <div className="ai-devtools-content">
-          {/* Events list */}
-          <div className="ai-devtools-events">
-            <EventList events={filteredEvents} />
-          </div>
+          {showStatePanel ? (
+            <div className="ai-devtools-state-panel-full">
+              <StateDataExplorer
+                currentState={
+                  selectedStoreId ? currentStates[selectedStoreId] : undefined
+                }
+              />
+            </div>
+          ) : (
+            <div className="ai-devtools-events">
+              <EventList events={filteredEvents} />
+            </div>
+          )}
         </div>
       </div>
 
@@ -678,7 +752,7 @@ export function DevtoolsPanel({
         <div className="ai-devtools-context-section">
           <ContextCircle
             events={events}
-            modelId={(modelId || detectedModelId || "gpt-4o") as any}
+            modelId={modelId || detectedModelId || "gpt-4o"}
             className="ai-devtools-context-circle-bottom"
           />
         </div>

@@ -2089,3 +2089,557 @@
   stroke-linecap: round !important;
   transition: stroke-dashoffset 0.3s ease !important;
 }
+
+/* State Watching Styles */
+.ai-devtools-btn-badge {
+  position: absolute !important;
+  top: -4px !important;
+  right: -4px !important;
+  background: #ef4444 !important;
+  color: white !important;
+  font-size: 0.5rem !important;
+  font-weight: 600 !important;
+  padding: 0.125rem 0.25rem !important;
+  border-radius: 0.375rem !important;
+  min-width: 1rem !important;
+  height: 1rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+}
+
+.ai-devtools-state-panel {
+  display: flex;
+  height: 100%;
+  gap: 1px;
+}
+
+.ai-devtools-state-panel-left {
+  flex: 0 0 40%;
+  min-width: 0;
+  border-right: 1px solid #333333;
+}
+
+.ai-devtools-state-panel-right {
+  flex: 1;
+  min-width: 0;
+}
+
+.ai-devtools-state-panel-full {
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
+/* State Changes List */
+.ai-devtools-state-changes-empty {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 100% !important;
+  padding: 2rem !important;
+}
+
+.ai-devtools-state-changes-empty-content {
+  text-align: center !important;
+  color: #666666 !important;
+}
+
+.ai-devtools-state-changes-empty-icon {
+  font-size: 2rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.ai-devtools-state-changes-empty-title {
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  margin-bottom: 0.25rem !important;
+  color: #cccccc !important;
+}
+
+.ai-devtools-state-changes-empty-description {
+  font-size: 0.75rem !important;
+  color: #888888 !important;
+}
+
+.ai-devtools-state-changes-list {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+}
+
+.ai-devtools-state-changes-header {
+  padding: 0.75rem 1rem !important;
+  border-bottom: 1px solid #333333 !important;
+  background: #1a1a1a !important;
+}
+
+.ai-devtools-state-changes-title {
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  color: #cccccc !important;
+}
+
+.ai-devtools-state-changes-content {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  padding: 0.5rem 0 !important;
+}
+
+.ai-devtools-state-change-item {
+  padding: 0.75rem 1rem !important;
+  border-bottom: 1px solid #222222 !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s ease !important;
+}
+
+.ai-devtools-state-change-item:hover {
+  background: #222222 !important;
+}
+
+.ai-devtools-state-change-item.selected {
+  background: #1e3a8a !important;
+}
+
+.ai-devtools-state-change-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.ai-devtools-state-change-type {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.375rem !important;
+}
+
+.ai-devtools-state-change-type-icon {
+  font-size: 0.75rem !important;
+}
+
+.ai-devtools-state-change-type-label {
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  color: #cccccc !important;
+  text-transform: capitalize !important;
+}
+
+.ai-devtools-state-change-timestamp {
+  font-size: 0.625rem !important;
+  color: #888888 !important;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
+}
+
+.ai-devtools-state-change-details {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.25rem !important;
+}
+
+.ai-devtools-state-change-store {
+  font-size: 0.625rem !important;
+  color: #888888 !important;
+}
+
+.ai-devtools-state-change-store-id {
+  color: #cccccc !important;
+  font-weight: 500 !important;
+}
+
+.ai-devtools-state-change-keys {
+  font-size: 0.625rem !important;
+}
+
+.ai-devtools-state-change-keys-list {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0.25rem !important;
+}
+
+.ai-devtools-state-change-key {
+  background: #333333 !important;
+  color: #cccccc !important;
+  padding: 0.125rem 0.375rem !important;
+  border-radius: 0.25rem !important;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
+  font-size: 0.5rem !important;
+}
+
+.ai-devtools-state-change-key-more {
+  color: #888888 !important;
+  font-style: italic !important;
+}
+
+.ai-devtools-state-change-keys-none {
+  color: #666666 !important;
+  font-style: italic !important;
+}
+
+/* State Data Explorer */
+.ai-devtools-state-explorer-empty {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 100% !important;
+  padding: 2rem !important;
+}
+
+.ai-devtools-state-explorer-empty-content {
+  text-align: center !important;
+  color: #666666 !important;
+}
+
+.ai-devtools-state-explorer-empty-icon {
+  font-size: 2rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.ai-devtools-state-explorer-empty-title {
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  margin-bottom: 0.25rem !important;
+  color: #cccccc !important;
+}
+
+.ai-devtools-state-explorer-empty-description {
+  font-size: 0.75rem !important;
+  color: #888888 !important;
+}
+
+.ai-devtools-state-explorer {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+}
+
+.ai-devtools-state-explorer-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 0.75rem 1rem !important;
+  border-bottom: 1px solid #333333 !important;
+  background: #1a1a1a !important;
+}
+
+.ai-devtools-state-explorer-title {
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  color: #cccccc !important;
+}
+
+.ai-devtools-state-explorer-subtitle {
+  color: #888888 !important;
+  font-weight: 400 !important;
+  margin-left: 0.5rem !important;
+}
+
+.ai-devtools-state-explorer-modes {
+  display: flex !important;
+  gap: 0.25rem !important;
+}
+
+.ai-devtools-state-explorer-mode-btn {
+  padding: 0.25rem 0.5rem !important;
+  font-size: 0.625rem !important;
+  border-radius: 0.25rem !important;
+  background: #333333 !important;
+  color: #888888 !important;
+  transition: all 0.2s ease !important;
+}
+
+.ai-devtools-state-explorer-mode-btn:hover {
+  background: #444444 !important;
+  color: #cccccc !important;
+}
+
+.ai-devtools-state-explorer-mode-btn.active {
+  background: #1e3a8a !important;
+  color: #ffffff !important;
+}
+
+.ai-devtools-state-explorer-content {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  padding: 1rem !important;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
+  font-size: 0.75rem !important;
+  line-height: 1.4 !important;
+}
+
+/* JSON Viewer Styles */
+.ai-devtools-json-null {
+  color: #888888 !important;
+  font-style: italic !important;
+}
+
+.ai-devtools-json-string {
+  color: #cccccc !important;
+}
+
+.ai-devtools-json-primitive {
+  color: #888888 !important;
+}
+
+.ai-devtools-json-array {
+  color: #cccccc !important;
+}
+
+.ai-devtools-json-array-content {
+  margin-left: 0.125rem !important;
+}
+
+.ai-devtools-json-array-item {
+  margin-bottom: 0.25rem !important;
+  margin-left: 0 !important;
+  display: block !important;
+}
+
+.ai-devtools-json-array-index {
+  color: #888888 !important;
+  margin-right: 0.5rem !important;
+}
+
+.ai-devtools-json-indent {
+  white-space: pre !important;
+  font-family: monospace !important;
+  display: inline !important;
+  flex-shrink: 0 !important;
+}
+
+.ai-devtools-json-inline {
+  display: inline !important;
+}
+
+.ai-devtools-json-object {
+  color: #cccccc !important;
+}
+
+.ai-devtools-json-object-content {
+  margin-left: 0.125rem !important;
+}
+
+.ai-devtools-json-object-item {
+  margin-bottom: 0.25rem !important;
+  margin-left: 0 !important;
+  display: block !important;
+}
+
+.ai-devtools-json-object-key-row {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 0.25rem !important;
+}
+
+.ai-devtools-json-expand-btn {
+  background: none !important;
+  border: none !important;
+  color: #888888 !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  margin-right: 0.25rem !important;
+  font-size: 0.75rem !important;
+  width: 1rem !important;
+  height: 1rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+}
+
+.ai-devtools-json-expand-btn:hover {
+  color: #cccccc !important;
+}
+
+.ai-devtools-json-key {
+  color: #888888 !important;
+  margin-right: 0.5rem !important;
+  flex-shrink: 0 !important;
+}
+
+.ai-devtools-json-preview {
+  color: #888888 !important;
+  font-style: italic !important;
+}
+
+.ai-devtools-json-bracket {
+  color: #cccccc !important;
+}
+
+.ai-devtools-json-comma {
+  color: #888888 !important;
+  margin-left: 0.25rem !important;
+  display: inline !important;
+}
+
+.ai-devtools-json-truncated {
+  color: #888888 !important;
+  font-style: italic !important;
+  margin-left: 1rem !important;
+}
+
+.ai-devtools-json-unknown {
+  color: #888888 !important;
+}
+
+/* React JSON View Lite Styles */
+
+.ai-devtools-json-basic-child {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.ai-devtools-json-label {
+  color: #888888 !important;
+}
+
+.ai-devtools-json-string-value {
+  color: #cccccc !important;
+}
+
+.ai-devtools-json-number-value {
+  color: #888888 !important;
+}
+
+.ai-devtools-json-boolean-value {
+  color: #888888 !important;
+}
+
+.ai-devtools-json-null-value {
+  color: #888888 !important;
+}
+
+.ai-devtools-json-undefined-value {
+  color: #888888 !important;
+}
+
+.ai-devtools-json-punctuation {
+  color: #cccccc !important;
+}
+
+.ai-devtools-json-collapse-icon::after {
+  content: "▼" !important;
+  color: #cccccc !important;
+  margin-right: 0.25rem !important;
+}
+
+.ai-devtools-json-expand-icon::after {
+  content: "▶" !important;
+  color: #cccccc !important;
+  margin-right: 0.25rem !important;
+}
+
+.ai-devtools-json-collapsed-content::after {
+  content: "..." !important;
+  color: #888888 !important;
+}
+
+.ai-devtools-json-child-fields-container {
+  margin: 0 !important;
+  padding: 0 !important;
+  margin-left: 0.75rem !important;
+}
+
+/* Additional indentation for nested levels */
+.ai-devtools-json-child-fields-container .ai-devtools-json-child-fields-container {
+  margin-left: 1rem !important;
+}
+
+.ai-devtools-json-child-fields-container .ai-devtools-json-child-fields-container .ai-devtools-json-child-fields-container {
+  margin-left: 1.25rem !important;
+}
+
+.ai-devtools-json-child-fields-container .ai-devtools-json-child-fields-container .ai-devtools-json-child-fields-container .ai-devtools-json-child-fields-container {
+  margin-left: 1.5rem !important;
+}
+
+/* Ensure proper spacing for object and array items */
+.ai-devtools-json-child-fields-container > * {
+  margin-bottom: 0.25rem !important;
+}
+
+/* Improve visual hierarchy with better indentation */
+.ai-devtools-json-basic-child {
+  margin: 0 !important;
+  padding: 0 !important;
+  position: relative !important;
+}
+
+/* Add visual indentation lines for better structure */
+.ai-devtools-json-child-fields-container::before {
+  content: '' !important;
+  position: absolute !important;
+  left: -0.5rem !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  width: 1px !important;
+  background: #444444 !important;
+  opacity: 0.3 !important;
+}
+
+/* Style for object and array brackets */
+.ai-devtools-json-punctuation {
+  color: #cccccc !important;
+  font-weight: normal !important;
+}
+
+/* Better spacing for array items */
+.ai-devtools-json-child-fields-container .ai-devtools-json-basic-child {
+  margin-left: 0.25rem !important;
+}
+
+/* Add subtle background for better readability */
+.ai-devtools-json-child-fields-container {
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-radius: 2px !important;
+  margin-top: 0.125rem !important;
+  margin-bottom: 0.125rem !important;
+}
+
+/* Improve the visual hierarchy with better spacing */
+.ai-devtools-json-container {
+  font-family: monospace !important;
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+  color: #cccccc !important;
+  background: transparent !important;
+  padding-left: 0.25rem !important;
+}
+
+/* Better visual separation for different nesting levels */
+.ai-devtools-json-child-fields-container:nth-child(odd) {
+  background: rgba(255, 255, 255, 0.01) !important;
+}
+
+/* Improve readability of nested content */
+.ai-devtools-json-child-fields-container .ai-devtools-json-child-fields-container {
+  border-left: 1px solid rgba(255, 255, 255, 0.05) !important;
+  padding-left: 0.25rem !important;
+}
+
+/* Add better visual hierarchy for deeply nested content */
+.ai-devtools-json-child-fields-container .ai-devtools-json-child-fields-container .ai-devtools-json-child-fields-container {
+  border-left: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: rgba(255, 255, 255, 0.01) !important;
+}
+
+/* Ensure proper spacing between items */
+.ai-devtools-json-child-fields-container > * + * {
+  margin-top: 0.125rem !important;
+}
+
+/* Better visual separation for object keys */
+.ai-devtools-json-label {
+  color: #888888 !important;
+  font-weight: 500 !important;
+  margin-right: 0.5rem !important;
+}
+
