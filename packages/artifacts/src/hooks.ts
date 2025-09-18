@@ -102,6 +102,133 @@ export function useArtifact<
   };
 }
 
+// Listening to all artifacts
+export interface UseArtifactsOptions {
+  onData?: (artifactType: string, data: ArtifactData<unknown>) => void;
+  storeId?: string;
+}
+
+export interface UseArtifactsReturn {
+  byType: Record<string, ArtifactData<unknown>[]>;
+  latest: Record<string, ArtifactData<unknown>>;
+  artifacts: ArtifactData<unknown>[];
+  current: ArtifactData<unknown> | null;
+}
+
+export function useArtifacts(
+  options: UseArtifactsOptions = {},
+): UseArtifactsReturn {
+  const { onData, storeId } = options;
+  const messages = useChatMessages(storeId);
+
+  const [artifactsState, setArtifactsState] = useState<{
+    byType: Record<string, ArtifactData<unknown>[]>;
+    latest: Record<string, ArtifactData<unknown>>;
+    artifacts: ArtifactData<unknown>[];
+    current: ArtifactData<unknown> | null;
+  }>({
+    byType: {},
+    latest: {},
+    artifacts: [],
+    current: null,
+  });
+
+  useEffect(() => {
+    const allArtifacts = extractAllArtifactsFromMessages(messages);
+
+    // Group by type
+    const byType: Record<string, ArtifactData<unknown>[]> = {};
+    const latest: Record<string, ArtifactData<unknown>> = {};
+
+    for (const artifact of allArtifacts) {
+      if (!byType[artifact.type]) {
+        byType[artifact.type] = [];
+      }
+      byType[artifact.type].push(artifact);
+
+      // Track latest version for each type
+      if (
+        !latest[artifact.type] ||
+        artifact.version > latest[artifact.type].version
+      ) {
+        const prevLatest = latest[artifact.type];
+        latest[artifact.type] = artifact;
+
+        // Fire callback if this is a new or updated artifact
+        if (onData && (!prevLatest || artifact.version > prevLatest.version)) {
+          onData(artifact.type, artifact);
+        }
+      }
+    }
+
+    // Sort each type by creation time (newest first)
+    for (const type in byType) {
+      byType[type].sort((a, b) => b.createdAt - a.createdAt);
+    }
+
+    // Find the overall latest artifact (most recent across all types)
+    const current = allArtifacts.length > 0 ? allArtifacts[0] : null;
+
+    setArtifactsState({
+      byType,
+      latest,
+      artifacts: allArtifacts,
+      current,
+    });
+  }, [messages, onData]);
+
+  return artifactsState;
+}
+
+function extractAllArtifactsFromMessages(
+  messages: UIMessage[],
+): ArtifactData<unknown>[] {
+  const artifacts = new Map<string, ArtifactData<unknown>>();
+
+  for (const message of messages) {
+    // Check message parts for artifact data
+    if (message.parts && Array.isArray(message.parts)) {
+      for (const part of message.parts) {
+        // Check if this part is any artifact type
+        if (part.type.startsWith("data-artifact-") && "data" in part) {
+          const artifactPart = part as ArtifactPart<unknown>;
+          if (artifactPart.data) {
+            const existing = artifacts.get(artifactPart.data.id);
+            if (!existing || artifactPart.data.version > existing.version) {
+              artifacts.set(artifactPart.data.id, artifactPart.data);
+            }
+          }
+        }
+
+        // Also check tool call results that might contain artifacts
+        if (part.type.startsWith("tool-") && "result" in part && part.result) {
+          const result = part.result;
+          if (typeof result === "object" && result && "parts" in result) {
+            const parts = (result as { parts?: ArtifactPart<unknown>[] }).parts;
+            if (Array.isArray(parts)) {
+              for (const nestedPart of parts) {
+                if (
+                  nestedPart.type.startsWith("data-artifact-") &&
+                  nestedPart.data
+                ) {
+                  const existing = artifacts.get(nestedPart.data.id);
+                  if (!existing || nestedPart.data.version > existing.version) {
+                    artifacts.set(nestedPart.data.id, nestedPart.data);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return Array.from(artifacts.values()).sort(
+    (a, b) => b.createdAt - a.createdAt,
+  );
+}
+
 function extractArtifactsFromMessages<T>(
   messages: UIMessage[],
   artifactType: string,

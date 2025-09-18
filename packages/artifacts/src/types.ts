@@ -61,3 +61,15 @@ export interface UseArtifactReturn<T = unknown> {
   isActive: boolean;
   hasData: boolean;
 }
+
+export interface UseArtifactsOptions {
+  onData?: (artifactType: string, data: ArtifactData<unknown>) => void;
+  storeId?: string;
+}
+
+export interface UseArtifactsReturn {
+  byType: Record<string, ArtifactData<unknown>[]>;
+  latest: Record<string, ArtifactData<unknown>>;
+  artifacts: ArtifactData<unknown>[];
+  current: ArtifactData<unknown> | null;
+}

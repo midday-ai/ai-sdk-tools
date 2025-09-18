@@ -130,17 +130,15 @@ export default function ArtifactsContent() {
                   className="text-xs font-mono leading-relaxed"
                   dangerouslySetInnerHTML={{
                     __html:
-                      highlight(`import { createArtifact } from '@ai-sdk-tools/artifacts'
+                      highlight(`import { artifact } from '@ai-sdk-tools/artifacts'
 import { z } from 'zod'
 
-const burnRateArtifact = createArtifact({
-  name: 'burn-rate',
-  description: 'Calculate burn rate metrics',
-  schema: z.object({
-    monthlyBurn: z.number(),
-    runway: z.number(),
-  }),
-})`),
+const burnRateArtifact = artifact('burn-rate', z.object({
+  monthlyBurn: z.number(),
+  runway: z.number(),
+  title: z.string(),
+  stage: z.enum(['loading', 'processing', 'complete']).default('loading'),
+}))`),
                   }}
                 />
               </div>
@@ -154,13 +152,23 @@ const burnRateArtifact = createArtifact({
                 <pre
                   className="text-xs font-mono leading-relaxed"
                   dangerouslySetInnerHTML={{
-                    __html: highlight(`function BurnRateChart() {
-  const { data, isLoading, error } = useArtifact(burnRateArtifact)
+                    __html:
+                      highlight(`import { useArtifact } from '@ai-sdk-tools/artifacts/client'
+
+function BurnRateChart() {
+  const { data, status, error, progress } = useArtifact(burnRateArtifact)
   
-  if (isLoading) return <div>Loading...</div>
-  if (error) return <div>Error: {error.message}</div>
+  if (status === 'error') return <div>Error: {error}</div>
+  if (!data) return <div>Loading...</div>
   
-  return <div>{data?.monthlyBurn}</div>
+  return (
+    <div>
+      <h2>{data.title}</h2>
+      <p>Monthly Burn: \${data.monthlyBurn.toLocaleString()}</p>
+      <p>Runway: {data.runway} months</p>
+      {progress && <div>Progress: {Math.round(progress * 100)}%</div>}
+    </div>
+  )
 }`),
                   }}
                 />
@@ -185,18 +193,15 @@ const burnRateArtifact = createArtifact({
                   className="text-xs font-mono leading-relaxed"
                   dangerouslySetInnerHTML={{
                     __html:
-                      highlight(`const userProfileArtifact = createArtifact({
-  name: 'user-profile',
-  schema: z.object({
-    name: z.string(),
-    email: z.string().email(),
-    avatar: z.string().url().optional(),
-    preferences: z.object({
-      theme: z.enum(['light', 'dark']),
-      notifications: z.boolean(),
-    }),
+                      highlight(`const userProfileArtifact = artifact('user-profile', z.object({
+  name: z.string(),
+  email: z.string().email(),
+  avatar: z.string().url().optional(),
+  preferences: z.object({
+    theme: z.enum(['light', 'dark']),
+    notifications: z.boolean(),
   }),
-})`),
+}))`),
                   }}
                 />
               </div>
@@ -212,18 +217,19 @@ const burnRateArtifact = createArtifact({
                   className="text-xs font-mono leading-relaxed"
                   dangerouslySetInnerHTML={{
                     __html: highlight(`function ProgressBar() {
-  const { progress, isLoading } = useArtifact(processingArtifact)
+  const { progress, status, isActive } = useArtifact(processingArtifact)
   
   return (
     <div>
-      {isLoading && (
+      {isActive && (
         <div className="w-full bg-gray-200 rounded-full h-2.5">
           <div 
             className="bg-blue-600 h-2.5 rounded-full" 
-            style={{ width: \`\${progress}%\` }}
+            style={{ width: \`\${(progress || 0) * 100}%\` }}
           />
         </div>
       )}
+      <p>Status: {status}</p>
     </div>
   )
 }`),
@@ -242,18 +248,24 @@ const burnRateArtifact = createArtifact({
                   className="text-xs font-mono leading-relaxed"
                   dangerouslySetInnerHTML={{
                     __html:
-                      highlight(`const resilientArtifact = createArtifact({
-  name: 'resilient-data',
-  schema: z.object({ data: z.string() }),
-  retry: {
-    attempts: 3,
-    delay: 1000,
-  },
-  onError: (error) => {
-    console.error('Artifact error:', error)
-    // Custom error handling
-  },
-})`),
+                      highlight(`const resilientArtifact = artifact('resilient-data', z.object({
+  data: z.string(),
+  status: z.enum(['idle', 'loading', 'complete', 'error']).default('idle')
+}))
+
+function ResilientComponent() {
+  const { data, status, error } = useArtifact(resilientArtifact, {
+    onError: (error) => {
+      console.error('Artifact error:', error)
+      // Custom error handling
+    },
+    onComplete: (data) => {
+      console.log('Success!', data)
+    }
+  })
+  
+  return <div>{status === 'error' ? error : data?.data}</div>
+}`),
                   }}
                 />
               </div>
@@ -267,24 +279,57 @@ const burnRateArtifact = createArtifact({
 
           <div className="space-y-8">
             <div>
-              <h3 className="text-lg font-medium mb-4">createArtifact</h3>
+              <h3 className="text-lg font-medium mb-4">artifact(id, schema)</h3>
               <p className="text-sm text-secondary mb-4">
-                Create a new artifact with schema validation:
+                Create a new artifact definition with schema validation:
               </p>
               <div className="bg-transparent p-4 rounded border border-[#2a2a2a]">
                 <pre
                   className="text-xs font-mono leading-relaxed"
                   dangerouslySetInnerHTML={{
-                    __html: highlight(`createArtifact({
-  name: string, // Unique artifact name
-  description?: string, // Optional description
-  schema: ZodSchema, // Zod schema for validation
-  retry?: {
-    attempts: number,
-    delay: number,
-  },
-  onError?: (error: Error) => void,
-  onSuccess?: (data: any) => void,
+                    __html:
+                      highlight(`import { artifact } from '@ai-sdk-tools/artifacts'
+import { z } from 'zod'
+
+const myArtifact = artifact(
+  'unique-id', // Unique artifact identifier
+  z.object({   // Zod schema for type safety
+    title: z.string(),
+    data: z.array(z.number()).default([]),
+    status: z.enum(['idle', 'loading', 'complete']).default('idle')
+  })
+)`),
+                  }}
+                />
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-medium mb-4">
+                useArtifact(artifact, callbacks?)
+              </h3>
+              <p className="text-sm text-secondary mb-4">
+                Hook for consuming a specific streaming artifact:
+              </p>
+              <div className="bg-transparent p-4 rounded border border-[#2a2a2a]">
+                <pre
+                  className="text-xs font-mono leading-relaxed"
+                  dangerouslySetInnerHTML={{
+                    __html:
+                      highlight(`import { useArtifact } from '@ai-sdk-tools/artifacts/client'
+
+const {
+  data,        // Current artifact payload (typed)
+  status,      // 'idle' | 'loading' | 'streaming' | 'complete' | 'error'
+  progress,    // Progress value (0-1)
+  error,       // Error message if failed
+  isActive,    // Whether artifact is currently processing
+  hasData,     // Whether artifact has any data
+} = useArtifact(myArtifact, {
+  onUpdate: (data, prevData) => console.log('Updated:', data),
+  onComplete: (data) => console.log('Done!', data),
+  onError: (error) => console.error('Failed:', error),
+  onProgress: (progress) => console.log(\`\${progress * 100}%\`),
 })`),
                   }}
                 />
@@ -292,22 +337,60 @@ const burnRateArtifact = createArtifact({
             </div>
 
             <div>
-              <h3 className="text-lg font-medium mb-4">useArtifact</h3>
+              <h3 className="text-lg font-medium mb-4">
+                useArtifacts(options?)
+              </h3>
               <p className="text-sm text-secondary mb-4">
-                Hook for using artifacts in React components:
+                Hook for listening to all artifacts across all types. Perfect
+                for switch cases:
               </p>
               <div className="bg-transparent p-4 rounded border border-[#2a2a2a]">
                 <pre
                   className="text-xs font-mono leading-relaxed"
                   dangerouslySetInnerHTML={{
-                    __html: highlight(`const {
-  data, // Current artifact data
-  isLoading, // Loading state
-  error, // Error state
-  progress, // Progress percentage (0-100)
-  retry, // Retry function
-  refresh, // Refresh function
-} = useArtifact(artifact)`),
+                    __html:
+                      highlight(`import { useArtifacts } from '@ai-sdk-tools/artifacts/client'
+
+const {
+  byType,       // All artifacts grouped by type
+  latest,       // Latest version of each artifact type
+  artifacts,    // All artifacts in chronological order
+  current,      // Most recent artifact across all types
+} = useArtifacts({
+  onData: (artifactType, data) => {
+    console.log(\`New \${artifactType} artifact:\`, data)
+  }
+})
+
+// Perfect for rendering different artifact types
+return (
+  <div>
+    {Object.entries(latest).map(([type, artifact]) => {
+      switch (type) {
+        case 'burn-rate':
+          return <BurnRateComponent key={type} data={artifact} />
+        case 'financial-report':
+          return <ReportComponent key={type} data={artifact} />
+        default:
+          return <GenericComponent key={type} type={type} data={artifact} />
+      }
+    })}
+  </div>
+)
+
+// Perfect for Canvas-style switching on current artifact
+function Canvas() {
+  const { current } = useArtifacts()
+
+  switch (current?.type) {
+    case 'burn-rate-canvas':
+      return <BurnRateCanvas />
+    case 'revenue-canvas':
+      return <RevenueCanvas />
+    default:
+      return <DefaultCanvas />
+  }
+}`),
                   }}
                 />
               </div>

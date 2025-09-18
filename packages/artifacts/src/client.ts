@@ -6,7 +6,7 @@ export {
   artifacts,
   createTypedContext,
 } from "./context";
-export { useArtifact } from "./hooks";
+export { useArtifact, useArtifacts } from "./hooks";
 export { StreamingArtifact } from "./streaming";
 
 // Type exports
@@ -17,6 +17,8 @@ export type {
   ArtifactStatus,
   BaseContext,
   UseArtifactReturn,
+  UseArtifactsOptions,
+  UseArtifactsReturn,
 } from "./types";
 
 // Error exports
