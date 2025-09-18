@@ -1,0 +1,16 @@
+{
+  "mode": "pre",
+  "tag": "beta",
+  "initialVersions": {
+    "@ai-sdk-tools/example": "0.1.0",
+    "@ai-sdk-tools/website": "0.1.0",
+    "@ai-sdk-tools/artifacts": "0.3.0",
+    "@ai-sdk-tools/chrome-extension": "1.0.2",
+    "@ai-sdk-tools/devtools": "0.6.1",
+    "@ai-sdk-tools/store": "0.1.2"
+  },
+  "changesets": [
+    "fast-lies-share",
+    "useartifacts-hook-beta"
+  ]
+}

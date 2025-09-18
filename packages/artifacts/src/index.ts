@@ -14,6 +14,8 @@ export type {
   ArtifactStatus,
   BaseContext,
   UseArtifactReturn,
+  UseArtifactsOptions,
+  UseArtifactsReturn,
 } from "./types";
 
 // Error exports

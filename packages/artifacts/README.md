@@ -60,9 +60,11 @@ The `useArtifact` hook automatically connects to the global chat store to extrac
 import { artifact } from '@ai-sdk-tools/artifacts';
 import { z } from 'zod';
 
-const BurnRate = artifact('burn-rate', z.object({
+const burnRateArtifact = artifact('burn-rate', z.object({
   title: z.string(),
   stage: z.enum(['loading', 'processing', 'complete']).default('loading'),
+  monthlyBurn: z.number(),
+  runway: z.number(),
   data: z.array(z.object({
     month: z.string(),
     burnRate: z.number()
@@ -86,9 +88,11 @@ const analyzeBurnRate = {
     console.log('Processing for user:', context.userId);
     console.log('Theme:', context.config.theme);
     
-    const analysis = BurnRate.stream({
+    const analysis = burnRateArtifact.stream({
       title: `${company} Analysis for ${context.userId}`,
-      stage: 'loading'
+      stage: 'loading',
+      monthlyBurn: 50000,
+      runway: 12
     });
 
     // Stream updates
@@ -99,6 +103,8 @@ const analyzeBurnRate = {
     await analysis.complete({
       title: `${company} Analysis`,
       stage: 'complete',
+      monthlyBurn: 45000,
+      runway: 14,
       data: [{ month: '2024-01', burnRate: 50000 }]
     });
 
@@ -154,10 +160,10 @@ export const POST = async (req: Request) => {
 ### 4. Consume in React
 
 ```tsx
-import { useArtifact } from '@ai-sdk-tools/artifacts';
+import { useArtifact } from '@ai-sdk-tools/artifacts/client';
 
 function Analysis() {
-  const { data, status, progress } = useArtifact(BurnRate, {
+  const { data, status, progress, error } = useArtifact(burnRateArtifact, {
     onComplete: (data) => console.log('Done!', data),
     onError: (error) => console.error('Failed:', error)
   });
@@ -168,6 +174,8 @@ function Analysis() {
     <div>
       <h2>{data.title}</h2>
       <p>Stage: {data.stage}</p>
+      <p>Monthly Burn: ${data.monthlyBurn.toLocaleString()}</p>
+      <p>Runway: {data.runway} months</p>
       {progress && <div>Progress: {progress * 100}%</div>}
       {data.data.map(item => (
         <div key={item.month}>
@@ -185,7 +193,7 @@ function Analysis() {
 Creates an artifact definition with Zod schema validation.
 
 ### `useArtifact(artifact, callbacks?)`
-React hook for consuming streaming artifacts.
+React hook for consuming a specific streaming artifact.
 
 **Returns:**
 - `data` - Current artifact payload
@@ -202,14 +210,135 @@ React hook for consuming streaming artifacts.
 - `onProgress(progress, data)` - Called on progress updates
 - `onStatusChange(status, prevStatus)` - Called when status changes
 
+### `useArtifacts(options?)`
+React hook for listening to all artifacts across all types. Perfect for implementing switch cases to render different artifact types.
 
+**Options:**
+- `onData(artifactType, data)` - Callback fired when any artifact updates
+- `storeId` - Optional store ID (defaults to global store)
+
+**Returns:**
+- `byType` - All artifacts grouped by type: `Record<string, ArtifactData[]>`
+- `latest` - Latest version of each artifact type: `Record<string, ArtifactData>`
+- `artifacts` - All artifacts in chronological order: `ArtifactData[]`
+- `current` - Most recent artifact across all types: `ArtifactData | null`
+
+**Example:**
+```tsx
+import { useArtifacts } from '@ai-sdk-tools/artifacts/client';
+
+function ArtifactRenderer() {
+  const { latest } = useArtifacts({
+    onData: (artifactType, data) => {
+      console.log(`New ${artifactType} artifact:`, data);
+    }
+  });
+
+  return (
+    <div>
+      {Object.entries(latest).map(([type, artifact]) => {
+        switch (type) {
+          case 'burn-rate':
+            return <BurnRateComponent key={type} data={artifact} />;
+          case 'financial-report':
+            return <ReportComponent key={type} data={artifact} />;
+          default:
+            return <GenericComponent key={type} type={type} data={artifact} />;
+        }
+      })}
+    </div>
+  );
+}
+
+// Perfect for Canvas-style switching on current artifact
+function Canvas() {
+  const { current } = useArtifacts();
+
+  switch (current?.type) {
+    case "burn-rate-canvas":
+      return <BurnRateCanvas />;
+    case "revenue-canvas":
+      return <RevenueCanvas />;
+    default:
+      return <DefaultCanvas />;
+  }
+}
+```
+
+
+
+## 🔧 Advanced Usage
+
+### Combining Both Hooks
+
+You can use both hooks together for different purposes:
+
+```tsx
+import { useArtifact, useArtifacts } from '@ai-sdk-tools/artifacts/client';
+
+function DashboardWithAnalysis() {
+  // Listen to all artifacts for notifications/logging
+  useArtifacts({
+    onData: (artifactType, data) => {
+      // Send to analytics
+      analytics.track('artifact_updated', { type: artifactType, status: data.status });
+      
+      // Show notifications
+      if (data.status === 'complete') {
+        toast.success(`${artifactType} analysis complete!`);
+      }
+    }
+  });
+
+  // Use specific artifact for detailed display
+  const { data: burnRateData, status } = useArtifact(burnRateArtifact);
+
+  // Get latest of all types for overview
+  const { latest } = useArtifacts();
+
+  return (
+    <div>
+      {/* Overview of all artifacts */}
+      <div className="overview">
+        {Object.entries(latest).map(([type, artifact]) => (
+          <div key={type} className="artifact-card">
+            <h3>{type}</h3>
+            <span className={`status ${artifact.status}`}>
+              {artifact.status}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Detailed burn rate display */}
+      {burnRateData && (
+        <BurnRateChart data={burnRateData} status={status} />
+      )}
+    </div>
+  );
+}
+```
+
+### Hook Selection Guide
+
+**Use `useArtifact`** when:
+- You need to display/work with a specific artifact type
+- You want detailed status, progress, and error handling
+- You need type-safe access to the artifact's payload
+
+**Use `useArtifacts`** when:
+- You want to render different artifact types with switch cases
+- You need to listen to all artifacts for logging/analytics
+- You want to show an overview of all available artifacts
+- You're building a generic artifact renderer
 
 ## 🔧 Examples
 
 See the `src/examples/` directory for complete examples including:
 - Burn rate analysis with progress tracking
-- React component integration
+- React component integration  
 - Route setup and tool implementation
+- Using `useArtifacts` for multi-type artifact rendering
 
 ## 📄 License
 
