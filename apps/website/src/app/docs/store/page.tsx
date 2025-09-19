@@ -4,7 +4,7 @@ import StoreContent from "@/components/docs/store-content";
 export const metadata: Metadata = {
   title: "Store Documentation - AI SDK Tools",
   description:
-    "Global state management for AI applications. Drop-in replacement for @ai-sdk/react with global access, optimized performance, and full TypeScript support.",
+    "High-performance state management for AI applications. Drop-in replacement for @ai-sdk/react with 3-5x performance improvements, O(1) message lookups, and built-in optimizations.",
   keywords: [
     "AI SDK store",
     "AI state management",

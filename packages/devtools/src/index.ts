@@ -1,3 +1,5 @@
+"use client";
+
 export { AIDevtools } from "./components/ai-dev-tools";
 export { ContextCircle } from "./components/context-circle";
 // Export other components for advanced usage

@@ -10,9 +10,14 @@
     "@ai-sdk-tools/store": "0.1.2"
   },
   "changesets": [
+    "chatstatus-type-fix-beta4",
+    "component-splitting-beta1",
     "experimental-disabled-beta",
     "experimental-enabled-beta",
+    "ssr-fixes-beta2",
     "stable-v04-release",
-    "store-optimization-beta"
+    "store-optimization-beta",
+    "streaming-performance-beta3",
+    "v07-performance-update"
   ]
 }

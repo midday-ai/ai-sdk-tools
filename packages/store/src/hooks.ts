@@ -1,12 +1,12 @@
 "use client";
 
 import type { UIMessage, UseChatHelpers } from "@ai-sdk/react";
-import equal from "fast-deep-equal";
+import type { ChatStatus } from "ai";
 import * as React from "react";
-import { createContext, useCallback, useContext, useMemo, useRef } from "react";
+import { createContext, useCallback, useContext, useRef } from "react";
 import { devtools, subscribeWithSelector } from "zustand/middleware";
-import { shallow } from "zustand/shallow";
-import { useStoreWithEqualityFn } from "zustand/traditional";
+import { useShallow } from "zustand/shallow";
+import { useStore } from "zustand";
 import { createStore } from "zustand/vanilla";
 
 // --- Performance monitoring and batching ---
@@ -16,8 +16,8 @@ let __freezeLastTs = 0;
 let __lastActionLabel: string | undefined;
 let __clearLastActionTimer: ReturnType<typeof setTimeout> | null = null;
 
-// Batched updates queue
-const __updateQueue: Array<() => void> = [];
+// Batched updates queue with priority
+const __updateQueue: Array<{ callback: () => void; priority: number }> = [];
 let __batchedUpdateScheduled = false;
 
 function markLastAction(label: string) {
@@ -30,13 +30,13 @@ function markLastAction(label: string) {
   }
 }
 
-function batchUpdates(callback: () => void) {
+function batchUpdates(callback: () => void, priority: number = 0) {
   if (typeof window === "undefined") {
     callback();
     return;
   }
 
-  __updateQueue.push(callback);
+  __updateQueue.push({ callback, priority });
 
   if (!__batchedUpdateScheduled) {
     __batchedUpdateScheduled = true;
@@ -52,9 +52,10 @@ function batchUpdates(callback: () => void) {
       const updates = __updateQueue.splice(0);
       __batchedUpdateScheduled = false;
 
-      // Execute all updates in a single batch
+      // Sort by priority (higher priority first) and execute
+      updates.sort((a, b) => b.priority - a.priority);
       updates.forEach((update) => {
-        update();
+        update.callback();
       });
     });
   }
@@ -180,7 +181,7 @@ class MessageIndex<TMessage extends UIMessage> {
 export interface StoreState<TMessage extends UIMessage = UIMessage> {
   id: string | undefined;
   messages: TMessage[];
-  status: "ready" | "loading" | "streaming" | "error" | "submitted";
+  status: ChatStatus;
   error: Error | undefined;
 
   // Performance optimizations
@@ -192,9 +193,7 @@ export interface StoreState<TMessage extends UIMessage = UIMessage> {
   // Actions with batching
   setId: (id: string | undefined) => void;
   setMessages: (messages: TMessage[]) => void;
-  setStatus: (
-    status: "ready" | "loading" | "streaming" | "error" | "submitted",
-  ) => void;
+  setStatus: (status: ChatStatus) => void;
   setError: (error: Error | undefined) => void;
   setNewChat: (id: string, messages: TMessage[]) => void;
   pushMessage: (message: TMessage) => void;
@@ -222,12 +221,12 @@ export interface StoreState<TMessage extends UIMessage = UIMessage> {
   getMessageIndexById: (id: string) => number | undefined;
   getMessagesSlice: (start: number, end?: number) => TMessage[];
   getMessageCount: () => number;
-
+  
   // Memoized complex selectors
   getMemoizedSelector: <T>(key: string, selector: () => T, deps: any[]) => T;
 }
 
-const MESSAGES_THROTTLE_MS = 100;
+const MESSAGES_THROTTLE_MS = 16; // ~60fps for smooth streaming
 
 export function createChatStore<TMessage extends UIMessage = UIMessage>(
   initialMessages: TMessage[] = [],
@@ -288,7 +287,22 @@ export function createChatStore<TMessage extends UIMessage = UIMessage>(
                 messages: messages,
                 _memoizedSelectors: new Map(), // Clear memoized selectors
               });
-              throttledMessagesUpdater?.();
+              
+              // During streaming, update immediately for smooth text rendering
+              if (currentState.status === "streaming") {
+                batchUpdates(() => {
+                  const state = get();
+                  const newThrottledMessages = [...state.messages];
+                  state._messageIndex.update(newThrottledMessages);
+
+                  set({
+                    _throttledMessages: newThrottledMessages,
+                    _lastMessageCount: newThrottledMessages.length,
+                  });
+                }, 1); // High priority for streaming updates
+              } else {
+                throttledMessagesUpdater?.();
+              }
             });
           },
 
@@ -319,11 +333,27 @@ export function createChatStore<TMessage extends UIMessage = UIMessage>(
           pushMessage: (message) => {
             markLastAction("chat:pushMessage");
             batchUpdates(() => {
+              const currentState = get();
               set((state) => ({
                 messages: [...state.messages, message],
                 _memoizedSelectors: new Map(),
               }));
-              throttledMessagesUpdater?.();
+              
+              // During streaming, update immediately for smooth text rendering
+              if (currentState.status === "streaming") {
+                batchUpdates(() => {
+                  const state = get();
+                  const newThrottledMessages = [...state.messages];
+                  state._messageIndex.update(newThrottledMessages);
+
+                  set({
+                    _throttledMessages: newThrottledMessages,
+                    _lastMessageCount: newThrottledMessages.length,
+                  });
+                }, 1); // High priority for streaming updates
+              } else {
+                throttledMessagesUpdater?.();
+              }
             });
           },
 
@@ -341,6 +371,7 @@ export function createChatStore<TMessage extends UIMessage = UIMessage>(
           replaceMessage: (index, message) => {
             markLastAction("chat:replaceMessage");
             batchUpdates(() => {
+              const currentState = get();
               set((state) => {
                 const newMessages = [...state.messages];
                 newMessages[index] = structuredClone(message);
@@ -349,13 +380,29 @@ export function createChatStore<TMessage extends UIMessage = UIMessage>(
                   _memoizedSelectors: new Map(),
                 };
               });
-              throttledMessagesUpdater?.();
+              
+              // During streaming, update immediately for smooth text rendering
+              if (currentState.status === "streaming") {
+                batchUpdates(() => {
+                  const state = get();
+                  const newThrottledMessages = [...state.messages];
+                  state._messageIndex.update(newThrottledMessages);
+
+                  set({
+                    _throttledMessages: newThrottledMessages,
+                    _lastMessageCount: newThrottledMessages.length,
+                  });
+                }, 1); // High priority for streaming updates
+              } else {
+                throttledMessagesUpdater?.();
+              }
             });
           },
 
           replaceMessageById: (id, message) => {
             markLastAction("chat:replaceMessageById");
             batchUpdates(() => {
+              const currentState = get();
               set((state) => {
                 const index = state._messageIndex.getIndexById(id);
                 if (index === undefined) return state;
@@ -367,7 +414,22 @@ export function createChatStore<TMessage extends UIMessage = UIMessage>(
                   _memoizedSelectors: new Map(),
                 };
               });
-              throttledMessagesUpdater?.();
+              
+              // During streaming, update immediately for smooth text rendering
+              if (currentState.status === "streaming") {
+                batchUpdates(() => {
+                  const state = get();
+                  const newThrottledMessages = [...state.messages];
+                  state._messageIndex.update(newThrottledMessages);
+
+                  set({
+                    _throttledMessages: newThrottledMessages,
+                    _lastMessageCount: newThrottledMessages.length,
+                  });
+                }, 1); // High priority for streaming updates
+              } else {
+                throttledMessagesUpdater?.();
+              }
             });
           },
 
@@ -442,7 +504,10 @@ export function createChatStore<TMessage extends UIMessage = UIMessage>(
             const state = get();
             const cached = state._memoizedSelectors.get(key);
 
-            if (cached && equal(cached.deps, deps)) {
+            // Fast dependency comparison using length + JSON for complex objects
+            if (cached && 
+                cached.deps.length === deps.length && 
+                (deps.length === 0 || JSON.stringify(cached.deps) === JSON.stringify(deps))) {
               return cached.result;
             }
 
@@ -450,9 +515,11 @@ export function createChatStore<TMessage extends UIMessage = UIMessage>(
             state._memoizedSelectors.set(key, { result, deps: [...deps] });
             return result;
           },
+
+         
         };
       }),
-      { name: "experimental-chat-store" },
+      { name: "chat-store" },
     ),
   );
 }
@@ -485,9 +552,9 @@ export function Provider<TMessage extends UIMessage = UIMessage>({
   );
 }
 
+// Standard Zustand v5 store hook
 export function useChatStore<T, TMessage extends UIMessage = UIMessage>(
   selector: (store: StoreState<TMessage>) => T,
-  equalityFn?: (a: T, b: T) => boolean,
 ): T;
 export function useChatStore<
   TMessage extends UIMessage = UIMessage,
@@ -497,20 +564,14 @@ export function useChatStore<
   TMessage extends UIMessage = UIMessage,
 >(
   selector?: (store: StoreState<TMessage>) => T,
-  equalityFn?: (a: T, b: T) => boolean,
 ) {
   const store = useContext(ChatStoreContext);
   if (!store) throw new Error("useChatStore must be used within Provider");
 
-  const selectorOrIdentity =
-    (selector as (store: StoreState<TMessage>) => T) ??
-    ((s: StoreState<TMessage>) => s as unknown as T);
+  const selectorOrIdentity = selector || ((s: StoreState<TMessage>) => s as unknown as T);
 
-  return useStoreWithEqualityFn(
-    store,
-    selectorOrIdentity as (state: any) => T,
-    equalityFn || equal,
-  );
+  // Use Zustand's built-in useStore
+  return useStore(store, selectorOrIdentity as (state: any) => T);
 }
 
 export function useChatStoreApi<TMessage extends UIMessage = UIMessage>() {
@@ -521,24 +582,22 @@ export function useChatStoreApi<TMessage extends UIMessage = UIMessage>() {
 
 // Optimized selector hooks with memoization
 export const useChatMessages = <TMessage extends UIMessage = UIMessage>() => {
-  const store = useChatStore((state: StoreState<TMessage>) =>
-    state.getThrottledMessages(),
+  return useChatStore(
+    useShallow((state: StoreState<TMessage>) => state.getThrottledMessages())
   );
-
-  return useMemo(() => store, [store]);
 };
 
-export const useChatStatus = <TMessage extends UIMessage = UIMessage>() =>
-  useChatStore((state: StoreState<TMessage>) => state.status);
+// Stable selector functions to avoid recreation
+const statusSelector = (state: StoreState<any>) => state.status;
+const errorSelector = (state: StoreState<any>) => state.error;
+const idSelector = (state: StoreState<any>) => state.id;
+const messageCountSelector = (state: StoreState<any>) => state.getMessageCount();
 
-export const useChatError = <TMessage extends UIMessage = UIMessage>() =>
-  useChatStore((state: StoreState<TMessage>) => state.error);
-
-export const useChatId = <TMessage extends UIMessage = UIMessage>() =>
-  useChatStore((state: StoreState<TMessage>) => state.id);
-
+export const useChatStatus = () => useChatStore(statusSelector);
+export const useChatError = () => useChatStore(errorSelector);  
+export const useChatId = () => useChatStore(idSelector);
 export const useMessageIds = <TMessage extends UIMessage = UIMessage>() =>
-  useChatStore((state: StoreState<TMessage>) => state.getMessageIds(), shallow);
+  useChatStore(useShallow((state: StoreState<TMessage>) => state.getMessageIds()));
 
 // Optimized message selector with O(1) lookup
 export const useMessageById = <TMessage extends UIMessage = UIMessage>(
@@ -553,7 +612,6 @@ export const useMessageById = <TMessage extends UIMessage = UIMessage>(
       },
       [messageId],
     ),
-    equal,
   );
 };
 
@@ -567,16 +625,33 @@ export const useVirtualMessages = <TMessage extends UIMessage = UIMessage>(
       (state: StoreState<TMessage>) => state.getMessagesSlice(start, end),
       [start, end],
     ),
-    shallow,
   );
 };
 
-export const useMessageCount = <TMessage extends UIMessage = UIMessage>() =>
-  useChatStore((state: StoreState<TMessage>) => state.getMessageCount());
+export const useMessageCount = () => useChatStore(messageCountSelector);
+// Stable fallback functions to prevent infinite loops
+const fallbackSendMessage = async () => {
+  console.warn("sendMessage not configured - make sure useChat is called with transport");
+};
+const fallbackRegenerate = async () => {
+  console.warn("regenerate not configured - make sure useChat is called with transport");
+};
+const fallbackStop = async () => {
+  console.warn("stop not configured - make sure useChat is called with transport");
+};
+const fallbackResumeStream = async () => {
+  console.warn("resumeStream not configured - make sure useChat is called with transport");
+};
+const fallbackAddToolResult = async () => {
+  console.warn("addToolResult not configured - make sure useChat is called with transport");
+};
+const fallbackClearError = () => {
+  console.warn("clearError not configured - make sure useChat is called with transport");
+};
 
 export const useChatActions = <TMessage extends UIMessage = UIMessage>() =>
   useChatStore(
-    (state: StoreState<TMessage>) => ({
+    useShallow((state: StoreState<TMessage>) => ({
       setMessages: state.setMessages,
       pushMessage: state.pushMessage,
       popMessage: state.popMessage,
@@ -586,14 +661,13 @@ export const useChatActions = <TMessage extends UIMessage = UIMessage>() =>
       setError: state.setError,
       setId: state.setId,
       setNewChat: state.setNewChat,
-      sendMessage: state.sendMessage,
-      regenerate: state.regenerate,
-      stop: state.stop,
-      resumeStream: state.resumeStream,
-      addToolResult: state.addToolResult,
-      clearError: state.clearError,
-    }),
-    shallow,
+      sendMessage: state.sendMessage || fallbackSendMessage,
+      regenerate: state.regenerate || fallbackRegenerate,
+      stop: state.stop || fallbackStop,
+      resumeStream: state.resumeStream || fallbackResumeStream,
+      addToolResult: state.addToolResult || fallbackAddToolResult,
+      clearError: state.clearError || fallbackClearError,
+    }))
   );
 
 // Memoized complex selector hook
@@ -611,7 +685,6 @@ export const useSelector = <TMessage extends UIMessage = UIMessage, T = any>(
           [state.getMessageCount(), ...deps],
         ),
       [key, selector, deps],
-    ),
-    equal,
+    )
   );
 };

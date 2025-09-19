@@ -1,6 +1,6 @@
 {
   "name": "@ai-sdk-tools/chrome-extension",
-  "version": "1.0.2",
+  "version": "0.7.0-beta.0",
   "description": "Chrome extension for AI SDK DevTools",
   "main": "index.js",
   "scripts": {

@@ -31,7 +31,7 @@ export function useChat<TMessage extends UIMessage = UIMessage>(
   const {
     store: customStore,
     enableBatching = true,
-    throttleMs = 100,
+    throttleMs = 16, // ~60fps for smooth streaming
     ...originalOptions
   } = options;
 
@@ -62,12 +62,22 @@ export function useChat<TMessage extends UIMessage = UIMessage>(
     }
   }, []);
 
-  // Batch state updates if enabled - only sync data, not functions
+  // Simple sync - but don't overwrite store messages if chat has no messages
+  // This preserves server-side messages during hydration
   useEffect(() => {
+    const currentStoreState = (store as any).getState?.() || { messages: [] };
+    
+    // Skip syncing messages if store has messages but chat doesn't
+    // This prevents clearing server-side messages on hydration
+    const shouldSyncMessages = !(
+      currentStoreState.messages?.length > 0 && 
+      chatHelpers.messages.length === 0
+    );
+
     // Only sync state data, not function references to avoid re-render loops
     const stateData = {
       id: chatHelpers.id,
-      messages: chatHelpers.messages,
+      messages: shouldSyncMessages ? chatHelpers.messages : undefined,
       error: chatHelpers.error,
       status: chatHelpers.status,
     };

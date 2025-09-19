@@ -1,6 +1,6 @@
 {
   "name": "@ai-sdk-tools/store",
-  "version": "0.1.3-beta.2",
+  "version": "0.7.0-beta.4",
   "description": "A drop-in replacement for @ai-sdk/react that automatically syncs chat state to Zustand stores",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -59,8 +59,5 @@
   "homepage": "https://github.com/midday-ai/ai-sdk-tools#readme",
   "publishConfig": {
     "access": "public"
-  },
-  "dependencies": {
-    "fast-deep-equal": "^3.1.3"
   }
 }

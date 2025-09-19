@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { OpenPanelComponent } from "@openpanel/nextjs";
+import { Provider } from "@ai-sdk-tools/store";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 
@@ -76,13 +77,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Header />
-        {children}
-        <Footer />
-        <OpenPanelComponent
-          clientId={process.env.NEXT_PUBLIC_OPENPANEL_CLIENT_ID!}
-          trackScreenViews
-        />
+        <Provider initialMessages={[]}>
+          <Header />
+          {children}
+          <Footer />
+          <OpenPanelComponent
+            clientId={process.env.NEXT_PUBLIC_OPENPANEL_CLIENT_ID!}
+            trackScreenViews
+          />
+        </Provider>
       </body>
     </html>
   );

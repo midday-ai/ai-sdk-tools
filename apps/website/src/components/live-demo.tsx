@@ -1,40 +1,32 @@
 'use client'
 
-import { useChatMessages, useChatStatus, useChatProperty, getChatStore } from '@ai-sdk-tools/store'
+import { useChatMessages, useChatStatus, useMessageCount, useChatActions } from '@ai-sdk-tools/store'
 import { useState } from 'react'
 
 export function LiveDemo() {
   const [input, setInput] = useState('')
   const [isSimulating, setIsSimulating] = useState(false)
   
-  // Use selectors to access state from anywhere
-  const messages = useChatMessages('live-demo')
-  const status = useChatStatus('live-demo')
-  
-  // Custom selector example
-  const messageCount = useChatProperty(
-    (state) => state.messages.length,
-    'live-demo'
-  )
+  // Use selectors to access state from anywhere (no storeId needed!)
+  const messages = useChatMessages()
+  const status = useChatStatus()
+  const messageCount = useMessageCount() // Built-in optimized count
+  const actions = useChatActions()
 
   const simulateResponse = async (userMessage: string) => {
-    const store = getChatStore('live-demo')
-    
-    // Add user message
+    // Add user message using actions
     const userMsg = {
       id: Date.now().toString(),
       role: 'user' as const,
-      content: userMessage,
+      parts: [{ type: 'text' as const, text: userMessage }],
     }
     
-    store.setState({
-      messages: [...store.getState().messages, userMsg],
-      status: 'submitted' as const,
-    })
+    actions.pushMessage(userMsg)
+    actions.setStatus('streaming')
     
     // Simulate loading
     setTimeout(() => {
-      store.setState({ status: 'streaming' as const })
+      actions.setStatus('streaming')
     }, 100)
     
     // Simulate AI response
@@ -44,19 +36,17 @@ export function LiveDemo() {
         "I understand what you're looking for. Here's my take on it.",
         "Interesting point! This is how I'd approach that problem.",
         "Perfect! This is exactly the kind of use case @ai-sdk-tools/store excels at.",
-        "Great example! You can see how the selectors update in real-time."
+        "Great example! You can see how the selectors update in real-time with O(1) lookups!"
       ]
       
       const assistantMsg = {
         id: (Date.now() + 1).toString(),
         role: 'assistant' as const,
-        content: responses[Math.floor(Math.random() * responses.length)],
+        parts: [{ type: 'text' as const, text: responses[Math.floor(Math.random() * responses.length)] }],
       }
       
-      store.setState({
-        messages: [...store.getState().messages, assistantMsg],
-        status: 'ready' as const,
-      })
+      actions.pushMessage(assistantMsg)
+      actions.setStatus('ready')
       
       setIsSimulating(false)
     }, 1500)
@@ -95,8 +85,9 @@ export function LiveDemo() {
               {messages.map((message) => (
                 <div key={message.id} className="text-xs">
                   <span className="text-[#d4d4d4]">{message.role}:</span> 
-                  {/* @ts-ignore - just a dummy demo */}
-                  <span className="text-secondary ml-2">{message.content}</span>
+                  <span className="text-secondary ml-2">
+                    {message.parts?.[0]?.type === 'text' ? message.parts[0].text : 'Message content'}
+                  </span>
                 </div>
               ))}
             </div>

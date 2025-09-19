@@ -2,55 +2,46 @@
  * Working state detection that uses the same approach as the chat component
  */
 
-// Import the store functions directly (same as chat component)
-import { getChatStoreIds, getChatStore } from "@ai-sdk-tools/store";
+// Import the new store functions
+import { useChatStore } from "@ai-sdk-tools/store";
 
 // Check if store package is available
 export function isStorePackageAvailable(): boolean {
   try {
-    // Check if the required functions are available
-    const hasRequiredFunctions = typeof getChatStoreIds === 'function' && typeof getChatStore === 'function';
-    return hasRequiredFunctions;
+    // Check if the store hook is available
+    return typeof useChatStore === 'function';
   } catch (error) {
     return false;
   }
 }
 
-// Get all available store IDs
+// Get all available store IDs (simplified for new context-based system)
 export function getAvailableStoreIds(): string[] {
-  try {
-    const storeIds = getChatStoreIds();
-    
-    // If no store IDs are found, try to create a default store
-    if (storeIds.length === 0) {
-      getChatStore('default');
-      return getChatStoreIds();
-    }
-    
-    return storeIds;
-  } catch (error) {
-    return [];
-  }
+  // The new implementation uses React Context, so there's only one store per Provider
+  return ["context-store"];
 }
 
-// Get store state by ID
-export function getStoreState(storeId: string = "default"): unknown {
+// Get store state (simplified for new context-based system)
+export function getStoreState(_storeId: string = "context-store"): unknown {
   try {
-    const store = getChatStore(storeId);
-    return store.getState();
+    // Note: This would need to be called from within a React component
+    // For devtools, we might need a different approach
+    console.warn("getStoreState: Context-based store requires React component context");
+    return null;
   } catch (error) {
     return null;
   }
 }
 
-// Subscribe to store changes
+// Subscribe to store changes (simplified for new context-based system)
 export function subscribeToStoreChanges(
-  storeId: string,
-  callback: (state: unknown) => void,
+  _storeId: string,
+  _callback: (state: unknown) => void,
 ): () => void {
   try {
-    const store = getChatStore(storeId);
-    return store.subscribe(callback);
+    // Note: Context-based stores don't support direct subscription outside React
+    console.warn("subscribeToStoreChanges: Context-based store requires React component context");
+    return () => {};
   } catch (error) {
     return () => {};
   }
