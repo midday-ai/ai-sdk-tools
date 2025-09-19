@@ -70,7 +70,7 @@
     },
     "packages/artifacts": {
       "name": "@ai-sdk-tools/artifacts",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "dependencies": {
         "zod": "^4.1.8",
       },
@@ -132,6 +132,9 @@
     "packages/store": {
       "name": "@ai-sdk-tools/store",
       "version": "0.1.2",
+      "dependencies": {
+        "fast-deep-equal": "^3.1.3",
+      },
       "devDependencies": {
         "@ai-sdk/react": "^2.0.44",
         "@types/react": "^19.1.13",

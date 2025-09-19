@@ -10,6 +10,11 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
+    },
+    "./experimental": {
+      "types": "./dist/experimental.d.ts",
+      "import": "./dist/experimental.mjs",
+      "require": "./dist/experimental.js"
     }
   },
   "files": [
@@ -59,5 +64,8 @@
   "homepage": "https://github.com/midday-ai/ai-sdk-tools#readme",
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "fast-deep-equal": "^3.1.3"
   }
 }
