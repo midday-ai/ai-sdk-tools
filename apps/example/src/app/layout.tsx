@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Provider } from "@ai-sdk-tools/store";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/sonner";
 
@@ -36,8 +37,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
-          <Toaster />
+          <Provider initialMessages={[]}>
+            {children}
+            <Toaster />
+          </Provider>
         </ThemeProvider>
       </body>
     </html>

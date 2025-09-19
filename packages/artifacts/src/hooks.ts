@@ -25,10 +25,8 @@ export function useArtifact<
 >(
   artifactDef: T,
   callbacks?: ArtifactCallbacks<InferArtifactType<T>>,
-  storeId?: string,
 ): UseArtifactReturn<InferArtifactType<T>> {
-  // Get messages from the chat store
-  const messages = useChatMessages(storeId);
+  const messages = useChatMessages();
 
   const [currentArtifact, setCurrentArtifact] = useState<ArtifactData<
     InferArtifactType<T>
@@ -105,7 +103,6 @@ export function useArtifact<
 // Listening to all artifacts
 export interface UseArtifactsOptions {
   onData?: (artifactType: string, data: ArtifactData<unknown>) => void;
-  storeId?: string;
 }
 
 export interface UseArtifactsReturn {
@@ -118,8 +115,8 @@ export interface UseArtifactsReturn {
 export function useArtifacts(
   options: UseArtifactsOptions = {},
 ): UseArtifactsReturn {
-  const { onData, storeId } = options;
-  const messages = useChatMessages(storeId);
+  const { onData,  } = options;
+  const messages = useChatMessages();
 
   const [artifactsState, setArtifactsState] = useState<{
     byType: Record<string, ArtifactData<unknown>[]>;

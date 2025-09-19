@@ -40,6 +40,7 @@ export function useChat<TMessage extends UIMessage = UIMessage>(
   // Use custom store if provided, otherwise use the context store
   const contextStore = useChatStoreApi<TMessage>();
   const store = customStore || contextStore;
+
   const storeRef = useRef<CompatibleChatStore<TMessage> | typeof contextStore>(
     store,
   );
@@ -61,13 +62,18 @@ export function useChat<TMessage extends UIMessage = UIMessage>(
     }
   }, []);
 
-  // Batch state updates if enabled
+  // Batch state updates if enabled - only sync data, not functions
   useEffect(() => {
-    const chatState = {
+    // Only sync state data, not function references to avoid re-render loops
+    const stateData = {
       id: chatHelpers.id,
       messages: chatHelpers.messages,
       error: chatHelpers.error,
       status: chatHelpers.status,
+    };
+
+    // Sync functions separately and only once
+    const functionsData = {
       sendMessage: chatHelpers.sendMessage,
       regenerate: chatHelpers.regenerate,
       stop: chatHelpers.stop,
@@ -76,6 +82,8 @@ export function useChat<TMessage extends UIMessage = UIMessage>(
       setMessages: chatHelpers.setMessages,
       clearError: chatHelpers.clearError,
     };
+
+    const chatState = { ...stateData, ...functionsData };
 
     if (enableBatching) {
       // Use requestAnimationFrame for batching if available
@@ -87,21 +95,15 @@ export function useChat<TMessage extends UIMessage = UIMessage>(
     } else {
       syncState(chatState);
     }
-  }, [
-    chatHelpers.id,
-    chatHelpers.messages,
-    chatHelpers.error,
-    chatHelpers.status,
-    chatHelpers.sendMessage,
-    chatHelpers.regenerate,
-    chatHelpers.stop,
-    chatHelpers.resumeStream,
-    chatHelpers.addToolResult,
-    chatHelpers.setMessages,
-    chatHelpers.clearError,
-    syncState,
-    enableBatching,
-  ]);
+    }, [
+     // Only depend on data that actually changes, not function references
+     chatHelpers.id,       
+     chatHelpers.messages,       
+     chatHelpers.error,       
+     chatHelpers.status,       
+     syncState,       
+     enableBatching,
+    ]);
 
   return chatHelpers;
 }

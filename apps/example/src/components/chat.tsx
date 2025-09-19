@@ -14,10 +14,12 @@ import { BurnRateLoading } from "./burn-rate-loading";
 
 export default function Chat() {
   const { messages, sendMessage, status } = useChat({
+    enableBatching: true,
     transport: new DefaultChatTransport({
       api: "/api/chat",
     }),
   });
+
   const [input, setInput] = useState("");
   const [showBurnRateChart, setShowBurnRateChart] = useState(false);
   const [hasData, setHasData] = useState(false);
