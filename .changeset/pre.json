@@ -10,6 +10,7 @@
     "@ai-sdk-tools/store": "0.1.2"
   },
   "changesets": [
+    "artifact-enhancements-beta",
     "chatstatus-type-fix-beta4",
     "component-splitting-beta1",
     "experimental-disabled-beta",
