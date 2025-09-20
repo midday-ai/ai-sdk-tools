@@ -147,6 +147,7 @@ export const analyzeBurnRateTool = tool({
             progress: 1,
             payload: finalData,
             createdAt: Date.now(),
+            updatedAt: Date.now(),
           },
         },
       ],

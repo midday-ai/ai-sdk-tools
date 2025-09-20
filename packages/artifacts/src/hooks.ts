@@ -26,6 +26,7 @@ export function useArtifact<
   artifactDef: T,
   callbacks?: ArtifactCallbacks<InferArtifactType<T>>,
 ): UseArtifactReturn<InferArtifactType<T>> {
+  // Get messages from the chat store
   const messages = useChatMessages();
 
   const [currentArtifact, setCurrentArtifact] = useState<ArtifactData<
@@ -41,7 +42,9 @@ export function useArtifact<
 
     if (
       latest &&
-      (!currentArtifact || latest.version > currentArtifact.version)
+      (!currentArtifact || 
+       latest.version > currentArtifact.version ||
+       (latest.version === currentArtifact.version && latest.createdAt > currentArtifact.createdAt))
     ) {
       const prevData = currentArtifact?.payload || null;
 
@@ -100,9 +103,11 @@ export function useArtifact<
   };
 }
 
-// Listening to all artifacts
+// Listening to all artifacts with filtering options
 export interface UseArtifactsOptions {
   onData?: (artifactType: string, data: ArtifactData<unknown>) => void;
+  include?: string[]; // Only listen to these artifact types
+  exclude?: string[]; // Ignore these artifact types
 }
 
 export interface UseArtifactsReturn {
@@ -115,7 +120,7 @@ export interface UseArtifactsReturn {
 export function useArtifacts(
   options: UseArtifactsOptions = {},
 ): UseArtifactsReturn {
-  const { onData,  } = options;
+  const { onData, include, exclude } = options;
   const messages = useChatMessages();
 
   const [artifactsState, setArtifactsState] = useState<{
@@ -133,11 +138,27 @@ export function useArtifacts(
   useEffect(() => {
     const allArtifacts = extractAllArtifactsFromMessages(messages);
 
+    // Filter artifacts based on include/exclude options
+    const filteredArtifacts = allArtifacts.filter(artifact => {
+      // If include is specified, only include those types
+      if (include && include.length > 0) {
+        return include.includes(artifact.type);
+      }
+      
+      // If exclude is specified, exclude those types
+      if (exclude && exclude.length > 0) {
+        return !exclude.includes(artifact.type);
+      }
+      
+      // If neither include nor exclude is specified, include all
+      return true;
+    });
+
     // Group by type
     const byType: Record<string, ArtifactData<unknown>[]> = {};
     const latest: Record<string, ArtifactData<unknown>> = {};
 
-    for (const artifact of allArtifacts) {
+    for (const artifact of filteredArtifacts) {
       if (!byType[artifact.type]) {
         byType[artifact.type] = [];
       }
@@ -146,13 +167,16 @@ export function useArtifacts(
       // Track latest version for each type
       if (
         !latest[artifact.type] ||
-        artifact.version > latest[artifact.type].version
+        artifact.version > latest[artifact.type].version ||
+        (artifact.version === latest[artifact.type].version && artifact.createdAt > latest[artifact.type].createdAt)
       ) {
         const prevLatest = latest[artifact.type];
         latest[artifact.type] = artifact;
 
         // Fire callback if this is a new or updated artifact
-        if (onData && (!prevLatest || artifact.version > prevLatest.version)) {
+        if (onData && (!prevLatest || 
+                       artifact.version > prevLatest.version ||
+                       (artifact.version === prevLatest.version && artifact.createdAt > prevLatest.createdAt))) {
           onData(artifact.type, artifact);
         }
       }
@@ -164,15 +188,15 @@ export function useArtifacts(
     }
 
     // Find the overall latest artifact (most recent across all types)
-    const current = allArtifacts.length > 0 ? allArtifacts[0] : null;
+    const current = filteredArtifacts.length > 0 ? filteredArtifacts[0] : null;
 
     setArtifactsState({
       byType,
       latest,
-      artifacts: allArtifacts,
+      artifacts: filteredArtifacts,
       current,
     });
-  }, [messages, onData]);
+  }, [messages, onData, include, exclude]);
 
   return artifactsState;
 }
@@ -191,7 +215,9 @@ function extractAllArtifactsFromMessages(
           const artifactPart = part as ArtifactPart<unknown>;
           if (artifactPart.data) {
             const existing = artifacts.get(artifactPart.data.id);
-            if (!existing || artifactPart.data.version > existing.version) {
+            if (!existing || 
+                artifactPart.data.version > existing.version ||
+                (artifactPart.data.version === existing.version && artifactPart.data.createdAt > existing.createdAt)) {
               artifacts.set(artifactPart.data.id, artifactPart.data);
             }
           }
@@ -209,7 +235,9 @@ function extractAllArtifactsFromMessages(
                   nestedPart.data
                 ) {
                   const existing = artifacts.get(nestedPart.data.id);
-                  if (!existing || nestedPart.data.version > existing.version) {
+                  if (!existing || 
+                      nestedPart.data.version > existing.version ||
+                      (nestedPart.data.version === existing.version && nestedPart.data.createdAt > existing.createdAt)) {
                     artifacts.set(nestedPart.data.id, nestedPart.data);
                   }
                 }
@@ -241,7 +269,9 @@ function extractArtifactsFromMessages<T>(
           const artifactPart = part as ArtifactPart<T>;
           if (artifactPart.data) {
             const existing = artifacts.get(artifactPart.data.id);
-            if (!existing || artifactPart.data.version > existing.version) {
+            if (!existing || 
+                artifactPart.data.version > existing.version ||
+                (artifactPart.data.version === existing.version && artifactPart.data.createdAt > existing.createdAt)) {
               artifacts.set(artifactPart.data.id, artifactPart.data);
             }
           }
@@ -259,7 +289,9 @@ function extractArtifactsFromMessages<T>(
                   nestedPart.data
                 ) {
                   const existing = artifacts.get(nestedPart.data.id);
-                  if (!existing || nestedPart.data.version > existing.version) {
+                  if (!existing || 
+                      nestedPart.data.version > existing.version ||
+                      (nestedPart.data.version === existing.version && nestedPart.data.createdAt > existing.createdAt)) {
                     artifacts.set(nestedPart.data.id, nestedPart.data);
                   }
                 }
