@@ -15,6 +15,7 @@
     "component-splitting-beta1",
     "experimental-disabled-beta",
     "experimental-enabled-beta",
+    "include-exclude-filtering",
     "ssr-fixes-beta2",
     "stable-v04-release",
     "store-optimization-beta",
