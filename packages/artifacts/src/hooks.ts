@@ -1,6 +1,6 @@
 import type { UIMessage } from "@ai-sdk/react";
 import { useChatMessages } from "@ai-sdk-tools/store";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import type { z } from "zod";
 import type {
   ArtifactCallbacks,
@@ -123,34 +123,16 @@ export function useArtifacts(
   const { onData, include, exclude } = options;
   const messages = useChatMessages();
 
-  const [artifactsState, setArtifactsState] = useState<{
-    byType: Record<string, ArtifactData<unknown>[]>;
-    latest: Record<string, ArtifactData<unknown>>;
-    artifacts: ArtifactData<unknown>[];
-    current: ArtifactData<unknown> | null;
-  }>({
-    byType: {},
-    latest: {},
-    artifacts: [],
-    current: null,
-  });
+  const includeKey = include?.join(',');
+  const excludeKey = exclude?.join(',');
 
-  useEffect(() => {
+  return useMemo(() => {
     const allArtifacts = extractAllArtifactsFromMessages(messages);
 
     // Filter artifacts based on include/exclude options
     const filteredArtifacts = allArtifacts.filter(artifact => {
-      // If include is specified, only include those types
-      if (include && include.length > 0) {
-        return include.includes(artifact.type);
-      }
-      
-      // If exclude is specified, exclude those types
-      if (exclude && exclude.length > 0) {
-        return !exclude.includes(artifact.type);
-      }
-      
-      // If neither include nor exclude is specified, include all
+      if (include?.length) return include.includes(artifact.type);
+      if (exclude?.length) return !exclude.includes(artifact.type);
       return true;
     });
 
@@ -187,18 +169,13 @@ export function useArtifacts(
       byType[type].sort((a, b) => b.createdAt - a.createdAt);
     }
 
-    // Find the overall latest artifact (most recent across all types)
-    const current = filteredArtifacts.length > 0 ? filteredArtifacts[0] : null;
-
-    setArtifactsState({
+    return {
       byType,
       latest,
       artifacts: filteredArtifacts,
-      current,
-    });
-  }, [messages, onData, include, exclude]);
-
-  return artifactsState;
+      current: filteredArtifacts[0] || null,
+    };
+  }, [messages, onData, includeKey, excludeKey]);
 }
 
 function extractAllArtifactsFromMessages(
