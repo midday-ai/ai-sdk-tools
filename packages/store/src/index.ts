@@ -22,5 +22,6 @@ export {
   useVirtualMessages,
   useMessageCount,
   useSelector,
+  createChatStoreCreator,
   type StoreState,
 } from "./hooks";

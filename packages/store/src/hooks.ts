@@ -7,7 +7,7 @@ import { createContext, useCallback, useContext, useRef } from "react";
 import { devtools, subscribeWithSelector } from "zustand/middleware";
 import { useShallow } from "zustand/shallow";
 import { useStore } from "zustand";
-import { createStore } from "zustand/vanilla";
+import { createStore, type StateCreator } from "zustand/vanilla";
 
 // --- Performance monitoring and batching ---
 let __freezeDetectorStarted = false;
@@ -30,7 +30,7 @@ function markLastAction(label: string) {
   }
 }
 
-function batchUpdates(callback: () => void, priority: number = 0) {
+function batchUpdates(callback: () => void, priority = 0) {
   if (typeof window === "undefined") {
     callback();
     return;
@@ -187,7 +187,6 @@ export interface StoreState<TMessage extends UIMessage = UIMessage> {
   // Performance optimizations
   _throttledMessages: TMessage[] | null;
   _messageIndex: MessageIndex<TMessage>;
-  _lastMessageCount: number;
   _memoizedSelectors: Map<string, { result: any; deps: any[] }>;
 
   // Actions with batching
@@ -221,25 +220,70 @@ export interface StoreState<TMessage extends UIMessage = UIMessage> {
   getMessageIndexById: (id: string) => number | undefined;
   getMessagesSlice: (start: number, end?: number) => TMessage[];
   getMessageCount: () => number;
-  
+
   // Memoized complex selectors
   getMemoizedSelector: <T>(key: string, selector: () => T, deps: any[]) => T;
 }
 
 const MESSAGES_THROTTLE_MS = 16; // ~60fps for smooth streaming
 
-export function createChatStore<TMessage extends UIMessage = UIMessage>(
+export function createChatStoreCreator<TMessage extends UIMessage>(
   initialMessages: TMessage[] = [],
-) {
+): StateCreator<StoreState<TMessage>, [], []> {
   let throttledMessagesUpdater: (() => void) | null = null;
   const messageIndex = new MessageIndex<TMessage>();
   messageIndex.update(initialMessages);
+  return (set, get) => {
+    if (!throttledMessagesUpdater) {
+      throttledMessagesUpdater = enhancedThrottle(() => {
+        batchUpdates(() => {
+          const state = get();
+          const newThrottledMessages = [...state.messages];
+          state._messageIndex.update(newThrottledMessages);
 
-  return createStore<StoreState<TMessage>>()(
-    devtools(
-      subscribeWithSelector((set, get) => {
-        if (!throttledMessagesUpdater) {
-          throttledMessagesUpdater = enhancedThrottle(() => {
+          set({
+            _throttledMessages: newThrottledMessages,
+          });
+        });
+      }, MESSAGES_THROTTLE_MS);
+    }
+
+    return {
+      id: undefined,
+      messages: initialMessages,
+      status: "ready" as const,
+      error: undefined,
+      _throttledMessages: [...initialMessages],
+      _messageIndex: messageIndex,
+      _memoizedSelectors: new Map(),
+
+      // Chat helpers
+      sendMessage: undefined,
+      regenerate: undefined,
+      stop: undefined,
+      resumeStream: undefined,
+      addToolResult: undefined,
+      clearError: undefined,
+
+      setId: (id) => {
+        markLastAction("chat:setId");
+        batchUpdates(() => set({ id }));
+      },
+
+      setMessages: (messages) => {
+        markLastAction("chat:setMessages");
+        batchUpdates(() => {
+          // Avoid unnecessary work if messages haven't changed
+          const currentState = get();
+          if (messages === currentState.messages) return;
+
+          set({
+            messages: messages,
+            _memoizedSelectors: new Map(), // Clear memoized selectors
+          });
+
+          // During streaming, update immediately for smooth text rendering
+          if (currentState.status === "streaming") {
             batchUpdates(() => {
               const state = get();
               const newThrottledMessages = [...state.messages];
@@ -247,278 +291,232 @@ export function createChatStore<TMessage extends UIMessage = UIMessage>(
 
               set({
                 _throttledMessages: newThrottledMessages,
-                _lastMessageCount: newThrottledMessages.length,
               });
-            });
-          }, MESSAGES_THROTTLE_MS);
+            }, 1); // High priority for streaming updates
+          } else {
+            throttledMessagesUpdater?.();
+          }
+        });
+      },
+
+      setStatus: (status) => {
+        markLastAction("chat:setStatus");
+        batchUpdates(() => set({ status }));
+      },
+
+      setError: (error) => {
+        markLastAction("chat:setError");
+        batchUpdates(() => set({ error }));
+      },
+
+      setNewChat: (id, messages) => {
+        markLastAction("chat:setNewChat");
+        batchUpdates(() => {
+          set({
+            messages: messages,
+            status: "ready",
+            error: undefined,
+            id,
+            _memoizedSelectors: new Map(),
+          });
+          throttledMessagesUpdater?.();
+        });
+      },
+
+      pushMessage: (message) => {
+        markLastAction("chat:pushMessage");
+        batchUpdates(() => {
+          const currentState = get();
+          set((state) => ({
+            messages: [...state.messages, message],
+            _memoizedSelectors: new Map(),
+          }));
+
+          // During streaming, update immediately for smooth text rendering
+          if (currentState.status === "streaming") {
+            batchUpdates(() => {
+              const state = get();
+              const newThrottledMessages = [...state.messages];
+              state._messageIndex.update(newThrottledMessages);
+
+              set({
+                _throttledMessages: newThrottledMessages,
+              });
+            }, 1); // High priority for streaming updates
+          } else {
+            throttledMessagesUpdater?.();
+          }
+        });
+      },
+
+      popMessage: () => {
+        markLastAction("chat:popMessage");
+        batchUpdates(() => {
+          set((state) => ({
+            messages: state.messages.slice(0, -1),
+            _memoizedSelectors: new Map(),
+          }));
+          throttledMessagesUpdater?.();
+        });
+      },
+
+      replaceMessage: (index, message) => {
+        markLastAction("chat:replaceMessage");
+        batchUpdates(() => {
+          const currentState = get();
+          set((state) => {
+            const newMessages = [...state.messages];
+            newMessages[index] = structuredClone(message);
+            return {
+              messages: newMessages,
+              _memoizedSelectors: new Map(),
+            };
+          });
+
+          // During streaming, update immediately for smooth text rendering
+          if (currentState.status === "streaming") {
+            batchUpdates(() => {
+              const state = get();
+              const newThrottledMessages = [...state.messages];
+              state._messageIndex.update(newThrottledMessages);
+
+              set({
+                _throttledMessages: newThrottledMessages,
+              });
+            }, 1); // High priority for streaming updates
+          } else {
+            throttledMessagesUpdater?.();
+          }
+        });
+      },
+
+      replaceMessageById: (id, message) => {
+        markLastAction("chat:replaceMessageById");
+        batchUpdates(() => {
+          const currentState = get();
+          set((state) => {
+            const index = state._messageIndex.getIndexById(id);
+            if (index === undefined) return state;
+
+            const newMessages = [...state.messages];
+            newMessages[index] = structuredClone(message);
+            return {
+              messages: newMessages,
+              _memoizedSelectors: new Map(),
+            };
+          });
+
+          // During streaming, update immediately for smooth text rendering
+          if (currentState.status === "streaming") {
+            batchUpdates(() => {
+              const state = get();
+              const newThrottledMessages = [...state.messages];
+              state._messageIndex.update(newThrottledMessages);
+
+              set({
+                _throttledMessages: newThrottledMessages,
+              });
+            }, 1); // High priority for streaming updates
+          } else {
+            throttledMessagesUpdater?.();
+          }
+        });
+      },
+
+      _syncState: (newState) => {
+        markLastAction("chat:_syncState");
+        batchUpdates(() => {
+          set(
+            {
+              ...newState,
+              _memoizedSelectors: new Map(), // Clear memoized selectors on sync
+            },
+            false,
+            // 'syncFromUseChat',
+          );
+          if (newState.messages) {
+            throttledMessagesUpdater?.();
+          }
+        });
+      },
+
+      // Optimized getters
+      getLastMessageId: () => {
+        const state = get();
+        return state.messages.length > 0
+          ? state.messages[state.messages.length - 1].id
+          : null;
+      },
+
+      getMessageIds: () => {
+        const state = get();
+        return (state._throttledMessages || state.messages).map((m) => m.id);
+      },
+
+      getThrottledMessages: () => {
+        const state = get();
+        return state._throttledMessages || state.messages;
+      },
+
+      getInternalMessages: () => {
+        const state = get();
+        return state.messages;
+      },
+
+      getMessageById: (id) => {
+        const state = get();
+        return state._messageIndex.getById(id);
+      },
+
+      getMessageIndexById: (id) => {
+        const state = get();
+        return state._messageIndex.getIndexById(id);
+      },
+
+      getMessagesSlice: (start, end) => {
+        const state = get();
+        const messages = state._throttledMessages || state.messages;
+        return messages.slice(start, end);
+      },
+
+      getMessageCount: () => {
+        const state = get();
+        const messages = state._throttledMessages || state.messages;
+        return messages.length;
+      },
+
+      getMemoizedSelector: <T>(
+        key: string,
+        selector: () => T,
+        deps: any[],
+      ): T => {
+        const state = get();
+        const cached = state._memoizedSelectors.get(key);
+
+        // Fast dependency comparison using length + JSON for complex objects
+        if (
+          cached &&
+          cached.deps.length === deps.length &&
+          (deps.length === 0 ||
+            JSON.stringify(cached.deps) === JSON.stringify(deps))
+        ) {
+          return cached.result;
         }
 
-        return {
-          id: undefined,
-          messages: initialMessages,
-          status: "ready" as const,
-          error: undefined,
-          _throttledMessages: [...initialMessages],
-          _messageIndex: messageIndex,
-          _lastMessageCount: initialMessages.length,
-          _memoizedSelectors: new Map(),
+        const result = selector();
+        state._memoizedSelectors.set(key, { result, deps: [...deps] });
+        return result;
+      },
+    };
+  };
+}
 
-          // Chat helpers
-          sendMessage: undefined,
-          regenerate: undefined,
-          stop: undefined,
-          resumeStream: undefined,
-          addToolResult: undefined,
-          clearError: undefined,
-
-          setId: (id) => {
-            markLastAction("chat:setId");
-            batchUpdates(() => set({ id }));
-          },
-
-          setMessages: (messages) => {
-            markLastAction("chat:setMessages");
-            batchUpdates(() => {
-              // Avoid unnecessary work if messages haven't changed
-              const currentState = get();
-              if (messages === currentState.messages) return;
-
-              set({
-                messages: messages,
-                _memoizedSelectors: new Map(), // Clear memoized selectors
-              });
-              
-              // During streaming, update immediately for smooth text rendering
-              if (currentState.status === "streaming") {
-                batchUpdates(() => {
-                  const state = get();
-                  const newThrottledMessages = [...state.messages];
-                  state._messageIndex.update(newThrottledMessages);
-
-                  set({
-                    _throttledMessages: newThrottledMessages,
-                    _lastMessageCount: newThrottledMessages.length,
-                  });
-                }, 1); // High priority for streaming updates
-              } else {
-                throttledMessagesUpdater?.();
-              }
-            });
-          },
-
-          setStatus: (status) => {
-            markLastAction("chat:setStatus");
-            batchUpdates(() => set({ status }));
-          },
-
-          setError: (error) => {
-            markLastAction("chat:setError");
-            batchUpdates(() => set({ error }));
-          },
-
-          setNewChat: (id, messages) => {
-            markLastAction("chat:setNewChat");
-            batchUpdates(() => {
-              set({
-                messages: messages,
-                status: "ready",
-                error: undefined,
-                id,
-                _memoizedSelectors: new Map(),
-              });
-              throttledMessagesUpdater?.();
-            });
-          },
-
-          pushMessage: (message) => {
-            markLastAction("chat:pushMessage");
-            batchUpdates(() => {
-              const currentState = get();
-              set((state) => ({
-                messages: [...state.messages, message],
-                _memoizedSelectors: new Map(),
-              }));
-              
-              // During streaming, update immediately for smooth text rendering
-              if (currentState.status === "streaming") {
-                batchUpdates(() => {
-                  const state = get();
-                  const newThrottledMessages = [...state.messages];
-                  state._messageIndex.update(newThrottledMessages);
-
-                  set({
-                    _throttledMessages: newThrottledMessages,
-                    _lastMessageCount: newThrottledMessages.length,
-                  });
-                }, 1); // High priority for streaming updates
-              } else {
-                throttledMessagesUpdater?.();
-              }
-            });
-          },
-
-          popMessage: () => {
-            markLastAction("chat:popMessage");
-            batchUpdates(() => {
-              set((state) => ({
-                messages: state.messages.slice(0, -1),
-                _memoizedSelectors: new Map(),
-              }));
-              throttledMessagesUpdater?.();
-            });
-          },
-
-          replaceMessage: (index, message) => {
-            markLastAction("chat:replaceMessage");
-            batchUpdates(() => {
-              const currentState = get();
-              set((state) => {
-                const newMessages = [...state.messages];
-                newMessages[index] = structuredClone(message);
-                return {
-                  messages: newMessages,
-                  _memoizedSelectors: new Map(),
-                };
-              });
-              
-              // During streaming, update immediately for smooth text rendering
-              if (currentState.status === "streaming") {
-                batchUpdates(() => {
-                  const state = get();
-                  const newThrottledMessages = [...state.messages];
-                  state._messageIndex.update(newThrottledMessages);
-
-                  set({
-                    _throttledMessages: newThrottledMessages,
-                    _lastMessageCount: newThrottledMessages.length,
-                  });
-                }, 1); // High priority for streaming updates
-              } else {
-                throttledMessagesUpdater?.();
-              }
-            });
-          },
-
-          replaceMessageById: (id, message) => {
-            markLastAction("chat:replaceMessageById");
-            batchUpdates(() => {
-              const currentState = get();
-              set((state) => {
-                const index = state._messageIndex.getIndexById(id);
-                if (index === undefined) return state;
-
-                const newMessages = [...state.messages];
-                newMessages[index] = structuredClone(message);
-                return {
-                  messages: newMessages,
-                  _memoizedSelectors: new Map(),
-                };
-              });
-              
-              // During streaming, update immediately for smooth text rendering
-              if (currentState.status === "streaming") {
-                batchUpdates(() => {
-                  const state = get();
-                  const newThrottledMessages = [...state.messages];
-                  state._messageIndex.update(newThrottledMessages);
-
-                  set({
-                    _throttledMessages: newThrottledMessages,
-                    _lastMessageCount: newThrottledMessages.length,
-                  });
-                }, 1); // High priority for streaming updates
-              } else {
-                throttledMessagesUpdater?.();
-              }
-            });
-          },
-
-          _syncState: (newState) => {
-            markLastAction("chat:_syncState");
-            batchUpdates(() => {
-              set(
-                {
-                  ...newState,
-                  _memoizedSelectors: new Map(), // Clear memoized selectors on sync
-                },
-                false,
-                "syncFromUseChat",
-              );
-              if (newState.messages) {
-                throttledMessagesUpdater?.();
-              }
-            });
-          },
-
-          // Optimized getters
-          getLastMessageId: () => {
-            const state = get();
-            return state.messages.length > 0
-              ? state.messages[state.messages.length - 1].id
-              : null;
-          },
-
-          getMessageIds: () => {
-            const state = get();
-            return (state._throttledMessages || state.messages).map(
-              (m) => m.id,
-            );
-          },
-
-          getThrottledMessages: () => {
-            const state = get();
-            return state._throttledMessages || state.messages;
-          },
-
-          getInternalMessages: () => {
-            const state = get();
-            return state.messages;
-          },
-
-          getMessageById: (id) => {
-            const state = get();
-            return state._messageIndex.getById(id);
-          },
-
-          getMessageIndexById: (id) => {
-            const state = get();
-            return state._messageIndex.getIndexById(id);
-          },
-
-          getMessagesSlice: (start, end) => {
-            const state = get();
-            const messages = state._throttledMessages || state.messages;
-            return messages.slice(start, end);
-          },
-
-          getMessageCount: () => {
-            const state = get();
-            return state._lastMessageCount;
-          },
-
-          getMemoizedSelector: <T>(
-            key: string,
-            selector: () => T,
-            deps: any[],
-          ): T => {
-            const state = get();
-            const cached = state._memoizedSelectors.get(key);
-
-            // Fast dependency comparison using length + JSON for complex objects
-            if (cached && 
-                cached.deps.length === deps.length && 
-                (deps.length === 0 || JSON.stringify(cached.deps) === JSON.stringify(deps))) {
-              return cached.result;
-            }
-
-            const result = selector();
-            state._memoizedSelectors.set(key, { result, deps: [...deps] });
-            return result;
-          },
-
-         
-        };
-      }),
+export function createChatStore<TMessage extends UIMessage = UIMessage>(
+  initialMessages: TMessage[] = [],
+) {
+  return createStore<StoreState<TMessage>>()(
+    devtools(
+      subscribeWithSelector(createChatStoreCreator<TMessage>(initialMessages)),
       { name: "chat-store" },
     ),
   );
@@ -594,10 +592,12 @@ const idSelector = (state: StoreState<any>) => state.id;
 const messageCountSelector = (state: StoreState<any>) => state.getMessageCount();
 
 export const useChatStatus = () => useChatStore(statusSelector);
-export const useChatError = () => useChatStore(errorSelector);  
+export const useChatError = () => useChatStore(errorSelector);
 export const useChatId = () => useChatStore(idSelector);
 export const useMessageIds = <TMessage extends UIMessage = UIMessage>() =>
-  useChatStore(useShallow((state: StoreState<TMessage>) => state.getMessageIds()));
+  useChatStore(
+    useShallow((state: StoreState<TMessage>) => state.getMessageIds()),
+  );
 
 // Optimized message selector with O(1) lookup
 export const useMessageById = <TMessage extends UIMessage = UIMessage>(
@@ -631,22 +631,34 @@ export const useVirtualMessages = <TMessage extends UIMessage = UIMessage>(
 export const useMessageCount = () => useChatStore(messageCountSelector);
 // Stable fallback functions to prevent infinite loops
 const fallbackSendMessage = async () => {
-  console.warn("sendMessage not configured - make sure useChat is called with transport");
+  console.warn(
+    "sendMessage not configured - make sure useChat is called with transport",
+  );
 };
 const fallbackRegenerate = async () => {
-  console.warn("regenerate not configured - make sure useChat is called with transport");
+  console.warn(
+    "regenerate not configured - make sure useChat is called with transport",
+  );
 };
 const fallbackStop = async () => {
-  console.warn("stop not configured - make sure useChat is called with transport");
+  console.warn(
+    "stop not configured - make sure useChat is called with transport",
+  );
 };
 const fallbackResumeStream = async () => {
-  console.warn("resumeStream not configured - make sure useChat is called with transport");
+  console.warn(
+    "resumeStream not configured - make sure useChat is called with transport",
+  );
 };
 const fallbackAddToolResult = async () => {
-  console.warn("addToolResult not configured - make sure useChat is called with transport");
+  console.warn(
+    "addToolResult not configured - make sure useChat is called with transport",
+  );
 };
 const fallbackClearError = () => {
-  console.warn("clearError not configured - make sure useChat is called with transport");
+  console.warn(
+    "clearError not configured - make sure useChat is called with transport",
+  );
 };
 
 export const useChatActions = <TMessage extends UIMessage = UIMessage>() =>
