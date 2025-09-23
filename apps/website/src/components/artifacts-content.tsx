@@ -401,7 +401,7 @@ export const analyzeDashboardTool = tool({
                   className="text-xs font-mono leading-relaxed"
                   dangerouslySetInnerHTML={{
                     __html:
-                      highlight(`import { useArtifact } from '@ai-sdk-tools/artifacts'
+                      highlight(`import { useArtifact } from '@ai-sdk-tools/artifacts/client'
 import { useState } from 'react'
 
 function DashboardComponent() {
