@@ -3,7 +3,7 @@
 import type { UIMessage, UseChatHelpers } from "@ai-sdk/react";
 import type { ChatStatus } from "ai";
 import * as React from "react";
-import { createContext, useCallback, useContext, useRef } from "react";
+import { createContext, useCallback, useContext, useRef, useEffect } from "react";
 import { devtools, subscribeWithSelector } from "zustand/middleware";
 import { useShallow } from "zustand/shallow";
 import { useStore } from "zustand";
@@ -200,6 +200,7 @@ export interface StoreState<TMessage extends UIMessage = UIMessage> {
   popMessage: () => void;
   replaceMessage: (index: number, message: TMessage) => void;
   replaceMessageById: (id: string, message: TMessage) => void;
+  reset: () => void;
 
   // Chat helpers
   sendMessage?: UseChatHelpers<TMessage>["sendMessage"];
@@ -433,6 +434,24 @@ export function createChatStore<TMessage extends UIMessage = UIMessage>(
             });
           },
 
+          reset: () => {
+            markLastAction("chat:reset");
+            batchUpdates(() => {
+              // Reset message index
+              messageIndex.update([]);
+              
+              set({
+                id: undefined,
+                messages: [],
+                status: "ready" as const,
+                error: undefined,
+                _throttledMessages: [],
+                _lastMessageCount: 0,
+                _memoizedSelectors: new Map(),
+              });
+            });
+          },
+
           _syncState: (newState) => {
             markLastAction("chat:_syncState");
             batchUpdates(() => {
@@ -535,15 +554,27 @@ const ChatStoreContext = createContext<ChatStoreApi<any> | undefined>(
 export function Provider<TMessage extends UIMessage = UIMessage>({
   children,
   initialMessages = [],
+  resetKey,
 }: {
   children: React.ReactNode;
   initialMessages?: TMessage[];
+  resetKey?: string | number;
 }) {
   const storeRef = useRef<ChatStoreApi<TMessage> | null>(null);
+  const lastResetKeyRef = useRef<string | number | undefined>(resetKey);
 
   if (storeRef.current === null) {
     storeRef.current = createChatStore<TMessage>(initialMessages);
   }
+
+  // Reset store when resetKey changes
+  useEffect(() => {
+    if (resetKey !== undefined && resetKey !== lastResetKeyRef.current && storeRef.current) {
+      const store = storeRef.current.getState();
+      store.reset();
+      lastResetKeyRef.current = resetKey;
+    }
+  }, [resetKey]);
 
   return React.createElement(
     ChatStoreContext.Provider,
@@ -661,6 +692,7 @@ export const useChatActions = <TMessage extends UIMessage = UIMessage>() =>
       setError: state.setError,
       setId: state.setId,
       setNewChat: state.setNewChat,
+      reset: state.reset,
       sendMessage: state.sendMessage || fallbackSendMessage,
       regenerate: state.regenerate || fallbackRegenerate,
       stop: state.stop || fallbackStop,
