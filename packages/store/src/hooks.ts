@@ -3,7 +3,7 @@
 import type { UIMessage, UseChatHelpers } from "@ai-sdk/react";
 import type { ChatStatus } from "ai";
 import * as React from "react";
-import { createContext, useCallback, useContext, useRef } from "react";
+import { createContext, useCallback, useContext, useRef, useEffect } from "react";
 import { devtools, subscribeWithSelector } from "zustand/middleware";
 import { useShallow } from "zustand/shallow";
 import { useStore } from "zustand";
@@ -199,6 +199,7 @@ export interface StoreState<TMessage extends UIMessage = UIMessage> {
   popMessage: () => void;
   replaceMessage: (index: number, message: TMessage) => void;
   replaceMessageById: (id: string, message: TMessage) => void;
+  reset: () => void;
 
   // Chat helpers
   sendMessage?: UseChatHelpers<TMessage>["sendMessage"];
@@ -517,6 +518,130 @@ export function createChatStore<TMessage extends UIMessage = UIMessage>(
   return createStore<StoreState<TMessage>>()(
     devtools(
       subscribeWithSelector(createChatStoreCreator<TMessage>(initialMessages)),
+=======
+              
+              // During streaming, update immediately for smooth text rendering
+              if (currentState.status === "streaming") {
+                batchUpdates(() => {
+                  const state = get();
+                  const newThrottledMessages = [...state.messages];
+                  state._messageIndex.update(newThrottledMessages);
+
+                  set({
+                    _throttledMessages: newThrottledMessages,
+                    _lastMessageCount: newThrottledMessages.length,
+                  });
+                }, 1); // High priority for streaming updates
+              } else {
+                throttledMessagesUpdater?.();
+              }
+            });
+          },
+
+          reset: () => {
+            markLastAction("chat:reset");
+            batchUpdates(() => {
+              // Reset message index
+              messageIndex.update([]);
+              
+              set({
+                id: undefined,
+                messages: [],
+                status: "ready" as const,
+                error: undefined,
+                _throttledMessages: [],
+                _lastMessageCount: 0,
+                _memoizedSelectors: new Map(),
+              });
+            });
+          },
+
+          _syncState: (newState) => {
+            markLastAction("chat:_syncState");
+            batchUpdates(() => {
+              set(
+                {
+                  ...newState,
+                  _memoizedSelectors: new Map(), // Clear memoized selectors on sync
+                },
+                false,
+                "syncFromUseChat",
+              );
+              if (newState.messages) {
+                throttledMessagesUpdater?.();
+              }
+            });
+          },
+
+          // Optimized getters
+          getLastMessageId: () => {
+            const state = get();
+            return state.messages.length > 0
+              ? state.messages[state.messages.length - 1].id
+              : null;
+          },
+
+          getMessageIds: () => {
+            const state = get();
+            return (state._throttledMessages || state.messages).map(
+              (m) => m.id,
+            );
+          },
+
+          getThrottledMessages: () => {
+            const state = get();
+            return state._throttledMessages || state.messages;
+          },
+
+          getInternalMessages: () => {
+            const state = get();
+            return state.messages;
+          },
+
+          getMessageById: (id) => {
+            const state = get();
+            return state._messageIndex.getById(id);
+          },
+
+          getMessageIndexById: (id) => {
+            const state = get();
+            return state._messageIndex.getIndexById(id);
+          },
+
+          getMessagesSlice: (start, end) => {
+            const state = get();
+            const messages = state._throttledMessages || state.messages;
+            return messages.slice(start, end);
+          },
+
+          getMessageCount: () => {
+            const state = get();
+            return state._lastMessageCount;
+          },
+
+          getMemoizedSelector: <T>(
+            key: string,
+            selector: () => T,
+            deps: any[],
+          ): T => {
+            const state = get();
+            const cached = state._memoizedSelectors.get(key);
+
+            // Fast dependency comparison using length + JSON for complex objects
+            if (cached && 
+                cached.deps.length === deps.length && 
+                (deps.length === 0 || JSON.stringify(cached.deps) === JSON.stringify(deps))) {
+              return cached.result;
+            }
+
+            const result = selector();
+            state._memoizedSelectors.set(key, { result, deps: [...deps] });
+            return result;
+          },
+
+         
+        };
+      }),
       { name: "chat-store" },
     ),
   );
@@ -533,15 +658,27 @@ const ChatStoreContext = createContext<ChatStoreApi<any> | undefined>(
 export function Provider<TMessage extends UIMessage = UIMessage>({
   children,
   initialMessages = [],
+  resetKey,
 }: {
   children: React.ReactNode;
   initialMessages?: TMessage[];
+  resetKey?: string | number;
 }) {
   const storeRef = useRef<ChatStoreApi<TMessage> | null>(null);
+  const lastResetKeyRef = useRef<string | number | undefined>(resetKey);
 
   if (storeRef.current === null) {
     storeRef.current = createChatStore<TMessage>(initialMessages);
   }
+
+  // Reset store when resetKey changes
+  useEffect(() => {
+    if (resetKey !== undefined && resetKey !== lastResetKeyRef.current && storeRef.current) {
+      const store = storeRef.current.getState();
+      store.reset();
+      lastResetKeyRef.current = resetKey;
+    }
+  }, [resetKey]);
 
   return React.createElement(
     ChatStoreContext.Provider,
@@ -673,6 +810,7 @@ export const useChatActions = <TMessage extends UIMessage = UIMessage>() =>
       setError: state.setError,
       setId: state.setId,
       setNewChat: state.setNewChat,
+      reset: state.reset,
       sendMessage: state.sendMessage || fallbackSendMessage,
       regenerate: state.regenerate || fallbackRegenerate,
       stop: state.stop || fallbackStop,
