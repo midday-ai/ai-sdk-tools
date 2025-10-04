@@ -1,8 +1,8 @@
 {
-  "name": "@ai-sdk-tools/artifacts",
+  "name": "@ai-sdk-tools/workflow",
   "private": false,
-  "version": "0.7.0-beta.4",
-  "description": "Advanced streaming interfaces for AI applications",
+  "version": "0.1.0-beta.1",
+  "description": "Human-in-the-loop confirmation workflows that scale with your AI application - type-safe, performant, and beautifully integrated with AI SDK",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -32,7 +32,9 @@
   },
   "keywords": [
     "ai",
-    "artifacts",
+    "workflow",
+    "human-in-the-loop",
+    "confirmation",
     "streaming",
     "react",
     "ai-sdk",

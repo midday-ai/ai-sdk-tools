@@ -21,6 +21,7 @@ export {
   useMessageById,
   useVirtualMessages,
   useMessageCount,
+  useChatReset,
   useSelector,
   createChatStoreCreator,
   type StoreState,

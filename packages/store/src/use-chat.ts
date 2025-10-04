@@ -22,7 +22,6 @@ export type UseChatOptionsWithPerformance<
   store?: CompatibleChatStore<TMessage>;
   // Additional performance options
   enableBatching?: boolean;
-  throttleMs?: number;
 };
 
 export function useChat<TMessage extends UIMessage = UIMessage>(
@@ -31,7 +30,6 @@ export function useChat<TMessage extends UIMessage = UIMessage>(
   const {
     store: customStore,
     enableBatching = true,
-    throttleMs = 16, // ~60fps for smooth streaming
     ...originalOptions
   } = options;
 
