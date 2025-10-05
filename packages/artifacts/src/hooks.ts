@@ -1,6 +1,6 @@
 import type { UIMessage } from "@ai-sdk/react";
 import { useChatMessages } from "@ai-sdk-tools/store";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import type { z } from "zod";
 import type {
   ArtifactCallbacks,
@@ -25,10 +25,9 @@ export function useArtifact<
 >(
   artifactDef: T,
   callbacks?: ArtifactCallbacks<InferArtifactType<T>>,
-  storeId?: string,
 ): UseArtifactReturn<InferArtifactType<T>> {
   // Get messages from the chat store
-  const messages = useChatMessages(storeId);
+  const messages = useChatMessages();
 
   const [currentArtifact, setCurrentArtifact] = useState<ArtifactData<
     InferArtifactType<T>
@@ -43,7 +42,9 @@ export function useArtifact<
 
     if (
       latest &&
-      (!currentArtifact || latest.version > currentArtifact.version)
+      (!currentArtifact || 
+       latest.version > currentArtifact.version ||
+       (latest.version === currentArtifact.version && latest.createdAt > currentArtifact.createdAt))
     ) {
       const prevData = currentArtifact?.payload || null;
 
@@ -102,10 +103,11 @@ export function useArtifact<
   };
 }
 
-// Listening to all artifacts
+// Listening to all artifacts with filtering options
 export interface UseArtifactsOptions {
   onData?: (artifactType: string, data: ArtifactData<unknown>) => void;
-  storeId?: string;
+  include?: string[]; // Only listen to these artifact types
+  exclude?: string[]; // Ignore these artifact types
 }
 
 export interface UseArtifactsReturn {
@@ -118,29 +120,27 @@ export interface UseArtifactsReturn {
 export function useArtifacts(
   options: UseArtifactsOptions = {},
 ): UseArtifactsReturn {
-  const { onData, storeId } = options;
-  const messages = useChatMessages(storeId);
+  const { onData, include, exclude } = options;
+  const messages = useChatMessages();
 
-  const [artifactsState, setArtifactsState] = useState<{
-    byType: Record<string, ArtifactData<unknown>[]>;
-    latest: Record<string, ArtifactData<unknown>>;
-    artifacts: ArtifactData<unknown>[];
-    current: ArtifactData<unknown> | null;
-  }>({
-    byType: {},
-    latest: {},
-    artifacts: [],
-    current: null,
-  });
+  const includeKey = include?.join(',');
+  const excludeKey = exclude?.join(',');
 
-  useEffect(() => {
+  return useMemo(() => {
     const allArtifacts = extractAllArtifactsFromMessages(messages);
+
+    // Filter artifacts based on include/exclude options
+    const filteredArtifacts = allArtifacts.filter(artifact => {
+      if (include?.length) return include.includes(artifact.type);
+      if (exclude?.length) return !exclude.includes(artifact.type);
+      return true;
+    });
 
     // Group by type
     const byType: Record<string, ArtifactData<unknown>[]> = {};
     const latest: Record<string, ArtifactData<unknown>> = {};
 
-    for (const artifact of allArtifacts) {
+    for (const artifact of filteredArtifacts) {
       if (!byType[artifact.type]) {
         byType[artifact.type] = [];
       }
@@ -149,13 +149,16 @@ export function useArtifacts(
       // Track latest version for each type
       if (
         !latest[artifact.type] ||
-        artifact.version > latest[artifact.type].version
+        artifact.version > latest[artifact.type].version ||
+        (artifact.version === latest[artifact.type].version && artifact.createdAt > latest[artifact.type].createdAt)
       ) {
         const prevLatest = latest[artifact.type];
         latest[artifact.type] = artifact;
 
         // Fire callback if this is a new or updated artifact
-        if (onData && (!prevLatest || artifact.version > prevLatest.version)) {
+        if (onData && (!prevLatest || 
+                       artifact.version > prevLatest.version ||
+                       (artifact.version === prevLatest.version && artifact.createdAt > prevLatest.createdAt))) {
           onData(artifact.type, artifact);
         }
       }
@@ -166,18 +169,13 @@ export function useArtifacts(
       byType[type].sort((a, b) => b.createdAt - a.createdAt);
     }
 
-    // Find the overall latest artifact (most recent across all types)
-    const current = allArtifacts.length > 0 ? allArtifacts[0] : null;
-
-    setArtifactsState({
+    return {
       byType,
       latest,
-      artifacts: allArtifacts,
-      current,
-    });
-  }, [messages, onData]);
-
-  return artifactsState;
+      artifacts: filteredArtifacts,
+      current: filteredArtifacts[0] || null,
+    };
+  }, [messages, onData, includeKey, excludeKey]);
 }
 
 function extractAllArtifactsFromMessages(
@@ -194,7 +192,9 @@ function extractAllArtifactsFromMessages(
           const artifactPart = part as ArtifactPart<unknown>;
           if (artifactPart.data) {
             const existing = artifacts.get(artifactPart.data.id);
-            if (!existing || artifactPart.data.version > existing.version) {
+            if (!existing || 
+                artifactPart.data.version > existing.version ||
+                (artifactPart.data.version === existing.version && artifactPart.data.createdAt > existing.createdAt)) {
               artifacts.set(artifactPart.data.id, artifactPart.data);
             }
           }
@@ -212,7 +212,9 @@ function extractAllArtifactsFromMessages(
                   nestedPart.data
                 ) {
                   const existing = artifacts.get(nestedPart.data.id);
-                  if (!existing || nestedPart.data.version > existing.version) {
+                  if (!existing || 
+                      nestedPart.data.version > existing.version ||
+                      (nestedPart.data.version === existing.version && nestedPart.data.createdAt > existing.createdAt)) {
                     artifacts.set(nestedPart.data.id, nestedPart.data);
                   }
                 }
@@ -244,7 +246,9 @@ function extractArtifactsFromMessages<T>(
           const artifactPart = part as ArtifactPart<T>;
           if (artifactPart.data) {
             const existing = artifacts.get(artifactPart.data.id);
-            if (!existing || artifactPart.data.version > existing.version) {
+            if (!existing || 
+                artifactPart.data.version > existing.version ||
+                (artifactPart.data.version === existing.version && artifactPart.data.createdAt > existing.createdAt)) {
               artifacts.set(artifactPart.data.id, artifactPart.data);
             }
           }
@@ -262,7 +266,9 @@ function extractArtifactsFromMessages<T>(
                   nestedPart.data
                 ) {
                   const existing = artifacts.get(nestedPart.data.id);
-                  if (!existing || nestedPart.data.version > existing.version) {
+                  if (!existing || 
+                      nestedPart.data.version > existing.version ||
+                      (nestedPart.data.version === existing.version && nestedPart.data.createdAt > existing.createdAt)) {
                     artifacts.set(nestedPart.data.id, nestedPart.data);
                   }
                 }

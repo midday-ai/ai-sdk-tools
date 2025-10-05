@@ -7,7 +7,12 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   splitting: false,
-  treeshake: true,
+  treeshake: false, // Disable tree shaking to preserve directives
   minify: false,
   external: ["react", "zustand", "@ai-sdk/react", "react/jsx-runtime"],
+  esbuildOptions(options) {
+    options.banner = {
+      js: '"use client";',
+    };
+  },
 });

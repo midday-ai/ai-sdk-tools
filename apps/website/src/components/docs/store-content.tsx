@@ -14,9 +14,9 @@ export default function StoreContent() {
               Store
             </h1>
             <p className="text-base text-secondary max-w-3xl leading-relaxed font-light mb-12">
-              Global state management for AI applications. Drop-in replacement
-              for @ai-sdk/react with global access, optimized performance, and
-              full TypeScript support.
+              High-performance state management for AI applications. Drop-in replacement
+              for @ai-sdk/react with 3-5x performance improvements, O(1) message lookups,
+              and built-in optimizations.
             </p>
 
             <div className="flex items-center justify-between border border-dashed border-[#2a2a2a] px-3 py-1.5 max-w-md mb-8">

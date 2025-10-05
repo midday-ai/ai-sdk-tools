@@ -5,7 +5,7 @@
  */
 
 import { DefaultChatTransport } from "ai";
-import { useChat, useChatMessages, useChatSendMessage } from "@ai-sdk-tools/store";
+import { useChat, useChatMessages, useChatActions } from "@ai-sdk-tools/store";
 import type {
   AllTools,
   AnalyticsData,
@@ -55,31 +55,29 @@ function testHookCompatibility() {
     transport: new DefaultChatTransport({ api: "/api/chat" }),
   });
 
-  // Weather-specific chat
+  // Weather-specific chat (no storeId needed with new implementation)
   const chat2 = useChat<WeatherMessage>({
     transport: new DefaultChatTransport({ api: "/api/chat" }),
-    storeId: "weather",
   });
 
-  // Calculator-specific chat
+  // Calculator-specific chat (no storeId needed with new implementation)
   const chat3 = useChat<CalculatorMessage>({
     transport: new DefaultChatTransport({ api: "/api/chat" }),
-    storeId: "calculator",
   });
 
-  // Messages should be properly typed
+  // Messages should be properly typed (no storeId needed)
   const customMessages = useChatMessages<CustomUIMessage>();
-  const weatherMessages = useChatMessages<WeatherMessage>("weather");
-  const calculatorMessages = useChatMessages<CalculatorMessage>("calculator");
+  const weatherMessages = useChatMessages<WeatherMessage>();
+  const calculatorMessages = useChatMessages<CalculatorMessage>();
 
-  // Send message functions should accept proper data types
-  const sendCustomMessage = useChatSendMessage();
-  const sendWeatherMessage = useChatSendMessage("weather");
+  // Chat actions should be properly typed
+  const actions = useChatActions();
+  const sendMessage = actions.sendMessage; // From actions object
 
   return {
     chats: [chat1, chat2, chat3],
     messages: [customMessages, weatherMessages, calculatorMessages],
-    senders: [sendCustomMessage, sendWeatherMessage],
+    actions: actions,
   };
 }
 

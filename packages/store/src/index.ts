@@ -1,32 +1,28 @@
-export type {
-  CreateUIMessage,
-  UIMessage,
-} from "@ai-sdk/react";
-export {
-  type UseChatHelpers,
-  type UseChatOptions,
-  type UseChatOptionsWithStore,
-  useChat,
-  useChatStore,
-  useChatStoreState,
-} from "./hooks";
+// Types
+export type { UIMessage } from "@ai-sdk/react";
 
+// Enhanced useChat hook
 export {
+  type UseChatOptions,
+  type UseChatHelpers,
+  useChat,
+} from "./use-chat";
+
+// Store and hooks
+export {
+  Provider,
+  useChatStore,
   useChatActions,
+  useChatMessages,
+  useChatStatus,
   useChatError,
   useChatId,
-  useChatMessageCount,
-  useChatMessages,
-  useChatProperty,
-  useChatSendMessage,
-  useChatStatus,
-} from "./selectors";
-export {
-  type ChatStore,
-  type ChatStoreWithSync,
-  clearAllChatStores,
-  clearChatStore,
-  createCustomChatStore,
-  getChatStore,
-  getChatStoreIds,
-} from "./store";
+  useMessageIds,
+  useMessageById,
+  useVirtualMessages,
+  useMessageCount,
+  useChatReset,
+  useSelector,
+  createChatStoreCreator,
+  type StoreState,
+} from "./hooks";

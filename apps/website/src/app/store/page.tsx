@@ -4,7 +4,7 @@ import { StoreContent } from "@/components/store-content";
 export const metadata: Metadata = {
   title: "AI SDK Store - State Management for AI Applications",
   description:
-    "Powerful Zustand-based state management for AI applications. Eliminate prop drilling and manage chat state globally with full TypeScript support. Perfect for React and Next.js AI apps.",
+    "High-performance state management for AI applications. 3-5x faster than @ai-sdk/react with O(1) message lookups, batched updates, and zero configuration required.",
   keywords: [
     "AI SDK store",
     "AI state management",

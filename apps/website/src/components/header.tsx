@@ -80,6 +80,16 @@ export function Header() {
             Artifacts
           </Link>
           <Link
+            href="/cache"
+            className={`transition-colors text-sm font-medium ${
+              pathname === "/cache"
+                ? "text-[#d4d4d4]"
+                : "text-secondary hover:text-[#d4d4d4]"
+            }`}
+          >
+            Cache
+          </Link>
+          <Link
             href="/about"
             className={`transition-colors text-sm font-medium ${
               pathname === "/about"
@@ -192,6 +202,17 @@ export function Header() {
               }`}
             >
               Artifacts
+            </Link>
+            <Link
+              href="/cache"
+              onClick={closeMobileMenu}
+              className={`block transition-colors text-sm font-medium py-2 ${
+                pathname === "/cache"
+                  ? "text-[#d4d4d4]"
+                  : "text-secondary hover:text-[#d4d4d4]"
+              }`}
+            >
+              Cache
             </Link>
             <Link
               href="/about"
