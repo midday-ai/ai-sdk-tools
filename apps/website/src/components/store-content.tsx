@@ -2,6 +2,7 @@
 
 import { highlight } from "sugar-high";
 import { LiveDemo } from "./live-demo";
+import { CopyButton } from "./copy-button";
 
 export function StoreContent() {
   return (
@@ -25,25 +26,7 @@ export function StoreContent() {
               <span className="text-[#d4d4d4] text-xs font-mono">
                 npm i @ai-sdk-tools/store
               </span>
-              <button
-                type="button"
-                onClick={() =>
-                  navigator.clipboard.writeText("npm i @ai-sdk-tools/store")
-                }
-                className="text-secondary hover:text-[#d4d4d4] transition-colors p-1"
-                title={`Copy "npm i @ai-sdk-tools/store" to clipboard`}
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  aria-label="Copy command"
-                >
-                  <title>Copy to clipboard</title>
-                  <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
-                </svg>
-              </button>
+                <CopyButton text="npm i @ai-sdk-tools/store" />
             </div>
 
             {/* Used by */}
@@ -263,25 +246,11 @@ function MessageList() {
                 <span className="text-secondary">git: (main)$ </span>
                 <span className="text-white">npm i @ai-sdk-tools/store</span>
               </div>
-              <button
-                type="button"
-                onClick={() =>
-                  navigator.clipboard.writeText("npm i @ai-sdk-tools/store")
-                }
-                className="text-secondary hover:text-white transition-colors ml-4"
-                title="Copy to clipboard"
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  aria-label="Copy to clipboard"
-                >
-                  <title>Copy to clipboard</title>
-                  <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
-                </svg>
-              </button>
+              <CopyButton 
+                text="npm i @ai-sdk-tools/store" 
+                className="ml-4 hover:text-white"
+                size={16}
+              />
             </div>
           </div>
 

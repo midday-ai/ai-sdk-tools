@@ -101,8 +101,8 @@ const expensiveWeatherTool = tool({
 // Cache with one line
 const weatherTool = cached(expensiveWeatherTool)
 
-// First call: 2s API request + $0.01
-// Next calls: <1ms from cache + $0 ⚡
+// First call: 2s API request
+// Next calls: <1ms from cache ⚡
 
 // Works with streaming tools + artifacts
 const burnRateAnalysis = cached(streamingAnalysisTool)

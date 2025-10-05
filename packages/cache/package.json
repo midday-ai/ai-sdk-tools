@@ -16,13 +16,13 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ai-sdk-tools/ai-sdk-tools.git",
+    "url": "https://github.com/midday-ai/ai-sdk-tools.git",
     "directory": "packages/cache"
   },
   "bugs": {
-    "url": "https://github.com/ai-sdk-tools/ai-sdk-tools/issues"
+    "url": "https://github.com/midday-ai/ai-sdk-tools/issues"
   },
-  "homepage": "https://github.com/ai-sdk-tools/ai-sdk-tools/tree/main/packages/cache#readme",
+  "homepage": "https://github.com/midday-ai/ai-sdk-tools/tree/main/packages/cache#readme",
   "type": "module",
   "exports": {
     ".": {

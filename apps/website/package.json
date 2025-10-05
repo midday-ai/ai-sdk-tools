@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "bun run build:packages && next build --turbopack",
+    "build": "next build --turbopack",
     "build:packages": "cd ../../packages/store && bun run build && cd ../devtools && bun run build && cd ../artifacts && bun run build",
     "start": "next start",
     "lint": "biome check",
@@ -14,14 +14,14 @@
     "@ai-sdk-tools/artifacts": "workspace:*",
     "@ai-sdk-tools/devtools": "workspace:*",
     "@ai-sdk-tools/store": "workspace:*",
-    "@ai-sdk/openai": "^2.0.30",
+    "@ai-sdk/openai": "^2.0.42",
     "@openpanel/nextjs": "^1.0.8",
-    "ai": "^5.0.44",
-    "next": "15.5.3",
-    "react": "19.1.1",
-    "react-dom": "19.1.1",
+    "ai": "^5.0.60",
+    "next": "15.5.4",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
     "sugar-high": "^0.9.3",
-    "zod": "^4.1.8"
+    "zod": "^4.1.11"
   },
   "devDependencies": {
     "typescript": "^5",
@@ -30,6 +30,6 @@
     "@types/react-dom": "^19",
     "@tailwindcss/postcss": "^4",
     "tailwindcss": "^4",
-    "@biomejs/biome": "2.2.4"
+    "@biomejs/biome": "2.2.5"
   }
 }

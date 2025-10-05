@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { highlight } from "sugar-high";
 import { DevtoolsDemo } from "@/components/devtools-demo";
 import { LiveDemo } from "@/components/live-demo";
+import { CopyButton } from "@/components/copy-button";
 
 export default function Home() {
   const [focusedDemo, setFocusedDemo] = useState<"store" | "devtools">("store");
@@ -48,25 +49,7 @@ export default function Home() {
                   <span className="text-[#d4d4d4] text-xs font-mono">
                     npm i {pkg}
                   </span>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      navigator.clipboard.writeText(`npm i ${pkg}`)
-                    }
-                    className="text-secondary hover:text-[#d4d4d4] transition-colors p-1"
-                    title={`Copy "npm i ${pkg}" to clipboard`}
-                  >
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      aria-label="Copy command"
-                    >
-                      <title>Copy command to clipboard</title>
-                      <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
-                    </svg>
-                  </button>
+                  <CopyButton text={`npm i ${pkg}`} />
                 </div>
               ))}
             </div>
