@@ -10,13 +10,13 @@ export function CacheContent() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-40">
           <div className="space-y-12">
             <h1 className="text-4xl font-normal leading-tight tracking-wide max-w-[600px]">
-              Stop burning money on duplicate AI tool calls.
+              Make your AI agents faster and cheaper with your own cache.
             </h1>
 
             <p className="text-base text-secondary max-w-3xl leading-relaxed font-light">
-              AI agents repeatedly call the same expensive tools across conversation turns.
-              Cache them once, use them instantly. 10x faster responses, 80% cost savings,
-              and smooth agentic workflows that don't waste time or money.
+              Agents call the same tools repeatedly across conversation turns, burning money 
+              and time. Cache expensive operations once, reuse instantly. Transform slow, 
+              costly agent flows into lightning-fast experiences.
             </p>
 
             {/* Terminal */}
@@ -156,10 +156,11 @@ const burnRateAnalysis = cached(streamingAnalysisTool)
           </article>
 
           <article>
-            <h2 className="text-base font-medium mb-3">Agent Optimized</h2>
+            <h2 className="text-base font-medium mb-3">Agent Flow Optimization</h2>
             <p className="text-xs text-secondary font-light leading-relaxed">
-              Perfect for conversational AI where tools are called repeatedly 
-              across turns. Smooth agent experiences with instant cached results.
+              Agents naturally call the same tools across conversation turns. 
+              Transform expensive repeated operations into instant responses for 
+              smoother, faster, and cheaper agent experiences.
             </p>
           </article>
         </section>
