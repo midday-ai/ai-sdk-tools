@@ -1,5 +1,11 @@
 # @ai-sdk-tools/artifacts
 
+## 0.7.0-beta.5
+
+### Patch Changes
+
+- New beta release with latest improvements and bug fixes
+
 ## 0.7.0-beta.3
 
 ### Patch Changes

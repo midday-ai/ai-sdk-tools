@@ -40,6 +40,7 @@ Key capabilities:
 Always use the tool when users provide financial data or ask for burn rate analysis.`,
         messages: convertToModelMessages(messages),
         tools,
+        experimental_context: { writer }, 
       });
 
       writer.merge(result.toUIMessageStream());

@@ -1,0 +1,67 @@
+{
+  "name": "@ai-sdk-tools/cache",
+  "version": "0.1.2",
+  "description": "Simple caching wrapper for AI SDK tools - cache expensive tool executions with zero configuration",
+  "keywords": [
+    "ai",
+    "ai-sdk",
+    "tools",
+    "cache",
+    "caching",
+    "performance",
+    "llm",
+    "openai",
+    "anthropic"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ai-sdk-tools/ai-sdk-tools.git",
+    "directory": "packages/cache"
+  },
+  "bugs": {
+    "url": "https://github.com/ai-sdk-tools/ai-sdk-tools/issues"
+  },
+  "homepage": "https://github.com/ai-sdk-tools/ai-sdk-tools/tree/main/packages/cache#readme",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "clean": "rm -rf dist",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src --ext .ts,.tsx",
+    "test": "vitest"
+  },
+  "peerDependencies": {
+    "ai": ">=5.0.0"
+  },
+  "optionalDependencies": {
+    "redis": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^2.0.0",
+    "zod": "^3.22.0",
+    "ai": "^5.0.60"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

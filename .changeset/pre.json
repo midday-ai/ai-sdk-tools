@@ -7,7 +7,9 @@
     "@ai-sdk-tools/artifacts": "0.4.0",
     "@ai-sdk-tools/chrome-extension": "1.0.2",
     "@ai-sdk-tools/devtools": "0.6.1",
-    "@ai-sdk-tools/store": "0.1.2"
+    "@ai-sdk-tools/store": "0.1.2",
+    "@ai-sdk-tools/toolbox": "0.1.0",
+    "@ai-sdk-tools/workflow": "0.1.0-beta.1"
   },
   "changesets": [
     "artifact-enhancements-beta",
@@ -17,6 +19,8 @@
     "experimental-enabled-beta",
     "fix-infinite-rerender",
     "include-exclude-filtering",
+    "new-artifacts-beta",
+    "new-store-beta",
     "ssr-fixes-beta2",
     "stable-v04-release",
     "store-optimization-beta",

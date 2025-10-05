@@ -37,8 +37,9 @@ export default function Home() {
             <div className="flex flex-col gap-2 max-w-sm">
               {[
                 "@ai-sdk-tools/store",
-                "@ai-sdk-tools/devtools",
+                "@ai-sdk-tools/devtools", 
                 "@ai-sdk-tools/artifacts",
+                "@ai-sdk-tools/cache",
               ].map((pkg) => (
                 <div
                   key={pkg}
@@ -189,6 +190,15 @@ export default function Home() {
           </article>
 
           <article>
+            <h2 className="text-base font-medium mb-3">Universal Caching</h2>
+            <p className="text-xs text-secondary font-light leading-relaxed">
+              Cache expensive AI tool executions with zero configuration. Works
+              with regular tools, streaming tools, and artifacts. Reduce costs
+              by 80% and improve response times by 10x.
+            </p>
+          </article>
+
+          <article>
             <h2 className="text-base font-medium mb-3">Production Ready</h2>
             <p className="text-xs text-secondary font-light leading-relaxed">
               Battle-tested tools used in production applications. Optimized for
@@ -221,7 +231,7 @@ export default function Home() {
         <section className="space-y-8 mb-40">
           <h2 className="text-lg font-medium">Getting Started</h2>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-8">
             <div className="space-y-4">
               <div className="text-xs text-secondary">
                 ◇ Store (State Management)
@@ -336,6 +346,42 @@ function Dashboard() {
     </div>
   )
 }`),
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="text-xs text-secondary">
+                ◇ Cache (Performance)
+              </div>
+              <div className="border border-[#3c3c3c] p-6 h-[20rem] overflow-y-auto">
+                <pre
+                  className="text-xs font-mono leading-relaxed"
+                  dangerouslySetInnerHTML={{
+                    __html:
+                      highlight(`import { cached } from '@ai-sdk-tools/cache'
+
+const expensiveWeatherTool = tool({
+  description: 'Get weather data',
+  parameters: z.object({
+    location: z.string()
+  }),
+  execute: async ({ location }) => {
+    // Expensive API call
+    return await weatherAPI.get(location)
+  }
+})
+
+// Cache with one line
+const weatherTool = cached(expensiveWeatherTool)
+
+// First call: 2s API request
+// Next calls: <1ms from cache ⚡
+
+// Works with streaming tools + artifacts
+const analysis = cached(burnRateAnalysis)
+// Caches complete data: yields + charts`),
                   }}
                 />
               </div>

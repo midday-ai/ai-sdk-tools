@@ -1,5 +1,6 @@
 import { tool } from "ai";
 import { z } from "zod";
+import { cached } from "@ai-sdk-tools/cache";
 import { BurnRateArtifact } from "@/ai/artifacts/burn-rate";
 import { getCurrentUser } from "@/ai/context";
 import { delay } from "@/lib/delay";
@@ -20,23 +21,24 @@ export const analyzeBurnRateTool = tool({
       )
       .describe("Array of monthly financial data"),
   }),
-  execute: async ({ companyName, monthlyData }) => {
-    // Get current user context
-    const user = getCurrentUser();
-
-    // Step 1: Create with loading state (including user context)
+  execute: async function* ({ companyName, monthlyData }) {
     const analysis = BurnRateArtifact.stream({
       stage: "loading",
       title: `${companyName} Burn Rate Analysis`,
       chartData: [],
       progress: 0,
     });
+    
+    // Yield initial progress
+    yield { text: `Starting burn rate analysis for ${companyName}...` };
 
     await delay(500);
 
     // Step 2: Processing - generate chart data
     analysis.progress = 0.1;
     await analysis.update({ stage: "processing" });
+    
+    yield { text: `Processing financial data...` };
 
     for (const [index, month] of monthlyData.entries()) {
       const burnRate = month.expenses - month.revenue;
@@ -133,25 +135,25 @@ export const analyzeBurnRateTool = tool({
       },
     };
 
+    // Complete the artifact with final data - this should call artifacts.getWriter()
     await analysis.complete(finalData);
 
-    // Return the artifact data in the format expected by the AI SDK
-    return {
-      parts: [
-        {
-          type: `data-artifact-${BurnRateArtifact.id}`,
-          data: {
-            id: analysis.id,
-            version: 1,
-            status: "complete" as const,
-            progress: 1,
-            payload: finalData,
-            createdAt: Date.now(),
-            updatedAt: Date.now(),
-          },
-        },
-      ],
-      text: `Completed burn rate analysis for ${companyName} (User: ${user.fullName} - ${user.id}). The analysis shows a ${trend} trend with an average runway of ${avgRunway.toFixed(1)} months. ${alerts.length} alerts and ${recommendations.length} recommendations have been generated.`,
+    // Final yield with completion
+    yield {
+      text: `Completed burn rate analysis for ${companyName}. Average burn rate: $${avgBurnRate.toLocaleString()}/month. Runway: ${avgRunway.toFixed(1)} months. Trend: ${trend}.`,
+      forceStop: true,
     };
+  },
+});
+
+// Create cached version for testing
+export const cachedAnalyzeBurnRateTool = cached(analyzeBurnRateTool, {
+  debug: true,
+  ttl: 10 * 60 * 1000, // 10 minutes
+  onHit: (key) => {
+    console.log(`🎯 Cache HIT for burn rate analysis: ${key.slice(0, 50)}...`);
+  },
+  onMiss: (key) => {
+    console.log(`⚡ Cache MISS for burn rate analysis: ${key.slice(0, 50)}...`);
   },
 });

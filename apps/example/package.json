@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@ai-sdk-tools/artifacts": "workspace:*",
+    "@ai-sdk-tools/cache": "workspace:*",
     "@ai-sdk-tools/devtools": "workspace:*",
     "@ai-sdk-tools/store": "workspace:*",
     "@ai-sdk/openai": "^2.0.42",
