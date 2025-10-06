@@ -1,5 +1,5 @@
 import { openai } from "@ai-sdk/openai";
-import { cached } from "@/lib/cache"; // Use pre-configured cache
+import { cachedUpstash } from "@/lib/cache";
 import { getBurnRate, getRunway, getSpending } from "@/lib/mock-db-queries";
 import { formatAmount, safeValue, generateFollowupQuestions } from "@/lib/mock-utils";
 import { generateText, smoothStream, streamText, tool } from "ai";
@@ -289,4 +289,5 @@ Provide a concise 2-sentence summary and 2-3 brief recommendations.`,
   },
 });
 
-export const complexBurnRateAnalysisTool = cached(complexBurnRateAnalysis);
+// Create cached version - uses pre-configured cache
+export const complexBurnRateAnalysisTool = cachedUpstash(complexBurnRateAnalysis);

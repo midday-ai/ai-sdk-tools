@@ -1,6 +1,7 @@
 import type { Tool } from "ai";
 import type { CacheOptions, CachedTool, CacheStats, CacheStore } from "./types";
 import { LRUCacheStore } from "./cache-store";
+import { createCacheBackend } from "./backends/factory";
 
 /**
  * React Query style cache key generator - stable and deterministic
@@ -162,18 +163,21 @@ function createStreamingCachedTool<T extends Tool>(
       const originalResult = await tool.execute?.(params, executionOptions);
       
       // Create tee generator that streams and caches
-      const streamResults: any[] = [];
+      let lastChunk: any = null;
       let finalReturnValue: any = undefined;
+      let chunkCount = 0;
       
       if (originalResult && typeof originalResult[Symbol.asyncIterator] === 'function') {
         const iterator = originalResult[Symbol.asyncIterator]();
         let iterResult = await iterator.next();
         
         while (!iterResult.done) {
-          streamResults.push(iterResult.value);
+          lastChunk = iterResult.value; // Just keep the last chunk (it has full text)
+          chunkCount++;
+          
           // Debug logging only for first few yields to avoid spam
-          if (debug && streamResults.length <= 3) {
-            console.log(`   Capturing yield #${streamResults.length}:`, iterResult.value?.text?.slice(0, 40) + '...');
+          if (debug && chunkCount <= 3) {
+            console.log(`   Capturing yield #${chunkCount}:`, lastChunk?.text?.slice(0, 40) + '...');
           }
           yield iterResult.value; // Stream immediately
           iterResult = await iterator.next();
@@ -186,8 +190,9 @@ function createStreamingCachedTool<T extends Tool>(
         // This runs after all current synchronous operations and promises
         queueMicrotask(async () => {
           try {
+            // Store only the final chunk (it already has the complete text)
             const completeResult = {
-              streamResults,
+              streamResults: lastChunk ? [lastChunk] : [], // Only final chunk
               messages: capturedMessages,
               returnValue: finalReturnValue,
               type: 'streaming'
@@ -200,14 +205,14 @@ function createStreamingCachedTool<T extends Tool>(
                 key,
               });
               if (debug) {
-                const cacheItems = typeof cacheStore.size === 'function' ? cacheStore.size() : 'unknown';
+                const cacheItems = typeof cacheStore.size === 'function' ? await cacheStore.size() : 'unknown';
                 
                 // Calculate approximate memory usage
                 const estimatedSize = JSON.stringify(completeResult).length;
                 const sizeKB = Math.round(estimatedSize / 1024 * 100) / 100;
                 
                 console.log(`\n💾 Cache STORED - Streaming Tool`);
-                console.log(`┌─ Streaming yields: ${streamResults.length}`);
+                console.log(`┌─ Streaming yields: ${chunkCount}`);
                 console.log(`├─ Artifact messages: ${capturedMessages.length}`);
                 console.log(`├─ Return value: ${finalReturnValue !== undefined ? 'yes' : 'no'}`);
                 console.log(`├─ Entry size: ~${sizeKB}KB`);
@@ -405,31 +410,36 @@ export function cached<T extends Tool>(
           // Handle streaming tools
           if (result && typeof (result as any)[Symbol.asyncIterator] === 'function') {
             const streamResults: any[] = [];
-            for await (const chunk of result as any) {
-              streamResults.push(chunk);
-            }
+            let lastChunk: any = null;
             
-            const completeResult = {
-              streamResults,
-              messages: capturedMessages,
-              type: 'streaming'
-            };
-            
-            if (shouldCache(params, completeResult)) {
-              await cacheStore.set(key, {
-                result: completeResult,
-                timestamp: now,
-                key,
-              });
-              log(`[Cache] STORED streaming result with ${capturedMessages.length} messages`);
-            }
-
-            // Return generator that yields results
-            return (async function* () {
-              for (const chunk of streamResults) {
-                yield chunk;
+            // Stream to user immediately while capturing
+            const streamGenerator = (async function* () {
+              for await (const chunk of result as any) {
+                streamResults.push(chunk);
+                lastChunk = chunk;
+                yield chunk; // Stream immediately to user
               }
+              
+              // After streaming completes, cache only the final chunk
+              queueMicrotask(async () => {
+                const completeResult = {
+                  streamResults: lastChunk ? [lastChunk] : [], // Only store final chunk
+                  messages: capturedMessages,
+                  type: 'streaming'
+                };
+                
+                if (shouldCache(params, completeResult)) {
+                  await cacheStore.set(key, {
+                    result: completeResult,
+                    timestamp: now,
+                    key,
+                  });
+                  log(`[Cache] STORED streaming result with ${capturedMessages.length} messages`);
+                }
+              });
             })();
+            
+            return streamGenerator;
           }
 
           // Regular tool
@@ -521,4 +531,62 @@ export function cacheTools<T extends Record<string, Tool>>(
   }
 
   return cachedTools;
+}
+
+/**
+ * Create a cached function with Redis client or default LRU
+ * 
+ * Example usage:
+ * ```ts
+ * import { Redis } from "@upstash/redis";
+ * import { createCached } from "@ai-sdk-tools/cache";
+ * 
+ * // Upstash Redis
+ * const cached = createCached({ cache: Redis.fromEnv() });
+ * 
+ * // Standard Redis  
+ * const cached = createCached({ cache: Redis.createClient() });
+ * 
+ * // Default LRU (no cache client)
+ * const cached = createCached();
+ * ```
+ */
+export function createCached(options: {
+  cache?: any; // User's Redis client - we pass it directly
+  keyPrefix?: string;
+  ttl?: number;
+  debug?: boolean;
+  onHit?: (key: string) => void;
+  onMiss?: (key: string) => void;
+} = {}) {
+  // If no cache provided, use default LRU
+  if (!options.cache) {
+    const lruStore = createCacheBackend({
+      type: "lru",
+      maxSize: 100,
+      defaultTTL: options.ttl || 10 * 60 * 1000, // 10 minutes default
+    });
+
+    return createCachedFunction(lruStore, {
+      debug: options.debug || false,
+      onHit: options.onHit,
+      onMiss: options.onMiss,
+    });
+  }
+
+  // Use Redis client directly - no adapter needed!
+  const redisStore = createCacheBackend({
+    type: "redis",
+    defaultTTL: options.ttl || 30 * 60 * 1000, // 30 minutes default
+    redis: {
+      client: options.cache, // Pass user's Redis client directly
+      keyPrefix: options.keyPrefix || "ai-tools-cache:",
+    },
+  });
+
+  return createCachedFunction(redisStore, {
+    debug: options.debug || false,
+    onHit: options.onHit,
+    onMiss: options.onMiss,
+  });
 }

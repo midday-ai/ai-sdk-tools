@@ -85,7 +85,8 @@ export function CacheContent() {
               <pre
                 className="text-xs font-mono leading-relaxed overflow-x-auto"
                 dangerouslySetInnerHTML={{
-                  __html: highlight(`import { cached } from '@ai-sdk-tools/cache'
+                  __html: highlight(`import { createCached } from '@ai-sdk-tools/cache'
+import { Redis } from '@upstash/redis'
 
 const expensiveWeatherTool = tool({
   description: 'Get weather data',
@@ -98,15 +99,16 @@ const expensiveWeatherTool = tool({
   }
 })
 
-// Cache with one line
+// LRU cache (zero config)
+const cached = createCached()
+
+// Or Redis (just pass the client!)
+const cached = createCached({ cache: Redis.fromEnv() })
+
 const weatherTool = cached(expensiveWeatherTool)
 
 // First call: 2s API request
-// Next calls: <1ms from cache ⚡
-
-// Works with streaming tools + artifacts
-const burnRateAnalysis = cached(streamingAnalysisTool)
-// Caches complete data: yields + charts + metrics`),
+// Next calls: <1ms from cache ⚡`),
                 }}
               />
             </div>
@@ -181,7 +183,7 @@ const burnRateAnalysis = cached(streamingAnalysisTool)
                 <pre
                   className="text-xs font-mono leading-relaxed"
                   dangerouslySetInnerHTML={{
-                    __html: highlight(`import { cached } from '@ai-sdk-tools/cache'
+                    __html: highlight(`import { createCached } from '@ai-sdk-tools/cache'
 
 // Any AI SDK tool
 const weatherTool = tool({
@@ -193,6 +195,9 @@ const weatherTool = tool({
     return await api.getWeather(location)
   }
 })
+
+// Create cached function (LRU by default)
+const cached = createCached()
 
 // Cache with zero config
 const cachedWeatherTool = cached(weatherTool)
@@ -217,27 +222,25 @@ const result = streamText({
                 <pre
                   className="text-xs font-mono leading-relaxed"
                   dangerouslySetInnerHTML={{
-                    __html: highlight(`import { createCachedFunction, createCacheBackend } from '@ai-sdk-tools/cache'
+                    __html: highlight(`import { createCached } from '@ai-sdk-tools/cache'
+import { Redis } from '@upstash/redis'
+
+// Just pass your Redis client - that's it!
+export const cached = createCached({
+  cache: Redis.fromEnv(), // Upstash Redis
+  keyPrefix: 'ai-tools:',
+  ttl: 30 * 60 * 1000, // 30 minutes
+})
+
+// Or standard Redis
 import Redis from 'redis'
-
-// Redis backend for production
-const redis = Redis.createClient({
-  url: process.env.REDIS_URL
+export const cached = createCached({
+  cache: Redis.createClient({ url: process.env.REDIS_URL }),
+  keyPrefix: 'ai-tools:',
+  ttl: 30 * 60 * 1000,
 })
 
-const backend = createCacheBackend({
-  type: 'redis',
-  defaultTTL: 30 * 60 * 1000, // 30 minutes
-  redis: {
-    client: redis,
-    keyPrefix: 'ai-tools:'
-  }
-})
-
-// Pre-configured cache function
-export const cached = createCachedFunction(backend)
-
-// All tools use Redis with 30min TTL
+// All tools use your chosen backend
 const weatherTool = cached(expensiveWeatherTool)
 const analysisTools = cached(burnRateAnalysis)`),
                   }}
@@ -254,7 +257,8 @@ const analysisTools = cached(burnRateAnalysis)`),
                 <pre
                   className="text-xs font-mono leading-relaxed"
                   dangerouslySetInnerHTML={{
-                    __html: highlight(`import { cached } from '@ai-sdk-tools/cache'
+                    __html: highlight(`import { createCached } from '@ai-sdk-tools/cache'
+import { Redis } from '@upstash/redis'
 
 const burnRateAnalysis = tool({
   description: 'Generate burn rate analysis',
@@ -281,8 +285,10 @@ const burnRateAnalysis = tool({
   }
 })
 
-// Cache preserves EVERYTHING
+// Create cached with Redis
+const cached = createCached({ cache: Redis.fromEnv() })
 const cachedAnalysis = cached(burnRateAnalysis)
+
 // ✅ Streaming text cached
 // ✅ Artifact data cached  
 // ✅ Charts & metrics restored on cache hit`),
@@ -301,28 +307,27 @@ const cachedAnalysis = cached(burnRateAnalysis)
                   className="text-xs font-mono leading-relaxed"
                   dangerouslySetInnerHTML={{
                     __html: highlight(`// src/lib/cache.ts - Smart environment setup
-import { createCachedFunction, createCacheBackend } from '@ai-sdk-tools/cache'
+import { createCached } from '@ai-sdk-tools/cache'
+import { Redis } from '@upstash/redis'
 
-const backend = process.env.REDIS_URL 
-  ? createCacheBackend({
-      type: 'redis',
-      defaultTTL: 30 * 60 * 1000,
-      redis: { 
-        client: Redis.createClient({ 
-          url: process.env.REDIS_URL 
-        }) 
-      }
+// Clean environment-based selection
+export const cached = process.env.UPSTASH_REDIS_REST_URL
+  ? createCached({
+      cache: Redis.fromEnv(), // Production: Upstash Redis
+      ttl: 60 * 60 * 1000, // 1 hour
     })
-  : createCacheBackend({
-      type: 'lru',
-      maxSize: 1000,
-      defaultTTL: 10 * 60 * 1000
+  : createCached({
+      // Development: LRU cache
+      debug: true,
+      ttl: 5 * 60 * 1000, // 5 minutes
     })
 
-export const cached = createCachedFunction(backend)
+// Throughout your app
+import { cached } from '@/lib/cache'
+const weatherTool = cached(expensiveWeatherTool)
 
-// Production: Redis with 30min TTL
-// Development: LRU with 10min TTL
+// Production: Redis with 1hr TTL
+// Development: LRU with 5min TTL + debug
 // Same code, different backends`),
                   }}
                 />

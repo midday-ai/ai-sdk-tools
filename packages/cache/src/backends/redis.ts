@@ -22,7 +22,23 @@ export class RedisCacheStore<T = any> implements CacheStore<T> {
       const data = await this.redis.get(this.getKey(key));
       if (!data) return undefined;
       
-      const parsed = JSON.parse(data);
+      // Handle different Redis client return types
+      let jsonString: string;
+      if (typeof data === 'string') {
+        jsonString = data;
+      } else if (typeof data === 'object') {
+        // Some Redis clients return objects directly
+        return {
+          result: data.result,
+          timestamp: data.timestamp,
+          key: data.key,
+        };
+      } else {
+        // Convert other types to string
+        jsonString = String(data);
+      }
+      
+      const parsed = JSON.parse(jsonString);
       return {
         result: parsed.result,
         timestamp: parsed.timestamp,
