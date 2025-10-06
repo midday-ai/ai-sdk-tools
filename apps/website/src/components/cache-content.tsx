@@ -5,7 +5,7 @@ import { highlight } from "sugar-high";
 export function CacheContent() {
   return (
     <div className="min-h-screen text-[#d4d4d4] font-[family-name:var(--font-geist-mono)]">
-      <div className="max-w-[95rem] mx-auto px-8 py-32 relative z-10">
+      <div className="max-w-[95rem] mx-auto px-8 py-32 relative">
         {/* Hero */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-40">
           <div className="space-y-12">

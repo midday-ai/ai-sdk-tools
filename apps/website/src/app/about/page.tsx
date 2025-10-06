@@ -151,15 +151,6 @@ export default function About() {
               </article>
               <article>
                 <h3 className="text-base font-medium mb-3">
-                  Framework Agnostic
-                </h3>
-                <p className="text-xs text-secondary font-light leading-relaxed">
-                  Works with React, Next.js, and other modern frameworks. Use
-                  the tools that fit your stack.
-                </p>
-              </article>
-              <article>
-                <h3 className="text-base font-medium mb-3">
                   Performance Optimized
                 </h3>
                 <p className="text-xs text-secondary font-light leading-relaxed">

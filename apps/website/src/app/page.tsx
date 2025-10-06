@@ -198,14 +198,6 @@ export default function Home() {
             </p>
           </article>
 
-          <article>
-            <h2 className="text-base font-medium mb-3">Framework Agnostic</h2>
-            <p className="text-xs text-secondary font-light leading-relaxed">
-              Works seamlessly with React, Next.js, and other modern frameworks.
-              Compatible with SSR, concurrent features, and edge runtime
-              environments.
-            </p>
-          </article>
         </section>
 
         <div className="bg-dotted h-[45px] w-full mb-40" />
