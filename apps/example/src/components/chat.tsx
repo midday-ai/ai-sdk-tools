@@ -13,6 +13,7 @@ import { MessageList } from "./message-list";
 import { WelcomeScreen } from "./welcome-screen";
 import { ChatInput } from "./chat-input";
 import { AnalysisPanel } from "./analysis-panel";
+import { FollowupQuestions } from "./followup-questions-panel";
 
 export default function Chat() {
   // Initialize useChat to set up the transport and sync with store
@@ -98,6 +99,13 @@ export default function Chat() {
           <MessageList
             hasData={hasData}
             welcomeComponent={<WelcomeScreen onPromptClick={handlePromptClick} />}
+          />
+          
+          {/* Follow-up Questions Pills */}
+          <FollowupQuestions 
+            onQuestionClick={(question) => {
+              sendMessage?.({ text: question });
+            }}
           />
           
           <ChatInput onSubmit={(input) => sendMessage?.({ text: input })} />

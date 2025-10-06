@@ -22,6 +22,7 @@
         "ai": "^5.0.60",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
+        "date-fns": "^4.1.0",
         "lucide-react": "^0.544.0",
         "next": "15.5.4",
         "next-themes": "^0.4.6",
@@ -71,12 +72,12 @@
     },
     "packages/artifacts": {
       "name": "@ai-sdk-tools/artifacts",
-      "version": "0.7.0-beta.5",
+      "version": "0.7.0",
       "dependencies": {
+        "@ai-sdk-tools/store": "^0.7.0",
         "zod": "^4.1.11",
       },
       "devDependencies": {
-        "@ai-sdk-tools/store": "workspace:*",
         "@types/react": "^19.2.0",
         "tsup": "^8.5.0",
         "typescript": "^5.9.3",
@@ -88,7 +89,7 @@
     },
     "packages/cache": {
       "name": "@ai-sdk-tools/cache",
-      "version": "0.1.2",
+      "version": "0.4.0-beta.2",
       "devDependencies": {
         "@types/node": "^20.0.0",
         "ai": "^5.0.60",
@@ -106,8 +107,9 @@
     },
     "packages/devtools": {
       "name": "@ai-sdk-tools/devtools",
-      "version": "0.7.0-beta.0",
+      "version": "0.7.0",
       "dependencies": {
+        "@ai-sdk-tools/store": "^0.7.0",
         "@emotion/react": "^11.14.0",
         "@emotion/styled": "^11.14.1",
         "@mui/icons-material": "^7.3.4",
@@ -117,7 +119,6 @@
         "tokenlens": "1.3.1",
       },
       "devDependencies": {
-        "@ai-sdk-tools/store": "workspace:*",
         "@ai-sdk/react": "^2.0.60",
         "@types/react": "^19.2.0",
         "@types/react-dom": "^19.2.0",
@@ -134,7 +135,7 @@
     },
     "packages/store": {
       "name": "@ai-sdk-tools/store",
-      "version": "0.7.0-beta.9",
+      "version": "0.7.0",
       "devDependencies": {
         "@ai-sdk/react": "^2.0.60",
         "@types/react": "^19.2.0",
@@ -734,6 +735,8 @@
     "d3-timer": ["d3-timer@3.0.1", "", {}, "sha512-ndfJ/JxxMd3nw31uyKoY2naivF+r29V+Lc0svZxe1JvvIRmi8hUsrMvdOwgS1o6uBHmiz91geQ0ylPP0aj1VUA=="],
 
     "dashdash": ["dashdash@1.14.1", "", { "dependencies": { "assert-plus": "^1.0.0" } }, "sha512-jRFi8UDGo6j+odZiEpjazZaWqEal3w/basFjQHQEwVtZJGDpxbH1MeYluwCS8Xq5wmLJooDlMgvVarmWfGM44g=="],
+
+    "date-fns": ["date-fns@4.1.0", "", {}, "sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg=="],
 
     "debug": ["debug@4.4.3", "", { "dependencies": { "ms": "^2.1.3" } }, "sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA=="],
 

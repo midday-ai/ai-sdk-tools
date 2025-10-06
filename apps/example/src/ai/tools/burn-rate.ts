@@ -1,8 +1,7 @@
 import { tool } from "ai";
 import { z } from "zod";
-import { cached } from "@ai-sdk-tools/cache";
+import { cached } from "@/lib/cache"; // Use pre-configured cache
 import { BurnRateArtifact } from "@/ai/artifacts/burn-rate";
-import { getCurrentUser } from "@/ai/context";
 import { delay } from "@/lib/delay";
 
 export const analyzeBurnRateTool = tool({
@@ -146,14 +145,5 @@ export const analyzeBurnRateTool = tool({
   },
 });
 
-// Create cached version for testing
-export const cachedAnalyzeBurnRateTool = cached(analyzeBurnRateTool, {
-  debug: true,
-  ttl: 10 * 60 * 1000, // 10 minutes
-  onHit: (key) => {
-    console.log(`🎯 Cache HIT for burn rate analysis: ${key.slice(0, 50)}...`);
-  },
-  onMiss: (key) => {
-    console.log(`⚡ Cache MISS for burn rate analysis: ${key.slice(0, 50)}...`);
-  },
-});
+// Create cached version - uses pre-configured cache with debug, TTL, etc.
+export const cachedAnalyzeBurnRateTool = cached(analyzeBurnRateTool);

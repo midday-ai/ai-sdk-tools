@@ -1,9 +1,16 @@
 import { type BaseContext, createTypedContext } from "@ai-sdk-tools/artifacts";
 
-// Define custom context type with userId and fullName
+// Define custom context type with database and user info (mirrors real app)
 interface ChatContext extends BaseContext {
   userId: string;
   fullName: string;
+  db: any; // Mock database
+  user: {
+    teamId: string;
+    baseCurrency: string;
+    locale: string;
+    fullName: string;
+  };
 }
 
 // Create typed context helpers

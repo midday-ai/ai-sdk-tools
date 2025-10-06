@@ -17,27 +17,42 @@ export async function POST(req: Request) {
 
   const stream = createUIMessageStream({
     execute: ({ writer }) => {
-      // Set up typed context with user information
+      // Set up typed context with user information and mock database
       setContext({
         writer,
         userId: "123",
         fullName: "John Doe",
+        db: {}, // Mock database object
+        user: {
+          teamId: "team-123",
+          baseCurrency: "USD",
+          locale: "en-US",
+          fullName: "John Doe",
+        },
       });
 
       const result = streamText({
         model: openai("gpt-4o"),
         system: `You are a helpful financial analysis assistant specializing in burn rate analysis. 
 
-When users ask about burn rate analysis, financial health, runway calculations, or expense tracking, use the analyzeBurnRateTool to create interactive charts and insights.
+Available tools:
+- analyzeBurnRate: Simple burn rate analysis with charts (cached)
+- complexAnalysis: Complex analysis with database queries, multiple streaming, and follow-ups (cached) - mirrors real-world tool
+- complexAnalysisUncached: Same as complexAnalysis but without caching (for comparison)
+
+When users ask about:
+- Simple burn rate analysis → use analyzeBurnRate
+- Complex analysis testing → use complexAnalysis or complexAnalysisUncached
+- Cache testing → compare complexAnalysis vs complexAnalysisUncached
 
 Key capabilities:
-- Analyze monthly financial data (revenue, expenses, cash balance)
-- Calculate burn rate and runway metrics
-- Generate trend analysis (improving, stable, declining)
-- Provide alerts and recommendations
-- Create interactive visualizations
+- Multiple streaming layers (initial message, analysis, follow-ups)
+- Database context preservation
+- Artifact updates (charts, metrics, toasts)
+- Follow-up question generation
+- Complete caching support
 
-Always use the tool when users provide financial data or ask for burn rate analysis.`,
+Use complexAnalysis to test the full streaming cache implementation.`,
         messages: convertToModelMessages(messages),
         tools,
         experimental_context: { writer }, 

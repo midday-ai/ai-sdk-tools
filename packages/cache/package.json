@@ -1,6 +1,6 @@
 {
   "name": "@ai-sdk-tools/cache",
-  "version": "0.1.2",
+  "version": "0.4.0-beta.5",
   "description": "Simple caching wrapper for AI SDK tools - cache expensive tool executions with zero configuration",
   "keywords": [
     "ai",
@@ -49,6 +49,11 @@
   },
   "peerDependencies": {
     "ai": ">=5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@ai-sdk-tools/artifacts": {
+      "optional": true
+    }
   },
   "optionalDependencies": {
     "redis": "^4.0.0"

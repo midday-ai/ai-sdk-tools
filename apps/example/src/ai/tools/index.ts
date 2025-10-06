@@ -1,8 +1,11 @@
 import { analyzeBurnRateTool, cachedAnalyzeBurnRateTool } from "./burn-rate";
+import { complexBurnRateAnalysis, complexBurnRateAnalysisTool } from "./complex-burn-rate";
 
-// Export all tools
+// Export production tools
 export const tools = {
-  analyzeBurnRate: cachedAnalyzeBurnRateTool, // Use cached version
+  analyzeBurnRate: cachedAnalyzeBurnRateTool, // Simple cached version
+  complexAnalysis: complexBurnRateAnalysisTool, // Complex cached version (mirrors real app)
+  complexAnalysisUncached: complexBurnRateAnalysis, // Uncached for comparison
 };
 
 // Also export original for comparison

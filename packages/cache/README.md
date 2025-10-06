@@ -348,18 +348,19 @@ const artifactTool = cached(tool({
 
 ### Requirements for Streaming/Artifact Tools
 
-For complete caching of streaming tools with artifacts, ensure your API route passes the writer:
+The cache automatically detects and works with artifact tools in multiple ways:
 
+#### Option 1: Using experimental_context (Recommended)
 ```typescript
-// API route setup (required for artifact caching)
+// API route setup
 const stream = createUIMessageStream({
   execute: ({ writer }) => {
-    setContext({ writer }); // Set up artifacts context
+    setContext({ writer, db, user }); // Set up artifacts context
     
     const result = streamText({
       model: openai("gpt-4o"),
       tools: { analysis: cachedAnalysisTool },
-      experimental_context: { writer }, // ← Essential for artifact caching
+      experimental_context: { writer, db, user }, // ← Pass complete context
     });
     
     writer.merge(result.toUIMessageStream());
@@ -367,12 +368,34 @@ const stream = createUIMessageStream({
 });
 ```
 
-**Without `experimental_context: { writer }`:**
-- ✅ Streaming text is cached
-- ❌ Artifact data (charts, metrics) is missing on cache hits
+#### Option 2: Using Artifacts Context (Auto-detected)
+```typescript
+// The cache automatically detects artifacts context
+const stream = createUIMessageStream({
+  execute: ({ writer }) => {
+    setContext({ writer, db, user }); // Cache will auto-detect this
+    
+    const result = streamText({
+      model: openai("gpt-4o"),
+      tools: { analysis: cachedAnalysisTool },
+      // No experimental_context needed - cache finds it automatically
+    });
+    
+    writer.merge(result.toUIMessageStream());
+  },
+});
+```
 
-**With proper setup:**
+**Context Detection Priority:**
+1. `executionOptions.writer` (direct)
+2. `experimental_context.writer` (AI SDK)
+3. `getContext().writer` (artifacts context - auto-detected)
+
+**Benefits:**
+- ✅ Works with any artifacts setup
+- ✅ Automatic context detection
 - ✅ Complete data preservation - everything cached and restored
+- ✅ Database context preserved through caching
 
 ## Advanced Usage
 
