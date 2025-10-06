@@ -1,6 +1,6 @@
 import { tool } from "ai";
 import { z } from "zod";
-import { cached } from "@/lib/cache";
+import { cachedUpstash } from "@/lib/cache";
 import { BurnRateArtifact } from "@/ai/artifacts/burn-rate";
 import { delay } from "@/lib/delay";
 
@@ -146,4 +146,4 @@ export const analyzeBurnRateTool = tool({
 });
 
 // Create cached version - uses pre-configured cache
-export const cachedAnalyzeBurnRateTool = cached(analyzeBurnRateTool);
+export const cachedAnalyzeBurnRateTool = cachedUpstash(analyzeBurnRateTool);

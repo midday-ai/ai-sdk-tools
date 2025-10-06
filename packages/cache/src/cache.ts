@@ -3,35 +3,50 @@ import type { CacheOptions, CachedTool, CacheStats, CacheStore } from "./types";
 import { LRUCacheStore } from "./cache-store";
 import { createCacheBackend } from "./backends/factory";
 
+
+
 /**
- * React Query style cache key generator - stable and deterministic
+ * Default cache key generator - stable and deterministic
  */
-function defaultKeyGenerator(params: any): string {
+function defaultKeyGenerator(params: any, context?: any): string {
+  const paramsKey = serializeValue(params);
+  
+  if (context) {
+    return `${paramsKey}|${context}`;
+  }
+  
+  return paramsKey;
+}
+
+/**
+ * Serialize a value to a stable string representation
+ */
+function serializeValue(value: any): string {
   // Handle different parameter types like React Query
-  if (params === null || params === undefined) {
+  if (value === null || value === undefined) {
     return 'null';
   }
   
-  if (typeof params === 'string' || typeof params === 'number' || typeof params === 'boolean') {
-    return String(params);
+  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+    return String(value);
   }
   
-  if (params instanceof Date) {
-    return params.toISOString();
+  if (value instanceof Date) {
+    return value.toISOString();
   }
   
-  if (Array.isArray(params)) {
-    return `[${params.map(defaultKeyGenerator).join(',')}]`;
+  if (Array.isArray(value)) {
+    return `[${value.map(serializeValue).join(',')}]`;
   }
   
-  if (typeof params === 'object') {
+  if (typeof value === 'object') {
     // Sort keys for deterministic serialization (like React Query)
-    const sortedKeys = Object.keys(params).sort();
-    const pairs = sortedKeys.map(key => `${key}:${defaultKeyGenerator(params[key])}`);
+    const sortedKeys = Object.keys(value).sort();
+    const pairs = sortedKeys.map(key => `${key}:${serializeValue(value[key])}`);
     return `{${pairs.join(',')}}`;
   }
   
-  return String(params);
+  return String(value);
 }
 
 /**
@@ -46,6 +61,7 @@ function createStreamingCachedTool<T extends Tool>(
     maxSize = 1000,
     store,
     keyGenerator = defaultKeyGenerator,
+    cacheKey,
     shouldCache = () => true,
     onHit,
     onMiss,
@@ -61,7 +77,9 @@ function createStreamingCachedTool<T extends Tool>(
     ...tool,
     execute: async function* (...args: any[]) {
       const [params, executionOptions] = args;
-      const key = keyGenerator(params);
+      // Get context from cacheKey function
+      const context = cacheKey?.();
+      const key = keyGenerator(params, context);
       const now = Date.now();
 
       // Check cache first
@@ -246,7 +264,8 @@ function createStreamingCachedTool<T extends Tool>(
       }
     },
     async isCached(params: any) {
-      const key = keyGenerator(params);
+      const context = cacheKey?.();
+      const key = keyGenerator(params, context);
       const cached = await cacheStore.get(key);
       if (!cached) return false;
       
@@ -261,7 +280,8 @@ function createStreamingCachedTool<T extends Tool>(
       return true;
     },
     getCacheKey(params: any) {
-      return keyGenerator(params);
+      const context = cacheKey?.();
+      return keyGenerator(params, context);
     },
   } as unknown as CachedTool;
 }
@@ -279,6 +299,7 @@ export function cached<T extends Tool>(
     maxSize = 1000,
     store,
     keyGenerator = defaultKeyGenerator,
+    cacheKey,
     shouldCache = () => true,
     onHit,
     onMiss,
@@ -313,7 +334,8 @@ export function cached<T extends Tool>(
     },
 
     async isCached(params: any): Promise<boolean> {
-      const key = keyGenerator(params);
+      const context = cacheKey?.();
+      const key = keyGenerator(params, context);
       const cached = await cacheStore.get(key);
       if (!cached) return false;
       
@@ -329,7 +351,8 @@ export function cached<T extends Tool>(
     },
 
     getCacheKey(params: any): string {
-      return keyGenerator(params);
+      const context = cacheKey?.();
+      return keyGenerator(params, context);
     },
   };
 
@@ -340,7 +363,8 @@ export function cached<T extends Tool>(
         if (target.execute?.constructor?.name === 'AsyncGeneratorFunction') {
           return async function* (...args: any[]) {
           const [params, executionOptions] = args;
-          const key = keyGenerator(params);
+          const context = cacheKey?.();
+          const key = keyGenerator(params, context);
           const now = Date.now();
 
           // Check cache
@@ -458,7 +482,8 @@ export function cached<T extends Tool>(
           // Regular async function
           return async (...args: any[]) => {
             const [params, executionOptions] = args;
-            const key = keyGenerator(params);
+            const context = cacheKey?.();
+            const key = keyGenerator(params, context);
             const now = Date.now();
 
             // Check cache
@@ -533,6 +558,8 @@ export function cacheTools<T extends Record<string, Tool>>(
   return cachedTools;
 }
 
+
+
 /**
  * Create a cached function with Redis client or default LRU
  * 
@@ -556,6 +583,7 @@ export function createCached(options: {
   keyPrefix?: string;
   ttl?: number;
   debug?: boolean;
+  cacheKey?: () => string;
   onHit?: (key: string) => void;
   onMiss?: (key: string) => void;
 } = {}) {
@@ -567,11 +595,12 @@ export function createCached(options: {
       defaultTTL: options.ttl || 10 * 60 * 1000, // 10 minutes default
     });
 
-    return createCachedFunction(lruStore, {
-      debug: options.debug || false,
-      onHit: options.onHit,
-      onMiss: options.onMiss,
-    });
+  return createCachedFunction(lruStore, {
+    debug: options.debug || false,
+    cacheKey: options.cacheKey,
+    onHit: options.onHit,
+    onMiss: options.onMiss,
+  });
   }
 
   // Use Redis client directly - no adapter needed!
@@ -586,6 +615,7 @@ export function createCached(options: {
 
   return createCachedFunction(redisStore, {
     debug: options.debug || false,
+    cacheKey: options.cacheKey,
     onHit: options.onHit,
     onMiss: options.onMiss,
   });

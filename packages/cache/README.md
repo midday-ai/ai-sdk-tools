@@ -133,26 +133,79 @@ const cached = createCached({
 });
 ```
 
-## Environment-Based Setup
+## Multi-Tenant Apps (Context-Aware Caching)
+
+For apps with user/team context, just add `getContext` to the cache config:
+
+```typescript
+import { cached } from '@ai-sdk-tools/cache';
+// Your app's context system (could be React context, global state, etc.)
+
+const burnRateAnalysisTool = tool({
+  description: 'Analyze burn rate',
+  parameters: z.object({
+    from: z.string(),
+    to: z.string(),
+  }),
+  execute: async ({ from, to }) => {
+    // Your app's way of getting current user/team context
+    const currentUser = getCurrentUser(); // or useUser(), getSession(), etc.
+    
+    return await db.getBurnRate({
+      teamId: currentUser.teamId, // ← Context used here
+      from,
+      to,
+    });
+  },
+});
+
+// Cache with context - that's it!
+export const cachedBurnRateTool = cached(burnRateAnalysisTool, {
+  cacheKey: () => {
+    const currentUser = getCurrentUser();
+    return `team:${currentUser.teamId}:user:${currentUser.id}`;
+  },
+  ttl: 30 * 60 * 1000, // 30 minutes
+});
+```
+
+**Result**: Cache keys automatically include `teamId` and `userId` - no collisions between users/teams!
+
+## Reusable Cache Configuration
+
+For consistent setup across your app, create a configured cache function:
 
 ```typescript
 // src/lib/cache.ts
-import { Redis } from "@upstash/redis";
-import { createCached } from '@ai-sdk-tools/cache';
+import { cached as baseCached, createCacheBackend } from '@ai-sdk-tools/cache';
+import { getContext } from '@/ai/context';
 
-export const cached = process.env.UPSTASH_REDIS_REST_URL
-  ? createCached({
-      cache: Redis.fromEnv(),
-      ttl: 60 * 60 * 1000, // 1 hour in production
-    })
-  : createCached({
-      debug: true, // Debug in development
-      ttl: 5 * 60 * 1000, // 5 minutes in development
-    });
+// Create cache backend
+const cacheBackend = createCacheBackend({
+  type: 'redis',
+  redis: {
+    client: Redis.createClient({ url: process.env.REDIS_URL }),
+    keyPrefix: 'my-app:',
+  },
+});
+
+// Export configured cache function
+export function cached<T extends Tool>(tool: T, options = {}) {
+  return baseCached(tool, {
+    store: cacheBackend,
+    cacheKey: () => {
+      const currentUser = getCurrentUser();
+      return `team:${currentUser.teamId}:user:${currentUser.id}`;
+    },
+    ttl: 30 * 60 * 1000, // 30 minutes
+    debug: process.env.NODE_ENV === 'development',
+    ...options,
+  });
+}
 
 // Throughout your app
 import { cached } from '@/lib/cache';
-const myTool = cached(expensiveTool);
+export const myTool = cached(originalTool);
 ```
 
 ## Streaming Tools with Artifacts
@@ -261,7 +314,16 @@ Creates a cached function with optional Redis client.
 
 ### `cached(tool, options?)`
 
-Legacy function for basic caching with LRU.
+Basic caching function with automatic context detection.
+
+**Parameters:**
+- `tool` - AI SDK tool to cache
+- `options.cacheKey` - Function to generate cache key context
+- `options.ttl` - Time to live in milliseconds
+- `options.store` - Cache store backend
+- `options.debug` - Enable debug logging
+- `options.onHit` - Cache hit callback
+- `options.onMiss` - Cache miss callback
 
 ### `cacheTools(tools, options?)`
 

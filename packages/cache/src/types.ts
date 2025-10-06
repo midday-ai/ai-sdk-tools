@@ -14,7 +14,10 @@ export interface CacheOptions {
   store?: CacheStore;
   
   /** Custom cache key generator */
-  keyGenerator?: (params: any) => string;
+  keyGenerator?: (params: any, context?: any) => string;
+  
+  /** Function to generate cache key context */
+  cacheKey?: () => string;
   
   /** Whether to cache this result */
   shouldCache?: (params: any, result: any) => boolean;

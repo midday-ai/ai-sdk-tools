@@ -3,8 +3,10 @@
  * This is the recommended pattern for configuring cache backends
  */
 
-import { cached as baseCached, createCacheBackend } from '../index';
-import type { CoreTool, CacheOptions } from '../index';
+import { cached as baseCached } from '../index';
+import { createCacheBackend } from '../backends/factory';
+import type { CacheOptions } from '../index';
+import type { Tool } from 'ai';
 import Redis from 'redis'; // User installs this
 
 // ===== User's cache configuration file (e.g., src/lib/cache.ts) =====
@@ -24,7 +26,7 @@ const redisBackend = createCacheBackend({
 });
 
 // 2. Export your configured cache function
-export function cached<T extends CoreTool>(
+export function cached<T extends Tool>(
   tool: T, 
   options: Omit<CacheOptions, 'store'> = {}
 ) {
@@ -36,14 +38,14 @@ export function cached<T extends CoreTool>(
 
 // ===== Alternative: Multiple preset functions =====
 
-export const redisCached = <T extends CoreTool>(
+export const redisCached = <T extends Tool>(
   tool: T, 
   options: Omit<CacheOptions, 'store'> = {}
 ) => {
   return baseCached(tool, { ...options, store: redisBackend });
 };
 
-export const lruCached = <T extends CoreTool>(
+export const lruCached = <T extends Tool>(
   tool: T, 
   options: Omit<CacheOptions, 'store'> = {}
 ) => {
@@ -51,7 +53,7 @@ export const lruCached = <T extends CoreTool>(
   return baseCached(tool, { ...options, store: lruBackend });
 };
 
-export const memoryCached = <T extends CoreTool>(
+export const memoryCached = <T extends Tool>(
   tool: T, 
   options: Omit<CacheOptions, 'store'> = {}
 ) => {
@@ -59,19 +61,27 @@ export const memoryCached = <T extends CoreTool>(
   return baseCached(tool, { ...options, store: memoryBackend });
 };
 
+// ===== Context-Aware Caching =====
+
+// Use cacheKey function to include user/team context in cache keys
+
 // ===== Usage throughout the app =====
 
 // In your tools files:
-// import { cached } from '@/lib/cache'; // Your configured version
+// import { cached } from '@ai-sdk-tools/cache';
+// import { getContext } from '@/ai/context';
 // 
+// // Global tools (no context needed)
 // const weatherTool = cached(expensiveWeatherTool, {
 //   ttl: 10 * 60 * 1000, // 10 minutes
 // });
 //
-// const analysisTools = cacheTools({
-//   burnRate: burnRateAnalysisTool,
-//   growth: growthAnalysisTool,
-// }, {
+// // User/team-specific tools (with context)
+// const burnRateTool = cached(burnRateAnalysisTool, {
+//   cacheKey: () => {
+//     const ctx = getContext();
+//     return `team:${ctx.user.teamId}:user:${ctx.user.id}`;
+//   },
 //   ttl: 30 * 60 * 1000, // 30 minutes
 // });
 
@@ -95,7 +105,7 @@ function createAppCacheBackend() {
 
 const appCacheBackend = createAppCacheBackend();
 
-export const cached = <T extends CoreTool>(
+export const appCached = <T extends Tool>(
   tool: T, 
   options: Omit<CacheOptions, 'store'> = {}
 ) => {
