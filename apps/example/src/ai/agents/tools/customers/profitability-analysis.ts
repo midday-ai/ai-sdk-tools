@@ -1,0 +1,18 @@
+import { tool } from "ai";
+import { z } from "zod";
+import { dateRangeSchema } from "../../types/filters";
+import { generateCustomerProfitability } from "../../utils/fake-data";
+
+export const customerProfitabilityTool = tool({
+  description: `Analyze customer profitability using revenue, costs, and tags.
+  
+Shows revenue, associated costs, net profit, and trends for a customer.`,
+
+  inputSchema: z
+    .object({
+      customerId: z.string().describe("Customer ID to analyze"),
+    })
+    .merge(dateRangeSchema),
+
+  execute: async (params) => generateCustomerProfitability(params),
+});

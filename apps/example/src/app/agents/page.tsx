@@ -2,7 +2,7 @@
 
 import { useChat } from "@ai-sdk-tools/store";
 import { DefaultChatTransport } from "ai";
-import { GlobeIcon } from "lucide-react";
+import { GlobeIcon, LoaderIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -35,6 +35,7 @@ import {
   PromptInputTools,
 } from "@/components/ai-elements/prompt-input";
 import { Response } from "@/components/ai-elements/response";
+import type { AgentUIMessage } from "@/types/agents";
 
 const models = [
   { id: "gpt-4", name: "GPT-4" },
@@ -48,16 +49,74 @@ const models = [
   { id: "mistral-7b", name: "Mistral 7B" },
 ];
 
+type AgentStatus = {
+  status: "routing" | "executing" | "completing";
+  agent:
+    | "orchestrator"
+    | "reports"
+    | "transactions"
+    | "invoices"
+    | "timeTracking"
+    | "customers"
+    | "analytics"
+    | "operations";
+};
+
+// Generate user-friendly status messages
+const getStatusMessage = (status: AgentStatus) => {
+  const { agent, status: state } = status;
+
+  if (state === "routing") {
+    return "Routing to specialist...";
+  }
+
+  if (state === "executing") {
+    const messages: Record<AgentStatus["agent"], string> = {
+      orchestrator: "Analyzing your request...",
+      reports: "Generating financial reports...",
+      transactions: "Fetching transactions...",
+      invoices: "Managing invoices...",
+      timeTracking: "Processing time entries...",
+      customers: "Accessing customer data...",
+      analytics: "Running analytics...",
+      operations: "Processing request...",
+    };
+    return messages[agent] || "Processing...";
+  }
+
+  if (state === "completing") {
+    return "Completing task...";
+  }
+
+  return "Processing...";
+};
+
 export default function Agents() {
   const [model, setModel] = useState<string>(models[0].id);
   const [text, setText] = useState<string>("");
   const [useWebSearch, setUseWebSearch] = useState<boolean>(false);
+  const [agentStatus, setAgentStatus] = useState<AgentStatus | null>(null);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { messages, sendMessage, status, stop } = useChat({
+  const { messages, sendMessage, status, stop } = useChat<AgentUIMessage>({
     transport: new DefaultChatTransport({
-      api: "/api/agents",
+      api: "/api/agents-simple",
     }),
+    onData: (dataPart) => {
+      // Handle transient agent status updates
+      if (dataPart.type === "data-agent-status") {
+        // Clear status immediately when completing (smoother UX)
+        if (dataPart.data.status === "completing") {
+          setAgentStatus(null);
+        } else {
+          setAgentStatus(dataPart.data);
+        }
+      }
+    },
+    onFinish: () => {
+      // Clear status when done (fallback)
+      setAgentStatus(null);
+    },
   });
 
   const handleSubmit = (message: PromptInputMessage) => {
@@ -99,7 +158,20 @@ export default function Agents() {
               </MessageContent>
             </Message>
           ))}
-          {status === "submitted" && <Loader />}
+          {/* Show agent status indicator */}
+          {agentStatus && (
+            <div className="flex items-center gap-2 px-4 py-2 text-sm text-muted-foreground animate-in fade-in slide-in-from-bottom-2">
+              <LoaderIcon className="size-4 animate-spin" />
+              <span className="flex items-center gap-1.5">
+                <span className="font-medium capitalize">
+                  {agentStatus.agent}
+                </span>
+                <span>•</span>
+                <span>{getStatusMessage(agentStatus)}</span>
+              </span>
+            </div>
+          )}
+          {status === "submitted" && !agentStatus && <Loader />}
         </ConversationContent>
         <ConversationScrollButton />
       </Conversation>

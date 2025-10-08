@@ -52,6 +52,7 @@
       },
       "devDependencies": {
         "@biomejs/biome": "2.2.5",
+        "@faker-js/faker": "^10.0.0",
         "@tailwindcss/postcss": "^4",
         "@types/node": "^24",
         "@types/react": "^19",
@@ -431,6 +432,8 @@
     "@eslint/object-schema": ["@eslint/object-schema@2.1.6", "", {}, "sha512-RBMg5FRL0I0gs51M/guSAj5/e14VQ4tpZnQNWwuDT66P14I43ItmPfIZRhO9fUVIPOAQXU47atlywZ/czoqFPA=="],
 
     "@eslint/plugin-kit": ["@eslint/plugin-kit@0.4.0", "", { "dependencies": { "@eslint/core": "^0.16.0", "levn": "^0.4.1" } }, "sha512-sB5uyeq+dwCWyPi31B2gQlVlo+j5brPlWx4yZBrEaRo/nhdDE8Xke1gsGgtiBdaBTxuTkceLVuVt/pclrasb0A=="],
+
+    "@faker-js/faker": ["@faker-js/faker@10.0.0", "", {}, "sha512-UollFEUkVXutsaP+Vndjxar40Gs5JL2HeLcl8xO1QAjJgOdhc3OmBFWyEylS+RddWaaBiAzH+5/17PLQJwDiLw=="],
 
     "@floating-ui/core": ["@floating-ui/core@1.7.3", "", { "dependencies": { "@floating-ui/utils": "^0.2.10" } }, "sha512-sGnvb5dmrJaKEZ+LDIpguvdX3bDlEllmv4/ClQ9awcmCZrlx5jQyyMWFM5kBI+EyNOCDDiKk8il0zeuX3Zlg/w=="],
 
