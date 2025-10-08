@@ -226,6 +226,9 @@ export interface StoreState<TMessage extends UIMessage = UIMessage> {
 
   // Memoized complex selectors
   getMemoizedSelector: <T>(key: string, selector: () => T, deps: any[]) => T;
+
+  // Effects
+  registerThrottledMessagesEffect: (effect: () => void) => () => void;
 }
 
 const MESSAGES_THROTTLE_MS = 16; // ~60fps for smooth streaming
@@ -235,6 +238,8 @@ export function createChatStoreCreator<TMessage extends UIMessage>(
 ): StateCreator<StoreState<TMessage>, [], []> {
   let throttledMessagesUpdater: (() => void) | null = null;
   const messageIndex = new MessageIndex<TMessage>();
+  const throttledEffects = new Set<() => void>();
+
   messageIndex.update(initialMessages);
   return (set, get) => {
     if (!throttledMessagesUpdater) {
@@ -246,6 +251,15 @@ export function createChatStoreCreator<TMessage extends UIMessage>(
 
           set({
             _throttledMessages: newThrottledMessages,
+          });
+
+          throttledEffects.forEach((cb) => {
+            try {
+              cb();
+            } catch (err) {
+              // eslint-disable-next-line no-console
+              console.warn("[chat-store-base] throttled effect error", err);
+            }
           });
         });
       }, MESSAGES_THROTTLE_MS);
