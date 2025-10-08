@@ -14,7 +14,7 @@ export function Providers({ children }: ProvidersProps) {
       enableSystem
       disableTransitionOnChange
     >
-      <Provider initialMessages={[]}> 
+      <Provider initialMessages={[]}>
         {children}
         <Toaster />
       </Provider>
