@@ -207,7 +207,9 @@ export default function Home() {
         )}
       </div>
 
-      <AIDevtools modelId="gpt-4o-mini" />
+      {process.env.NODE_ENV === "development" && (
+        <AIDevtools modelId="gpt-4o-mini" />
+      )}
     </div>
   );
 }
