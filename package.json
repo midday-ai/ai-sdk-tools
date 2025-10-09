@@ -7,11 +7,12 @@
     "apps/*"
   ],
   "scripts": {
-    "build": "bun run build:packages",
-    "build:packages": "bun run build:store && bun run build:dependent-packages",
-    "build:store": "bun run -r --filter='@ai-sdk-tools/store' build",
-    "build:dependent-packages": "bun run -r --filter='@ai-sdk-tools/artifacts' --filter='@ai-sdk-tools/devtools' --filter='@ai-sdk-tools/agents' --filter='@ai-sdk-tools/chrome-extension' build",
-    "build:beta": "bun run build:store && bun run -r --filter='@ai-sdk-tools/artifacts' --filter='@ai-sdk-tools/devtools' --filter='@ai-sdk-tools/agents' build",
+    "build": "bun run build:store && bun run build:artifacts && bun run build:devtools && bun run build:agents && bun run build:cache",
+    "build:store": "cd packages/store && bun run build",
+    "build:artifacts": "cd packages/artifacts && bun run build",
+    "build:devtools": "cd packages/devtools && bun run build",
+    "build:agents": "cd packages/agents && bun run build",
+    "build:cache": "cd packages/cache && bun run build",
     "build:example": "bun run build && cd apps/example && bun run build",
     "dev": "bun run -r --filter='@ai-sdk-tools/store' --filter='@ai-sdk-tools/devtools' --filter='@ai-sdk-tools/artifacts' --filter='@ai-sdk-tools/agents' --filter='@ai-sdk-tools/chrome-extension' dev",
     "dev:beta": "bun run -r --filter='@ai-sdk-tools/store' --filter='@ai-sdk-tools/devtools' --filter='@ai-sdk-tools/artifacts' --filter='@ai-sdk-tools/agents' dev",
