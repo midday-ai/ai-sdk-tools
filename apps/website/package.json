@@ -14,14 +14,14 @@
     "@ai-sdk-tools/artifacts": "workspace:*",
     "@ai-sdk-tools/devtools": "workspace:*",
     "@ai-sdk-tools/store": "workspace:*",
-    "@ai-sdk/openai": "^2.0.42",
+    "@ai-sdk/openai": "^2.0.46",
     "@openpanel/nextjs": "^1.0.8",
-    "ai": "^5.0.60",
+    "ai": "^5.0.64",
     "next": "15.5.4",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "sugar-high": "^0.9.3",
-    "zod": "^4.1.11"
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "typescript": "^5",
