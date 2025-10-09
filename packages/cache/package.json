@@ -43,9 +43,7 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "clean": "rm -rf dist",
-    "type-check": "tsc --noEmit",
-    "lint": "eslint src --ext .ts,.tsx",
-    "test": "vitest"
+    "type-check": "tsc --noEmit"
   },
   "peerDependencies": {
     "ai": ">=5.0.0"

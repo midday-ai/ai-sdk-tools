@@ -64,11 +64,11 @@ export function useChat<TMessage extends UIMessage = UIMessage>(
   // This preserves server-side messages during hydration
   useEffect(() => {
     const currentStoreState = (store as any).getState?.() || { messages: [] };
-    
+
     // Skip syncing messages if store has messages but chat doesn't
     // This prevents clearing server-side messages on hydration
     const shouldSyncMessages = !(
-      currentStoreState.messages?.length > 0 && 
+      currentStoreState.messages?.length > 0 &&
       chatHelpers.messages.length === 0
     );
 
@@ -103,15 +103,23 @@ export function useChat<TMessage extends UIMessage = UIMessage>(
     } else {
       syncState(chatState);
     }
-    }, [
-     // Only depend on data that actually changes, not function references
-     chatHelpers.id,       
-     chatHelpers.messages,       
-     chatHelpers.error,       
-     chatHelpers.status,       
-     syncState,       
-     enableBatching,
-    ]);
+  }, [
+    // Only depend on data that actually changes, not function references
+    chatHelpers.id,
+    chatHelpers.messages,
+    chatHelpers.error,
+    chatHelpers.status,
+    syncState,
+    enableBatching,
+    chatHelpers.resumeStream,
+    chatHelpers.clearError,
+    chatHelpers.sendMessage,
+    store,
+    chatHelpers.setMessages,
+    chatHelpers.stop,
+    chatHelpers.regenerate,
+    chatHelpers.addToolResult,
+  ]);
 
   return chatHelpers;
 }

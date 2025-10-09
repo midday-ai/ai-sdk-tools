@@ -4,9 +4,9 @@ import type { UIMessage, UseChatHelpers } from "@ai-sdk/react";
 import type { ChatStatus } from "ai";
 import * as React from "react";
 import { createContext, useCallback, useContext, useRef } from "react";
+import { useStore } from "zustand";
 import { devtools, subscribeWithSelector } from "zustand/middleware";
 import { useShallow } from "zustand/shallow";
-import { useStore } from "zustand";
 import { createStore, type StateCreator } from "zustand/vanilla";
 
 // --- Performance monitoring and batching ---
@@ -446,9 +446,15 @@ export function createChatStoreCreator<TMessage extends UIMessage>(
       reset: () => {
         markLastAction("chat:reset");
         batchUpdates(() => {
+          const state = get();
           const newMessageIndex = new MessageIndex<TMessage>();
           newMessageIndex.update([]);
-          
+
+          // Also clear messages via setMessages if available (to sync with chat helpers)
+          if (state.setMessages) {
+            state.setMessages([]);
+          }
+
           set({
             id: undefined,
             messages: [],
@@ -581,13 +587,12 @@ export function useChatStore<
 export function useChatStore<
   T = StoreState<UIMessage>,
   TMessage extends UIMessage = UIMessage,
->(
-  selector?: (store: StoreState<TMessage>) => T,
-) {
+>(selector?: (store: StoreState<TMessage>) => T) {
   const store = useContext(ChatStoreContext);
   if (!store) throw new Error("useChatStore must be used within Provider");
 
-  const selectorOrIdentity = selector || ((s: StoreState<TMessage>) => s as unknown as T);
+  const selectorOrIdentity =
+    selector || ((s: StoreState<TMessage>) => s as unknown as T);
 
   // Use Zustand's built-in useStore
   return useStore(store, selectorOrIdentity as (state: any) => T);
@@ -602,7 +607,7 @@ export function useChatStoreApi<TMessage extends UIMessage = UIMessage>() {
 // Optimized selector hooks with memoization
 export const useChatMessages = <TMessage extends UIMessage = UIMessage>() => {
   return useChatStore(
-    useShallow((state: StoreState<TMessage>) => state.getThrottledMessages())
+    useShallow((state: StoreState<TMessage>) => state.getThrottledMessages()),
   );
 };
 
@@ -610,7 +615,8 @@ export const useChatMessages = <TMessage extends UIMessage = UIMessage>() => {
 const statusSelector = (state: StoreState<any>) => state.status;
 const errorSelector = (state: StoreState<any>) => state.error;
 const idSelector = (state: StoreState<any>) => state.id;
-const messageCountSelector = (state: StoreState<any>) => state.getMessageCount();
+const messageCountSelector = (state: StoreState<any>) =>
+  state.getMessageCount();
 
 export const useChatStatus = () => useChatStore(statusSelector);
 export const useChatError = () => useChatStore(errorSelector);
@@ -685,7 +691,28 @@ const fallbackClearError = () => {
   );
 };
 
-export const useChatActions = <TMessage extends UIMessage = UIMessage>() =>
+export type ChatActions<TMessage extends UIMessage = UIMessage> = {
+  setMessages: (messages: TMessage[]) => void;
+  pushMessage: (message: TMessage) => void;
+  popMessage: () => void;
+  replaceMessage: (index: number, message: TMessage) => void;
+  replaceMessageById: (id: string, message: TMessage) => void;
+  setStatus: (status: ChatStatus) => void;
+  setError: (error: Error | undefined) => void;
+  setId: (id: string | undefined) => void;
+  setNewChat: (id: string, messages: TMessage[]) => void;
+  reset: () => void;
+  sendMessage: UseChatHelpers<TMessage>["sendMessage"];
+  regenerate: UseChatHelpers<TMessage>["regenerate"];
+  stop: UseChatHelpers<TMessage>["stop"];
+  resumeStream: UseChatHelpers<TMessage>["resumeStream"];
+  addToolResult: UseChatHelpers<TMessage>["addToolResult"];
+  clearError: UseChatHelpers<TMessage>["clearError"];
+};
+
+export const useChatActions = <
+  TMessage extends UIMessage = UIMessage,
+>(): ChatActions<TMessage> =>
   useChatStore(
     useShallow((state: StoreState<TMessage>) => ({
       setMessages: state.setMessages,
@@ -704,7 +731,7 @@ export const useChatActions = <TMessage extends UIMessage = UIMessage>() =>
       resumeStream: state.resumeStream || fallbackResumeStream,
       addToolResult: state.addToolResult || fallbackAddToolResult,
       clearError: state.clearError || fallbackClearError,
-    }))
+    })),
   );
 
 // Memoized complex selector hook
@@ -722,6 +749,6 @@ export const useSelector = <TMessage extends UIMessage = UIMessage, T = any>(
           [state.getMessageCount(), ...deps],
         ),
       [key, selector, deps],
-    )
+    ),
   );
 };

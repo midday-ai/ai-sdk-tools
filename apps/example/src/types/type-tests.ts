@@ -4,8 +4,8 @@
  * and compatible with ai-sdk-tools/store hooks.
  */
 
+import { useChat, useChatActions, useChatMessages } from "@ai-sdk-tools/store";
 import { DefaultChatTransport } from "ai";
-import { useChat, useChatMessages, useChatActions } from "@ai-sdk-tools/store";
 import type {
   AllTools,
   AnalyticsData,
@@ -72,7 +72,7 @@ function testHookCompatibility() {
 
   // Chat actions should be properly typed
   const actions = useChatActions();
-  const sendMessage = actions.sendMessage; // From actions object
+  const _sendMessage = actions.sendMessage; // From actions object
 
   return {
     chats: [chat1, chat2, chat3],

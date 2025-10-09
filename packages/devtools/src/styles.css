@@ -55,8 +55,8 @@
 .ai-devtools-button {
   bottom: 1rem !important;
   right: 1rem !important;
-  width: 3rem !important;
-  height: 3rem !important;
+  width: 40px !important;
+  height: 40px !important;
   background-color: #000000 !important; /* Pure black background */
   color: #ffffff !important; /* White text */
   border: 1px solid #333333 !important; /* Dark gray border */
