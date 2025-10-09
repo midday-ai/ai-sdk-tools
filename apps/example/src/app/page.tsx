@@ -28,6 +28,12 @@ export default function Home() {
   const [useWebSearch, setUseWebSearch] = useState<boolean>(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [agentStatus, setAgentStatus] = useState<AgentStatus | null>(null);
+  const [rateLimit, setRateLimit] = useState<{
+    limit: number;
+    remaining: number;
+    reset: string;
+    code?: string;
+  } | null>(null);
 
   const { messages, sendMessage, status, stop } = useChat<AgentUIMessage>({
     transport: new DefaultChatTransport({
@@ -37,11 +43,22 @@ export default function Home() {
       // Handle transient agent status updates
       if (dataPart.type === "data-agent-status") {
         // Clear status immediately when completing (smoother UX)
-        if (dataPart.data.status === "completing") {
+        if ((dataPart.data as any).status === "completing") {
           setAgentStatus(null);
         } else {
-          setAgentStatus(dataPart.data);
+          setAgentStatus(dataPart.data as AgentStatus);
         }
+      }
+
+      // Handle rate limit updates
+      if (dataPart.type === "data-rate-limit") {
+        const rateLimitData = dataPart.data as any;
+        setRateLimit({
+          limit: rateLimitData.limit,
+          remaining: rateLimitData.remaining,
+          reset: rateLimitData.reset,
+          code: rateLimitData.code,
+        });
       }
     },
     onFinish: () => {
@@ -131,6 +148,7 @@ export default function Home() {
       onSubmit={handleSubmit}
       status={status}
       hasMessages={hasMessages}
+      rateLimit={rateLimit}
     />
   );
 

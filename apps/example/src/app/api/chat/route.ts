@@ -59,6 +59,7 @@ import {
   listTransactionsTool,
 } from "@/ai/agents/tools/transactions";
 import { setContext } from "@/ai/context";
+import { checkRateLimit, getClientIP } from "@/lib/rate-limiter";
 import type { AgentUIMessage } from "@/types/agents";
 import { classifyIntent, RECOMMENDED_PROMPT_PREFIX } from "./routing";
 
@@ -465,13 +466,45 @@ ROUTING RULES:
 type HandoffData = { agent: keyof typeof specialists; reason?: string };
 
 export async function POST(request: Request) {
+  // Rate limiting: 5 messages per IP per day
+  const clientIP = getClientIP(request);
+  const { success, limit, remaining, reset } = await checkRateLimit(clientIP);
+
   const { messages } = await request.json();
   const conversationMessages = convertToModelMessages(messages).slice(-8); // Only keep last 8 messages
 
-  return createUIMessageStreamResponse({
+  const response = createUIMessageStreamResponse({
     experimental_transform: smoothStream(),
     stream: createUIMessageStream<AgentUIMessage>({
       execute: async ({ writer }) => {
+        // Handle rate limiting in the stream
+        if (!success) {
+          writer.write({
+            type: "data-rate-limit",
+            data: {
+              code: "RATE_LIMIT_EXCEEDED",
+              limit,
+              remaining,
+              reset: new Date(reset).toISOString(),
+            },
+            transient: true,
+          });
+
+          return;
+        }
+
+        // Send rate limit info as data part
+        writer.write({
+          type: "data-rate-limit",
+          data: {
+            code: "RATE_LIMIT_OK",
+            limit,
+            remaining,
+            reset: new Date(reset).toISOString(),
+          },
+          transient: true,
+        });
+
         // Set up artifact context with writer
         setContext({
           writer,
@@ -673,4 +706,6 @@ export async function POST(request: Request) {
       },
     }),
   });
+
+  return response;
 }

@@ -30,6 +30,12 @@ interface ChatInputProps {
   onSubmit: (message: PromptInputMessage) => void;
   status?: ChatStatus;
   hasMessages: boolean;
+  rateLimit?: {
+    limit: number;
+    remaining: number;
+    reset: string;
+    code?: string;
+  } | null;
 }
 
 export function ChatInput({
@@ -41,51 +47,84 @@ export function ChatInput({
   onSubmit,
   status,
   hasMessages,
+  rateLimit,
 }: ChatInputProps) {
   return (
-    <PromptInput
-      globalDrop
-      multiple
-      onSubmit={onSubmit}
-      className="bg-white/80 dark:bg-black/80 backdrop-blur-xl border border-border"
-    >
-      <PromptInputBody>
-        <PromptInputAttachments>
-          {(attachment) => <PromptInputAttachment data={attachment} />}
-        </PromptInputAttachments>
-        <PromptInputTextarea
-          onChange={(event) => setText(event.target.value)}
-          ref={textareaRef}
-          value={text}
-          placeholder={hasMessages ? undefined : "Ask me anything..."}
-          autoFocus
-        />
-      </PromptInputBody>
-      <PromptInputToolbar>
-        <PromptInputTools>
-          <PromptInputActionMenu>
-            <PromptInputActionMenuTrigger />
-            <PromptInputActionMenuContent>
-              <PromptInputActionAddAttachments />
-            </PromptInputActionMenuContent>
-          </PromptInputActionMenu>
-          <PromptInputSpeechButton
-            onTranscriptionChange={setText}
-            textareaRef={textareaRef}
+    <div>
+      <PromptInput
+        globalDrop
+        multiple
+        onSubmit={onSubmit}
+        className="bg-white/80 dark:bg-black/80 backdrop-blur-xl border border-border"
+      >
+        <PromptInputBody>
+          <PromptInputAttachments>
+            {(attachment) => <PromptInputAttachment data={attachment} />}
+          </PromptInputAttachments>
+          <PromptInputTextarea
+            onChange={(event) => setText(event.target.value)}
+            ref={textareaRef}
+            value={text}
+            placeholder={
+              rateLimit?.code === "RATE_LIMIT_EXCEEDED"
+                ? "Rate limit exceeded. Please try again tomorrow."
+                : hasMessages
+                  ? undefined
+                  : "Ask me anything..."
+            }
+            disabled={rateLimit?.code === "RATE_LIMIT_EXCEEDED"}
+            autoFocus
           />
-          <PromptInputButton
-            onClick={() => setUseWebSearch(!useWebSearch)}
-            variant={useWebSearch ? "default" : "ghost"}
-          >
-            <GlobeIcon size={16} />
-            <span>Search</span>
-          </PromptInputButton>
-        </PromptInputTools>
-        <PromptInputSubmit
-          disabled={(!text.trim() && !status) || status === "streaming"}
-          status={status}
-        />
-      </PromptInputToolbar>
-    </PromptInput>
+        </PromptInputBody>
+
+        <PromptInputToolbar>
+          <PromptInputTools>
+            <PromptInputActionMenu>
+              <PromptInputActionMenuTrigger />
+              <PromptInputActionMenuContent>
+                <PromptInputActionAddAttachments />
+              </PromptInputActionMenuContent>
+            </PromptInputActionMenu>
+            <PromptInputSpeechButton
+              onTranscriptionChange={setText}
+              textareaRef={textareaRef}
+            />
+            <PromptInputButton
+              onClick={() => setUseWebSearch(!useWebSearch)}
+              variant={useWebSearch ? "default" : "ghost"}
+            >
+              <GlobeIcon size={16} />
+              <span>Search</span>
+            </PromptInputButton>
+          </PromptInputTools>
+          <PromptInputSubmit
+            disabled={
+              (!text.trim() && !status) ||
+              status === "streaming" ||
+              rateLimit?.code === "RATE_LIMIT_EXCEEDED"
+            }
+            status={status}
+          />
+        </PromptInputToolbar>
+      </PromptInput>
+
+      {rateLimit && (
+        <div
+          className={`px-3 py-2 text-xs border-t border-border/50 ${
+            rateLimit.code === "RATE_LIMIT_EXCEEDED"
+              ? "bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400"
+              : "text-muted-foreground"
+          }`}
+        >
+          <div className="flex items-center text-center w-full">
+            <span className="text-center w-full">
+              {rateLimit.code === "RATE_LIMIT_EXCEEDED"
+                ? "Rate limit exceeded - try again tomorrow"
+                : `Messages remaining: ${rateLimit.remaining} / ${rateLimit.limit}`}
+            </span>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
