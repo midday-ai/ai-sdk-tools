@@ -1,0 +1,7 @@
+{
+  "buildCommand": "bun run build:example",
+  "outputDirectory": "apps/example/.next",
+  "installCommand": "bun install",
+  "framework": "nextjs",
+  "rootDirectory": "apps/example"
+}
