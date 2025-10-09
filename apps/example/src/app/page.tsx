@@ -20,7 +20,6 @@ import {
   ChatStatusIndicators,
   EmptyState,
 } from "@/components/chat";
-import { Logo } from "@/components/icons";
 import type { AgentStatus, AgentUIMessage } from "@/types/agents";
 
 export default function Home() {
@@ -211,7 +210,7 @@ export default function Home() {
         <AIDevtools modelId="gpt-4o-mini" />
       )} */}
 
-      {!hasMessages && (
+      {/* {!hasMessages && (
         <a
           href="https://midday.ai?utm_source=ai-sdk-tools"
           target="_blank"
@@ -222,7 +221,7 @@ export default function Home() {
             <Logo />
           </div>
         </a>
-      )}
+      )} */}
     </div>
   );
 }
