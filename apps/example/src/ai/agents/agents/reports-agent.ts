@@ -3,7 +3,7 @@ import { Agent } from "@ai-sdk-tools/agents";
 import {
   burnRateMetricsTool,
   profitLossTool,
-  revenueMetricsTool,
+  revenueDashboardTool,
   runwayMetricsTool,
   spendingMetricsTool,
 } from "../tools/reports";
@@ -24,7 +24,7 @@ export const reportsAgent = new Agent({
   - Spending breakdowns and analysis
   
 You have access to these specific tools:
-- revenueMetrics: Get revenue metrics for a date range
+- revenueDashboard: Generate comprehensive revenue dashboard with charts and metrics
 - profitMetrics: Get P&L (profit & loss) metrics
 - runwayMetrics: Calculate runway (months of cash remaining)
 - burnRateMetrics: Analyze burn rate and cash consumption
@@ -43,7 +43,7 @@ When users ask about date ranges, help them with common periods:
 
 Always express monetary values with the appropriate currency symbol or code.`,
   tools: {
-    revenueMetrics: revenueMetricsTool,
+    revenueDashboard: revenueDashboardTool,
     profitMetrics: profitLossTool,
     runwayMetrics: runwayMetricsTool,
     burnRateMetrics: burnRateMetricsTool,

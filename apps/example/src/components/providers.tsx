@@ -1,6 +1,6 @@
 import { Provider } from "@ai-sdk-tools/store";
 import { ThemeProvider } from "next-themes";
-import { Toaster } from "@/components/sonner";
+import { Toaster } from "@/components/ui/sonner";
 
 interface ProvidersProps {
   children: React.ReactNode;

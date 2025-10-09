@@ -521,48 +521,151 @@ export function generateCashFlowMetrics(params: any) {
 }
 
 export function generateBalanceSheet(params: any) {
-  const currentAssets = faker.number.float({
-    min: 200000,
-    max: 500000,
+  // Generate current assets breakdown
+  const cash = faker.number.float({
+    min: 50000,
+    max: 150000,
     fractionDigits: 2,
   });
-  const nonCurrentAssets = faker.number.float({
-    min: 300000,
-    max: 800000,
+  const accountsReceivable = faker.number.float({
+    min: 40000,
+    max: 120000,
     fractionDigits: 2,
   });
-  const currentLiabilities = faker.number.float({
+  const inventory = faker.number.float({
+    min: 30000,
+    max: 100000,
+    fractionDigits: 2,
+  });
+  const prepaidExpenses = faker.number.float({
+    min: 5000,
+    max: 20000,
+    fractionDigits: 2,
+  });
+  const currentAssetsTotal =
+    cash + accountsReceivable + inventory + prepaidExpenses;
+
+  // Generate non-current assets breakdown
+  const propertyPlantEquipment = faker.number.float({
+    min: 150000,
+    max: 400000,
+    fractionDigits: 2,
+  });
+  const intangibleAssets = faker.number.float({
     min: 50000,
     max: 200000,
     fractionDigits: 2,
   });
-  const nonCurrentLiabilities = faker.number.float({
+  const investments = faker.number.float({
+    min: 50000,
+    max: 150000,
+    fractionDigits: 2,
+  });
+  const nonCurrentAssetsTotal =
+    propertyPlantEquipment + intangibleAssets + investments;
+
+  const totalAssets = currentAssetsTotal + nonCurrentAssetsTotal;
+
+  // Generate current liabilities breakdown
+  const accountsPayable = faker.number.float({
+    min: 20000,
+    max: 80000,
+    fractionDigits: 2,
+  });
+  const shortTermDebt = faker.number.float({
+    min: 15000,
+    max: 60000,
+    fractionDigits: 2,
+  });
+  const accruedExpenses = faker.number.float({
+    min: 10000,
+    max: 40000,
+    fractionDigits: 2,
+  });
+  const currentLiabilitiesTotal =
+    accountsPayable + shortTermDebt + accruedExpenses;
+
+  // Generate non-current liabilities breakdown
+  const longTermDebt = faker.number.float({
+    min: 50000,
+    max: 150000,
+    fractionDigits: 2,
+  });
+  const deferredRevenue = faker.number.float({
+    min: 20000,
+    max: 80000,
+    fractionDigits: 2,
+  });
+  const otherLiabilities = faker.number.float({
+    min: 10000,
+    max: 50000,
+    fractionDigits: 2,
+  });
+  const nonCurrentLiabilitiesTotal =
+    longTermDebt + deferredRevenue + otherLiabilities;
+
+  const totalLiabilities = currentLiabilitiesTotal + nonCurrentLiabilitiesTotal;
+
+  // Generate equity breakdown
+  const commonStock = faker.number.float({
     min: 100000,
     max: 300000,
     fractionDigits: 2,
   });
-
-  const totalAssets = currentAssets + nonCurrentAssets;
-  const totalLiabilities = currentLiabilities + nonCurrentLiabilities;
-  const equity = totalAssets - totalLiabilities;
+  const additionalPaidInCapital = faker.number.float({
+    min: 50000,
+    max: 150000,
+    fractionDigits: 2,
+  });
+  const retainedEarnings =
+    totalAssets - totalLiabilities - commonStock - additionalPaidInCapital;
+  const totalEquity = commonStock + additionalPaidInCapital + retainedEarnings;
 
   return {
     asOf: params.to,
     currency: params.currency || "USD",
     assets: {
-      current: currentAssets,
-      nonCurrent: nonCurrentAssets,
-      total: totalAssets,
+      currentAssets: {
+        cash,
+        accountsReceivable,
+        inventory,
+        prepaidExpenses,
+        total: currentAssetsTotal,
+      },
+      nonCurrentAssets: {
+        propertyPlantEquipment,
+        intangibleAssets,
+        investments,
+        total: nonCurrentAssetsTotal,
+      },
+      totalAssets,
     },
     liabilities: {
-      current: currentLiabilities,
-      nonCurrent: nonCurrentLiabilities,
-      total: totalLiabilities,
+      currentLiabilities: {
+        accountsPayable,
+        shortTermDebt,
+        accruedExpenses,
+        total: currentLiabilitiesTotal,
+      },
+      nonCurrentLiabilities: {
+        longTermDebt,
+        deferredRevenue,
+        otherLiabilities,
+        total: nonCurrentLiabilitiesTotal,
+      },
+      totalLiabilities,
     },
-    equity,
+    equity: {
+      commonStock,
+      retainedEarnings,
+      additionalPaidInCapital,
+      totalEquity,
+    },
     ratios: {
-      currentRatio: (currentAssets / currentLiabilities).toFixed(2),
-      debtToEquity: (totalLiabilities / equity).toFixed(2),
+      currentRatio: Number(
+        (currentAssetsTotal / currentLiabilitiesTotal).toFixed(2),
+      ),
+      debtToEquity: Number((totalLiabilities / totalEquity).toFixed(2)),
     },
   };
 }

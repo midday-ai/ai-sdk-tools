@@ -9,7 +9,7 @@ export { burnRateMetricsTool } from "./burn-rate";
 export { cashFlowTool } from "./cash-flow";
 export { expensesTool } from "./expenses";
 export { profitLossTool } from "./profit-loss";
-export { revenueMetricsTool } from "./revenue";
+export { revenueDashboardTool } from "./revenue";
 export { runwayMetricsTool } from "./runway";
 export { spendingMetricsTool } from "./spending";
 export { taxSummaryTool } from "./tax-summary";

@@ -6,7 +6,6 @@
 
 /**
  * Recommended prompt prefix for agents that use handoffs.
- * Based on OpenAI Agents SDK best practices.
  */
 export const RECOMMENDED_PROMPT_PREFIX = `# System context
 You are part of a multi-agent system designed to make agent coordination and execution easy. The system uses two primary abstractions: **Agents** and **Handoffs**. An agent encompasses instructions and tools and can hand off a conversation to another agent when appropriate. Handoffs are achieved by calling a handoff function. Transfers between agents are handled seamlessly in the background; do not mention or draw attention to these transfers in your conversation with the user.`;
@@ -18,7 +17,9 @@ export type AgentName =
   | "timeTracking"
   | "customers"
   | "analytics"
-  | "operations";
+  | "operations"
+  | "research"
+  | "general";
 
 interface RoutingRule {
   agent: AgentName;
@@ -121,6 +122,51 @@ const routingRules: RoutingRule[] = [
     agent: "operations",
     keywords: ["inbox", "document", "export", "balance", "account balance"],
     description: "Operational tools and data export",
+  },
+  {
+    agent: "research",
+    keywords: [
+      "search",
+      "look up",
+      "find out",
+      "research",
+      "google",
+      "web search",
+      "latest",
+      "current",
+      "news",
+      "market",
+      "competitor",
+      "industry",
+      "trend",
+      "what is",
+      "who is",
+      "compare",
+      "versus",
+      "vs",
+      "real-time",
+      "stock price",
+      "exchange rate",
+    ],
+    description: "Web search and external information lookup",
+  },
+  {
+    agent: "general",
+    keywords: [
+      "hello",
+      "hi",
+      "hey",
+      "thanks",
+      "thank you",
+      "what can you do",
+      "previous question",
+      "last question",
+      "help",
+      "how does this work",
+      "what are you",
+      "who are you",
+    ],
+    description: "General conversation and memory queries",
   },
 ];
 
