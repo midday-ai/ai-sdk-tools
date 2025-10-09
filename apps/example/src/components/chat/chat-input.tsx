@@ -108,23 +108,25 @@ export function ChatInput({
         </PromptInputToolbar>
       </PromptInput>
 
-      {rateLimit && (
-        <div
-          className={`px-3 py-2 text-xs border-t border-border/50 ${
-            rateLimit.code === "RATE_LIMIT_EXCEEDED"
-              ? "bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400"
-              : "text-muted-foreground"
-          }`}
-        >
-          <div className="flex items-center text-center w-full">
-            <span className="text-center w-full">
-              {rateLimit.code === "RATE_LIMIT_EXCEEDED"
-                ? "Rate limit exceeded - try again tomorrow"
-                : `Messages remaining: ${rateLimit.remaining} / ${rateLimit.limit}`}
-            </span>
+      <div className="h-5">
+        {rateLimit && rateLimit.remaining < 5 && (
+          <div
+            className={`py-2 text-[11px] border-t border-border/50 ${
+              rateLimit.code === "RATE_LIMIT_EXCEEDED"
+                ? "text-red-600 dark:text-red-400"
+                : "text-muted-foreground"
+            }`}
+          >
+            <div className="flex w-full">
+              <span>
+                {rateLimit.code === "RATE_LIMIT_EXCEEDED"
+                  ? "Rate limit exceeded - try again tomorrow"
+                  : `Messages remaining: ${rateLimit.remaining} / ${rateLimit.limit}`}
+              </span>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
