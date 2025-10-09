@@ -1,6 +1,7 @@
 "use client";
 
 import { useChatActions, useChatReset } from "@ai-sdk-tools/store";
+import { Github } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -25,7 +26,14 @@ export function ChatHeader() {
           <Logo />
         </button>
       </div>
-      <div className="fixed top-6 right-6 z-10">
+      <div className="fixed top-6 right-6 z-10 flex items-center gap-6">
+        <a
+          href="https://github.com/midday-ai/ai-sdk-tools"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Github className="h-4 w-4" />
+        </a>
         <ThemeToggle />
       </div>
     </>
