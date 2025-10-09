@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "bun run build:deps && next build --turbopack",
-    "build:deps": "cd ../.. && bun run build",
+    "build": "next build --turbopack",
     "start": "next start",
     "lint": "biome check",
     "format": "biome format --write"

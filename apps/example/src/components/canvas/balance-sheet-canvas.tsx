@@ -2,9 +2,7 @@
 
 import { useArtifact } from "@ai-sdk-tools/artifacts/client";
 import { format } from "date-fns";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { BalanceSheetArtifact } from "@/ai/artifacts/balance-sheet";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProgressToast } from "@/components/ui/progress-toast";
 
@@ -276,75 +274,6 @@ export function BalanceSheetCanvas() {
           </div>
         </CardContent>
       </Card>
-
-      {/* Insights */}
-      {data.insights && (
-        <Card className="rounded-none bg-transparent border-0 shadow-none">
-          <CardHeader className="p-0 pb-1">
-            <CardTitle className="text-xs font-medium">
-              Financial Insights
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-0 space-y-3">
-            <div className="flex gap-2">
-              <Badge
-                variant={
-                  data.insights.liquidity === "strong"
-                    ? "default"
-                    : data.insights.liquidity === "adequate"
-                      ? "secondary"
-                      : "destructive"
-                }
-              >
-                Liquidity: {data.insights.liquidity}
-              </Badge>
-              <Badge
-                variant={
-                  data.insights.leverage === "conservative"
-                    ? "default"
-                    : data.insights.leverage === "moderate"
-                      ? "secondary"
-                      : "destructive"
-                }
-              >
-                Leverage: {data.insights.leverage}
-              </Badge>
-            </div>
-
-            {data.insights.highlights.length > 0 && (
-              <div className="space-y-1">
-                <h4 className="font-semisemibold text-xs flex items-center gap-2">
-                  <CheckCircle2 className="h-3 w-3 text-green-500" />
-                  Highlights
-                </h4>
-                <ul className="space-y-0.5 pl-5">
-                  {data.insights.highlights.map((highlight: string) => (
-                    <li key={`highlight-${highlight}`} className="text-xs">
-                      {highlight}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {data.insights.concerns.length > 0 && (
-              <div className="space-y-1">
-                <h4 className="font-semisemibold text-xs flex items-center gap-2">
-                  <AlertCircle className="h-3 w-3 text-amber-500" />
-                  Areas of Concern
-                </h4>
-                <ul className="space-y-0.5 pl-5">
-                  {data.insights.concerns.map((concern: string) => (
-                    <li key={`concern-${concern}`} className="text-xs">
-                      {concern}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
 
       {/* Progress Toast */}
       <ProgressToast
