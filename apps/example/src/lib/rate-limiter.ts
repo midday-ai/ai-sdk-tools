@@ -7,6 +7,15 @@ const ratelimit = new Ratelimit({
 });
 
 export async function checkRateLimit(identifier: string) {
+  if (process.env.NODE_ENV === "development") {
+    return {
+      success: true,
+      limit: 20,
+      remaining: 20,
+      reset: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+    };
+  }
+
   return await ratelimit.limit(identifier);
 }
 
