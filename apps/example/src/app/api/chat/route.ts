@@ -1,3 +1,6 @@
+// NOTE: This is what will become @ai-sdk-tools/agents, make it work, make it right, make it good.
+// https://ai-sdk-tools.dev/agents
+
 import { openai } from "@ai-sdk/openai";
 import {
   Experimental_Agent as Agent,
