@@ -218,7 +218,7 @@ export default function Home() {
         rel="noopener"
       >
         <div className="absolute bottom-3 right-0 left-0 flex justify-center items-center gap-2">
-          <span className="text-xs text-gray-500">Made by</span>
+          <span className="text-xs text-muted-foreground/60">Made by</span>
           <Logo />
         </div>
       </a>
