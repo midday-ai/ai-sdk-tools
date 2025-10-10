@@ -1,13 +1,19 @@
-import { artifacts } from "./context";
+import type { UIMessageStreamWriter } from "ai";
 import type { ArtifactConfig, ArtifactData } from "./types";
 
 export class StreamingArtifact<T> {
   private config: ArtifactConfig<T>;
   private instance: ArtifactData<T>;
+  private writer: UIMessageStreamWriter;
 
-  constructor(config: ArtifactConfig<T>, instance: ArtifactData<T>) {
+  constructor(
+    config: ArtifactConfig<T>,
+    instance: ArtifactData<T>,
+    writer: UIMessageStreamWriter,
+  ) {
     this.config = config;
     this.instance = instance;
+    this.writer = writer;
 
     // Send initial state
     this.stream();
@@ -83,8 +89,7 @@ export class StreamingArtifact<T> {
   }
 
   private stream(): void {
-    const writer = artifacts.getWriter();
-    writer.write({
+    this.writer.write({
       type: `data-artifact-${this.config.id}`,
       id: this.instance.id,
       data: this.instance,

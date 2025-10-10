@@ -2,19 +2,18 @@ import {
   Experimental_Agent as AISDKAgent,
   createUIMessageStream,
   createUIMessageStreamResponse,
-  type ModelMessage,
   stepCountIs,
   type Tool,
 } from "ai";
 import { debug } from "./debug.js";
 import { createHandoffTool, isHandoffResult } from "./handoff.js";
 import { promptWithHandoffInstructions } from "./handoff-prompt.js";
-import { run } from "./runner.js";
 import type {
   AgentConfig,
   AgentGenerateOptions,
   AgentGenerateResult,
   AgentStreamOptions,
+  AgentStreamOptionsUI,
   AgentStreamResult,
   HandoffInstruction,
 } from "./types.js";
@@ -22,12 +21,24 @@ import type {
 export class Agent {
   public readonly name: string;
   public readonly instructions: string;
+  public readonly matchOn?:
+    | (string | RegExp)[]
+    | ((message: string) => boolean);
+  public readonly onEvent?: (event: any) => void | Promise<void>;
+  public readonly inputGuardrails?: any[];
+  public readonly outputGuardrails?: any[];
+  public readonly permissions?: any;
   private readonly aiAgent: AISDKAgent<Record<string, Tool>>;
   private readonly handoffAgents: Agent[];
 
   constructor(config: AgentConfig) {
     this.name = config.name;
     this.instructions = config.instructions;
+    this.matchOn = config.matchOn;
+    this.onEvent = config.onEvent;
+    this.inputGuardrails = config.inputGuardrails;
+    this.outputGuardrails = config.outputGuardrails;
+    this.permissions = config.permissions;
     this.handoffAgents = (config.handoffs as Agent[]) || [];
 
     // Prepare tools with handoff capability
@@ -104,207 +115,314 @@ export class Agent {
     }
   }
 
-  async stream(options: AgentStreamOptions): Promise<AgentStreamResult> {
+  stream(options: AgentStreamOptions | { messages: any[] }): AgentStreamResult {
     debug("STREAM", `${this.name} stream called`);
+
+    // Extract our internal execution context (we map to/from AI SDK's experimental_context at boundaries)
+    const executionContext = (options as any).executionContext;
+
+    // Handle simple { messages } format (like working code)
+    if ("messages" in options && !("prompt" in options) && options.messages) {
+      debug("ORCHESTRATION", `Stream with messages only`, {
+        messageCount: options.messages.length,
+      });
+      return this.aiAgent.stream({
+        messages: options.messages,
+        ...(executionContext ? { experimental_context: executionContext } : {}),
+      } as any) as AgentStreamResult;
+    }
+
+    // Handle full AgentStreamOptions format
+    const opts = options as AgentStreamOptions;
     debug("ORCHESTRATION", `Stream options for ${this.name}`, {
-      hasPrompt: !!options.prompt,
-      messageCount: options.messages?.length || 0,
+      hasPrompt: !!opts.prompt,
+      messageCount: opts.messages?.length || 0,
     });
 
-    if (
-      !options.prompt &&
-      (!options.messages || options.messages.length === 0)
-    ) {
+    if (!opts.prompt && (!opts.messages || opts.messages.length === 0)) {
       throw new Error("No prompt or messages provided to stream method");
     }
 
-    // If we have messages, we need to use a different approach
-    if (options.messages && options.messages.length > 0) {
+    // If we have messages, append prompt as user message
+    if (opts.messages && opts.messages.length > 0 && opts.prompt) {
       return this.aiAgent.stream({
-        messages: [
-          ...options.messages,
-          { role: "user", content: options.prompt || "Continue" },
-        ],
-      });
+        messages: [...opts.messages, { role: "user", content: opts.prompt }],
+        ...(executionContext ? { experimental_context: executionContext } : {}),
+      } as any) as AgentStreamResult;
     }
 
-    return this.aiAgent.stream({
-      prompt: options.prompt,
-    });
+    // Prompt only
+    if (opts.prompt) {
+      return this.aiAgent.stream({
+        prompt: opts.prompt,
+        ...(executionContext ? { experimental_context: executionContext } : {}),
+      } as any) as AgentStreamResult;
+    }
+
+    throw new Error("No valid options provided to stream method");
   }
 
   getHandoffs(): Agent[] {
     return this.handoffAgents;
   }
 
-  // Respond method - uses orchestration for handoffs, native AI SDK for single agents
-  async respond(options: { messages: ModelMessage[] }) {
-    // If this agent has handoffs, use orchestration
-    if (this.handoffAgents.length > 0) {
-      debug("ORCHESTRATION", `Starting orchestration with ${this.name}`, {
-        handoffAgents: this.handoffAgents.map((a) => a.name),
-        messageCount: options.messages.length,
-      });
+  /**
+   * Convert agent execution to UI Message Stream Response
+   * High-level API for Next.js route handlers
+   *
+   * This follows the working pattern from the route.ts reference code
+   */
+  toUIMessageStream(options: AgentStreamOptionsUI): Response {
+    const {
+      input,
+      messages = [],
+      strategy = "auto",
+      maxRounds = 5,
+      maxSteps = 5,
+      context,
+      beforeStream,
+      experimental_transform,
+      onEvent,
+      preventDuplicates = true,
+    } = options;
 
-      // Extract text from last message
-      const lastMessage = options.messages[options.messages.length - 1] as any;
+    const responseInit: any = experimental_transform
+      ? { experimental_transform }
+      : {};
 
-      // Handle both content and parts structure
-      let textContent = "";
-      if (lastMessage.parts) {
-        // Message has parts structure
-        const textPart = lastMessage.parts.find(
-          (part: any) => part.type === "text",
-        );
-        textContent = textPart?.text || "";
-      } else if (Array.isArray(lastMessage.content)) {
-        // Message has content array
-        const textPart = lastMessage.content.find(
-          (part: any) => part.type === "text",
-        );
-        textContent = textPart?.text || "";
-      } else {
-        // Message has direct content
-        textContent = lastMessage.content || "";
-      }
+    const stream = createUIMessageStream({
+      originalMessages: messages as any,
+      execute: async ({ writer }) => {
+        // Import context utilities
+        const { createExecutionContext } = await import("./context.js");
 
-      debug(
-        "ORCHESTRATION",
-        `Extracted user input: "${textContent.substring(0, 100)}..."`,
-      );
+        // Create execution context with user context and writer
+        const executionContext = createExecutionContext({
+          context: context || {},
+          writer,
+          metadata: {
+            agent: this.name,
+            requestId: `req_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+          },
+        });
 
-      // Messages are already in ModelMessage format from the API route
-
-      // Create UI message stream using proper AI SDK v5 pattern
-      const stream = createUIMessageStream({
-        execute: async ({ writer }) => {
-          const startTime = Date.now();
-          debug(
-            "STREAM",
-            "Starting orchestration stream with full message history",
-          );
-
-          // Generate message ID for text deltas
-          const messageId = `orchestration-${Date.now()}`;
-
-          try {
-            // Use orchestration runner with full message history for proper handoff support
-            // Pass all messages except the last one (which is the current user message that will be the prompt)
-            const previousMessages =
-              options.messages.length > 1
-                ? options.messages.slice(0, -1)
-                : undefined;
-
-            debug("STREAM", "Starting orchestration with message history:", {
-              prompt: `${textContent.substring(0, 50)}...`,
-              messageCount: previousMessages?.length || 0,
-              hasHandoffs: this.handoffAgents.length > 0,
-              totalMessages: options.messages.length,
-            });
-
-            const result = await run(this, textContent, {
-              stream: true,
-              maxTotalTurns: 15,
-              initialMessages: previousMessages,
-            });
-
-            // Directly write to writer instead of using merge
-            try {
-              let isFirstTextChunk = true;
-
-              for await (const chunk of result.stream) {
-                if (chunk.type === "text-delta") {
-                  // Send text-start for the first text chunk
-                  if (isFirstTextChunk) {
-                    writer.write({
-                      type: "text-start",
-                      id: messageId,
-                    });
-                    isFirstTextChunk = false;
-                  }
-
-                  writer.write({
-                    type: "text-delta",
-                    id: messageId,
-                    delta: chunk.text,
-                  });
-                } else if (chunk.type === "tool-call") {
-                  debug(
-                    "TOOL",
-                    `${chunk.agent} using ${chunk.toolName}`,
-                    chunk.args,
-                  );
-                  writer.write({
-                    type: "text-delta",
-                    id: messageId,
-                    delta: `\n🔧 Using ${chunk.toolName}...\n`,
-                  });
-                } else if (chunk.type === "tool-result") {
-                  debug(
-                    "TOOL",
-                    `${chunk.agent} completed ${chunk.toolName}`,
-                    chunk.result,
-                  );
-                  writer.write({
-                    type: "text-delta",
-                    id: messageId,
-                    delta: `✅ ${chunk.toolName}: ${typeof chunk.result === "string" ? chunk.result : JSON.stringify(chunk.result)}\n`,
-                  });
-                } else if (chunk.type === "agent-switch") {
-                  debug("HANDOFF", `${chunk.agent} → ${chunk.toAgent}`, {
-                    context: chunk.context,
-                    reason: chunk.reason,
-                  });
-                  writer.write({
-                    type: "text-delta",
-                    id: messageId,
-                    delta: `\n🔄 Switching to ${chunk.toAgent}${chunk.reason ? ` (${chunk.reason})` : ""}...\n`,
-                  });
-                } else if (chunk.type === "agent-complete") {
-                  debug("COMPLETE", `${chunk.agent} completed`, {
-                    outputLength: chunk.finalOutput?.length || 0,
-                  });
-                  // Don't write finalOutput - we already streamed all text-delta chunks
-                }
-              }
-
-              // End the text message
-              writer.write({
-                type: "text-end",
-                id: messageId,
-              });
-            } catch (error) {
-              console.error("DEBUG: Error in orchestration stream:", error);
-              throw error;
+        try {
+          // Execute beforeStream hook - allows for rate limiting, auth, etc.
+          if (beforeStream) {
+            const shouldContinue = await beforeStream({ writer });
+            if (shouldContinue === false) {
+              writer.write({ type: "finish" } as any);
+              return;
             }
+          }
 
-            // Wait for orchestration to complete
-            const finalResult = await result.result;
-            const duration = Date.now() - startTime;
-            debug("PERF", `Orchestration completed in ${duration}ms`, {
-              finalAgent: finalResult.finalAgent,
-              handoffCount: finalResult.handoffs?.length || 0,
-            });
-          } catch (error) {
-            debug("ERROR", "Orchestration failed", error);
-            writer.write({
-              type: "text-delta",
-              id: messageId,
-              delta: `\n❌ Error: ${error instanceof Error ? error.message : "Unknown error"}\n`,
-            });
-            writer.write({
-              type: "text-end",
-              id: messageId,
+          // Prepare conversation messages
+          const conversationMessages = [...messages];
+
+          // Add user input as latest message if provided
+          if (input) {
+            conversationMessages.push({
+              role: "user" as const,
+              content: input,
             });
           }
-        },
-      });
 
-      return createUIMessageStreamResponse({ stream });
-    }
+          // Get handoff agents (specialists)
+          const specialists = this.getHandoffs();
 
-    // For single agents, use native AI SDK
-    return this.aiAgent.respond(options as any);
+          // Determine starting agent using programmatic routing
+          let currentAgent: Agent = this;
+
+          if (strategy === "auto" && specialists.length > 0) {
+            // Try programmatic classification
+            const matchedAgent = specialists.find((agent) => {
+              if (!agent.matchOn) return false;
+              if (typeof agent.matchOn === "function") {
+                return agent.matchOn(input);
+              }
+              if (Array.isArray(agent.matchOn)) {
+                return agent.matchOn.some((pattern) => {
+                  if (typeof pattern === "string") {
+                    return input.toLowerCase().includes(pattern.toLowerCase());
+                  }
+                  if (pattern instanceof RegExp) {
+                    return pattern.test(input);
+                  }
+                  return false;
+                });
+              }
+              return false;
+            });
+
+            if (matchedAgent) {
+              currentAgent = matchedAgent;
+              console.log(`[ROUTING] Programmatic match: ${currentAgent.name}`);
+            }
+          }
+
+          let round = 0;
+          const usedSpecialists = new Set<string>();
+
+          // If we used programmatic routing, mark specialist as used
+          if (currentAgent !== this) {
+            usedSpecialists.add(currentAgent.name);
+          }
+
+          while (round++ < maxRounds) {
+            // Send status: agent executing
+            writer.write({
+              type: "data-agent-status",
+              data: {
+                status: "executing",
+                agent: currentAgent.name,
+              },
+              transient: true,
+            });
+
+            // 🎯 CONTEXT STRATEGY
+            const messagesToSend =
+              currentAgent === this
+                ? [conversationMessages[conversationMessages.length - 1]] // Latest only
+                : conversationMessages.slice(-8); // Recent context
+
+            const result = currentAgent.stream({
+              messages: messagesToSend,
+              executionContext: executionContext,
+            } as any);
+
+            // This automatically converts fullStream to proper UI message chunks
+            // Enable sendSources to include source-url parts for web search citations
+            const uiStream = result.toUIMessageStream({
+              sendSources: true,
+            });
+
+            // Track for orchestration
+            let textAccumulated = "";
+            let handoffData: any = null;
+            const toolCallNames = new Map<string, string>(); // toolCallId -> toolName
+            let hasStartedContent = false;
+
+            // Stream UI chunks - AI SDK handles all the formatting!
+            for await (const chunk of uiStream) {
+              // Clear status on first actual content (text or tool)
+              if (
+                !hasStartedContent &&
+                (chunk.type === "text-delta" ||
+                  chunk.type === "tool-input-start")
+              ) {
+                writer.write({
+                  type: "data-agent-status",
+                  data: { status: "completing", agent: currentAgent.name },
+                  transient: true,
+                });
+                hasStartedContent = true;
+              }
+
+              // Write chunk - type assertion needed because our custom AgentUIMessage
+              // type is more restrictive than the chunks from toUIMessageStream()
+              writer.write(chunk as any);
+
+              // Track text for conversation history
+              if (chunk.type === "text-delta") {
+                textAccumulated += chunk.delta;
+              }
+
+              // Track tool names when they start
+              if (chunk.type === "tool-input-start") {
+                toolCallNames.set(chunk.toolCallId, chunk.toolName);
+              }
+
+              // Detect handoff from tool output
+              if (chunk.type === "tool-output-available") {
+                const toolName = toolCallNames.get(chunk.toolCallId);
+                if (toolName === "handoff") {
+                  handoffData = chunk.output;
+                  console.log("[Handoff Detected]", handoffData);
+                }
+              }
+            }
+
+            // Update conversation
+            if (textAccumulated) {
+              conversationMessages.push({
+                role: "assistant",
+                content: textAccumulated,
+              });
+            }
+
+            // Handle orchestration flow
+            if (currentAgent === this) {
+              if (handoffData) {
+                // Check if this specialist has already been used
+                if (usedSpecialists.has(handoffData.agent)) {
+                  // Don't route to the same specialist twice - task is complete
+                  break;
+                }
+
+                // Send routing status
+                writer.write({
+                  type: "data-agent-status",
+                  data: {
+                    status: "routing",
+                    agent: "orchestrator",
+                  },
+                  transient: true,
+                });
+
+                // Mark specialist as used and route to it
+                usedSpecialists.add(handoffData.agent);
+                const nextAgent = specialists.find(
+                  (a) => a.name === handoffData.agent,
+                );
+                if (nextAgent) {
+                  currentAgent = nextAgent;
+                }
+              } else {
+                // Orchestrator done, no more handoffs
+                break;
+              }
+            } else {
+              // Specialist done
+              if (handoffData) {
+                // Specialist handed off to another specialist
+                if (usedSpecialists.has(handoffData.agent)) {
+                  // Already used this specialist - complete
+                  break;
+                }
+
+                // Route to next specialist
+                usedSpecialists.add(handoffData.agent);
+                const nextAgent = specialists.find(
+                  (a) => a.name === handoffData.agent,
+                );
+                if (nextAgent) {
+                  currentAgent = nextAgent;
+                }
+              } else {
+                // No handoff - specialist is done, complete the task
+                break;
+              }
+            }
+          }
+
+          writer.write({ type: "finish" });
+        } catch (error) {
+          console.error("[AGENT] Error in toUIMessageStream:", error);
+          writer.write({
+            type: "error",
+            error: error instanceof Error ? error.message : String(error),
+          } as any);
+          writer.write({ type: "finish" } as any);
+        }
+      },
+    });
+
+    const response = createUIMessageStreamResponse({
+      ...responseInit,
+      stream,
+    });
+
+    return response;
   }
 
   static create(config: AgentConfig): Agent {

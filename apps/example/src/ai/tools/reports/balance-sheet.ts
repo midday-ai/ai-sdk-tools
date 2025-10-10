@@ -1,3 +1,4 @@
+import { getWriter } from "@ai-sdk-tools/artifacts";
 import { tool } from "ai";
 import { z } from "zod";
 import { BalanceSheetArtifact } from "@/ai/artifacts/balance-sheet";
@@ -37,63 +38,71 @@ Capabilities:
       .describe("Use interactive artifact visualization"),
   }),
 
-  execute: async function* ({ from, to, currency, categories, useArtifact }) {
+  execute: async function* (
+    { from, to, currency, categories, useArtifact },
+    executionOptions,
+  ) {
+    const writer = getWriter(executionOptions);
+
     if (!useArtifact) {
       // Legacy mode - return raw data
       return generateBalanceSheet({ from, to, currency, categories });
     }
 
     // Artifact mode - stream the balance sheet with visualization
-    const analysis = BalanceSheetArtifact.stream({
-      stage: "loading",
-      title: `Balance Sheet as of ${to}`,
-      asOfDate: to,
-      currency: currency || "USD",
-      progress: 0,
-      assets: {
-        currentAssets: {
-          cash: 0,
-          accountsReceivable: 0,
-          inventory: 0,
-          prepaidExpenses: 0,
-          total: 0,
+    const analysis = BalanceSheetArtifact.stream(
+      {
+        stage: "loading",
+        title: `Balance Sheet as of ${to}`,
+        asOfDate: to,
+        currency: currency || "USD",
+        progress: 0,
+        assets: {
+          currentAssets: {
+            cash: 0,
+            accountsReceivable: 0,
+            inventory: 0,
+            prepaidExpenses: 0,
+            total: 0,
+          },
+          nonCurrentAssets: {
+            propertyPlantEquipment: 0,
+            intangibleAssets: 0,
+            investments: 0,
+            total: 0,
+          },
+          totalAssets: 0,
         },
-        nonCurrentAssets: {
-          propertyPlantEquipment: 0,
-          intangibleAssets: 0,
-          investments: 0,
-          total: 0,
+        liabilities: {
+          currentLiabilities: {
+            accountsPayable: 0,
+            shortTermDebt: 0,
+            accruedExpenses: 0,
+            total: 0,
+          },
+          nonCurrentLiabilities: {
+            longTermDebt: 0,
+            deferredRevenue: 0,
+            otherLiabilities: 0,
+            total: 0,
+          },
+          totalLiabilities: 0,
         },
-        totalAssets: 0,
-      },
-      liabilities: {
-        currentLiabilities: {
-          accountsPayable: 0,
-          shortTermDebt: 0,
-          accruedExpenses: 0,
-          total: 0,
+        equity: {
+          commonStock: 0,
+          retainedEarnings: 0,
+          additionalPaidInCapital: 0,
+          totalEquity: 0,
         },
-        nonCurrentLiabilities: {
-          longTermDebt: 0,
-          deferredRevenue: 0,
-          otherLiabilities: 0,
-          total: 0,
+        ratios: {
+          currentRatio: 0,
+          quickRatio: 0,
+          debtToEquity: 0,
+          workingCapital: 0,
         },
-        totalLiabilities: 0,
       },
-      equity: {
-        commonStock: 0,
-        retainedEarnings: 0,
-        additionalPaidInCapital: 0,
-        totalEquity: 0,
-      },
-      ratios: {
-        currentRatio: 0,
-        quickRatio: 0,
-        debtToEquity: 0,
-        workingCapital: 0,
-      },
-    });
+      writer,
+    );
 
     yield { text: `Generating balance sheet for ${to}...` };
     await delay(300);

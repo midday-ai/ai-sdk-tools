@@ -1,4 +1,3 @@
-import type { UIMessageStreamWriter } from "ai";
 import type { z } from "zod";
 
 export type ArtifactStatus =
@@ -7,10 +6,6 @@ export type ArtifactStatus =
   | "streaming"
   | "complete"
   | "error";
-
-export interface BaseContext {
-  writer: UIMessageStreamWriter;
-}
 
 export class ArtifactError extends Error {
   constructor(

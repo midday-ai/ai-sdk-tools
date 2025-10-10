@@ -47,10 +47,10 @@ PRESENTATION STYLE:
 - End with a brief key insight or takeaway when relevant
 - Be concise but complete - no unnecessary fluff`,
   tools: {
-    revenue: revenueDashboardTool as any,
-    profitLoss: profitLossTool as any,
+    revenue: revenueDashboardTool,
+    profitLoss: profitLossTool,
     cashFlow: cashFlowTool,
-    balanceSheet: balanceSheetTool as any,
+    balanceSheet: balanceSheetTool,
     expenses: expensesTool,
     burnRate: burnRateMetricsTool,
     runway: runwayMetricsTool,

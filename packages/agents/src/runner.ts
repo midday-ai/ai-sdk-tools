@@ -1,6 +1,12 @@
 import type { ModelMessage } from "ai";
 import { debug } from "./debug.js";
+import {
+  MaxTurnsExceededError,
+  runInputGuardrails,
+  runOutputGuardrails,
+} from "./guardrails.js";
 import { isHandoffResult } from "./handoff.js";
+import { findBestMatch } from "./routing.js";
 import type {
   Agent,
   AgentGenerateResult,
@@ -186,9 +192,13 @@ export class Runner {
   ): Promise<AgentStreamingResult> {
     const runOptions = { ...this.options, ...options };
     const maxTotalTurns = runOptions.maxTotalTurns || 20;
+    const strategy = runOptions.strategy || "auto";
+    const preventDuplicates = runOptions.preventDuplicates !== false;
+    const context = runOptions.context || {};
+    // const usageTracker = createUsageTracker(); // TODO: Implement tool permission tracking
 
     // Get starting agent
-    const initialAgent =
+    let initialAgent =
       typeof startingAgent === "string"
         ? this.agents.get(startingAgent)
         : startingAgent;
@@ -202,6 +212,28 @@ export class Runner {
     this.registerAgent(initialAgent);
     this.registerHandoffAgents(initialAgent);
 
+    // HYBRID ROUTING: If strategy is 'auto' and initial agent has handoffs, try programmatic routing first
+    if (strategy === "auto" && initialAgent.getHandoffs().length > 0) {
+      const specialists = initialAgent.getHandoffs();
+      const matchedAgent = findBestMatch(
+        specialists,
+        input,
+        (agent) => agent.matchOn,
+      );
+
+      if (matchedAgent) {
+        debug("ROUTING", `Programmatic match: ${matchedAgent.name}`);
+        // Direct route to specialist (fast path)
+        initialAgent = matchedAgent;
+      } else {
+        debug(
+          "ROUTING",
+          `No programmatic match, using LLM routing via ${initialAgent.name}`,
+        );
+        // Use triage agent with LLM routing (fallback)
+      }
+    }
+
     let currentAgent = initialAgent;
     let totalTurns = 0;
     // Only use initialMessages if explicitly provided (not empty array)
@@ -210,15 +242,49 @@ export class Runner {
     const originalInput = input;
     const handoffHistory: HandoffInstruction[] = [];
     const startTime = new Date();
+    const usedAgents = new Set<string>([currentAgent.name]); // Track used agents for duplicate prevention
 
     // Create streaming generator that yields structured data immediately
     const streamGenerator = async function* (
       this: Runner,
     ): AsyncGenerator<StreamChunk> {
+      // Run input guardrails
+      try {
+        if (currentAgent.inputGuardrails) {
+          await runInputGuardrails(
+            currentAgent.inputGuardrails,
+            input,
+            context,
+          );
+        }
+      } catch (error) {
+        yield {
+          type: "error",
+          error: error instanceof Error ? error.message : "Guardrail failed",
+          agent: currentAgent.name,
+          role: "system",
+        };
+        return;
+      }
+
+      // Emit start event
+      if (runOptions.onEvent) {
+        try {
+          await runOptions.onEvent({
+            type: "start",
+            agent: currentAgent.name,
+            input,
+          });
+        } catch (error) {
+          debug("EVENT", "onEvent handler failed", error);
+        }
+      }
+
       // Start orchestration
       debug("ORCHESTRATION", `Starting with ${currentAgent.name}`, {
         handoffAgents: currentAgent.getHandoffs().map((a) => a.name),
         maxTurns: maxTotalTurns,
+        strategy,
       });
 
       // Immediate feedback - orchestration starting
@@ -276,11 +342,6 @@ export class Runner {
           for await (const chunk of stream.textStream) {
             chunkCount++;
             textChunks.push(chunk);
-            debug(
-              "STREAM",
-              `Chunk ${chunkCount} from ${currentAgent.name}:`,
-              chunk.substring(0, 50),
-            );
 
             // Always yield immediately - we'll suppress orchestrator text in agent.ts
             yield {
@@ -339,8 +400,36 @@ export class Runner {
                   if (isHandoffResult(toolResult.output)) {
                     const handoff = toolResult.output as HandoffInstruction;
                     console.log("DEBUG: Handoff detected:", handoff);
+
+                    // Check for duplicate agent usage
+                    if (
+                      preventDuplicates &&
+                      usedAgents.has(handoff.targetAgent)
+                    ) {
+                      debug(
+                        "ORCHESTRATION",
+                        `Preventing duplicate handoff to ${handoff.targetAgent}`,
+                      );
+                      // Don't handoff, continue with current agent's output
+                      break;
+                    }
+
                     handoffHistory.push(handoff); // Track handoffs
                     handoffFound = true; // Mark that we found a handoff
+
+                    // Emit handoff event
+                    if (runOptions.onEvent) {
+                      try {
+                        await runOptions.onEvent({
+                          type: "handoff",
+                          from: currentAgent.name,
+                          to: handoff.targetAgent,
+                          reason: handoff.reason,
+                        });
+                      } catch (error) {
+                        debug("EVENT", "onEvent handler failed", error);
+                      }
+                    }
 
                     yield {
                       type: "agent-switch",
@@ -385,6 +474,7 @@ export class Runner {
                       });
                     }
 
+                    usedAgents.add(handoff.targetAgent); // Track used agents
                     currentAgent = targetAgent;
                     handoffFound = true;
                     input = ""; // Clear input, let agent respond to system message context
@@ -400,6 +490,42 @@ export class Runner {
           // If no handoff, we're done
           if (!handoffFound) {
             const finalText = (await result.text) || "";
+
+            // Run output guardrails
+            try {
+              if (currentAgent.outputGuardrails) {
+                await runOutputGuardrails(
+                  currentAgent.outputGuardrails,
+                  finalText,
+                  context,
+                );
+              }
+            } catch (error) {
+              yield {
+                type: "error",
+                error:
+                  error instanceof Error
+                    ? error.message
+                    : "Output guardrail failed",
+                agent: currentAgent.name,
+                role: "system",
+              };
+              break;
+            }
+
+            // Emit complete event
+            if (runOptions.onEvent) {
+              try {
+                await runOptions.onEvent({
+                  type: "complete",
+                  agent: currentAgent.name,
+                  output: finalText,
+                });
+              } catch (error) {
+                debug("EVENT", "onEvent handler failed", error);
+              }
+            }
+
             yield {
               type: "agent-complete",
               agent: currentAgent.name,
@@ -425,6 +551,20 @@ export class Runner {
             break;
           }
         } catch (error) {
+          // Emit error event
+          if (runOptions.onEvent) {
+            try {
+              await runOptions.onEvent({
+                type: "error",
+                agent: currentAgent.name,
+                error:
+                  error instanceof Error ? error : new Error(String(error)),
+              });
+            } catch (eventError) {
+              debug("EVENT", "onEvent handler failed", eventError);
+            }
+          }
+
           yield {
             type: "error",
             error: error instanceof Error ? error.message : "Unknown error",
@@ -433,6 +573,30 @@ export class Runner {
           };
           break;
         }
+      }
+
+      // Check if max turns exceeded
+      if (totalTurns >= maxTotalTurns && !resolvedResult) {
+        const error = new MaxTurnsExceededError(totalTurns, maxTotalTurns);
+
+        if (runOptions.onEvent) {
+          try {
+            await runOptions.onEvent({
+              type: "error",
+              agent: currentAgent.name,
+              error,
+            });
+          } catch (eventError) {
+            debug("EVENT", "onEvent handler failed", eventError);
+          }
+        }
+
+        yield {
+          type: "error",
+          error: error.message,
+          agent: currentAgent.name,
+          role: "system",
+        };
       }
     }.bind(this);
 

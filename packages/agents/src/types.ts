@@ -10,8 +10,13 @@ import type {
 export interface Agent {
   name: string;
   instructions: string;
+  matchOn?: (string | RegExp)[] | ((message: string) => boolean);
+  onEvent?: (event: any) => void | Promise<void>;
+  inputGuardrails?: any[];
+  outputGuardrails?: any[];
+  permissions?: any;
   generate(options: AgentGenerateOptions): Promise<AgentGenerateResult>;
-  stream(options: AgentStreamOptions): Promise<AgentStreamResult>;
+  stream(options: AgentStreamOptions): AgentStreamResult;
   getHandoffs(): Agent[];
 }
 
@@ -32,6 +37,16 @@ export interface AgentConfig {
   temperature?: number;
   /** Additional model settings */
   modelSettings?: Record<string, unknown>;
+  /** Programmatic routing patterns (NEW) */
+  matchOn?: (string | RegExp)[] | ((message: string) => boolean);
+  /** Lifecycle event handler (NEW) */
+  onEvent?: (event: AgentEvent) => void | Promise<void>;
+  /** Input guardrails - run before agent execution (NEW) */
+  inputGuardrails?: InputGuardrail[];
+  /** Output guardrails - run after agent execution (NEW) */
+  outputGuardrails?: OutputGuardrail[];
+  /** Tool permissions - control tool access (NEW) */
+  permissions?: ToolPermissions;
 }
 
 export interface HandoffInstruction {
@@ -55,7 +70,7 @@ export interface AgentGenerateOptions {
  * Stream options for agents
  */
 export interface AgentStreamOptions {
-  prompt: string;
+  prompt?: string;
   messages?: ModelMessage[];
 }
 
@@ -86,6 +101,22 @@ export interface RunOptions {
   onHandoff?: (handoff: HandoffInstruction) => void;
   /** Initial message history to start with */
   initialMessages?: ModelMessage[];
+  /** Routing strategy (NEW) */
+  strategy?: "auto" | "llm";
+  /** Max steps per agent (NEW) */
+  maxSteps?: number;
+  /** Global timeout in ms (NEW) */
+  timeout?: number;
+  /** Per-agent timeout in ms (NEW) */
+  agentTimeout?: number;
+  /** Prevent routing to same agent twice (NEW) */
+  preventDuplicates?: boolean;
+  /** Context for permissions and guardrails (NEW) */
+  context?: Record<string, unknown>;
+  /** Lifecycle event handler (NEW) */
+  onEvent?: (event: AgentEvent) => void | Promise<void>;
+  /** Whether this is a streaming run (internal) */
+  stream?: boolean;
 }
 
 /**
@@ -166,4 +197,111 @@ export interface AgentStreamingResult {
 export interface AgentRunOptions {
   metadata?: any;
   maxTotalTurns?: number;
+}
+
+/**
+ * Lifecycle events emitted by agents
+ */
+export type AgentEvent =
+  | { type: "start"; agent: string; input: string }
+  | { type: "tool-call"; agent: string; toolName: string; args: unknown }
+  | { type: "handoff"; from: string; to: string; reason?: string }
+  | { type: "complete"; agent: string; output: string }
+  | { type: "error"; agent: string; error: Error };
+
+/**
+ * Guardrail result
+ */
+export interface GuardrailResult {
+  tripwireTriggered: boolean;
+  outputInfo?: unknown;
+}
+
+/**
+ * Input guardrail - runs before agent execution
+ */
+export interface InputGuardrail {
+  name: string;
+  execute: (args: {
+    input: string;
+    context?: unknown;
+  }) => Promise<GuardrailResult>;
+}
+
+/**
+ * Output guardrail - runs after agent execution
+ */
+export interface OutputGuardrail<TOutput = unknown> {
+  name: string;
+  execute: (args: {
+    agentOutput: TOutput;
+    context?: unknown;
+  }) => Promise<GuardrailResult>;
+}
+
+/**
+ * Tool permission context
+ */
+export interface ToolPermissionContext {
+  user?: { id: string; roles: string[]; [key: string]: any };
+  usage: { toolCalls: Record<string, number>; tokens: number };
+  [key: string]: any;
+}
+
+/**
+ * Tool permission result
+ */
+export interface ToolPermissionResult {
+  allowed: boolean;
+  reason?: string;
+}
+
+/**
+ * Tool permission check function
+ */
+export type ToolPermissionCheck = (ctx: {
+  toolName: string;
+  args: unknown;
+  context: ToolPermissionContext;
+}) => ToolPermissionResult | Promise<ToolPermissionResult>;
+
+/**
+ * Tool permissions configuration
+ */
+export interface ToolPermissions {
+  check: ToolPermissionCheck;
+}
+
+/**
+ * Options for agent.toUIMessageStream()
+ */
+export interface AgentStreamOptionsUI {
+  /** User input text */
+  input: string;
+  /** Message history (user controls slicing) */
+  messages?: ModelMessage[];
+  /** Routing strategy */
+  strategy?: "auto" | "llm";
+  /** Max orchestration rounds */
+  maxRounds?: number;
+  /** Max steps per agent */
+  maxSteps?: number;
+  /** Global timeout (ms) */
+  timeout?: number;
+  /**
+   * Context for permissions, guardrails, and artifacts.
+   * This object will be wrapped in RunContext<T> and passed to all tools and hooks.
+   * The writer will be automatically added when streaming.
+   */
+  context?: Record<string, unknown>;
+  /** Hook before streaming starts */
+  beforeStream?: (ctx: { writer: any }) => Promise<boolean | undefined>;
+  /** Transform chunks before writing */
+  onChunk?: (chunk: StreamChunk) => unknown;
+  /** AI SDK transform */
+  experimental_transform?: any;
+  /** Lifecycle event handler */
+  onEvent?: (event: AgentEvent) => void | Promise<void>;
+  /** Prevent routing to same agent twice */
+  preventDuplicates?: boolean;
 }
