@@ -120,6 +120,15 @@ export class Agent {
 
     // Extract our internal execution context (we map to/from AI SDK's experimental_context at boundaries)
     const executionContext = (options as any).executionContext;
+    const maxSteps = (options as any).maxSteps;
+    const onStepFinish = (options as any).onStepFinish;
+
+    // Build additional options to pass to AI SDK
+    const additionalOptions: any = {};
+    if (executionContext)
+      additionalOptions.experimental_context = executionContext;
+    if (maxSteps) additionalOptions.maxSteps = maxSteps;
+    if (onStepFinish) additionalOptions.onStepFinish = onStepFinish;
 
     // Handle simple { messages } format (like working code)
     if ("messages" in options && !("prompt" in options) && options.messages) {
@@ -128,7 +137,7 @@ export class Agent {
       });
       return this.aiAgent.stream({
         messages: options.messages,
-        ...(executionContext ? { experimental_context: executionContext } : {}),
+        ...additionalOptions,
       } as any) as AgentStreamResult;
     }
 
@@ -147,7 +156,7 @@ export class Agent {
     if (opts.messages && opts.messages.length > 0 && opts.prompt) {
       return this.aiAgent.stream({
         messages: [...opts.messages, { role: "user", content: opts.prompt }],
-        ...(executionContext ? { experimental_context: executionContext } : {}),
+        ...additionalOptions,
       } as any) as AgentStreamResult;
     }
 
@@ -155,7 +164,7 @@ export class Agent {
     if (opts.prompt) {
       return this.aiAgent.stream({
         prompt: opts.prompt,
-        ...(executionContext ? { experimental_context: executionContext } : {}),
+        ...additionalOptions,
       } as any) as AgentStreamResult;
     }
 
@@ -183,7 +192,6 @@ export class Agent {
       beforeStream,
       experimental_transform,
       onEvent,
-      preventDuplicates = true,
     } = options;
 
     const responseInit: any = experimental_transform
@@ -279,15 +287,33 @@ export class Agent {
               transient: true,
             });
 
-            // 🎯 CONTEXT STRATEGY
             const messagesToSend =
               currentAgent === this
                 ? [conversationMessages[conversationMessages.length - 1]] // Latest only
                 : conversationMessages.slice(-8); // Recent context
 
+            // Emit agent start event
+            if (onEvent) {
+              await onEvent({
+                type: "agent-start",
+                agent: currentAgent.name,
+                round,
+              });
+            }
+
             const result = currentAgent.stream({
               messages: messagesToSend,
               executionContext: executionContext,
+              maxSteps, // Limit tool calls per round
+              onStepFinish: async (step: any) => {
+                if (onEvent) {
+                  await onEvent({
+                    type: "agent-step",
+                    agent: currentAgent.name,
+                    step,
+                  });
+                }
+              },
             } as any);
 
             // This automatically converts fullStream to proper UI message chunks
@@ -350,6 +376,15 @@ export class Agent {
               });
             }
 
+            // Emit agent finish event
+            if (onEvent) {
+              await onEvent({
+                type: "agent-finish",
+                agent: currentAgent.name,
+                round,
+              });
+            }
+
             // Handle orchestration flow
             if (currentAgent === this) {
               if (handoffData) {
@@ -376,6 +411,16 @@ export class Agent {
                 );
                 if (nextAgent) {
                   currentAgent = nextAgent;
+
+                  // Emit handoff event
+                  if (onEvent) {
+                    await onEvent({
+                      type: "agent-handoff",
+                      from: this.name,
+                      to: nextAgent.name,
+                      reason: handoffData.reason,
+                    });
+                  }
                 }
               } else {
                 // Orchestrator done, no more handoffs
@@ -396,7 +441,18 @@ export class Agent {
                   (a) => a.name === handoffData.agent,
                 );
                 if (nextAgent) {
+                  const previousAgent = currentAgent;
                   currentAgent = nextAgent;
+
+                  // Emit handoff event
+                  if (onEvent) {
+                    await onEvent({
+                      type: "agent-handoff",
+                      from: previousAgent.name,
+                      to: nextAgent.name,
+                      reason: handoffData.reason,
+                    });
+                  }
                 }
               } else {
                 // No handoff - specialist is done, complete the task
@@ -405,9 +461,26 @@ export class Agent {
             }
           }
 
+          // Emit completion event
+          if (onEvent) {
+            await onEvent({
+              type: "agent-complete",
+              totalRounds: round,
+            });
+          }
+
           writer.write({ type: "finish" });
         } catch (error) {
           console.error("[AGENT] Error in toUIMessageStream:", error);
+
+          // Emit error event
+          if (onEvent) {
+            await onEvent({
+              type: "agent-error",
+              error: error instanceof Error ? error : new Error(String(error)),
+            });
+          }
+
           writer.write({
             type: "error",
             error: error instanceof Error ? error.message : String(error),

@@ -37,15 +37,15 @@ export interface AgentConfig {
   temperature?: number;
   /** Additional model settings */
   modelSettings?: Record<string, unknown>;
-  /** Programmatic routing patterns (NEW) */
+  /** Programmatic routing patterns */
   matchOn?: (string | RegExp)[] | ((message: string) => boolean);
-  /** Lifecycle event handler (NEW) */
+  /** Lifecycle event handler */
   onEvent?: (event: AgentEvent) => void | Promise<void>;
-  /** Input guardrails - run before agent execution (NEW) */
+  /** Input guardrails - run before agent execution */
   inputGuardrails?: InputGuardrail[];
-  /** Output guardrails - run after agent execution (NEW) */
+  /** Output guardrails - run after agent execution */
   outputGuardrails?: OutputGuardrail[];
-  /** Tool permissions - control tool access (NEW) */
+  /** Tool permissions - control tool access */
   permissions?: ToolPermissions;
 }
 
@@ -101,19 +101,17 @@ export interface RunOptions {
   onHandoff?: (handoff: HandoffInstruction) => void;
   /** Initial message history to start with */
   initialMessages?: ModelMessage[];
-  /** Routing strategy (NEW) */
+  /** Routing strategy */
   strategy?: "auto" | "llm";
-  /** Max steps per agent (NEW) */
+  /** Max steps per agent */
   maxSteps?: number;
-  /** Global timeout in ms (NEW) */
+  /** Global timeout in ms */
   timeout?: number;
-  /** Per-agent timeout in ms (NEW) */
+  /** Per-agent timeout in ms */
   agentTimeout?: number;
-  /** Prevent routing to same agent twice (NEW) */
-  preventDuplicates?: boolean;
-  /** Context for permissions and guardrails (NEW) */
+  /** Context for permissions and guardrails */
   context?: Record<string, unknown>;
-  /** Lifecycle event handler (NEW) */
+  /** Lifecycle event handler */
   onEvent?: (event: AgentEvent) => void | Promise<void>;
   /** Whether this is a streaming run (internal) */
   stream?: boolean;
@@ -204,6 +202,12 @@ export interface AgentRunOptions {
  */
 export type AgentEvent =
   | { type: "start"; agent: string; input: string }
+  | { type: "agent-start"; agent: string; round: number }
+  | { type: "agent-step"; agent: string; step: any }
+  | { type: "agent-finish"; agent: string; round: number }
+  | { type: "agent-handoff"; from: string; to: string; reason?: string }
+  | { type: "agent-complete"; totalRounds: number }
+  | { type: "agent-error"; error: Error }
   | { type: "tool-call"; agent: string; toolName: string; args: unknown }
   | { type: "handoff"; from: string; to: string; reason?: string }
   | { type: "complete"; agent: string; output: string }
@@ -302,6 +306,4 @@ export interface AgentStreamOptionsUI {
   experimental_transform?: any;
   /** Lifecycle event handler */
   onEvent?: (event: AgentEvent) => void | Promise<void>;
-  /** Prevent routing to same agent twice */
-  preventDuplicates?: boolean;
 }

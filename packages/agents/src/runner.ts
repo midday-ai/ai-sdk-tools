@@ -193,7 +193,6 @@ export class Runner {
     const runOptions = { ...this.options, ...options };
     const maxTotalTurns = runOptions.maxTotalTurns || 20;
     const strategy = runOptions.strategy || "auto";
-    const preventDuplicates = runOptions.preventDuplicates !== false;
     const context = runOptions.context || {};
     // const usageTracker = createUsageTracker(); // TODO: Implement tool permission tracking
 
@@ -402,10 +401,7 @@ export class Runner {
                     console.log("DEBUG: Handoff detected:", handoff);
 
                     // Check for duplicate agent usage
-                    if (
-                      preventDuplicates &&
-                      usedAgents.has(handoff.targetAgent)
-                    ) {
+                    if (usedAgents.has(handoff.targetAgent)) {
                       debug(
                         "ORCHESTRATION",
                         `Preventing duplicate handoff to ${handoff.targetAgent}`,
