@@ -1,10 +1,8 @@
-import { type BaseContext, createTypedContext } from "@ai-sdk-tools/artifacts";
-
 // Define custom context type with database and user info (mirrors real app)
-interface ChatContext extends BaseContext {
+export interface ChatContext {
   userId: string;
   fullName: string;
-  db: any; // Mock database
+  db: unknown; // Mock database
   user: {
     teamId: string;
     baseCurrency: string;
@@ -13,8 +11,20 @@ interface ChatContext extends BaseContext {
   };
 }
 
-// Create typed context helpers
-const { setContext, getContext } = createTypedContext<ChatContext>();
+// Global context store
+let currentContext: ChatContext | null = null;
+
+// Context helpers
+export function setContext(context: ChatContext): void {
+  currentContext = context;
+}
+
+export function getContext(): ChatContext {
+  if (!currentContext) {
+    throw new Error("Context not set. Call setContext() first.");
+  }
+  return currentContext;
+}
 
 // Helper function to get current user context (can be used in tools)
 export function getCurrentUser() {
@@ -24,5 +34,3 @@ export function getCurrentUser() {
     fullName: context.fullName,
   };
 }
-
-export { setContext, getContext };

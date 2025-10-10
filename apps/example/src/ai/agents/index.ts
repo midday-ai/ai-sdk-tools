@@ -1,17 +1,14 @@
-/**
- * Financial Agents - Main Entry Point
- *
- * Modular agent system for comprehensive financial operations
- */
+export { analyticsAgent } from "./analytics";
+export { customersAgent } from "./customers";
+export { generalAgent } from "./general";
+export { invoicesAgent } from "./invoices";
+export { operationsAgent } from "./operations";
+export { reportsAgent } from "./reports";
 
-// Individual specialist agents (for advanced usage)
-export {
-  invoicesAgent,
-  reportsAgent,
-  transactionsAgent,
-} from "./agents";
-// Main orchestrator (primary export)
-export { orchestratorAgent } from "./orchestrator";
+// Shared utilities
+export { AGENT_CONTEXT, getContextPrompt } from "./shared";
+export { timeTrackingAgent } from "./time-tracking";
+export { transactionsAgent } from "./transactions";
 
-// Re-export types and utilities for external use
-export type * from "./types/filters";
+// Triage agent (main entry point)
+export { triageAgent } from "./triage";
