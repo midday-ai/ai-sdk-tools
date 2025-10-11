@@ -2,7 +2,7 @@
 
 ![AI SDK Tools](image.png)
 
-Essential utilities for building production-ready AI applications with Vercel AI SDK. State management, debugging, structured streaming, intelligent agents, and caching - everything you need beyond basic chat interfaces.
+Essential utilities for building production-ready AI applications with Vercel AI SDK. State management, debugging, structured streaming, intelligent agents, and caching.
 
 ## Packages
 
