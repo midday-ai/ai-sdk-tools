@@ -2,15 +2,15 @@
 
 A high-performance drop-in replacement for @ai-sdk/react with advanced state management, built-in optimizations, and zero configuration required.
 
-## ⚡ Performance Features
+## Performance Features
 
-- 🚀 **3-5x faster** than standard @ai-sdk/react
-- 🔍 **O(1) message lookups** with hash map indexing
-- 📦 **Batched updates** to minimize re-renders
-- 🧠 **Memoized selectors** with automatic caching
-- 📊 **Message virtualization** for large chat histories
-- 🎯 **Advanced throttling** with scheduler.postTask
-- 🔄 **Deep equality checks** to prevent unnecessary updates
+- **3-5x faster** than standard @ai-sdk/react
+- **O(1) message lookups** with hash map indexing
+- **Batched updates** to minimize re-renders
+- **Memoized selectors** with automatic caching
+- **Message virtualization** for large chat histories
+- **Advanced throttling** with scheduler.postTask
+- **Deep equality checks** to prevent unnecessary updates
 
 ## Installation
 
@@ -208,6 +208,10 @@ const chat = useChat<MyMessage>({
 })
 const messages = useChatMessages<MyMessage>() // Fully typed!
 ```
+
+## Contributing
+
+Contributions are welcome! See the [contributing guide](../../CONTRIBUTING.md) for details.
 
 ## License
 

@@ -2,15 +2,15 @@
 
 Advanced streaming interfaces for AI applications. Create structured, type-safe artifacts that stream real-time updates from AI tools to React components.
 
-## ✨ Features
+## Features
 
-- 🎯 **Type-Safe Streaming** - Full TypeScript support with Zod schema validation
-- 🔄 **Real-time Updates** - Stream partial updates with progress tracking
-- 🎨 **Clean API** - Minimal boilerplate, maximum flexibility
-- 🏪 **State Management** - Built on @ai-sdk-tools/store for efficient message handling
-- ⚡ **Performance Optimized** - Efficient state management and updates
+- **Type-Safe Streaming** - Full TypeScript support with Zod schema validation
+- **Real-time Updates** - Stream partial updates with progress tracking
+- **Clean API** - Minimal boilerplate, maximum flexibility
+- **State Management** - Built on @ai-sdk-tools/store for efficient message handling
+- **Performance Optimized** - Efficient state management and updates
 
-## 📦 Installation
+## Installation
 
 ```bash
 npm install @ai-sdk-tools/artifacts @ai-sdk-tools/store
@@ -23,7 +23,7 @@ npm install @ai-sdk-tools/artifacts @ai-sdk-tools/store
 
 The artifacts package uses the store package's `useChatMessages` hook to efficiently extract and track artifact data from AI SDK message streams, ensuring optimal performance and avoiding unnecessary re-renders.
 
-## 🔧 Setup
+## Setup
 
 ### 1. Initialize Chat with Store
 
@@ -52,7 +52,7 @@ function ChatComponent() {
 
 The `useArtifact` hook automatically connects to the global chat store to extract artifact data from message streams - no prop drilling needed!
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Define an Artifact
 
@@ -187,7 +187,7 @@ function Analysis() {
 }
 ```
 
-## 📚 API Reference
+## API Reference
 
 ### `artifact(id, schema)`
 Creates an artifact definition with Zod schema validation.
@@ -267,7 +267,7 @@ function Canvas() {
 
 
 
-## 🔧 Advanced Usage
+## Advanced Usage
 
 ### Combining Both Hooks
 
@@ -332,7 +332,7 @@ function DashboardWithAnalysis() {
 - You want to show an overview of all available artifacts
 - You're building a generic artifact renderer
 
-## 🔧 Examples
+## Examples
 
 See the `src/examples/` directory for complete examples including:
 - Burn rate analysis with progress tracking
@@ -340,6 +340,10 @@ See the `src/examples/` directory for complete examples including:
 - Route setup and tool implementation
 - Using `useArtifacts` for multi-type artifact rendering
 
-## 📄 License
+## Contributing
+
+Contributions are welcome! See the [contributing guide](../../CONTRIBUTING.md) for details.
+
+## License
 
 MIT
