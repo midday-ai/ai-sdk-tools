@@ -1,5 +1,7 @@
 "use client";
 
+export { AgentFlowVisualization } from "./components/agent-flow-visualization";
+export { AgentNode } from "./components/agent-node";
 export { AIDevtools } from "./components/ai-dev-tools";
 export { ContextCircle } from "./components/context-circle";
 // Export other components for advanced usage
@@ -7,8 +9,9 @@ export { DevtoolsButton } from "./components/devtools-button";
 export { DevtoolsPanel } from "./components/devtools-panel";
 export { EventItem } from "./components/event-item";
 export { EventList } from "./components/event-list";
-export { StoreList } from "./components/store-list";
 export { StateDataExplorer } from "./components/state-data-explorer";
+export { StoreList } from "./components/store-list";
+export { ToolNode } from "./components/tool-node";
 
 // Hooks
 export { useAIDevtools } from "./hooks/use-ai-devtools";
@@ -16,24 +19,21 @@ export { useCurrentState } from "./hooks/use-current-state";
 
 // Types
 export type {
+  AgentFlowData,
+  AgentHandoff,
+  AgentNode as AgentNodeData,
   AIEvent,
   AIEventType,
   DevtoolsConfig,
   FilterOptions,
   ToolCallSession,
+  ToolNode as ToolNodeData,
   UseAIDevtoolsOptions,
   UseAIDevtoolsReturn,
 } from "./types";
 
 // Utilities
 export { createDebugLogger } from "./utils/debug";
-export {
-  isStorePackageAvailable,
-  getAvailableStoreIds,
-  getStoreState,
-  subscribeToStoreChanges,
-} from "./utils/working-state-detection";
-
 export {
   formatEventData,
   getEventDescription,
@@ -52,3 +52,9 @@ export {
   groupEventsIntoSessions,
 } from "./utils/session-grouper";
 export { StreamInterceptor } from "./utils/stream-interceptor";
+export {
+  getAvailableStoreIds,
+  getStoreState,
+  isStorePackageAvailable,
+  subscribeToStoreChanges,
+} from "./utils/working-state-detection";

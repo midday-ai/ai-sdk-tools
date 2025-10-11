@@ -275,6 +275,13 @@ export interface AgentDataParts {
     status: "routing" | "executing" | "completing";
     agent: string;
   };
+  /** Agent handoff events (transient) */
+  "agent-handoff": {
+    from: string;
+    to: string;
+    reason?: string;
+    routingStrategy?: "programmatic" | "llm";
+  };
   /** Rate limit information (transient) */
   "rate-limit": {
     limit: number;

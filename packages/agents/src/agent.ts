@@ -288,6 +288,20 @@ export class Agent<
           // Get handoff agents (specialists)
           const specialists = this.getHandoffs();
 
+          // Emit orchestrator start (even if we skip to specialist via programmatic routing)
+          writeAgentStatus(writer, {
+            status: "routing",
+            agent: this.name,
+          });
+
+          if (onEvent) {
+            await onEvent({
+              type: "agent-start",
+              agent: this.name,
+              round: 0,
+            });
+          }
+
           // Determine starting agent using programmatic routing
           let currentAgent: IAgent<any> = this;
 
@@ -315,6 +329,41 @@ export class Agent<
             if (matchedAgent) {
               currentAgent = matchedAgent;
               console.log(`[ROUTING] Programmatic match: ${currentAgent.name}`);
+
+              // Mark orchestrator as completing
+              writeAgentStatus(writer, {
+                status: "completing",
+                agent: this.name,
+              });
+
+              if (onEvent) {
+                await onEvent({
+                  type: "agent-finish",
+                  agent: this.name,
+                  round: 0,
+                });
+              }
+
+              // Emit handoff event for programmatic routing
+              writer.write({
+                type: "data-agent-handoff",
+                data: {
+                  from: this.name,
+                  to: matchedAgent.name,
+                  reason: "Programmatic routing match",
+                  routingStrategy: "programmatic",
+                },
+                transient: true,
+              } as never);
+
+              if (onEvent) {
+                await onEvent({
+                  type: "agent-handoff",
+                  from: this.name,
+                  to: matchedAgent.name,
+                  reason: "Programmatic routing match",
+                });
+              }
             }
           }
 
@@ -457,6 +506,17 @@ export class Agent<
                 if (nextAgent) {
                   currentAgent = nextAgent;
 
+                  writer.write({
+                    type: "data-agent-handoff",
+                    data: {
+                      from: this.name,
+                      to: nextAgent.name,
+                      reason: handoffData.reason,
+                      routingStrategy: "llm",
+                    },
+                    transient: true,
+                  } as never);
+
                   // Emit handoff event
                   if (onEvent) {
                     await onEvent({
@@ -488,6 +548,18 @@ export class Agent<
                 if (nextAgent) {
                   const previousAgent = currentAgent;
                   currentAgent = nextAgent;
+
+                  // Write handoff to stream for devtools
+                  writer.write({
+                    type: "data-agent-handoff",
+                    data: {
+                      from: previousAgent.name,
+                      to: nextAgent.name,
+                      reason: handoffData.reason,
+                      routingStrategy: "llm",
+                    },
+                    transient: true,
+                  } as never);
 
                   // Emit handoff event
                   if (onEvent) {

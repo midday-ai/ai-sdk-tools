@@ -359,6 +359,44 @@ export function parseEventFromDataPart(
     };
   }
 
+  // Handle agent orchestration data events (from @ai-sdk-tools/agents)
+  if (dataPart.type === "data-agent-status") {
+    const agentData = dataPart.data || {};
+    return {
+      id: eventId,
+      timestamp,
+      type:
+        agentData.status === "executing" || agentData.status === "routing"
+          ? "agent-start"
+          : agentData.status === "completing"
+            ? "agent-finish"
+            : "unknown",
+      data: agentData,
+      metadata: {
+        agent: agentData.agent,
+        originalType: dataPart.type,
+      },
+    };
+  }
+
+  // Handle agent handoff events
+  if (dataPart.type === "data-agent-handoff") {
+    const handoffData = dataPart.data || {};
+    return {
+      id: eventId,
+      timestamp,
+      type: "agent-handoff",
+      data: handoffData,
+      metadata: {
+        fromAgent: handoffData.from,
+        toAgent: handoffData.to,
+        reason: handoffData.reason,
+        routingStrategy: handoffData.routingStrategy,
+        originalType: dataPart.type,
+      },
+    };
+  }
+
   // Handle custom data types (data-canvas, data-weather, etc.)
   if (dataPart.type?.startsWith("data-")) {
     const dataType = dataPart.type.replace("data-", "");
@@ -714,6 +752,24 @@ export function getEventDescription(event: AIEvent): string {
       const transientLabel = isTransient ? " (transient)" : "";
       return `DATA ${dataType.toUpperCase()}${transientLabel}`;
     }
+
+    case "agent-start":
+      return `AGENT START ${event.metadata?.agent || "unknown"}`;
+
+    case "agent-finish":
+      return `AGENT FINISH ${event.metadata?.agent || "unknown"}`;
+
+    case "agent-error":
+      return `AGENT ERROR ${event.metadata?.agent || "unknown"}`;
+
+    case "agent-handoff":
+      return `HANDOFF ${event.metadata?.fromAgent || "unknown"} → ${event.metadata?.toAgent || "unknown"}`;
+
+    case "agent-complete":
+      return `ORCHESTRATION COMPLETE (${event.metadata?.totalRounds || 0} rounds)`;
+
+    case "agent-step":
+      return `AGENT STEP ${event.metadata?.agent || "unknown"}`;
 
     case "unknown":
       return `UNKNOWN ${event.metadata?.originalType || "no type"}`;
