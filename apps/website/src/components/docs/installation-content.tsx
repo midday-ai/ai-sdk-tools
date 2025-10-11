@@ -27,6 +27,41 @@ export default function InstallationContent() {
 
           <div className="space-y-8">
             <div>
+              <h3 className="text-lg font-medium mb-4">
+                Multi-Agent Orchestration
+              </h3>
+              <p className="text-sm text-secondary mb-4">
+                Build intelligent workflows with specialized agents and
+                automatic handoffs.
+              </p>
+              <div className="flex items-center justify-between border border-dashed border-[#2a2a2a] px-3 py-1.5 max-w-md mb-8">
+                <code className="text-sm">
+                  npm i @ai-sdk-tools/agents ai zod
+                </code>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(
+                      "npm i @ai-sdk-tools/agents ai zod",
+                    );
+                  }}
+                  className="text-[#888] hover:text-white transition-colors"
+                  aria-label="Copy command"
+                  title='Copy "npm i @ai-sdk-tools/agents ai zod" to clipboard'
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <title>Copy to clipboard</title>
+                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div>
               <h3 className="text-lg font-medium mb-4">State Management</h3>
               <p className="text-sm text-secondary mb-4">
                 Global state management for AI applications with optimized
@@ -115,6 +150,34 @@ export default function InstallationContent() {
                 </button>
               </div>
             </div>
+
+            <div>
+              <h3 className="text-lg font-medium mb-4">Universal Caching</h3>
+              <p className="text-sm text-secondary mb-4">
+                Cache expensive AI tool executions with zero configuration.
+              </p>
+              <div className="flex items-center justify-between border border-dashed border-[#2a2a2a] px-3 py-1.5 max-w-md mb-8">
+                <code className="text-sm">npm i @ai-sdk-tools/cache</code>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText("npm i @ai-sdk-tools/cache");
+                  }}
+                  className="text-[#888] hover:text-white transition-colors"
+                  aria-label="Copy command"
+                  title='Copy "npm i @ai-sdk-tools/cache" to clipboard'
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <title>Copy to clipboard</title>
+                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -130,18 +193,19 @@ export default function InstallationContent() {
 
             <div className="flex items-center justify-between border border-dashed border-[#2a2a2a] px-3 py-1.5 max-w-md mb-8">
               <code className="text-sm">
-                npm i @ai-sdk-tools/store @ai-sdk-tools/devtools
-                @ai-sdk-tools/artifacts
+                npm i @ai-sdk-tools/agents @ai-sdk-tools/store
+                @ai-sdk-tools/devtools @ai-sdk-tools/artifacts
+                @ai-sdk-tools/cache ai zod
               </code>
               <button
                 onClick={() => {
                   navigator.clipboard.writeText(
-                    "npm i @ai-sdk-tools/store @ai-sdk-tools/devtools @ai-sdk-tools/artifacts",
+                    "npm i @ai-sdk-tools/agents @ai-sdk-tools/store @ai-sdk-tools/devtools @ai-sdk-tools/artifacts @ai-sdk-tools/cache ai zod",
                   );
                 }}
                 className="text-[#888] hover:text-white transition-colors"
                 aria-label="Copy command"
-                title='Copy "npm i @ai-sdk-tools/store @ai-sdk-tools/devtools @ai-sdk-tools/artifacts" to clipboard'
+                title='Copy "npm i @ai-sdk-tools/agents @ai-sdk-tools/store @ai-sdk-tools/devtools @ai-sdk-tools/artifacts @ai-sdk-tools/cache ai zod" to clipboard'
               >
                 <svg
                   width="16"

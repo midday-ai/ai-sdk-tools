@@ -85,6 +85,23 @@ export default function DocsContent() {
           <h2 className="text-2xl font-normal mb-8">Packages</h2>
           <div className="grid lg:grid-cols-2 gap-8">
             <Link
+              href="/docs/agents"
+              className="group border border-[#2a2a2a] hover:border-[#404040] transition-colors p-8"
+            >
+              <h3 className="text-lg font-medium mb-4 group-hover:text-white transition-colors">
+                @ai-sdk-tools/agents
+              </h3>
+              <p className="text-sm text-secondary mb-6">
+                Multi-agent orchestration with automatic handoffs and routing.
+                Build intelligent workflows with specialized agents for any AI
+                provider.
+              </p>
+              <div className="text-xs text-[#888] group-hover:text-[#aaa] transition-colors">
+                Learn more →
+              </div>
+            </Link>
+
+            <Link
               href="/docs/store"
               className="group border border-[#2a2a2a] hover:border-[#404040] transition-colors p-8"
             >
@@ -126,6 +143,23 @@ export default function DocsContent() {
               <p className="text-sm text-secondary mb-6">
                 Advanced streaming interfaces for AI applications with
                 structured data, progress tracking, and error handling.
+              </p>
+              <div className="text-xs text-[#888] group-hover:text-[#aaa] transition-colors">
+                Learn more →
+              </div>
+            </Link>
+
+            <Link
+              href="/docs/cache"
+              className="group border border-[#2a2a2a] hover:border-[#404040] transition-colors p-8"
+            >
+              <h3 className="text-lg font-medium mb-4 group-hover:text-white transition-colors">
+                @ai-sdk-tools/cache
+              </h3>
+              <p className="text-sm text-secondary mb-6">
+                Universal caching for AI SDK tools. Cache expensive operations
+                with zero configuration - works with regular tools, streaming,
+                and artifacts.
               </p>
               <div className="text-xs text-[#888] group-hover:text-[#aaa] transition-colors">
                 Learn more →

@@ -4,16 +4,19 @@ import DocsContent from "@/components/docs/docs-content";
 export const metadata: Metadata = {
   title: "Documentation - AI SDK Tools",
   description:
-    "Complete documentation for AI SDK Tools. Learn how to build powerful AI applications with our enhanced tools for state management, debugging, and streaming interfaces.",
+    "Complete documentation for AI SDK Tools. Learn how to build powerful AI applications with our enhanced tools for multi-agent orchestration, state management, debugging, and streaming interfaces.",
   keywords: [
     "AI SDK documentation",
     "AI tools documentation",
+    "AI agents documentation",
+    "multi-agent systems",
     "React AI state management",
     "AI debugging tools",
     "AI streaming interfaces",
     "AI SDK tools guide",
     "AI application development",
     "TypeScript AI tools",
+    "agent orchestration",
   ],
   openGraph: {
     title: "Documentation - AI SDK Tools",

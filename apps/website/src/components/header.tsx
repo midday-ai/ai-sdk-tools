@@ -50,6 +50,16 @@ export function Header() {
         {/* Desktop menu items */}
         <nav className="hidden md:flex items-center space-x-8">
           <Link
+            href="/agents"
+            className={`transition-colors text-sm font-medium ${
+              pathname === "/agents"
+                ? "text-[#d4d4d4]"
+                : "text-secondary hover:text-[#d4d4d4]"
+            }`}
+          >
+            Agents
+          </Link>
+          <Link
             href="/store"
             className={`transition-colors text-sm font-medium ${
               pathname === "/store"
@@ -98,16 +108,6 @@ export function Header() {
             }`}
           >
             About
-          </Link>
-          <Link
-            href="/docs"
-            className={`transition-colors text-sm font-medium ${
-              pathname.startsWith("/docs")
-                ? "text-[#d4d4d4]"
-                : "text-secondary hover:text-[#d4d4d4]"
-            }`}
-          >
-            Docs
           </Link>
         </nav>
 
@@ -170,6 +170,17 @@ export function Header() {
       {isMobileMenuOpen && (
         <div className="md:hidden fixed top-[73px] left-0 right-0 bg-black/98 backdrop-blur-md border-t border-[#2a2a2a] z-[9999]">
           <nav className="max-w-[95rem] mx-auto px-8 py-6 space-y-4">
+            <Link
+              href="/agents"
+              onClick={closeMobileMenu}
+              className={`block transition-colors text-sm font-medium py-2 ${
+                pathname === "/agents"
+                  ? "text-[#d4d4d4]"
+                  : "text-secondary hover:text-[#d4d4d4]"
+              }`}
+            >
+              Agents
+            </Link>
             <Link
               href="/store"
               onClick={closeMobileMenu}
