@@ -6,7 +6,6 @@ export { operationsAgent } from "./operations";
 export { reportsAgent } from "./reports";
 
 // Shared utilities
-export { AGENT_CONTEXT, getContextPrompt } from "./shared";
 export { timeTrackingAgent } from "./time-tracking";
 export { transactionsAgent } from "./transactions";
 

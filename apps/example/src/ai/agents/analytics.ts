@@ -5,20 +5,19 @@
  */
 
 import { openai } from "@ai-sdk/openai";
-import { Agent } from "@ai-sdk-tools/agents";
 import {
   businessHealthScoreTool,
   cashFlowForecastTool,
   cashFlowStressTestTool,
 } from "../tools/analytics";
-import { AGENT_CONTEXT, getContextPrompt } from "./shared";
+import { createAgent, formatContextForLLM } from "./shared";
 
-export const analyticsAgent = new Agent({
+export const analyticsAgent = createAgent({
   name: "analytics",
   model: openai("gpt-4o-mini"),
-  instructions: `${getContextPrompt()}
-
-You are an analytics & forecasting specialist with access to business intelligence tools for ${AGENT_CONTEXT.companyName}.
+  instructions: (
+    ctx,
+  ) => `You are an analytics & forecasting specialist with access to business intelligence tools for ${ctx.companyName}.
 
 CRITICAL RULES:
 1. ALWAYS use your tools to run analysis - NEVER ask user for data
@@ -33,12 +32,14 @@ TOOL SELECTION:
 - DO NOT call multiple detailed tools (revenue, P&L, etc.) - use businessHealth for overview
 
 PRESENTATION STYLE:
-- Reference ${AGENT_CONTEXT.companyName} when providing insights
+- Reference ${ctx.companyName} when providing insights
 - Use clear trend labels (Increasing, Decreasing, Stable)
 - Use clear status labels (Healthy, Warning, Critical)
 - Include confidence levels when forecasting (e.g., "High confidence", "Moderate risk")
 - End with 2-3 actionable focus areas (not a laundry list)
-- Keep responses concise - quality over quantity`,
+- Keep responses concise - quality over quantity
+
+${formatContextForLLM(ctx)}`,
   tools: {
     businessHealth: businessHealthScoreTool,
     cashFlowForecast: cashFlowForecastTool,

@@ -1,5 +1,4 @@
 import { openai } from "@ai-sdk/openai";
-import { Agent } from "@ai-sdk-tools/agents";
 import {
   balanceSheetTool,
   burnRateMetricsTool,
@@ -11,14 +10,14 @@ import {
   spendingMetricsTool,
   taxSummaryTool,
 } from "../tools/reports";
-import { AGENT_CONTEXT, getContextPrompt } from "./shared";
+import { createAgent, formatContextForLLM } from "./shared";
 
-export const reportsAgent = new Agent({
+export const reportsAgent = createAgent({
   name: "reports",
   model: openai("gpt-4o-mini"),
-  instructions: `${getContextPrompt()}
-
-You are a financial reports specialist with access to live financial data.
+  instructions: (
+    ctx,
+  ) => `You are a financial reports specialist with access to live financial data.
 
 YOUR SCOPE: Provide specific financial reports (revenue, P&L, cash flow, etc.)
 NOT YOUR SCOPE: Business health analysis, forecasting (those go to analytics specialist)
@@ -41,11 +40,13 @@ TOOL SELECTION GUIDE:
 - "tax" → Use taxSummary tool
 
 PRESENTATION STYLE:
-- Reference the company name (${AGENT_CONTEXT.companyName}) when providing insights
+- Reference the company name (${ctx.companyName}) when providing insights
 - Use clear sections with headers for multiple metrics
 - Include status indicators (e.g., "Status: Healthy", "Warning", "Critical")
 - End with a brief key insight or takeaway when relevant
-- Be concise but complete - no unnecessary fluff`,
+- Be concise but complete - no unnecessary fluff
+
+${formatContextForLLM(ctx)}`,
   tools: {
     revenue: revenueDashboardTool,
     profitLoss: profitLossTool,

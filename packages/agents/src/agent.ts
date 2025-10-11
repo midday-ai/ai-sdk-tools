@@ -2,36 +2,48 @@ import {
   Experimental_Agent as AISDKAgent,
   createUIMessageStream,
   createUIMessageStreamResponse,
+  type ModelMessage,
+  type StepResult,
   stepCountIs,
   type Tool,
 } from "ai";
 import { debug } from "./debug.js";
 import { createHandoffTool, isHandoffResult } from "./handoff.js";
 import { promptWithHandoffInstructions } from "./handoff-prompt.js";
+import { writeAgentStatus } from "./streaming.js";
 import type {
   AgentConfig,
+  AgentEvent,
   AgentGenerateOptions,
   AgentGenerateResult,
   AgentStreamOptions,
   AgentStreamOptionsUI,
   AgentStreamResult,
   HandoffInstruction,
+  Agent as IAgent,
+  InputGuardrail,
+  OutputGuardrail,
+  ToolPermissions,
 } from "./types.js";
+import { extractTextFromMessage } from "./utils.js";
 
-export class Agent {
+export class Agent<
+  TContext extends Record<string, unknown> = Record<string, unknown>,
+> implements IAgent<TContext>
+{
   public readonly name: string;
-  public readonly instructions: string;
+  public readonly instructions: string | ((context: TContext) => string);
   public readonly matchOn?:
     | (string | RegExp)[]
     | ((message: string) => boolean);
-  public readonly onEvent?: (event: any) => void | Promise<void>;
-  public readonly inputGuardrails?: any[];
-  public readonly outputGuardrails?: any[];
-  public readonly permissions?: any;
+  public readonly onEvent?: (event: AgentEvent) => void | Promise<void>;
+  public readonly inputGuardrails?: InputGuardrail[];
+  public readonly outputGuardrails?: OutputGuardrail[];
+  public readonly permissions?: ToolPermissions;
   private readonly aiAgent: AISDKAgent<Record<string, Tool>>;
-  private readonly handoffAgents: Agent[];
+  private readonly handoffAgents: Array<IAgent<any>>;
 
-  constructor(config: AgentConfig) {
+  constructor(config: AgentConfig<TContext>) {
     this.name = config.name;
     this.instructions = config.instructions;
     this.matchOn = config.matchOn;
@@ -39,7 +51,7 @@ export class Agent {
     this.inputGuardrails = config.inputGuardrails;
     this.outputGuardrails = config.outputGuardrails;
     this.permissions = config.permissions;
-    this.handoffAgents = (config.handoffs as Agent[]) || [];
+    this.handoffAgents = config.handoffs || [];
 
     // Prepare tools with handoff capability
     const tools = { ...config.tools };
@@ -47,11 +59,14 @@ export class Agent {
       tools.handoff_to_agent = createHandoffTool(this.handoffAgents);
     }
 
-    // Add recommended prompt prefix for handoffs
+    // Note: If instructions is a function, it will be resolved per-call in stream()
+    // We still need to create the AI SDK Agent with initial instructions for backwards compatibility
+    const baseInstructions =
+      typeof config.instructions === "string" ? config.instructions : "";
     const systemPrompt =
       this.handoffAgents.length > 0
-        ? promptWithHandoffInstructions(config.instructions)
-        : config.instructions;
+        ? promptWithHandoffInstructions(baseInstructions)
+        : baseInstructions;
 
     // Create AI SDK Agent
     this.aiAgent = new AISDKAgent<Record<string, Tool>>({
@@ -68,7 +83,6 @@ export class Agent {
     const startTime = new Date();
 
     try {
-      // Use AI SDK Agent's generate method
       const result =
         options.messages && options.messages.length > 0
           ? await this.aiAgent.generate({
@@ -98,7 +112,7 @@ export class Agent {
       }
 
       return {
-        ...result,
+        text: result.text || "",
         finalAgent: this.name,
         finalOutput: result.text || "",
         handoffs,
@@ -107,6 +121,14 @@ export class Agent {
           endTime,
           duration: endTime.getTime() - startTime.getTime(),
         },
+        steps: result.steps,
+        finishReason: result.finishReason,
+        usage: result.usage,
+        toolCalls: result.toolCalls?.map((tc) => ({
+          toolCallId: tc.toolCallId,
+          toolName: tc.toolName,
+          args: "args" in tc ? tc.args : undefined,
+        })),
       };
     } catch (error) {
       throw new Error(
@@ -115,16 +137,37 @@ export class Agent {
     }
   }
 
-  stream(options: AgentStreamOptions | { messages: any[] }): AgentStreamResult {
+  stream(
+    options: AgentStreamOptions | { messages: ModelMessage[] },
+  ): AgentStreamResult {
     debug("STREAM", `${this.name} stream called`);
 
     // Extract our internal execution context (we map to/from AI SDK's experimental_context at boundaries)
-    const executionContext = (options as any).executionContext;
-    const maxSteps = (options as any).maxSteps;
-    const onStepFinish = (options as any).onStepFinish;
+    const executionContext = (options as Record<string, unknown>)
+      .executionContext as Record<string, unknown> | undefined;
+    const maxSteps = (options as Record<string, unknown>).maxSteps as
+      | number
+      | undefined;
+    const onStepFinish = (options as Record<string, unknown>).onStepFinish as
+      | ((step: unknown) => void | Promise<void>)
+      | undefined;
+
+    // Resolve instructions dynamically (static string or function)
+    const resolvedInstructions =
+      typeof this.instructions === "function"
+        ? this.instructions(executionContext as TContext)
+        : this.instructions;
+
+    // Add handoff instructions if needed
+    const systemPrompt =
+      this.handoffAgents.length > 0
+        ? promptWithHandoffInstructions(resolvedInstructions)
+        : resolvedInstructions;
 
     // Build additional options to pass to AI SDK
-    const additionalOptions: any = {};
+    const additionalOptions: Record<string, unknown> = {
+      system: systemPrompt, // Override system prompt per call
+    };
     if (executionContext)
       additionalOptions.experimental_context = executionContext;
     if (maxSteps) additionalOptions.maxSteps = maxSteps;
@@ -171,7 +214,7 @@ export class Agent {
     throw new Error("No valid options provided to stream method");
   }
 
-  getHandoffs(): Agent[] {
+  getHandoffs(): Array<IAgent<any>> {
     return this.handoffAgents;
   }
 
@@ -183,30 +226,45 @@ export class Agent {
    */
   toUIMessageStream(options: AgentStreamOptionsUI): Response {
     const {
-      input,
-      messages = [],
+      messages,
       strategy = "auto",
       maxRounds = 5,
       maxSteps = 5,
       context,
       beforeStream,
-      experimental_transform,
       onEvent,
+      // AI SDK createUIMessageStream options
+      onFinish,
+      onError,
+      generateId,
+      // AI SDK toUIMessageStream options
+      sendReasoning,
+      sendSources,
+      sendFinish,
+      sendStart,
+      messageMetadata,
+      // Response options
+      status,
+      statusText,
+      headers,
     } = options;
 
-    const responseInit: any = experimental_transform
-      ? { experimental_transform }
-      : {};
+    // Extract input from last message for routing
+    const lastMessage = messages[messages.length - 1];
+    const input = extractTextFromMessage(lastMessage);
 
     const stream = createUIMessageStream({
-      originalMessages: messages as any,
+      originalMessages: messages as never[],
+      onFinish,
+      onError,
+      generateId,
       execute: async ({ writer }) => {
         // Import context utilities
         const { createExecutionContext } = await import("./context.js");
 
         // Create execution context with user context and writer
         const executionContext = createExecutionContext({
-          context: context || {},
+          context: (context || {}) as Record<string, unknown>,
           writer,
           metadata: {
             agent: this.name,
@@ -227,19 +285,11 @@ export class Agent {
           // Prepare conversation messages
           const conversationMessages = [...messages];
 
-          // Add user input as latest message if provided
-          if (input) {
-            conversationMessages.push({
-              role: "user" as const,
-              content: input,
-            });
-          }
-
           // Get handoff agents (specialists)
           const specialists = this.getHandoffs();
 
           // Determine starting agent using programmatic routing
-          let currentAgent: Agent = this;
+          let currentAgent: IAgent<any> = this;
 
           if (strategy === "auto" && specialists.length > 0) {
             // Try programmatic classification
@@ -278,13 +328,9 @@ export class Agent {
 
           while (round++ < maxRounds) {
             // Send status: agent executing
-            writer.write({
-              type: "data-agent-status",
-              data: {
-                status: "executing",
-                agent: currentAgent.name,
-              },
-              transient: true,
+            writeAgentStatus(writer, {
+              status: "executing",
+              agent: currentAgent.name,
             });
 
             const messagesToSend =
@@ -305,21 +351,25 @@ export class Agent {
               messages: messagesToSend,
               executionContext: executionContext,
               maxSteps, // Limit tool calls per round
-              onStepFinish: async (step: any) => {
+              onStepFinish: async (step: unknown) => {
                 if (onEvent) {
                   await onEvent({
                     type: "agent-step",
                     agent: currentAgent.name,
-                    step,
+                    step: step as StepResult<Record<string, Tool>>,
                   });
                 }
               },
             } as any);
 
             // This automatically converts fullStream to proper UI message chunks
-            // Enable sendSources to include source-url parts for web search citations
+            // Pass toUIMessageStream options from user config
             const uiStream = result.toUIMessageStream({
-              sendSources: true,
+              sendReasoning,
+              sendSources,
+              sendFinish,
+              sendStart,
+              messageMetadata,
             });
 
             // Track for orchestration
@@ -336,10 +386,9 @@ export class Agent {
                 (chunk.type === "text-delta" ||
                   chunk.type === "tool-input-start")
               ) {
-                writer.write({
-                  type: "data-agent-status",
-                  data: { status: "completing", agent: currentAgent.name },
-                  transient: true,
+                writeAgentStatus(writer, {
+                  status: "completing",
+                  agent: currentAgent.name,
                 });
                 hasStartedContent = true;
               }
@@ -395,13 +444,9 @@ export class Agent {
                 }
 
                 // Send routing status
-                writer.write({
-                  type: "data-agent-status",
-                  data: {
-                    status: "routing",
-                    agent: "orchestrator",
-                  },
-                  transient: true,
+                writeAgentStatus(writer, {
+                  status: "routing",
+                  agent: "orchestrator",
                 });
 
                 // Mark specialist as used and route to it
@@ -491,14 +536,18 @@ export class Agent {
     });
 
     const response = createUIMessageStreamResponse({
-      ...responseInit,
       stream,
+      status,
+      statusText,
+      headers,
     });
 
     return response;
   }
 
-  static create(config: AgentConfig): Agent {
-    return new Agent(config);
+  static create<
+    TContext extends Record<string, unknown> = Record<string, unknown>,
+  >(config: AgentConfig<TContext>): Agent<TContext> {
+    return new Agent<TContext>(config);
   }
 }

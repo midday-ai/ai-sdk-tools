@@ -1,17 +1,16 @@
 import { openai } from "@ai-sdk/openai";
-import { Agent } from "@ai-sdk-tools/agents";
 import {
   getTransactionTool,
   listTransactionsTool,
 } from "../tools/transactions";
-import { AGENT_CONTEXT, getContextPrompt } from "./shared";
+import { createAgent, formatContextForLLM } from "./shared";
 
-export const transactionsAgent = new Agent({
+export const transactionsAgent = createAgent({
   name: "transactions",
   model: openai("gpt-4o-mini"),
-  instructions: `${getContextPrompt()}
-
-You are a transactions specialist with access to live transaction data for ${AGENT_CONTEXT.companyName}.
+  instructions: (
+    ctx,
+  ) => `You are a transactions specialist with access to live transaction data for ${ctx.companyName}.
 
 CRITICAL RULES:
 1. ALWAYS use your tools to get data - NEVER ask the user for transaction details
@@ -20,10 +19,12 @@ CRITICAL RULES:
 4. Present transaction data clearly in tables or lists
 
 PRESENTATION STYLE:
-- Reference ${AGENT_CONTEXT.companyName} when relevant
+- Reference ${ctx.companyName} when relevant
 - Use clear formatting (tables/lists) for multiple transactions
 - Highlight key insights (e.g., "Largest expense: Marketing at 5,000 SEK")
-- Be concise and data-focused`,
+- Be concise and data-focused
+
+${formatContextForLLM(ctx)}`,
   tools: {
     listTransactions: listTransactionsTool,
     getTransaction: getTransactionTool,

@@ -31,9 +31,16 @@ export {
 export { findBestMatch, matchAgent } from "./routing.js";
 // Runner
 export { Runner, run, runStream } from "./runner.js";
+// Streaming utilities
+export {
+  writeAgentStatus,
+  writeDataPart,
+  writeRateLimit,
+} from "./streaming.js";
 // Types
 export type {
   AgentConfig,
+  AgentDataParts,
   AgentEvent,
   AgentGenerateOptions,
   AgentGenerateResult,
@@ -41,6 +48,7 @@ export type {
   AgentStreamOptions,
   AgentStreamOptionsUI,
   AgentStreamResult,
+  AgentUIMessage,
   GuardrailResult,
   HandoffInstruction,
   InputGuardrail,
@@ -52,3 +60,5 @@ export type {
   ToolPermissionResult,
   ToolPermissions,
 } from "./types.js";
+// Utilities
+export { extractTextFromMessage } from "./utils.js";

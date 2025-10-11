@@ -1,21 +1,18 @@
 import { openai } from "@ai-sdk/openai";
-import { Agent } from "@ai-sdk-tools/agents";
 import { analyticsAgent } from "./analytics";
 import { customersAgent } from "./customers";
 import { generalAgent } from "./general";
 import { invoicesAgent } from "./invoices";
 import { operationsAgent } from "./operations";
 import { reportsAgent } from "./reports";
-import { getContextPrompt } from "./shared";
+import { createAgent, formatContextForLLM } from "./shared";
 import { timeTrackingAgent } from "./time-tracking";
 import { transactionsAgent } from "./transactions";
 
-export const triageAgent = Agent.create({
+export const triageAgent = createAgent({
   name: "triage",
   model: openai("gpt-4o-mini"),
-  instructions: `${getContextPrompt()}
-
-Route user requests to the appropriate agent:
+  instructions: (ctx) => `Route user requests to the appropriate agent:
 
 **reports**: Financial metrics and reports
   - Revenue, P&L, expenses, spending
@@ -56,7 +53,9 @@ ROUTING RULES:
 - "what did I just ask" or memory queries = general
 - Greetings, thanks, casual chat = general
 - When uncertain = general (as default)
-- Route to ONE specialist at a time`,
+- Route to ONE specialist at a time
+
+${formatContextForLLM(ctx)}`,
   handoffs: [
     reportsAgent,
     analyticsAgent,

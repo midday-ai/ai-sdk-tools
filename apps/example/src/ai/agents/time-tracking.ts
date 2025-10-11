@@ -1,5 +1,4 @@
 import { openai } from "@ai-sdk/openai";
-import { Agent } from "@ai-sdk-tools/agents";
 import {
   createTimeEntryTool,
   deleteTimeEntryTool,
@@ -9,19 +8,21 @@ import {
   stopTimerTool,
   updateTimeEntryTool,
 } from "../tools/tracker";
-import { AGENT_CONTEXT, getContextPrompt } from "./shared";
+import { createAgent, formatContextForLLM } from "./shared";
 
-export const timeTrackingAgent = new Agent({
+export const timeTrackingAgent = createAgent({
   name: "timeTracking",
   model: openai("gpt-4o-mini"),
-  instructions: `${getContextPrompt()}
-
-You are a time tracking specialist for ${AGENT_CONTEXT.companyName}.
+  instructions: (
+    ctx,
+  ) => `You are a time tracking specialist for ${ctx.companyName}.
 
 CRITICAL RULES:
 1. ALWAYS use tools to get/create/update time entries and timers
 2. Present time data clearly (duration, project, date)
-3. Summarize totals when showing multiple entries`,
+3. Summarize totals when showing multiple entries
+
+${formatContextForLLM(ctx)}`,
   tools: {
     startTimer: startTimerTool,
     stopTimer: stopTimerTool,

@@ -1,36 +1,48 @@
 import type {
+  IdGenerator,
   LanguageModel,
+  LanguageModelUsage,
   ModelMessage,
   StepResult,
   StreamTextResult,
   Tool,
+  UIMessage,
+  UIMessageStreamOnFinishCallback,
+  UIMessageStreamWriter,
 } from "ai";
 
 // Forward declaration
-export interface Agent {
+export interface Agent<
+  TContext extends Record<string, unknown> = Record<string, unknown>,
+> {
   name: string;
-  instructions: string;
+  instructions: string | ((context: TContext) => string);
   matchOn?: (string | RegExp)[] | ((message: string) => boolean);
-  onEvent?: (event: any) => void | Promise<void>;
-  inputGuardrails?: any[];
-  outputGuardrails?: any[];
-  permissions?: any;
+  onEvent?: (event: AgentEvent) => void | Promise<void>;
+  inputGuardrails?: InputGuardrail[];
+  outputGuardrails?: OutputGuardrail[];
+  permissions?: ToolPermissions;
   generate(options: AgentGenerateOptions): Promise<AgentGenerateResult>;
   stream(options: AgentStreamOptions): AgentStreamResult;
-  getHandoffs(): Agent[];
+  getHandoffs(): Array<Agent<any>>;
 }
 
-export interface AgentConfig {
+export interface AgentConfig<
+  TContext extends Record<string, unknown> = Record<string, unknown>,
+> {
   /** Unique name for the agent */
   name: string;
-  /** System instructions for the agent */
-  instructions: string;
+  /**
+   * Static instructions or dynamic function that receives context.
+   * Function receives the full execution context and returns the system prompt.
+   */
+  instructions: string | ((context: TContext) => string);
   /** Language model to use */
   model: LanguageModel;
   /** Tools available to the agent */
   tools?: Record<string, Tool>;
   /** Agents this agent can hand off to */
-  handoffs?: Agent[];
+  handoffs?: Array<Agent<any>>;
   /** Maximum number of turns before stopping */
   maxTurns?: number;
   /** Temperature for model responses */
@@ -82,8 +94,12 @@ export interface AgentGenerateResult {
   metadata: { startTime: Date; endTime: Date; duration: number };
   steps?: StepResult<Record<string, Tool>>[];
   finishReason?: string;
-  usage?: unknown;
-  toolCalls?: unknown[];
+  usage?: LanguageModelUsage;
+  toolCalls?: Array<{
+    toolCallId: string;
+    toolName: string;
+    args: unknown;
+  }>;
 }
 
 /**
@@ -193,7 +209,7 @@ export interface AgentStreamingResult {
 }
 
 export interface AgentRunOptions {
-  metadata?: any;
+  metadata?: Record<string, unknown>;
   maxTotalTurns?: number;
 }
 
@@ -203,7 +219,11 @@ export interface AgentRunOptions {
 export type AgentEvent =
   | { type: "start"; agent: string; input: string }
   | { type: "agent-start"; agent: string; round: number }
-  | { type: "agent-step"; agent: string; step: any }
+  | {
+      type: "agent-step";
+      agent: string;
+      step: StepResult<Record<string, Tool>>;
+    }
   | { type: "agent-finish"; agent: string; round: number }
   | { type: "agent-handoff"; from: string; to: string; reason?: string }
   | { type: "agent-complete"; totalRounds: number }
@@ -247,9 +267,9 @@ export interface OutputGuardrail<TOutput = unknown> {
  * Tool permission context
  */
 export interface ToolPermissionContext {
-  user?: { id: string; roles: string[]; [key: string]: any };
+  user?: { id: string; roles: string[]; [key: string]: unknown };
   usage: { toolCalls: Record<string, number>; tokens: number };
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
@@ -279,11 +299,12 @@ export interface ToolPermissions {
 /**
  * Options for agent.toUIMessageStream()
  */
-export interface AgentStreamOptionsUI {
-  /** User input text */
-  input: string;
-  /** Message history (user controls slicing) */
-  messages?: ModelMessage[];
+export interface AgentStreamOptionsUI<
+  TContext extends Record<string, unknown> = Record<string, unknown>,
+> {
+  // Agent-specific options
+  /** Message history - last message is used as input for routing */
+  messages: ModelMessage[];
   /** Routing strategy */
   strategy?: "auto" | "llm";
   /** Max orchestration rounds */
@@ -297,13 +318,115 @@ export interface AgentStreamOptionsUI {
    * This object will be wrapped in RunContext<T> and passed to all tools and hooks.
    * The writer will be automatically added when streaming.
    */
-  context?: Record<string, unknown>;
+  context?: TContext;
   /** Hook before streaming starts */
-  beforeStream?: (ctx: { writer: any }) => Promise<boolean | undefined>;
+  beforeStream?: (ctx: {
+    writer: UIMessageStreamWriter;
+  }) => Promise<boolean | undefined>;
   /** Transform chunks before writing */
   onChunk?: (chunk: StreamChunk) => unknown;
-  /** AI SDK transform */
-  experimental_transform?: any;
   /** Lifecycle event handler */
   onEvent?: (event: AgentEvent) => void | Promise<void>;
+
+  // AI SDK createUIMessageStream options
+  /** Callback when stream finishes with final messages */
+  onFinish?: UIMessageStreamOnFinishCallback<never>;
+  /** Process errors, e.g. to log them. Returns error message for data stream */
+  onError?: (error: unknown) => string;
+  /** Generate message ID for the response message */
+  generateId?: IdGenerator;
+
+  // AI SDK toUIMessageStream options
+  /** Send reasoning parts to client (default: true) */
+  sendReasoning?: boolean;
+  /** Send source parts to client (default: false) */
+  sendSources?: boolean;
+  /** Send finish event to client (default: true) */
+  sendFinish?: boolean;
+  /** Send message start event to client (default: true) */
+  sendStart?: boolean;
+  /** Extract message metadata to send to client */
+  messageMetadata?: (options: {
+    part: unknown;
+  }) => Record<string, unknown> | undefined;
+
+  // AI SDK response options
+  /** AI SDK transform - stream transform function */
+  experimental_transform?: unknown;
+  /** HTTP status code */
+  status?: number;
+  /** HTTP status text */
+  statusText?: string;
+  /** HTTP headers */
+  headers?: Record<string, string>;
 }
+
+/**
+ * Base data part schemas for agent orchestration streaming.
+ * Users can extend this interface to add custom data parts.
+ *
+ * @example Extending with custom data parts
+ * ```typescript
+ * declare module '@ai-sdk-tools/agents' {
+ *   interface AgentDataParts {
+ *     'custom-data': {
+ *       value: string;
+ *       timestamp: number;
+ *     };
+ *   }
+ * }
+ * ```
+ */
+export interface AgentDataParts {
+  /** Agent status updates (transient - won't be in message history) */
+  "agent-status": {
+    status: "routing" | "executing" | "completing";
+    agent: string;
+  };
+  /** Rate limit information (transient) */
+  "rate-limit": {
+    limit: number;
+    remaining: number;
+    reset: string;
+    code?: string;
+  };
+  // Allow extension with custom data parts
+  [key: string]: unknown;
+}
+
+/**
+ * Generic UI Message type for agents with orchestration data parts.
+ * Extends AI SDK's UIMessage with agent-specific data parts.
+ *
+ * @template TMetadata - Message metadata type (default: never)
+ * @template TDataParts - Custom data parts type (default: AgentDataParts)
+ *
+ * @example Basic usage
+ * ```typescript
+ * import type { AgentUIMessage } from '@ai-sdk-tools/agents';
+ *
+ * const { messages } = useChat<AgentUIMessage>({
+ *   api: '/api/chat',
+ *   onData: (dataPart) => {
+ *     if (dataPart.type === 'data-agent-status') {
+ *       console.log('Agent status:', dataPart.data);
+ *     }
+ *   }
+ * });
+ * ```
+ *
+ * @example With custom data parts
+ * ```typescript
+ * interface MyDataParts extends AgentDataParts {
+ *   'custom-metric': { value: number };
+ * }
+ *
+ * const { messages } = useChat<AgentUIMessage<never, MyDataParts>>({
+ *   api: '/api/chat'
+ * });
+ * ```
+ */
+export type AgentUIMessage<
+  TMetadata = never,
+  TDataParts extends Record<string, unknown> = AgentDataParts,
+> = UIMessage<TMetadata, TDataParts>;

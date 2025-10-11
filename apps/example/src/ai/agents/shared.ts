@@ -1,28 +1,83 @@
 /**
  * Shared Agent Configuration
  *
- * Common context and utilities used across all agents
+ * Dynamic context and utilities used across all agents
  */
 
-/**
- * Agent Context (would come from request in production)
- */
-export const AGENT_CONTEXT = {
-  companyName: "Acme Inc.",
-  date: new Date().toISOString().split("T")[0],
-  fullName: "John Doe",
-  registeredCountry: "United States",
-} as const;
+import type { AgentConfig } from "@ai-sdk-tools/agents";
+import { Agent } from "@ai-sdk-tools/agents";
 
 /**
- * Format context for system prompts
+ * Application context passed to agents
+ * Built dynamically per-request with current date/time
  */
-export function getContextPrompt(): string {
-  return `
-CONTEXT:
-- Company: ${AGENT_CONTEXT.companyName}
-- Date: ${AGENT_CONTEXT.date}
-- User: ${AGENT_CONTEXT.fullName}
-- Country: ${AGENT_CONTEXT.registeredCountry}
-`.trim();
+export interface AppContext {
+  userId: string;
+  fullName: string;
+  email: string;
+  teamId: string;
+  companyName: string;
+  baseCurrency: string;
+  locale: string;
+  currentDate: string;
+  currentTime: string;
+  currentDateTime: string;
+  timezone: string;
+  // Allow additional properties to satisfy Record<string, unknown> constraint
+  [key: string]: unknown;
 }
+
+/**
+ * Build application context dynamically
+ * Ensures current date/time on every request
+ */
+export function buildAppContext(params: {
+  userId: string;
+  fullName: string;
+  email: string;
+  teamId: string;
+  companyName: string;
+  baseCurrency?: string;
+  locale?: string;
+  timezone?: string;
+}): AppContext {
+  const now = new Date();
+  return {
+    userId: params.userId,
+    fullName: params.fullName,
+    email: params.email,
+    teamId: params.teamId,
+    companyName: params.companyName,
+    baseCurrency: params.baseCurrency || "USD",
+    locale: params.locale || "en-US",
+    currentDate: now.toISOString().split("T")[0],
+    currentTime: now.toTimeString().split(" ")[0],
+    currentDateTime: now.toISOString(),
+    timezone:
+      params.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+  };
+}
+
+/**
+ * Format context for LLM system prompts
+ * Auto-injected by agent instructions functions
+ */
+export function formatContextForLLM(context: AppContext): string {
+  return `
+CURRENT CONTEXT:
+- Date: ${context.currentDate} ${context.currentTime} (${context.timezone})
+- User: ${context.fullName} (${context.email})
+- Company: ${context.companyName}
+- Currency: ${context.baseCurrency}
+- Locale: ${context.locale}
+
+Important: Use the current date/time above for any time-sensitive operations.
+`;
+}
+
+/**
+ * Create a typed agent with AppContext pre-applied
+ * This enables automatic type inference for the context parameter
+ */
+export const createAgent = (config: AgentConfig<AppContext>) =>
+  Agent.create<AppContext>(config);

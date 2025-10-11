@@ -23,7 +23,7 @@ import type { UIMessageStreamWriter } from "ai";
  * @template TContext - Your custom context type (must be an object)
  */
 export type ExecutionContext<
-  TContext extends Record<string, any> = Record<string, unknown>,
+  TContext extends Record<string, unknown> = Record<string, unknown>,
 > = TContext & {
   /** Stream writer for real-time updates and artifacts */
   writer: UIMessageStreamWriter;
@@ -47,7 +47,7 @@ export type ExecutionContext<
  * @template TContext - Your custom context type (must be an object)
  */
 export interface ContextOptions<
-  TContext extends Record<string, any> = Record<string, unknown>,
+  TContext extends Record<string, unknown> = Record<string, unknown>,
 > {
   /** Your custom application context - spread at the top level */
   context: TContext;
@@ -101,7 +101,7 @@ export interface ContextOptions<
  * ```
  */
 export function createExecutionContext<
-  TContext extends Record<string, any> = Record<string, unknown>,
+  TContext extends Record<string, unknown> = Record<string, unknown>,
 >(options: ContextOptions<TContext>): ExecutionContext<TContext> {
   return {
     ...options.context,
@@ -150,9 +150,9 @@ export function createExecutionContext<
  * });
  * ```
  */
-export function getContext<T extends Record<string, any> = Record<string, any>>(
-  executionOptions?: any,
-): T {
+export function getContext<
+  T extends Record<string, unknown> = Record<string, unknown>,
+>(executionOptions?: { experimental_context?: T }): T | undefined {
   // AI SDK passes context via experimental_context
-  return executionOptions?.experimental_context as T;
+  return executionOptions?.experimental_context;
 }

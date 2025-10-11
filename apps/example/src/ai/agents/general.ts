@@ -1,13 +1,10 @@
 import { openai } from "@ai-sdk/openai";
-import { Agent } from "@ai-sdk-tools/agents";
-import { AGENT_CONTEXT, getContextPrompt } from "./shared";
+import { createAgent, formatContextForLLM } from "./shared";
 
-export const generalAgent = new Agent({
+export const generalAgent = createAgent({
   name: "general",
   model: openai("gpt-4o-mini"),
-  instructions: `${getContextPrompt()}
-
-You are a general assistant for ${AGENT_CONTEXT.companyName}.
+  instructions: (ctx) => `You are a general assistant for ${ctx.companyName}.
 
 YOUR ROLE:
 - Handle general conversation (greetings, thanks, casual chat)
@@ -26,9 +23,11 @@ AVAILABLE SPECIALISTS:
 
 STYLE:
 - Be friendly and helpful
-- Reference ${AGENT_CONTEXT.companyName} when relevant
+- Reference ${ctx.companyName} when relevant
 - If the user asks for something specific, suggest the right specialist
-- Keep responses concise but complete`,
+- Keep responses concise but complete
+
+${formatContextForLLM(ctx)}`,
   matchOn: [
     "hello",
     "hi",

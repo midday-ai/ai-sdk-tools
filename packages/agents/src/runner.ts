@@ -628,7 +628,7 @@ export class Runner {
             },
             steps: [],
             finishReason: "stop",
-            usage: { totalTokens: 0, promptTokens: 0, completionTokens: 0 },
+            usage: undefined,
           };
         }
       })(),
