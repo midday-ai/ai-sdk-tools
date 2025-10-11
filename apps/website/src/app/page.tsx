@@ -86,27 +86,16 @@ export default function Home() {
           </div>
 
           {/* Stacked Demos */}
-          <div
-            className="relative h-[500px] w-full"
-            style={{ perspective: "1000px" }}
-          >
+          <div className="relative h-[500px] w-full">
             {/* Store Demo (LiveDemo) */}
             <div
-              className={`absolute inset-0 transition-all duration-1000 ease-in-out transform-gpu ${
+              className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
                 focusedDemo === "store"
                   ? "translate-y-0 z-20 scale-100 opacity-100"
                   : "translate-y-4 z-10 scale-95 opacity-70"
               }`}
-              style={{
-                transform:
-                  focusedDemo === "store"
-                    ? "rotateY(2deg) rotateX(1deg)"
-                    : "rotateY(6deg) rotateX(3deg)",
-                transformStyle: "preserve-3d",
-                backfaceVisibility: "hidden",
-              }}
             >
-              <div className="bg-gradient-to-br from-[#1a1a1a] to-[#0f0f0f] p-1 shadow-2xl ">
+              <div className="bg-gradient-to-br from-[#1a1a1a] to-[#0c0c0c] p-1 shadow-2xl ">
                 <div className="border border-[#3c3c3c] p-2 ">
                   <div className="text-xs text-secondary mb-2">
                     ◇ AI SDK Store
@@ -118,21 +107,13 @@ export default function Home() {
 
             {/* Devtools Demo */}
             <div
-              className={`absolute inset-0 transition-all duration-1000 ease-in-out transform-gpu ${
+              className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
                 focusedDemo === "devtools"
                   ? "translate-y-0 z-20 scale-100 opacity-100"
                   : "-translate-y-4 z-10 scale-95 opacity-70"
               }`}
-              style={{
-                transform:
-                  focusedDemo === "devtools"
-                    ? "rotateY(-2deg) rotateX(-1deg)"
-                    : "rotateY(-6deg) rotateX(-3deg)",
-                transformStyle: "preserve-3d",
-                backfaceVisibility: "hidden",
-              }}
             >
-              <div className="bg-gradient-to-br from-[#1a1a1a] to-[#0f0f0f] p-1 shadow-2xl ">
+              <div className="bg-gradient-to-br from-[#1a1a1a] to-[#0c0c0c] p-1 shadow-2xl ">
                 <div className="border border-[#3c3c3c] p-2 ">
                   <div className="text-xs text-secondary mb-2">
                     ◇ AI SDK Devtools

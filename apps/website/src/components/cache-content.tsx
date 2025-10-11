@@ -14,9 +14,10 @@ export function CacheContent() {
             </h1>
 
             <p className="text-base text-secondary max-w-3xl leading-relaxed font-light">
-              Agents call the same tools repeatedly across conversation turns, burning money 
-              and time. Cache expensive operations once, reuse instantly. Transform slow, 
-              costly agent flows into lightning-fast experiences.
+              Agents call the same tools repeatedly across conversation turns,
+              burning money and time. Cache expensive operations once, reuse
+              instantly. Transform slow, costly agent flows into lightning-fast
+              experiences.
             </p>
 
             {/* Terminal */}
@@ -77,7 +78,7 @@ export function CacheContent() {
           </div>
 
           {/* Code Demo */}
-          <div className="bg-gradient-to-br from-[#1a1a1a] to-[#0f0f0f] p-1 shadow-2xl">
+          <div className="bg-gradient-to-br from-[#1a1a1a] to-[#0c0c0c] p-1 shadow-2xl">
             <div className="border border-[#3c3c3c] p-6">
               <div className="text-xs text-secondary mb-4">
                 ◇ Universal Tool Caching
@@ -85,7 +86,8 @@ export function CacheContent() {
               <pre
                 className="text-xs font-mono leading-relaxed overflow-x-auto"
                 dangerouslySetInnerHTML={{
-                  __html: highlight(`import { createCached } from '@ai-sdk-tools/cache'
+                  __html:
+                    highlight(`import { createCached } from '@ai-sdk-tools/cache'
 import { Redis } from '@upstash/redis'
 
 const expensiveWeatherTool = tool({
@@ -118,25 +120,31 @@ const weatherTool = cached(expensiveWeatherTool)
         {/* Features Grid */}
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-40">
           <article>
-            <h2 className="text-base font-medium mb-3">Universal Compatibility</h2>
+            <h2 className="text-base font-medium mb-3">
+              Universal Compatibility
+            </h2>
             <p className="text-xs text-secondary font-light leading-relaxed">
-              Works with any AI SDK tool - regular functions, streaming generators, 
-              and complex artifact tools. One caching solution for all patterns.
+              Works with any AI SDK tool - regular functions, streaming
+              generators, and complex artifact tools. One caching solution for
+              all patterns.
             </p>
           </article>
 
           <article>
-            <h2 className="text-base font-medium mb-3">Complete Data Preservation</h2>
+            <h2 className="text-base font-medium mb-3">
+              Complete Data Preservation
+            </h2>
             <p className="text-xs text-secondary font-light leading-relaxed">
-              Caches everything - return values, yielded chunks, and writer messages. 
-              Streaming tools with artifacts work perfectly on cache hits.
+              Caches everything - return values, yielded chunks, and writer
+              messages. Streaming tools with artifacts work perfectly on cache
+              hits.
             </p>
           </article>
 
           <article>
             <h2 className="text-base font-medium mb-3">Zero Configuration</h2>
             <p className="text-xs text-secondary font-light leading-relaxed">
-              Just wrap your tool with cached() and it works. React Query style 
+              Just wrap your tool with cached() and it works. React Query style
               key generation, smart defaults, and automatic type inference.
             </p>
           </article>
@@ -144,24 +152,28 @@ const weatherTool = cached(expensiveWeatherTool)
           <article>
             <h2 className="text-base font-medium mb-3">Multiple Backends</h2>
             <p className="text-xs text-secondary font-light leading-relaxed">
-              LRU cache for single instances, Redis for distributed apps. 
+              LRU cache for single instances, Redis for distributed apps.
               Environment-aware configuration with seamless switching.
             </p>
           </article>
 
           <article>
-            <h2 className="text-base font-medium mb-3">Production Performance</h2>
+            <h2 className="text-base font-medium mb-3">
+              Production Performance
+            </h2>
             <p className="text-xs text-secondary font-light leading-relaxed">
-              10x faster responses for repeated requests. 80% cost reduction 
-              by avoiding duplicate API calls and expensive computations.
+              10x faster responses for repeated requests. 80% cost reduction by
+              avoiding duplicate API calls and expensive computations.
             </p>
           </article>
 
           <article>
-            <h2 className="text-base font-medium mb-3">Agent Flow Optimization</h2>
+            <h2 className="text-base font-medium mb-3">
+              Agent Flow Optimization
+            </h2>
             <p className="text-xs text-secondary font-light leading-relaxed">
-              Agents naturally call the same tools across conversation turns. 
-              Transform expensive repeated operations into instant responses for 
+              Agents naturally call the same tools across conversation turns.
+              Transform expensive repeated operations into instant responses for
               smoother, faster, and cheaper agent experiences.
             </p>
           </article>
@@ -176,14 +188,13 @@ const weatherTool = cached(expensiveWeatherTool)
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Basic Usage */}
             <div className="space-y-4">
-              <div className="text-xs text-secondary">
-                ◇ Basic Usage
-              </div>
+              <div className="text-xs text-secondary">◇ Basic Usage</div>
               <div className="border border-[#3c3c3c] p-6 h-[20rem] overflow-y-auto">
                 <pre
                   className="text-xs font-mono leading-relaxed"
                   dangerouslySetInnerHTML={{
-                    __html: highlight(`import { createCached } from '@ai-sdk-tools/cache'
+                    __html:
+                      highlight(`import { createCached } from '@ai-sdk-tools/cache'
 
 // Any AI SDK tool
 const weatherTool = tool({
@@ -222,7 +233,8 @@ const result = streamText({
                 <pre
                   className="text-xs font-mono leading-relaxed"
                   dangerouslySetInnerHTML={{
-                    __html: highlight(`import { createCached } from '@ai-sdk-tools/cache'
+                    __html:
+                      highlight(`import { createCached } from '@ai-sdk-tools/cache'
 import { Redis } from '@upstash/redis'
 
 // Just pass your Redis client - that's it!
@@ -257,7 +269,8 @@ const analysisTools = cached(burnRateAnalysis)`),
                 <pre
                   className="text-xs font-mono leading-relaxed"
                   dangerouslySetInnerHTML={{
-                    __html: highlight(`import { createCached } from '@ai-sdk-tools/cache'
+                    __html:
+                      highlight(`import { createCached } from '@ai-sdk-tools/cache'
 import { Redis } from '@upstash/redis'
 
 const burnRateAnalysis = tool({
@@ -306,7 +319,8 @@ const cachedAnalysis = cached(burnRateAnalysis)
                 <pre
                   className="text-xs font-mono leading-relaxed"
                   dangerouslySetInnerHTML={{
-                    __html: highlight(`// src/lib/cache.ts - Smart environment setup
+                    __html:
+                      highlight(`// src/lib/cache.ts - Smart environment setup
 import { createCached } from '@ai-sdk-tools/cache'
 import { Redis } from '@upstash/redis'
 
@@ -357,7 +371,8 @@ const weatherTool = cached(expensiveWeatherTool)
           <div className="space-y-4 max-w-2xl mx-auto">
             <h2 className="text-lg font-medium">Start Caching Your AI Tools</h2>
             <p className="text-xs text-secondary font-light">
-              Reduce costs and improve performance with universal AI tool caching.
+              Reduce costs and improve performance with universal AI tool
+              caching.
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
               <a

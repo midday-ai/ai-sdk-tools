@@ -8,7 +8,7 @@ export default function manifest(): MetadataRoute.Manifest {
       "Essential utilities that extend and improve the Vercel AI SDK experience. State management, debugging tools, and structured artifact streaming for building advanced AI interfaces.",
     start_url: "/",
     display: "standalone",
-    background_color: "#0f0f0f",
+    background_color: "#0c0c0c",
     theme_color: "#1a1a1a",
     icons: [
       {

@@ -134,7 +134,7 @@ export function DevtoolsDemo() {
   };
 
   return (
-    <div className="bg-[#0f0f0f] border border-[#2a2a2a] p-6 space-y-4 min-h-[420px]">
+    <div className="bg-[#0c0c0c] border border-[#2a2a2a] p-6 space-y-4 min-h-[420px]">
       {/* Header */}
       <div className="border-b border-[#2a2a2a] pb-4 mb-4">
         <div className="text-xs text-secondary mb-4">◇ AI SDK Devtools</div>
@@ -171,7 +171,7 @@ export function DevtoolsDemo() {
                 toolCalls.map((call) => (
                   <div
                     key={call.id}
-                    className="bg-[#0f0f0f] border border-[#2a2a2a] p-3 space-y-1"
+                    className="bg-[#0c0c0c] border border-[#2a2a2a] p-3 space-y-1"
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-medium">{call.name}</span>
@@ -207,7 +207,7 @@ export function DevtoolsDemo() {
               {mockMetrics.map((metric) => (
                 <div
                   key={metric.label}
-                  className="bg-[#0f0f0f] border border-[#2a2a2a] p-3"
+                  className="bg-[#0c0c0c] border border-[#2a2a2a] p-3"
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-secondary">
@@ -233,7 +233,7 @@ export function DevtoolsDemo() {
         {selectedTab === "logs" && (
           <div className="space-y-3">
             <div className="text-xs text-secondary">Application Logs</div>
-            <div className="bg-[#0f0f0f] border border-[#2a2a2a] p-3 h-64 overflow-y-auto font-mono">
+            <div className="bg-[#0c0c0c] border border-[#2a2a2a] p-3 h-64 overflow-y-auto font-mono">
               <div className="space-y-1 text-xs">
                 <div className="text-green-400">
                   [INFO] AI SDK Devtools initialized
