@@ -108,112 +108,6 @@ export interface AgentGenerateResult {
 export type AgentStreamResult = StreamTextResult<Record<string, Tool>, never>;
 
 /**
- * Run options for multi-agent orchestration
- */
-export interface RunOptions {
-  /** Maximum total turns across all agents */
-  maxTotalTurns?: number;
-  /** Callback for handoff events */
-  onHandoff?: (handoff: HandoffInstruction) => void;
-  /** Initial message history to start with */
-  initialMessages?: ModelMessage[];
-  /** Routing strategy */
-  strategy?: "auto" | "llm";
-  /** Max steps per agent */
-  maxSteps?: number;
-  /** Global timeout in ms */
-  timeout?: number;
-  /** Per-agent timeout in ms */
-  agentTimeout?: number;
-  /** Context for permissions and guardrails */
-  context?: Record<string, unknown>;
-  /** Lifecycle event handler */
-  onEvent?: (event: AgentEvent) => void | Promise<void>;
-  /** Whether this is a streaming run (internal) */
-  stream?: boolean;
-}
-
-/**
- * Base chunk with common properties
- */
-interface BaseStreamChunk {
-  agent: string;
-  timestamp?: Date;
-}
-
-/**
- * Role-based streaming chunks following AI SDK patterns
- */
-export type StreamChunk =
-  | (BaseStreamChunk & {
-      type: "text-delta";
-      text: string;
-      role: "assistant";
-    })
-  | (BaseStreamChunk & {
-      type: "agent-switch";
-      fromAgent: string;
-      toAgent: string;
-      reason?: string;
-      context?: string;
-      role: "system";
-    })
-  | (BaseStreamChunk & {
-      type: "tool-call";
-      toolName: string;
-      args: Record<string, unknown>;
-      role: "assistant";
-    })
-  | (BaseStreamChunk & {
-      type: "tool-result";
-      toolName: string;
-      result: unknown;
-      role: "assistant";
-    })
-  | (BaseStreamChunk & {
-      type: "agent-complete";
-      finalOutput: string;
-      role: "assistant";
-    })
-  | (BaseStreamChunk & {
-      type: "error";
-      error: string;
-      role: "system";
-    })
-  | (BaseStreamChunk & {
-      type: "orchestration-status";
-      status: "planning" | "routing" | "executing" | "completed";
-      role: "system";
-    })
-  | (BaseStreamChunk & {
-      type: "agent-thinking";
-      task: string;
-      role: "system";
-    })
-  | (BaseStreamChunk & {
-      type: "workflow-progress";
-      currentStep: number;
-      totalSteps: number;
-      stepName: string;
-      role: "system";
-    });
-
-/**
- * Streaming result for multi-agent workflows
- */
-export interface AgentStreamingResult {
-  /** Async iterator for streaming chunks */
-  stream: AsyncIterable<StreamChunk>;
-  /** Final result (available after stream completes) */
-  result: Promise<AgentGenerateResult>;
-}
-
-export interface AgentRunOptions {
-  metadata?: Record<string, unknown>;
-  maxTotalTurns?: number;
-}
-
-/**
  * Lifecycle events emitted by agents
  */
 export type AgentEvent =
@@ -323,8 +217,6 @@ export interface AgentStreamOptionsUI<
   beforeStream?: (ctx: {
     writer: UIMessageStreamWriter;
   }) => Promise<boolean | undefined>;
-  /** Transform chunks before writing */
-  onChunk?: (chunk: StreamChunk) => unknown;
   /** Lifecycle event handler */
   onEvent?: (event: AgentEvent) => void | Promise<void>;
 

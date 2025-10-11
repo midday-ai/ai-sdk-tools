@@ -2,10 +2,6 @@
 export * from "./agents";
 // Artifacts
 export * from "./artifacts";
-export type { ChatContext } from "./context";
-
-// Context
-export { getContext, getCurrentUser, setContext } from "./context";
 
 // Types
 export * from "./types/filters";
