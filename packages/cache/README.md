@@ -4,7 +4,7 @@
 
 Universal caching wrapper for AI SDK tools. Cache expensive tool executions with zero configuration - works with regular tools, streaming tools, and artifacts.
 
-## ⚡ Why Cache Tools?
+## Why Cache Tools?
 
 AI agents repeatedly call expensive tools:
 - **Same API calls** across conversation turns (weather, translations)

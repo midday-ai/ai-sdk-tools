@@ -68,25 +68,25 @@ function ChatComponent() {
 
 ## Features
 
-### 🎯 Event Monitoring
+### Event Monitoring
 - **Tool calls** - Start, result, and error events
 - **Message streaming** - Text chunks, completions, and deltas
 - **Step tracking** - Multi-step AI processes
 - **Error handling** - Capture and debug errors
 
-### 🔍 Advanced Filtering
+### Advanced Filtering
 - Filter by event type (tool calls, text events, errors, etc.)
 - Filter by tool name
 - Search through event data and metadata
 - Quick filter presets
 
-### 📊 Performance Metrics
+### Performance Metrics
 - Real-time streaming speed (tokens/second)
 - Character streaming rate
 - Context window utilization
 - Event timing and duration
 
-### 🎨 Visual Interface
+### Visual Interface
 - Resizable panel (drag to resize)
 - Live event indicators
 - Color-coded event types
@@ -199,10 +199,10 @@ window.__AI_DEVTOOLS_DEBUG = true;
 - AI SDK React package
 - Modern browser with fetch API support
 
+## Contributing
+
+Contributions are welcome! See the [contributing guide](../../CONTRIBUTING.md) for details.
+
 ## License
 
 MIT
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.

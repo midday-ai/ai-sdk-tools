@@ -90,7 +90,7 @@ export function ArtifactsContent() {
           </div>
 
           {/* Advanced UI Demo */}
-          <div className="bg-[#0f0f0f] border border-[#2a2a2a] p-6 space-y-4 min-h-[420px]">
+          <div className="bg-[#0c0c0c] border border-[#2a2a2a] p-6 space-y-4 min-h-[420px]">
             <div className="flex items-center justify-between mb-4">
               <div className="text-xs text-secondary">
                 {demos[currentDemo].icon} {demos[currentDemo].title}
@@ -431,8 +431,8 @@ function DashboardComponent() {
               <span className="text-sm font-mono">
                 npm i @ai-sdk-tools/artifacts @ai-sdk-tools/store
               </span>
-              <CopyButton 
-                text="npm i @ai-sdk-tools/artifacts @ai-sdk-tools/store" 
+              <CopyButton
+                text="npm i @ai-sdk-tools/artifacts @ai-sdk-tools/store"
                 size={16}
               />
             </div>

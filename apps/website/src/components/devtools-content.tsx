@@ -1,8 +1,8 @@
 "use client";
 
 import { highlight } from "sugar-high";
-import { DevtoolsDemo } from "./devtools-demo";
 import { CopyButton } from "./copy-button";
+import { DevtoolsDemo } from "./devtools-demo";
 
 export function DevtoolsContent() {
   return (
@@ -27,7 +27,7 @@ export function DevtoolsContent() {
               <span className="text-[#d4d4d4] text-xs font-mono">
                 npm i @ai-sdk-tools/devtools
               </span>
-                <CopyButton text="npm i @ai-sdk-tools/devtools" />
+              <CopyButton text="npm i @ai-sdk-tools/devtools" />
             </div>
 
             {/* Used by */}
@@ -210,8 +210,8 @@ function App() {
                 <span className="text-secondary">git: (main)$ </span>
                 <span className="text-white">npm i @ai-sdk-tools/devtools</span>
               </div>
-              <CopyButton 
-                text="npm i @ai-sdk-tools/devtools" 
+              <CopyButton
+                text="npm i @ai-sdk-tools/devtools"
                 className="ml-4 hover:text-white"
                 size={16}
               />

@@ -1,3 +1,4 @@
+import type { UIMessageStreamWriter } from "ai";
 import type { z } from "zod";
 import { StreamingArtifact } from "./streaming";
 import type { ArtifactConfig, ArtifactData } from "./types";
@@ -25,10 +26,13 @@ export function artifact<T>(id: string, schema: z.ZodSchema<T>) {
       };
     },
 
-    stream(data: Partial<T> = {}): StreamingArtifact<T> {
+    stream(
+      data: Partial<T>,
+      writer: UIMessageStreamWriter,
+    ): StreamingArtifact<T> {
       const instance = this.create(data);
       instance.status = "loading";
-      return new StreamingArtifact(config, instance);
+      return new StreamingArtifact(config, instance, writer);
     },
 
     validate(data: unknown): T {

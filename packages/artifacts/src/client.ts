@@ -2,10 +2,7 @@
 
 // Re-export all other exports from main index
 export { artifact } from "./artifact";
-export {
-  artifacts,
-  createTypedContext,
-} from "./context";
+export { getWriter } from "./context";
 export { useArtifact, useArtifacts } from "./hooks";
 export { StreamingArtifact } from "./streaming";
 
@@ -15,7 +12,6 @@ export type {
   ArtifactConfig,
   ArtifactData,
   ArtifactStatus,
-  BaseContext,
   UseArtifactReturn,
   UseArtifactsOptions,
   UseArtifactsReturn,

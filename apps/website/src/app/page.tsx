@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { highlight } from "sugar-high";
+import { CopyButton } from "@/components/copy-button";
 import { DevtoolsDemo } from "@/components/devtools-demo";
 import { LiveDemo } from "@/components/live-demo";
-import { CopyButton } from "@/components/copy-button";
 
 export default function Home() {
   const [focusedDemo, setFocusedDemo] = useState<"store" | "devtools">("store");
@@ -29,16 +28,17 @@ export default function Home() {
 
             <p className="text-base text-secondary max-w-3xl leading-relaxed font-light">
               Essential utilities that extend and improve the Vercel AI SDK
-              experience. State management, debugging tools, and structured
-              artifact streaming - everything you need to build advanced AI
-              interfaces beyond simple chat applications.
+              experience. Multi-agent orchestration, state management, debugging
+              tools, and structured artifact streaming - everything you need to
+              build advanced AI applications beyond simple chat interfaces.
             </p>
 
             {/* Package Grid */}
             <div className="flex flex-col gap-2 max-w-sm">
               {[
+                "@ai-sdk-tools/agents",
                 "@ai-sdk-tools/store",
-                "@ai-sdk-tools/devtools", 
+                "@ai-sdk-tools/devtools",
                 "@ai-sdk-tools/artifacts",
                 "@ai-sdk-tools/cache",
               ].map((pkg) => (
@@ -86,27 +86,16 @@ export default function Home() {
           </div>
 
           {/* Stacked Demos */}
-          <div
-            className="relative h-[500px] w-full"
-            style={{ perspective: "1000px" }}
-          >
+          <div className="relative h-[500px] w-full">
             {/* Store Demo (LiveDemo) */}
             <div
-              className={`absolute inset-0 transition-all duration-1000 ease-in-out transform-gpu ${
+              className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
                 focusedDemo === "store"
                   ? "translate-y-0 z-20 scale-100 opacity-100"
                   : "translate-y-4 z-10 scale-95 opacity-70"
               }`}
-              style={{
-                transform:
-                  focusedDemo === "store"
-                    ? "rotateY(2deg) rotateX(1deg)"
-                    : "rotateY(6deg) rotateX(3deg)",
-                transformStyle: "preserve-3d",
-                backfaceVisibility: "hidden",
-              }}
             >
-              <div className="bg-gradient-to-br from-[#1a1a1a] to-[#0f0f0f] p-1 shadow-2xl ">
+              <div className="bg-gradient-to-br from-[#1a1a1a] to-[#0c0c0c] p-1 shadow-2xl ">
                 <div className="border border-[#3c3c3c] p-2 ">
                   <div className="text-xs text-secondary mb-2">
                     ◇ AI SDK Store
@@ -118,21 +107,13 @@ export default function Home() {
 
             {/* Devtools Demo */}
             <div
-              className={`absolute inset-0 transition-all duration-1000 ease-in-out transform-gpu ${
+              className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
                 focusedDemo === "devtools"
                   ? "translate-y-0 z-20 scale-100 opacity-100"
                   : "-translate-y-4 z-10 scale-95 opacity-70"
               }`}
-              style={{
-                transform:
-                  focusedDemo === "devtools"
-                    ? "rotateY(-2deg) rotateX(-1deg)"
-                    : "rotateY(-6deg) rotateX(-3deg)",
-                transformStyle: "preserve-3d",
-                backfaceVisibility: "hidden",
-              }}
             >
-              <div className="bg-gradient-to-br from-[#1a1a1a] to-[#0f0f0f] p-1 shadow-2xl ">
+              <div className="bg-gradient-to-br from-[#1a1a1a] to-[#0c0c0c] p-1 shadow-2xl ">
                 <div className="border border-[#3c3c3c] p-2 ">
                   <div className="text-xs text-secondary mb-2">
                     ◇ AI SDK Devtools
@@ -146,6 +127,18 @@ export default function Home() {
 
         {/* Features Grid */}
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-40">
+          <article>
+            <h2 className="text-base font-medium mb-3">
+              Multi-Agent Orchestration
+            </h2>
+            <p className="text-xs text-secondary font-light leading-relaxed">
+              Build intelligent workflows with specialized agents. Automatic
+              handoffs, programmatic routing, and seamless coordination across
+              any AI provider. Perfect for complex tasks requiring distinct
+              expertise.
+            </p>
+          </article>
+
           <article>
             <h2 className="text-base font-medium mb-3">State Management</h2>
             <p className="text-xs text-secondary font-light leading-relaxed">
@@ -189,180 +182,9 @@ export default function Home() {
               applications.
             </p>
           </article>
-
-          <article>
-            <h2 className="text-base font-medium mb-3">TypeScript First</h2>
-            <p className="text-xs text-secondary font-light leading-relaxed">
-              Full TypeScript support with intelligent autocompletion, type
-              safety, and comprehensive type definitions for all AI SDK tools.
-            </p>
-          </article>
-
         </section>
 
         <div className="bg-dotted h-[45px] w-full mb-40" />
-
-        {/* Package Examples */}
-        <section className="space-y-8 mb-40">
-          <h2 className="text-lg font-medium">Getting Started</h2>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-8">
-            <div className="space-y-4">
-              <div className="text-xs text-secondary">
-                ◇ Store (State Management)
-              </div>
-              <div className="border border-[#3c3c3c] p-6 h-[20rem] overflow-y-auto">
-                <pre
-                  className="text-xs font-mono leading-relaxed"
-                  dangerouslySetInnerHTML={{
-                    __html:
-                      highlight(`import { useChat } from '@ai-sdk-tools/store'
-import { DefaultChatTransport } from 'ai'
-
-function Chat() {
-  useChat({
-    transport: new DefaultChatTransport({
-      api: '/api/chat'
-    })
-  })
-  
-  return (
-    <div>
-      <MessageList />
-      <MessageInput />
-    </div>
-  )
-}
-
-function MessageList() {
-  const messages = useChatMessages()
-  
-  return (
-    <div>
-      {messages.map(msg => (
-        <div key={msg.id}>
-          {msg.content}
-        </div>
-      ))}
-    </div>
-  )
-}`),
-                  }}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div className="text-xs text-secondary">
-                ◇ Devtools (Debugging)
-              </div>
-              <div className="border border-[#3c3c3c] p-6 h-[20rem] overflow-y-auto">
-                <pre
-                  className="text-xs font-mono leading-relaxed"
-                  dangerouslySetInnerHTML={{
-                    __html:
-                      highlight(`import { AIDevtools } from '@ai-sdk-tools/devtools'
-
-function App() {
-  return (
-    <div>
-      <Chat />
-      
-      {process.env.NODE_ENV === 'development' && (
-        <AIDevtools />
-      )}
-    </div>
-  )
-}
-
-// Automatically tracks:
-// - Tool calls
-// - State changes  
-// - Performance metrics
-// - Error handling`),
-                  }}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div className="text-xs text-secondary">
-                ◇ Artifacts (Structured Streaming)
-              </div>
-              <div className="border border-[#3c3c3c] p-6 h-[20rem] overflow-y-auto">
-                <pre
-                  className="text-xs font-mono leading-relaxed"
-                  dangerouslySetInnerHTML={{
-                    __html:
-                      highlight(`import { artifact, useArtifact } from '@ai-sdk-tools/artifacts'
-
-const BurnRate = artifact('burn-rate', z.object({
-  title: z.string(),
-  data: z.array(z.object({
-    month: z.string(),
-    burnRate: z.number()
-  }))
-}))
-
-function Dashboard() {
-  const { data, status, progress } = useArtifact(BurnRate)
-  
-  return (
-    <div>
-      <h2>{data?.title}</h2>
-      {status === 'loading' && (
-        <div>Loading... {progress * 100}%</div>
-      )}
-      {data?.data.map(item => (
-        <div key={item.month}>
-          {item.month}: \${item.burnRate}
-        </div>
-      ))}
-    </div>
-  )
-}`),
-                  }}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div className="text-xs text-secondary">
-                ◇ Cache (Performance)
-              </div>
-              <div className="border border-[#3c3c3c] p-6 h-[20rem] overflow-y-auto">
-                <pre
-                  className="text-xs font-mono leading-relaxed"
-                  dangerouslySetInnerHTML={{
-                    __html:
-                      highlight(`import { cached } from '@ai-sdk-tools/cache'
-
-const expensiveWeatherTool = tool({
-  description: 'Get weather data',
-  parameters: z.object({
-    location: z.string()
-  }),
-  execute: async ({ location }) => {
-    // Expensive API call
-    return await weatherAPI.get(location)
-  }
-})
-
-// Cache with one line
-const weatherTool = cached(expensiveWeatherTool)
-
-// First call: 2s API request
-// Next calls: <1ms from cache ⚡
-
-// Works with streaming tools + artifacts
-const analysis = cached(burnRateAnalysis)
-// Caches complete data: yields + charts`),
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        </section>
 
         {/* Bottom CTA */}
         <section className="text-center space-y-6">
@@ -384,12 +206,6 @@ const analysis = cached(burnRateAnalysis)
                 className="px-4 py-2 border border-[#333] hover:border-[#555] transition-colors text-sm"
               >
                 Quickstart →
-              </a>
-              <a
-                href="/docs/store"
-                className="px-4 py-2 border border-[#333] hover:border-[#555] transition-colors text-sm"
-              >
-                Store Docs →
               </a>
               <a
                 href="https://github.com/midday-ai/ai-sdk-tools"

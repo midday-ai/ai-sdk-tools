@@ -1,9 +1,6 @@
 // Core exports (server-safe - no React hooks)
 export { artifact } from "./artifact";
-export {
-  artifacts,
-  createTypedContext,
-} from "./context";
+export { getWriter } from "./context";
 export { StreamingArtifact } from "./streaming";
 
 // Type exports
@@ -12,7 +9,6 @@ export type {
   ArtifactConfig,
   ArtifactData,
   ArtifactStatus,
-  BaseContext,
   UseArtifactReturn,
   UseArtifactsOptions,
   UseArtifactsReturn,
