@@ -4,6 +4,7 @@ import {
   ViewList as BottomPanelIcon,
   Clear as ClearIcon,
   Close as CloseIcon,
+  HistoryOutlined,
   Pause as PauseIcon,
   PlayArrow as PlayArrowIcon,
   ViewSidebar as RightPanelIcon,
@@ -22,6 +23,7 @@ import { formatToolName, getEventTypeIcon } from "../utils/formatting";
 import { ContextCircle } from "./context-circle";
 import { EventList } from "./event-list";
 import { StateDataExplorer } from "./state-data-explorer";
+import HistoryDataExplorer from "./history-data-explorer";
 
 const EVENT_TYPES = [
   "tool-call-start",
@@ -69,6 +71,12 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
 
 interface DevtoolsPanelProps {
   events: AIEvent[];
+  historyEvents: AIEvent[];
+  isLoadingHistory: boolean;
+  availableSessions: string[];
+  currentSessionId: string;
+  onFetchHistory: () => Promise<void>;
+  onClearHistory: () => Promise<void>;
   isCapturing: boolean;
   onToggleCapturing: () => void;
   onClearEvents: () => void;
@@ -81,6 +89,12 @@ interface DevtoolsPanelProps {
 
 export function DevtoolsPanel({
   events,
+  historyEvents,
+  isLoadingHistory,
+  availableSessions,
+  currentSessionId,
+  onFetchHistory,
+  onClearHistory,
   isCapturing,
   onToggleCapturing,
   onClearEvents,
@@ -98,8 +112,8 @@ export function DevtoolsPanel({
     searchQuery: "",
   });
 
-  // State watching functionality
-  const [showStatePanel, setShowStatePanel] = useState(false);
+  // Panel management - only one panel can be active at a time
+  const [activePanel, setActivePanel] = useState<"state" | "history" | null>(null);
   const [selectedStoreId, setSelectedStoreId] = useState<string | null>(null);
 
   const { isStoreAvailable, availableStoreIds, currentStates } =
@@ -359,6 +373,8 @@ export function DevtoolsPanel({
         type="button"
         className={`ai-devtools-resize-handle ai-devtools-resize-handle-${config.position}`}
         onMouseDown={handleMouseDown}
+        title={`Resize ${config.position} panel`}
+        aria-label={`Resize ${config.position} panel`}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
@@ -538,19 +554,6 @@ export function DevtoolsPanel({
         </div>
 
         <div className="ai-devtools-header-right">
-          {/* State Button - only show if store is available */}
-          {isStoreAvailable && (
-            <button
-              type="button"
-              onClick={() => setShowStatePanel(!showStatePanel)}
-              className={`ai-devtools-btn ${showStatePanel ? "active" : ""}`}
-              title={`${showStatePanel ? "Hide" : "Show"} state monitoring`}
-            >
-              <StateIcon className="ai-devtools-btn-icon" />
-              <span>State</span>
-            </button>
-          )}
-
           {/* Live Button with Pause/Play */}
           <button
             type="button"
@@ -564,6 +567,32 @@ export function DevtoolsPanel({
             )}
             <span>Live</span>
           </button>
+          
+          {/* State Button - only show if store is available */}
+          {isStoreAvailable && (
+            <button
+              type="button"
+              onClick={() => setActivePanel(activePanel === "state" ? null : "state")}
+              className={`ai-devtools-btn ${activePanel === "state" ? "active" : ""}`}
+              title={`${activePanel === "state" ? "Hide" : "Show"} state monitoring`}
+            >
+              <StateIcon className="ai-devtools-btn-icon" />
+              <span>State</span>
+            </button>
+          )}
+
+          {/* History Button */}
+          {config.history?.enabled && (
+            <button
+            type="button"
+            onClick={() => setActivePanel(activePanel === "history" ? null : "history")}
+            className={`ai-devtools-btn ${activePanel === "history" ? "active" : ""}`}
+            title={`${activePanel === "history" ? "Hide" : "Show"} history explorer`}
+          >
+            <HistoryOutlined className="ai-devtools-btn-icon" />
+            <span>History</span>
+          </button>
+          )}
 
           {/* Clear events */}
           <button
@@ -594,6 +623,8 @@ export function DevtoolsPanel({
             type="button"
             onClick={onClose}
             className="ai-devtools-close-btn"
+            title="Close devtools panel"
+            aria-label="Close devtools panel"
           >
             <CloseIcon className="ai-devtools-close-icon" />
           </button>
@@ -720,7 +751,20 @@ export function DevtoolsPanel({
       {/* Content */}
       <div className="ai-devtools-panel-content">
         <div className="ai-devtools-content">
-          {showStatePanel ? (
+          {activePanel === "history" ? (
+            <div className="ai-devtools-state-panel-full">
+              <HistoryDataExplorer 
+                events={filteredEvents}
+                historyConfig={config.history}
+                historyEvents={historyEvents}
+                isLoadingHistory={isLoadingHistory}
+                availableSessions={availableSessions}
+                currentSessionId={currentSessionId}
+                onFetchHistory={onFetchHistory}
+                onClearHistory={onClearHistory}
+              />
+            </div>
+          ) : activePanel === "state" ? (
             <div className="ai-devtools-state-panel-full">
               <StateDataExplorer
                 currentState={

@@ -2509,8 +2509,81 @@
   padding: 0 !important;
 }
 
-.ai-devtools-json-label {
-  color: #888888 !important;
+/* History Explorer Styles */
+.ai-devtools-history-explorer {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+}
+
+.ai-devtools-history-controls {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 0.75rem !important;
+  border-bottom: 1px solid #333333 !important;
+  background-color: #1a1a1a !important;
+}
+
+.ai-devtools-history-controls-left {
+  display: flex !important;
+  align-items: center !important;
+  gap: 1rem !important;
+}
+
+.ai-devtools-history-controls-right {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+}
+
+.ai-devtools-history-session-selector {
+  background-color: #2a2a2a !important;
+  border: 1px solid #444444 !important;
+  color: #ffffff !important;
+  padding: 0.25rem 0.5rem !important;
+  border-radius: 0.25rem !important;
+  font-size: 0.875rem !important;
+}
+
+.ai-devtools-history-session-selector:focus {
+  outline: none !important;
+  border-color: #666666 !important;
+}
+
+.ai-devtools-history-toggle {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  color: #cccccc !important;
+  font-size: 0.875rem !important;
+  cursor: pointer !important;
+}
+
+.ai-devtools-history-toggle input[type="checkbox"] {
+  margin: 0 !important;
+}
+
+.ai-devtools-history-refresh-btn,
+.ai-devtools-history-clear-btn {
+  background-color: #2a2a2a !important;
+  border: 1px solid #444444 !important;
+  color: #cccccc !important;
+  padding: 0.25rem 0.5rem !important;
+  border-radius: 0.25rem !important;
+  font-size: 0.75rem !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s !important;
+}
+
+.ai-devtools-history-refresh-btn:hover,
+.ai-devtools-history-clear-btn:hover {
+  background-color: #3a3a3a !important;
+}
+
+.ai-devtools-history-clear-btn:hover {
+  background-color: #4a1a1a !important;
+  border-color: #666666 !important;
 }
 
 .ai-devtools-json-string-value {

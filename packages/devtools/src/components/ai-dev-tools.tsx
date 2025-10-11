@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useAIDevtools } from "../hooks/use-ai-devtools";
+import { useEventHistory } from "../hooks/use-event-history";
 import type { DevtoolsConfig, UseAIDevtoolsOptions } from "../types";
 import { DevtoolsButton } from "./devtools-button";
 import { DevtoolsPanel } from "./devtools-panel";
@@ -11,6 +12,7 @@ interface AIDevtoolsProps extends UseAIDevtoolsOptions {
   className?: string;
   debug?: boolean;
   modelId?: string; // Optional model ID for context insights
+
 }
 
 const defaultConfig: DevtoolsConfig = {
@@ -18,6 +20,7 @@ const defaultConfig: DevtoolsConfig = {
   maxEvents: 1000,
   position: "bottom",
   height: 400,
+  width: 500, 
   theme: "auto",
   streamCapture: {
     enabled: true,
@@ -29,9 +32,15 @@ const defaultConfig: DevtoolsConfig = {
     interval: 100, // 100ms throttle by default
     includeTypes: ["text-delta"], // Only throttle high-frequency text-delta events by default
   },
+  history: {
+    enabled: true,
+    maxSessions: 100,
+    maxEventsPerSession: 1000,
+    sessionId: "default-session",
+  }
 };
 
-export function AIDevtools({
+export function AIDevTools({
   enabled = true,
   maxEvents = 1000,
   onEvent,
@@ -77,7 +86,13 @@ export function AIDevtools({
     }
   }, [position, isMounted]);
 
-  const finalConfig = { ...defaultConfig, ...config, position };
+  const finalConfig = { 
+    ...defaultConfig, 
+    ...config, 
+    position,
+    // Set appropriate width based on position
+    width: config.width || (position === "right" ? 700 : 500)
+  };
 
   // Toggle position between bottom and right
   const togglePosition = () => {
@@ -98,6 +113,20 @@ export function AIDevtools({
         }
       : undefined,
     throttle: finalConfig.throttle,
+  });
+
+  // History management
+  const {
+    historyEvents,
+    isLoadingHistory,
+    fetchHistory,
+    clearHistory,
+    availableSessions,
+    currentSessionId,
+  } = useEventHistory({
+    events,
+    config: finalConfig.history!,
+    enabled: finalConfig.history?.enabled === true,
   });
 
   // Hydration-safe mounting check
@@ -139,6 +168,12 @@ export function AIDevtools({
       {isOpen && (
         <DevtoolsPanel
           events={events}
+          historyEvents={historyEvents}
+          isLoadingHistory={isLoadingHistory}
+          availableSessions={availableSessions}
+          currentSessionId={currentSessionId}
+          onFetchHistory={fetchHistory}
+          onClearHistory={clearHistory}
           isCapturing={isCapturing}
           onToggleCapturing={toggleCapturing}
           onClearEvents={clearEvents}

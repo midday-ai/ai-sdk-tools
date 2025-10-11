@@ -1,6 +1,6 @@
 "use client";
 
-export { AIDevtools } from "./components/ai-dev-tools";
+export { AIDevTools } from "./components/ai-dev-tools";
 export { ContextCircle } from "./components/context-circle";
 // Export other components for advanced usage
 export { DevtoolsButton } from "./components/devtools-button";
@@ -13,6 +13,7 @@ export { StateDataExplorer } from "./components/state-data-explorer";
 // Hooks
 export { useAIDevtools } from "./hooks/use-ai-devtools";
 export { useCurrentState } from "./hooks/use-current-state";
+export { useEventHistory } from "./hooks/use-event-history";
 
 // Types
 export type {
@@ -52,3 +53,12 @@ export {
   groupEventsIntoSessions,
 } from "./utils/session-grouper";
 export { StreamInterceptor } from "./utils/stream-interceptor";
+
+// History utilities
+export { 
+  saveEventsToHistory, 
+  fetchHistoryEvents, 
+  clearHistory, 
+  listHistorySessions,
+  HistoryStorage 
+} from "./utils/history-storage";
