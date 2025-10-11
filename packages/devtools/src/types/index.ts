@@ -70,6 +70,16 @@ export interface DevtoolsConfig {
     excludeTypes?: AIEventType[]; // Event types to exclude from throttling
     includeTypes?: AIEventType[]; // Only throttle these event types (if specified)
   };
+  history?: {
+    enabled: boolean;
+    maxSessions: number; // Max number of sessions to capture
+    maxEventsPerSession: number; // Max events to store per session
+    sessionId?: string; // Current session ID
+    redis?: {
+      url: string; // Upstash Redis connection URL
+      token: string; // Upstash Redis token
+    };
+  }
 }
 
 // Tool call session grouping

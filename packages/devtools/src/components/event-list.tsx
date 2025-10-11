@@ -20,9 +20,9 @@ export function EventList({
     return (
       <div className={`ai-devtools-empty-state ${className}`}>
         <div className="ai-devtools-empty-content">
-          <div className="ai-devtools-empty-title">▸ waiting for events...</div>
+          <div className="ai-devtools-empty-title">▸ Waiting For Events...</div>
           <div className="ai-devtools-empty-subtitle">
-            start streaming to capture events
+            Start streaming to capture events
           </div>
         </div>
       </div>
