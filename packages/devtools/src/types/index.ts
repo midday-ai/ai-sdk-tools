@@ -21,7 +21,14 @@ export type AIEventType =
   | "stream-done"
   | "error"
   | "custom-data"
-  | "unknown";
+  | "unknown"
+  // Agent orchestration events
+  | "agent-start"
+  | "agent-step"
+  | "agent-finish"
+  | "agent-handoff"
+  | "agent-complete"
+  | "agent-error";
 
 // Base event structure that wraps AI SDK stream parts
 export interface AIEvent {
@@ -36,6 +43,15 @@ export interface AIEvent {
     duration?: number;
     messageId?: string;
     preliminary?: boolean;
+    // Agent-specific metadata
+    agent?: string;
+    round?: number;
+    fromAgent?: string;
+    toAgent?: string;
+    reason?: string;
+    totalRounds?: number;
+    routingStrategy?: "programmatic" | "llm";
+    matchScore?: number;
     [key: string]: any;
   };
 }
@@ -124,4 +140,45 @@ export interface UseAIDevtoolsReturn {
     byTool: Record<string, number>;
     timeRange: { start: number; end: number } | null;
   };
+}
+
+// Agent flow visualization types
+export interface AgentNode {
+  id: string;
+  name: string;
+  status: "idle" | "executing" | "completed" | "error";
+  startTime?: number;
+  endTime?: number;
+  duration?: number;
+  toolCallCount: number;
+  routingStrategy?: "programmatic" | "llm";
+  matchScore?: number;
+  round?: number;
+  model?: string;
+}
+
+export interface AgentHandoff {
+  id: string;
+  from: string;
+  to: string;
+  reason?: string;
+  routingStrategy?: "programmatic" | "llm";
+  timestamp: number;
+}
+
+export interface ToolNode {
+  id: string;
+  name: string;
+  agent?: string;
+  description?: string;
+  callCount: number;
+}
+
+export interface AgentFlowData {
+  nodes: AgentNode[];
+  tools: ToolNode[];
+  handoffs: AgentHandoff[];
+  totalRounds: number;
+  totalDuration: number;
+  isActive: boolean;
 }

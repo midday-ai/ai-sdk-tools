@@ -7,7 +7,6 @@ import {
   Pause as PauseIcon,
   PlayArrow as PlayArrowIcon,
   ViewSidebar as RightPanelIcon,
-  Storage as StateIcon,
 } from "@mui/icons-material";
 import React, {
   useCallback,
@@ -19,6 +18,7 @@ import React, {
 import { useCurrentState } from "../hooks/use-current-state";
 import type { AIEvent, DevtoolsConfig, FilterOptions } from "../types";
 import { formatToolName, getEventTypeIcon } from "../utils/formatting";
+import { AgentFlowVisualization } from "./agent-flow-visualization";
 import { ContextCircle } from "./context-circle";
 import { EventList } from "./event-list";
 import { StateDataExplorer } from "./state-data-explorer";
@@ -52,7 +52,7 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
   "message-start": "Message Starts",
   "message-chunk": "Message Chunks",
   "message-complete": "Message Complete",
-  "start": "Stream Start",
+  start: "Stream Start",
   "start-step": "Step Starts",
   "text-start": "Text Starts",
   "text-delta": "Text Deltas",
@@ -99,8 +99,12 @@ export function DevtoolsPanel({
   });
 
   // State watching functionality
-  const [showStatePanel, setShowStatePanel] = useState(false);
   const [selectedStoreId, setSelectedStoreId] = useState<string | null>(null);
+
+  // Tab state (events, agents, state)
+  const [activeTab, setActiveTab] = useState<"events" | "agents" | "state">(
+    "events",
+  );
 
   const { isStoreAvailable, availableStoreIds, currentStates } =
     useCurrentState({
@@ -129,7 +133,7 @@ export function DevtoolsPanel({
   const [isReceivingEvents, setIsReceivingEvents] = useState(false);
   const lastEventCountRef = useRef(events.length);
 
-  // Calculate available tool names and event counts
+  // Calculate available tool names, event counts, and detect model
   const { availableToolNames, eventCounts, detectedModelId } = useMemo(() => {
     const toolNames = new Set<string>();
     const counts = {} as Record<string, number>;
@@ -538,19 +542,6 @@ export function DevtoolsPanel({
         </div>
 
         <div className="ai-devtools-header-right">
-          {/* State Button - only show if store is available */}
-          {isStoreAvailable && (
-            <button
-              type="button"
-              onClick={() => setShowStatePanel(!showStatePanel)}
-              className={`ai-devtools-btn ${showStatePanel ? "active" : ""}`}
-              title={`${showStatePanel ? "Hide" : "Show"} state monitoring`}
-            >
-              <StateIcon className="ai-devtools-btn-icon" />
-              <span>State</span>
-            </button>
-          )}
-
           {/* Live Button with Pause/Play */}
           <button
             type="button"
@@ -717,20 +708,83 @@ export function DevtoolsPanel({
         </div>
       )}
 
+      {/* Tabs Navigation */}
+      <div
+        style={{
+          display: "flex",
+          gap: 0,
+          borderBottom: "1px solid #27272a",
+          background: "#09090b",
+        }}
+      >
+        <button
+          type="button"
+          onClick={() => setActiveTab("events")}
+          style={{
+            padding: "8px 16px",
+            background: "transparent",
+            border: "none",
+            color: activeTab === "events" ? "#e5e7eb" : "#9ca3af",
+            fontSize: 11,
+            fontWeight: 600,
+            cursor: "pointer",
+            transition: "all 0.2s",
+          }}
+        >
+          Events
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("agents")}
+          style={{
+            padding: "8px 16px",
+            background: "transparent",
+            border: "none",
+            color: activeTab === "agents" ? "#e5e7eb" : "#9ca3af",
+            fontSize: 11,
+            fontWeight: 600,
+            cursor: "pointer",
+            transition: "all 0.2s",
+          }}
+        >
+          Agents
+        </button>
+        {isStoreAvailable && (
+          <button
+            type="button"
+            onClick={() => setActiveTab("state")}
+            style={{
+              padding: "8px 16px",
+              background: "transparent",
+              border: "none",
+              color: activeTab === "state" ? "#e5e7eb" : "#9ca3af",
+              fontSize: 11,
+              fontWeight: 600,
+              cursor: "pointer",
+              transition: "all 0.2s",
+            }}
+          >
+            State
+          </button>
+        )}
+      </div>
+
       {/* Content */}
       <div className="ai-devtools-panel-content">
         <div className="ai-devtools-content">
-          {showStatePanel ? (
+          {activeTab === "events" && (
+            <div className="ai-devtools-events">
+              <EventList events={filteredEvents} />
+            </div>
+          )}
+          {activeTab === "agents" && <AgentFlowVisualization events={events} />}
+          {activeTab === "state" && isStoreAvailable && (
             <div className="ai-devtools-state-panel-full">
               <StateDataExplorer
                 currentState={
                   selectedStoreId ? currentStates[selectedStoreId] : undefined
                 }
               />
-            </div>
-          ) : (
-            <div className="ai-devtools-events">
-              <EventList events={filteredEvents} />
             </div>
           )}
         </div>

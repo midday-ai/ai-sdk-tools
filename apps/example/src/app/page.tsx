@@ -1,6 +1,7 @@
 "use client";
 
 import { useArtifacts } from "@ai-sdk-tools/artifacts/client";
+import { AIDevtools } from "@ai-sdk-tools/devtools";
 import { useChat, useChatActions } from "@ai-sdk-tools/store";
 import type { ToolUIPart } from "ai";
 import { DefaultChatTransport } from "ai";
@@ -206,9 +207,9 @@ export default function Home() {
         )}
       </div>
 
-      {/* {process.env.NODE_ENV === "development" && (
+      {process.env.NODE_ENV === "development" && (
         <AIDevtools modelId="gpt-4o-mini" />
-      )} */}
+      )}
 
       {/* {!hasMessages && (
         <a
