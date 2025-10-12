@@ -12,6 +12,7 @@
  * - Available in all tools via executionOptions.experimental_context
  */
 
+import type { MemoryConfig } from "@ai-sdk-tools/memory";
 import type { UIMessageStreamWriter } from "ai";
 
 /**
@@ -36,9 +37,16 @@ export type ExecutionContext<
     startTime?: Date;
     /** Request ID for tracing */
     requestId?: string;
+    /** Chat ID for memory scope */
+    chatId?: string;
+    /** User ID for memory scope */
+    userId?: string;
     /** Any custom metadata */
     [key: string]: unknown;
   };
+
+  /** Memory configuration for persistent context */
+  memory?: MemoryConfig;
 };
 
 /**

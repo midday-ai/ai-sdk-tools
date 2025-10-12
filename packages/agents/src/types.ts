@@ -1,3 +1,4 @@
+import type { MemoryConfig } from "@ai-sdk-tools/memory";
 import type {
   IdGenerator,
   LanguageModel,
@@ -10,6 +11,35 @@ import type {
   UIMessageStreamOnFinishCallback,
   UIMessageStreamWriter,
 } from "ai";
+
+/**
+ * Interface for context objects that include memory identifiers
+ */
+export interface MemoryIdentifiers {
+  chatId?: string;
+  userId?: string;
+  metadata?: {
+    chatId?: string;
+    userId?: string;
+  };
+}
+
+/**
+ * Extended execution context with internal memory properties
+ */
+export interface ExtendedExecutionContext extends Record<string, unknown> {
+  _memoryAddition?: string;
+  _updateWorkingMemoryTool?: Tool;
+}
+
+/**
+ * Handoff data structure
+ */
+export interface HandoffData {
+  agent: string;
+  reason?: string;
+  data?: Record<string, unknown>;
+}
 
 // Forward declaration
 export interface Agent<
@@ -59,6 +89,8 @@ export interface AgentConfig<
   outputGuardrails?: OutputGuardrail[];
   /** Tool permissions - control tool access */
   permissions?: ToolPermissions;
+  /** Memory configuration - persistent working memory and conversation history */
+  memory?: MemoryConfig;
 }
 
 export interface HandoffInstruction {
@@ -197,8 +229,10 @@ export interface AgentStreamOptionsUI<
   TContext extends Record<string, unknown> = Record<string, unknown>,
 > {
   // Agent-specific options
-  /** Message history - last message is used as input for routing */
-  messages: ModelMessage[];
+  /** Single new message - agent loads history from memory (recommended when memory is enabled) */
+  message?: UIMessage;
+  /** Full message array - for apps without memory or manual control */
+  messages?: ModelMessage[];
   /** Routing strategy */
   strategy?: "auto" | "llm";
   /** Max orchestration rounds */

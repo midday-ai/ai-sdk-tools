@@ -59,5 +59,8 @@
   "homepage": "https://github.com/midday-ai/ai-sdk-tools#readme",
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "ai": "^5.0.68"
   }
 }

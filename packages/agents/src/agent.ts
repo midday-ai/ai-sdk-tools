@@ -1,12 +1,26 @@
 import {
+  DEFAULT_TEMPLATE,
+  formatWorkingMemory,
+  getWorkingMemoryInstructions,
+  type MemoryConfig,
+} from "@ai-sdk-tools/memory";
+import {
   Experimental_Agent as AISDKAgent,
+  convertToModelMessages,
   createUIMessageStream,
   createUIMessageStreamResponse,
+  generateText,
+  type LanguageModel,
   type ModelMessage,
   type StepResult,
   stepCountIs,
   type Tool,
+  tool,
+  type UIMessage,
+  type UIMessageStreamOnFinishCallback,
+  type UIMessageStreamWriter,
 } from "ai";
+import { z } from "zod";
 import { debug } from "./debug.js";
 import { createHandoffTool, isHandoffResult } from "./handoff.js";
 import { promptWithHandoffInstructions } from "./handoff-prompt.js";
@@ -19,9 +33,12 @@ import type {
   AgentStreamOptions,
   AgentStreamOptionsUI,
   AgentStreamResult,
+  ExtendedExecutionContext,
+  HandoffData,
   HandoffInstruction,
   Agent as IAgent,
   InputGuardrail,
+  MemoryIdentifiers,
   OutputGuardrail,
   ToolPermissions,
 } from "./types.js";
@@ -40,8 +57,11 @@ export class Agent<
   public readonly inputGuardrails?: InputGuardrail[];
   public readonly outputGuardrails?: OutputGuardrail[];
   public readonly permissions?: ToolPermissions;
+  private readonly memory?: MemoryConfig;
+  private readonly model: LanguageModel;
   private readonly aiAgent: AISDKAgent<Record<string, Tool>>;
   private readonly handoffAgents: Array<IAgent<any>>;
+  private readonly configuredTools: Record<string, Tool>;
 
   constructor(config: AgentConfig<TContext>) {
     this.name = config.name;
@@ -51,6 +71,8 @@ export class Agent<
     this.inputGuardrails = config.inputGuardrails;
     this.outputGuardrails = config.outputGuardrails;
     this.permissions = config.permissions;
+    this.memory = config.memory;
+    this.model = config.model;
     this.handoffAgents = config.handoffs || [];
 
     // Prepare tools with handoff capability
@@ -58,6 +80,14 @@ export class Agent<
     if (this.handoffAgents.length > 0) {
       tools.handoff_to_agent = createHandoffTool(this.handoffAgents);
     }
+
+    // Add working memory tool if enabled
+    if (this.memory?.workingMemory?.enabled) {
+      tools.updateWorkingMemory = this.createWorkingMemoryTool();
+    }
+
+    // Store tools for later reference
+    this.configuredTools = tools;
 
     // Note: If instructions is a function, it will be resolved per-call in stream()
     // We still need to create the AI SDK Agent with initial instructions for backwards compatibility
@@ -158,11 +188,15 @@ export class Agent<
         ? this.instructions(executionContext as TContext)
         : this.instructions;
 
+    // Get memory addition from context if preloaded
+    const extendedContext = executionContext as ExtendedExecutionContext;
+    const memoryAddition = extendedContext._memoryAddition || "";
+
     // Add handoff instructions if needed
     const systemPrompt =
       this.handoffAgents.length > 0
-        ? promptWithHandoffInstructions(resolvedInstructions)
-        : resolvedInstructions;
+        ? promptWithHandoffInstructions(resolvedInstructions + memoryAddition)
+        : resolvedInstructions + memoryAddition;
 
     // Build additional options to pass to AI SDK
     const additionalOptions: Record<string, unknown> = {
@@ -173,6 +207,14 @@ export class Agent<
     if (maxSteps) additionalOptions.maxSteps = maxSteps;
     if (onStepFinish) additionalOptions.onStepFinish = onStepFinish;
 
+    // Inject working memory tool if preloaded in context
+    if (extendedContext._updateWorkingMemoryTool) {
+      additionalOptions.tools = {
+        ...this.configuredTools,
+        updateWorkingMemory: extendedContext._updateWorkingMemoryTool,
+      };
+    }
+
     // Handle simple { messages } format (like working code)
     if ("messages" in options && !("prompt" in options) && options.messages) {
       debug("ORCHESTRATION", `Stream with messages only`, {
@@ -181,7 +223,7 @@ export class Agent<
       return this.aiAgent.stream({
         messages: options.messages,
         ...additionalOptions,
-      } as any) as AgentStreamResult;
+      }) as unknown as AgentStreamResult;
     }
 
     // Handle full AgentStreamOptions format
@@ -200,7 +242,7 @@ export class Agent<
       return this.aiAgent.stream({
         messages: [...opts.messages, { role: "user", content: opts.prompt }],
         ...additionalOptions,
-      } as any) as AgentStreamResult;
+      }) as unknown as AgentStreamResult;
     }
 
     // Prompt only
@@ -208,7 +250,7 @@ export class Agent<
       return this.aiAgent.stream({
         prompt: opts.prompt,
         ...additionalOptions,
-      } as any) as AgentStreamResult;
+      }) as unknown as AgentStreamResult;
     }
 
     throw new Error("No valid options provided to stream method");
@@ -226,7 +268,8 @@ export class Agent<
    */
   toUIMessageStream(options: AgentStreamOptionsUI): Response {
     const {
-      messages,
+      message,
+      messages: providedMessages,
       strategy = "auto",
       maxRounds = 5,
       maxSteps = 5,
@@ -249,18 +292,93 @@ export class Agent<
       headers,
     } = options;
 
-    // Extract input from last message for routing
-    const lastMessage = messages[messages.length - 1];
-    const input = extractTextFromMessage(lastMessage);
+    // Store user message text for later use in onFinish
+    let userMessageText = "";
+
+    // Extract input from message or messages
+    if (message) {
+      userMessageText = extractTextFromMessage(
+        convertToModelMessages([message])[0],
+      );
+    } else if (providedMessages) {
+      userMessageText = extractTextFromMessage(
+        providedMessages[providedMessages.length - 1],
+      );
+    }
+
+    // Wrap onFinish to save messages after streaming
+    const wrappedOnFinish: UIMessageStreamOnFinishCallback<never> = async (
+      event,
+    ) => {
+      // Save messages and update chat session after stream completes
+      if (this.memory?.history?.enabled && context) {
+        const { chatId, userId } = this.extractMemoryIdentifiers(
+          context as TContext,
+        );
+
+        if (!chatId) {
+          debug(
+            "MEMORY",
+            "Cannot save messages: chatId is missing from context",
+          );
+        } else {
+          try {
+            const assistantText = this.extractAssistantText(
+              event.responseMessage,
+            );
+            await this.saveConversation(
+              chatId,
+              userId,
+              userMessageText,
+              assistantText,
+            );
+          } catch (err) {
+            debug("MEMORY", "Failed to save conversation:", err);
+          }
+        }
+      }
+
+      // Call user's onFinish
+      await onFinish?.(event);
+    };
 
     const stream = createUIMessageStream({
-      originalMessages: messages as never[],
-      onFinish,
+      originalMessages: (message ? [message] : providedMessages) as never[],
+      onFinish: wrappedOnFinish,
       onError,
       generateId,
       execute: async ({ writer }) => {
+        // Handle message vs messages parameter and load history from memory
+        let messages: ModelMessage[];
+
+        if (message) {
+          // Single message - load history if memory is enabled
+          messages = await this.loadMessagesWithHistory(
+            message,
+            context as TContext,
+          );
+        } else if (providedMessages) {
+          // Messages provided - use as-is
+          messages = providedMessages;
+        } else {
+          throw new Error("Either message or messages must be provided");
+        }
+
+        // Extract input from last message for routing
+        const lastMessage = messages[messages.length - 1];
+        const input = extractTextFromMessage(lastMessage);
+
         // Import context utilities
         const { createExecutionContext } = await import("./context.js");
+
+        // Load working memory from agent-level config
+        let memoryAddition = "";
+        if (context && this.memory?.workingMemory?.enabled) {
+          memoryAddition = await this.loadWorkingMemory(context as TContext);
+        }
+
+        // Generate chat title if this is the first message
+        await this.maybeGenerateChatTitle(context as TContext, input, writer);
 
         // Create execution context with user context and writer
         const executionContext = createExecutionContext({
@@ -272,11 +390,19 @@ export class Agent<
           },
         });
 
+        // Store memory addition for system prompt injection
+        if (memoryAddition) {
+          const extendedExecContext =
+            executionContext as ExtendedExecutionContext;
+          extendedExecContext._memoryAddition = memoryAddition;
+        }
+
         try {
           // Execute beforeStream hook - allows for rate limiting, auth, etc.
           if (beforeStream) {
             const shouldContinue = await beforeStream({ writer });
             if (shouldContinue === false) {
+              // Type assertion needed: custom finish message format
               writer.write({ type: "finish" } as any);
               return;
             }
@@ -396,6 +522,7 @@ export class Agent<
               });
             }
 
+            // Type assertion needed: executionContext and onStepFinish types don't strictly match
             const result = currentAgent.stream({
               messages: messagesToSend,
               executionContext: executionContext,
@@ -423,7 +550,7 @@ export class Agent<
 
             // Track for orchestration
             let textAccumulated = "";
-            let handoffData: any = null;
+            let handoffData: HandoffData | null = null;
             const toolCallNames = new Map<string, string>(); // toolCallId -> toolName
             let hasStartedContent = false;
 
@@ -460,7 +587,7 @@ export class Agent<
               if (chunk.type === "tool-output-available") {
                 const toolName = toolCallNames.get(chunk.toolCallId);
                 if (toolName === "handoff") {
-                  handoffData = chunk.output;
+                  handoffData = chunk.output as HandoffData;
                   console.log("[Handoff Detected]", handoffData);
                 }
               }
@@ -598,6 +725,7 @@ export class Agent<
             });
           }
 
+          // Type assertions needed: custom error and finish message formats
           writer.write({
             type: "error",
             error: error instanceof Error ? error.message : String(error),
@@ -615,6 +743,334 @@ export class Agent<
     });
 
     return response;
+  }
+
+  /**
+   * Extract chatId and userId from context for memory operations
+   */
+  private extractMemoryIdentifiers(context: TContext): {
+    chatId?: string;
+    userId?: string;
+  } {
+    const ctx = context as TContext & MemoryIdentifiers;
+    const chatId = ctx.chatId || ctx.metadata?.chatId;
+    const userId = ctx.userId || ctx.metadata?.userId;
+    return { chatId, userId };
+  }
+
+  /**
+   * Generate a title for the chat based on the first user message
+   */
+  private async generateChatTitle(
+    chatId: string,
+    userMessage: string,
+    writer: UIMessageStreamWriter,
+  ): Promise<void> {
+    if (!this.memory?.chats?.generateTitle) return;
+
+    const config = this.memory.chats.generateTitle;
+    const model = typeof config === "object" ? config.model : this.model;
+    const instructions =
+      typeof config === "object" && config.instructions
+        ? config.instructions
+        : "Generate a short title based on the user's message. Max 80 characters. No quotes or colons.";
+
+    try {
+      const { text } = await generateText({
+        model,
+        system: instructions,
+        prompt: userMessage,
+      });
+
+      await this.memory.provider?.updateChatTitle?.(chatId, text);
+
+      writer.write({
+        type: "data-chat-title",
+        data: { chatId, title: text },
+      });
+
+      debug("MEMORY", `Generated title for ${chatId}: ${text}`);
+    } catch (err) {
+      debug("MEMORY", "Title generation failed:", err);
+    }
+  }
+
+  /**
+   * Create the updateWorkingMemory tool
+   */
+  private createWorkingMemoryTool() {
+    const scope = this.memory?.workingMemory?.scope || "chat";
+
+    return tool({
+      description: getWorkingMemoryInstructions(
+        this.memory?.workingMemory?.template || DEFAULT_TEMPLATE,
+      ),
+      inputSchema: z.object({
+        content: z
+          .string()
+          .describe(
+            "Updated working memory content in markdown format. Use the template structure provided.",
+          ),
+      }),
+      execute: async ({ content }, options) => {
+        if (!this.memory?.provider) {
+          return { success: false, message: "Memory provider not configured" };
+        }
+
+        const { getContext } = await import("./context.js");
+        const ctx = getContext(
+          options as { experimental_context?: Record<string, unknown> },
+        );
+        const contextData = ctx as TContext | undefined;
+
+        if (!contextData) {
+          return { success: false, message: "Context not available" };
+        }
+
+        const { chatId, userId } = this.extractMemoryIdentifiers(contextData);
+
+        try {
+          await this.memory.provider.updateWorkingMemory({
+            chatId,
+            userId,
+            scope,
+            content,
+          });
+          return {
+            success: true,
+            message: "Working memory updated successfully",
+          };
+        } catch (error) {
+          debug(
+            "MEMORY",
+            "Failed to update working memory:",
+            error instanceof Error ? error.message : error,
+          );
+          return { success: false, message: "Failed to update working memory" };
+        }
+      },
+    });
+  }
+
+  /**
+   * Load working memory and inject into system prompt
+   */
+  private async loadWorkingMemory(context: TContext): Promise<string> {
+    if (!this.memory?.workingMemory?.enabled || !this.memory?.provider) {
+      return "";
+    }
+
+    const { chatId, userId } = this.extractMemoryIdentifiers(context);
+    const scope = this.memory.workingMemory.scope;
+
+    try {
+      const memory = await this.memory.provider.getWorkingMemory({
+        chatId,
+        userId,
+        scope,
+      });
+
+      if (!memory) return "";
+
+      return formatWorkingMemory(memory);
+    } catch (error) {
+      debug(
+        "MEMORY",
+        "Failed to load working memory:",
+        error instanceof Error ? error.message : error,
+      );
+      return "";
+    }
+  }
+
+  /**
+   * Extract assistant text from response message
+   */
+  private extractAssistantText(responseMessage: UIMessage): string {
+    // Convert UIMessage to ModelMessage and extract text
+    const modelMessages = convertToModelMessages([responseMessage]);
+    if (modelMessages.length > 0) {
+      return extractTextFromMessage(modelMessages[0]);
+    }
+    return "";
+  }
+
+  /**
+   * Load message history from memory and prepend to the current message.
+   * Falls back to just the current message if history is disabled or unavailable.
+   *
+   * @param message - The current user message
+   * @param context - Execution context containing chatId
+   * @returns Array of ModelMessages including history + current message
+   */
+  private async loadMessagesWithHistory(
+    message: UIMessage,
+    context: TContext | undefined,
+  ): Promise<ModelMessage[]> {
+    // No memory - just convert the message
+    if (!this.memory?.history?.enabled || !context) {
+      return convertToModelMessages([message]);
+    }
+
+    const { chatId } = this.extractMemoryIdentifiers(context);
+
+    if (!chatId) {
+      debug("MEMORY", "Cannot load history: chatId missing from context");
+      return convertToModelMessages([message]);
+    }
+
+    try {
+      const previousMessages =
+        (await this.memory.provider.getMessages?.({
+          chatId,
+          limit: this.memory.history.limit,
+        })) || [];
+
+      debug(
+        "MEMORY",
+        `Loading history for chatId=${chatId}: found ${previousMessages.length} messages`,
+      );
+
+      if (previousMessages.length === 0) {
+        return convertToModelMessages([message]);
+      }
+
+      // Convert stored messages directly to ModelMessages
+      const historyMessages = previousMessages.map((msg) => ({
+        role: msg.role,
+        content: msg.content || "",
+      }));
+
+      debug(
+        "MEMORY",
+        `Loaded ${historyMessages.length} history messages for context`,
+      );
+      return [...historyMessages, ...convertToModelMessages([message])];
+    } catch (err) {
+      debug("MEMORY", `Load history failed for chatId=${chatId}:`, err);
+      return convertToModelMessages([message]);
+    }
+  }
+
+  /**
+   * Update or create a chat session, incrementing message count
+   *
+   * @param chatId - The chat identifier
+   * @param userId - Optional user identifier
+   * @param incrementBy - Number to increment message count by (default: 2)
+   */
+  private async updateChatSession(
+    chatId: string,
+    userId: string | undefined,
+    incrementBy: number = 2,
+  ): Promise<void> {
+    if (!this.memory?.chats?.enabled) return;
+
+    const existingChat = await this.memory.provider.getChat?.(chatId);
+
+    if (existingChat) {
+      // Update existing chat
+      await this.memory.provider.saveChat?.({
+        ...existingChat,
+        messageCount: existingChat.messageCount + incrementBy,
+        updatedAt: new Date(),
+      });
+    } else {
+      // Create new chat
+      await this.memory.provider.saveChat?.({
+        chatId,
+        userId,
+        messageCount: incrementBy,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    }
+  }
+
+  /**
+   * Save user and assistant messages, then update chat session.
+   * Messages are saved in parallel for better performance.
+   *
+   * @param chatId - The chat identifier
+   * @param userId - Optional user identifier
+   * @param userMessage - The user's message text
+   * @param assistantMessage - The assistant's response text
+   */
+  private async saveConversation(
+    chatId: string,
+    userId: string | undefined,
+    userMessage: string,
+    assistantMessage: string,
+  ): Promise<void> {
+    if (!this.memory?.provider || !this.memory?.history?.enabled) return;
+
+    debug(
+      "MEMORY",
+      `Saving conversation for chatId=${chatId}: user="${userMessage.substring(0, 50)}..." assistant="${assistantMessage.substring(0, 50)}..."`,
+    );
+
+    // Save both messages in parallel for better performance
+    await Promise.all([
+      this.memory.provider.saveMessage?.({
+        chatId,
+        userId,
+        role: "user",
+        content: userMessage,
+        timestamp: new Date(),
+      }),
+      assistantMessage
+        ? this.memory.provider.saveMessage?.({
+            chatId,
+            userId,
+            role: "assistant",
+            content: assistantMessage,
+            timestamp: new Date(),
+          })
+        : Promise.resolve(),
+    ]);
+
+    debug("MEMORY", `Successfully saved conversation for chatId=${chatId}`);
+
+    // Update chat session after saving messages
+    await this.updateChatSession(chatId, userId, 2);
+  }
+
+  /**
+   * Generate a chat title if this is the first message.
+   * Runs asynchronously without blocking the response.
+   *
+   * @param context - Execution context containing chatId
+   * @param userMessage - The user's message to generate title from
+   * @param writer - Stream writer for sending title update
+   */
+  private async maybeGenerateChatTitle(
+    context: TContext | undefined,
+    userMessage: string,
+    writer: UIMessageStreamWriter,
+  ): Promise<void> {
+    if (
+      !this.memory?.chats?.enabled ||
+      !this.memory?.chats?.generateTitle ||
+      !context
+    ) {
+      return;
+    }
+
+    const { chatId } = this.extractMemoryIdentifiers(context);
+
+    if (!chatId) {
+      debug("MEMORY", "Cannot generate title: chatId missing from context");
+      return;
+    }
+
+    const existingChat = await this.memory.provider?.getChat?.(chatId);
+
+    // Only generate for first message
+    if (!existingChat || existingChat.messageCount === 0) {
+      this.generateChatTitle(chatId, userMessage, writer).catch((err) =>
+        debug("MEMORY", "Title generation error:", err),
+      );
+    }
   }
 
   static create<

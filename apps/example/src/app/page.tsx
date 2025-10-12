@@ -2,7 +2,7 @@
 
 import { useArtifacts } from "@ai-sdk-tools/artifacts/client";
 import { AIDevtools } from "@ai-sdk-tools/devtools";
-import { useChat, useChatActions } from "@ai-sdk-tools/store";
+import { useChat, useChatActions, useDataPart } from "@ai-sdk-tools/store";
 import type { ToolUIPart } from "ai";
 import { DefaultChatTransport } from "ai";
 import { type RefObject, useRef, useState } from "react";
@@ -19,53 +19,38 @@ import {
   ChatInput,
   ChatMessages,
   ChatStatusIndicators,
+  ChatTitle,
   EmptyState,
+  RateLimitIndicator,
 } from "@/components/chat";
-import type { AgentStatus, AgentUIMessage } from "@/types/agents";
+import type { AgentStatus } from "@/types/agents";
 
 export default function Home() {
   const [text, setText] = useState<string>("");
   const [useWebSearch, setUseWebSearch] = useState<boolean>(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [agentStatus, setAgentStatus] = useState<AgentStatus | null>(null);
-  const [rateLimit, setRateLimit] = useState<{
-    limit: number;
-    remaining: number;
-    reset: string;
-    code?: string;
-  } | null>(null);
 
-  const { messages, sendMessage, status, stop } = useChat<AgentUIMessage>({
+  const { messages, sendMessage, status, stop } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/chat",
+      // Only send the last message - agent loads history from memory
+      prepareSendMessagesRequest({ messages, id }) {
+        return {
+          body: {
+            message: messages[messages.length - 1],
+            id,
+          },
+        };
+      },
     }),
-    onData: (dataPart) => {
-      // Handle transient agent status updates
-      if (dataPart.type === "data-agent-status") {
-        // Clear status immediately when completing (smoother UX)
-        if ((dataPart.data as any).status === "completing") {
-          setAgentStatus(null);
-        } else {
-          setAgentStatus(dataPart.data as AgentStatus);
-        }
-      }
-
-      // Handle rate limit updates
-      if (dataPart.type === "data-rate-limit") {
-        const rateLimitData = dataPart.data as any;
-        setRateLimit({
-          limit: rateLimitData.limit,
-          remaining: rateLimitData.remaining,
-          reset: rateLimitData.reset,
-          code: rateLimitData.code,
-        });
-      }
-    },
-    onFinish: () => {
-      // Clear status when done (fallback)
-      setAgentStatus(null);
-    },
   });
+
+  // Extract agent status data part
+  const agentStatusData = useDataPart<AgentStatus>("agent-status");
+
+  // Clear status immediately when completing (smoother UX)
+  const agentStatus =
+    agentStatusData?.status === "completing" ? null : agentStatusData;
 
   const { reset } = useChatActions();
 
@@ -148,12 +133,13 @@ export default function Home() {
       onSubmit={handleSubmit}
       status={status}
       hasMessages={hasMessages}
-      rateLimit={rateLimit}
     />
   );
 
   return (
     <div className="relative flex size-full overflow-hidden min-h-screen">
+      <RateLimitIndicator />
+
       <ChatHeader />
 
       {/* Canvas slides in from right when artifacts are present */}
@@ -178,6 +164,7 @@ export default function Home() {
           <>
             {/* Conversation view - messages */}
             <div className="flex-1 max-w-2xl mx-auto w-full pb-38">
+              <ChatTitle />
               <Conversation>
                 <ConversationContent>
                   <ChatMessages messages={messages} />
