@@ -274,6 +274,8 @@ export class Agent<
       maxRounds = 5,
       maxSteps = 5,
       context,
+      agentChoice,
+      toolChoice,
       beforeStream,
       onEvent,
       // AI SDK createUIMessageStream options
@@ -431,7 +433,105 @@ export class Agent<
           // Determine starting agent using programmatic routing
           let currentAgent: IAgent<any> = this;
 
-          if (strategy === "auto" && specialists.length > 0) {
+          // Check for explicit agent or tool choice (highest priority)
+          if (agentChoice && specialists.length > 0) {
+            const chosenAgent = specialists.find(
+              (agent) => agent.name === agentChoice,
+            );
+            if (chosenAgent) {
+              currentAgent = chosenAgent;
+              console.log(
+                `[ROUTING] Explicit agent choice: ${currentAgent.name}`,
+              );
+
+              // Mark orchestrator as completing
+              writeAgentStatus(writer, {
+                status: "completing",
+                agent: this.name,
+              });
+
+              if (onEvent) {
+                await onEvent({
+                  type: "agent-finish",
+                  agent: this.name,
+                  round: 0,
+                });
+              }
+
+              // Emit handoff event for explicit choice
+              writer.write({
+                type: "data-agent-handoff",
+                data: {
+                  from: this.name,
+                  to: chosenAgent.name,
+                  reason: "User selected agent",
+                  routingStrategy: "explicit",
+                },
+                transient: true,
+              } as never);
+
+              if (onEvent) {
+                await onEvent({
+                  type: "agent-handoff",
+                  from: this.name,
+                  to: chosenAgent.name,
+                  reason: "User selected agent",
+                });
+              }
+            }
+          } else if (toolChoice && specialists.length > 0) {
+            // Find agent that has the requested tool
+            const agentWithTool = specialists.find((agent) => {
+              const agentImpl = agent as Agent<any>;
+              return (
+                agentImpl.configuredTools &&
+                toolChoice in agentImpl.configuredTools
+              );
+            });
+
+            if (agentWithTool) {
+              currentAgent = agentWithTool;
+              console.log(
+                `[ROUTING] Tool choice routing: ${toolChoice} → ${currentAgent.name}`,
+              );
+
+              // Mark orchestrator as completing
+              writeAgentStatus(writer, {
+                status: "completing",
+                agent: this.name,
+              });
+
+              if (onEvent) {
+                await onEvent({
+                  type: "agent-finish",
+                  agent: this.name,
+                  round: 0,
+                });
+              }
+
+              // Emit handoff event for tool choice
+              writer.write({
+                type: "data-agent-handoff",
+                data: {
+                  from: this.name,
+                  to: agentWithTool.name,
+                  reason: `User requested tool: ${toolChoice}`,
+                  routingStrategy: "tool-choice",
+                  preferredTool: toolChoice,
+                },
+                transient: true,
+              } as never);
+
+              if (onEvent) {
+                await onEvent({
+                  type: "agent-handoff",
+                  from: this.name,
+                  to: agentWithTool.name,
+                  reason: `User requested tool: ${toolChoice}`,
+                });
+              }
+            }
+          } else if (strategy === "auto" && specialists.length > 0) {
             // Try programmatic classification
             const matchedAgent = specialists.find((agent) => {
               if (!agent.matchOn) return false;
@@ -765,6 +865,7 @@ export class Agent<
     chatId: string,
     userMessage: string,
     writer: UIMessageStreamWriter,
+    context?: TContext,
   ): Promise<void> {
     if (!this.memory?.chats?.generateTitle) return;
 
@@ -776,9 +877,19 @@ export class Agent<
         : "Generate a short title based on the user's message. Max 80 characters. No quotes or colons.";
 
     try {
+      // Load working memory to give context to title generation
+      let memoryContext = "";
+      if (context && this.memory?.workingMemory?.enabled) {
+        memoryContext = await this.loadWorkingMemory(context);
+      }
+
+      const systemPrompt = memoryContext
+        ? `${instructions}\n\n${memoryContext}`
+        : instructions;
+
       const { text } = await generateText({
         model,
-        system: instructions,
+        system: systemPrompt,
         prompt: userMessage,
       });
 
@@ -1067,8 +1178,8 @@ export class Agent<
 
     // Only generate for first message
     if (!existingChat || existingChat.messageCount === 0) {
-      this.generateChatTitle(chatId, userMessage, writer).catch((err) =>
-        debug("MEMORY", "Title generation error:", err),
+      this.generateChatTitle(chatId, userMessage, writer, context).catch(
+        (err) => debug("MEMORY", "Title generation error:", err),
       );
     }
   }

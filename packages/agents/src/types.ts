@@ -241,6 +241,10 @@ export interface AgentStreamOptionsUI<
   maxSteps?: number;
   /** Global timeout (ms) */
   timeout?: number;
+  /** Direct agent selection - bypasses triage routing */
+  agentChoice?: string;
+  /** Tool preference - routes to agent with this tool and hints to use it */
+  toolChoice?: string;
   /**
    * Context for permissions, guardrails, and artifacts.
    * This object will be wrapped in RunContext<T> and passed to all tools and hooks.

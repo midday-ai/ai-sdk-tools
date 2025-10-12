@@ -16,11 +16,11 @@ import {
   ConversationContent,
   ConversationScrollButton,
 } from "@/components/ai-elements/conversation";
-import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 import { ArtifactCanvas } from "@/components/canvas";
 import {
   ChatHeader,
   ChatInput,
+  type ChatInputMessage,
   ChatMessages,
   ChatStatusIndicators,
   ChatTitle,
@@ -37,12 +37,16 @@ export default function Home() {
   const { messages, sendMessage, status, stop } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/chat",
-      // Only send the last message - agent loads history from memory
       prepareSendMessagesRequest({ messages, id }) {
+        const lastMessage = messages[messages.length - 1] as ChatInputMessage;
+
         return {
           body: {
-            message: messages[messages.length - 1],
+            message: lastMessage,
             id,
+            // Pass agent/tool choices if present in message metadata
+            agentChoice: lastMessage.agentChoice,
+            toolChoice: lastMessage.toolChoice,
           },
         };
       },
@@ -103,7 +107,7 @@ export default function Home() {
     reset();
   };
 
-  const handleSubmit = (message: PromptInputMessage) => {
+  const handleSubmit = (message: ChatInputMessage) => {
     // If currently streaming or submitted, stop instead of submitting
     if (status === "streaming" || status === "submitted") {
       stop();
@@ -123,7 +127,11 @@ export default function Home() {
       });
     }
 
-    sendMessage({ text: message.text || "Sent with attachments" });
+    sendMessage({
+      text: message.text || "Sent with attachments",
+      agentChoice: message.agentChoice,
+      toolChoice: message.toolChoice,
+    } as any);
     setText("");
   };
 
