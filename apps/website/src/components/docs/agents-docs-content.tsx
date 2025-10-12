@@ -613,6 +613,62 @@ const pipeline = new Agent({
             <div className="space-y-8">
               <div>
                 <h3 className="text-xl font-normal mb-4">
+                  With @ai-sdk-tools/memory
+                </h3>
+                <p className="text-sm text-secondary mb-4">
+                  Add persistent working memory and conversation history to
+                  agents:
+                </p>
+                <div className="border border-[#2a2a2a] p-6 mb-4">
+                  <pre
+                    className="text-sm font-mono leading-relaxed"
+                    dangerouslySetInnerHTML={{
+                      __html:
+                        highlight(`import { DrizzleProvider } from '@ai-sdk-tools/memory'
+
+const agent = new Agent({
+  name: 'Assistant',
+  model: openai('gpt-4o'),
+  instructions: 'You are a helpful assistant.',
+  memory: {
+    provider: new DrizzleProvider(db),
+    workingMemory: {
+      enabled: true,
+      scope: 'user', // or 'chat'
+    },
+    history: {
+      enabled: true,
+      limit: 10,
+    },
+    chats: {
+      enabled: true,
+      generateTitle: true,
+    }
+  },
+})
+
+// Agent automatically:
+// - Loads working memory into system prompt
+// - Injects updateWorkingMemory tool
+// - Loads conversation history
+// - Persists messages and generates titles`),
+                    }}
+                    suppressHydrationWarning
+                  />
+                </div>
+                <p className="text-xs text-secondary">
+                  Learn more:{" "}
+                  <Link
+                    href="/docs/memory"
+                    className="text-[#d4d4d4] hover:underline"
+                  >
+                    Memory Documentation
+                  </Link>
+                </p>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-normal mb-4">
                   With @ai-sdk-tools/cache
                 </h3>
                 <p className="text-sm text-secondary mb-4">

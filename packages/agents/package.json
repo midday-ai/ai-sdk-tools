@@ -48,6 +48,9 @@
     "clean": "rm -rf dist",
     "type-check": "tsc --noEmit"
   },
+  "dependencies": {
+    "@ai-sdk-tools/memory": "workspace:*"
+  },
   "peerDependencies": {
     "ai": ">=5.0.0",
     "zod": "^3.25.76 || ^4.1.8"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useChatActions, useChatReset } from "@ai-sdk-tools/store";
+import { useChatActions, useChatReset } from "ai-sdk-tools/client";
 import { Github } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";

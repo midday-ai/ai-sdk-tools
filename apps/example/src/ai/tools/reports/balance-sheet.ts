@@ -1,5 +1,5 @@
-import { getWriter } from "@ai-sdk-tools/artifacts";
 import { tool } from "ai";
+import { getWriter } from "ai-sdk-tools";
 import { z } from "zod";
 import { BalanceSheetArtifact } from "@/ai/artifacts/balance-sheet";
 import { currencyFilterSchema, dateRangeSchema } from "@/ai/types/filters";

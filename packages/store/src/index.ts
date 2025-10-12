@@ -25,3 +25,11 @@ export {
   type UseChatOptions,
   useChat,
 } from "./use-chat";
+// Data parts hooks
+export {
+  type DataPart,
+  type UseDataPartOptions,
+  type UseDataPartsReturn,
+  useDataPart,
+  useDataParts,
+} from "./use-data-parts";

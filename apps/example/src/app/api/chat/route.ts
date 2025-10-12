@@ -1,5 +1,4 @@
-import type { AgentEvent } from "@ai-sdk-tools/agents";
-import { convertToModelMessages, smoothStream } from "ai";
+import { smoothStream } from "ai";
 import type { NextRequest } from "next/server";
 import { buildAppContext } from "@/ai/agents/shared";
 import { triageAgent } from "@/ai/agents/triage";
@@ -22,11 +21,11 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Parse request body
-  const { messages } = await request.json();
+  // Get only the last message from client
+  const { message, id } = await request.json();
 
-  if (!messages || messages.length === 0) {
-    return new Response(JSON.stringify({ error: "No messages provided" }), {
+  if (!message) {
+    return new Response(JSON.stringify({ error: "No message provided" }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
     });
@@ -41,25 +40,17 @@ export async function POST(request: NextRequest) {
     baseCurrency: "USD",
     locale: "en-US",
     timezone: "America/New_York",
+    chatId: id,
   });
 
   return triageAgent.toUIMessageStream({
-    messages: convertToModelMessages(messages),
-    strategy: "auto", // Hybrid routing: programmatic + LLM fallback
-    maxRounds: 5, // Max agent handoffs
-    maxSteps: 10, // Max tool calls per agent
+    message, // Single message, agent loads history internally
+    strategy: "auto",
+    maxRounds: 5,
+    maxSteps: 10,
     context: appContext,
     experimental_transform: smoothStream({ chunking: "word" }),
     sendReasoning: true,
-    onFinish: (options) => {
-      console.log("onFinish", options);
-    },
-    onEvent: (event: AgentEvent) => {
-      // Log lifecycle events for debugging
-      console.log(`[AGENT EVENT] ${event.type}:`, {
-        agent: "agent" in event ? event.agent : undefined,
-        requestId: appContext.requestId,
-      });
-    },
+    sendSources: true,
   });
 }

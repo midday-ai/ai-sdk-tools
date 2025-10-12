@@ -66,4 +66,5 @@ ${formatContextForLLM(ctx)}`,
     operationsAgent,
     generalAgent,
   ],
+  // Memory auto-configured by createAgent helper
 });

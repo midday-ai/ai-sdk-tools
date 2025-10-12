@@ -1,8 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+This is a [Next.js](https://nextjs.org) project showcasing AI SDK Tools with multi-agent orchestration, persistent memory, and financial tools.
 
 ## Getting Started
 
-First, run the development server:
+### 1. Environment Setup
+
+Copy the environment variables template:
+
+```bash
+cp .env.local.example .env.local
+```
+
+Add your API keys:
+
+```env
+# Required
+OPENAI_API_KEY=sk-...
+
+# Optional - Memory Persistence
+UPSTASH_REDIS_REST_URL=https://your-redis.upstash.io
+UPSTASH_REDIS_REST_TOKEN=your-token-here
+```
+
+**Memory Storage Options:**
+
+| Provider | When to Use | Setup Required |
+|----------|------------|----------------|
+| **In-Memory** | Development, testing | None - works by default |
+| **Upstash Redis** | Production, persistent across restarts | Add env vars |
+
+**To use Upstash (recommended for production):**
+1. Create free account: https://console.upstash.com
+2. Create a Redis database
+3. Copy REST URL and Token to `.env.local`
+
+The app automatically detects Upstash credentials and switches providers - no code changes needed!
+
+### 2. Install dependencies:
+
+```bash
+bun install
+```
+
+### 3. Run the development server:
 
 ```bash
 npm run dev

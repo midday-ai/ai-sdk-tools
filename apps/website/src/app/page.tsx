@@ -33,25 +33,18 @@ export default function Home() {
               build advanced AI applications beyond simple chat interfaces.
             </p>
 
-            {/* Package Grid */}
-            <div className="flex flex-col gap-2 max-w-sm">
-              {[
-                "@ai-sdk-tools/agents",
-                "@ai-sdk-tools/store",
-                "@ai-sdk-tools/devtools",
-                "@ai-sdk-tools/artifacts",
-                "@ai-sdk-tools/cache",
-              ].map((pkg) => (
-                <div
-                  key={pkg}
-                  className="flex items-center justify-between border border-dashed border-[#2a2a2a] px-3 py-1.5"
-                >
-                  <span className="text-[#d4d4d4] text-xs font-mono">
-                    npm i {pkg}
-                  </span>
-                  <CopyButton text={`npm i ${pkg}`} />
-                </div>
-              ))}
+            {/* Package Installation */}
+            <div className="flex flex-col gap-3 max-w-sm">
+              <div className="flex items-center justify-between border border-dashed border-[#2a2a2a] px-3 py-2 bg-[#0a0a0a]">
+                <span className="text-[#d4d4d4] text-sm font-mono">
+                  npm i ai-sdk-tools
+                </span>
+                <CopyButton text="npm i ai-sdk-tools" />
+              </div>
+              <p className="text-[10px] text-secondary/60 font-light leading-relaxed">
+                Complete toolkit with all features. Individual packages also
+                available.
+              </p>
             </div>
 
             {/* Used by */}

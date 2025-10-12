@@ -60,6 +60,16 @@ export function Header() {
             Agents
           </Link>
           <Link
+            href="/memory"
+            className={`transition-colors text-sm font-medium ${
+              pathname === "/memory"
+                ? "text-[#d4d4d4]"
+                : "text-secondary hover:text-[#d4d4d4]"
+            }`}
+          >
+            Memory
+          </Link>
+          <Link
             href="/store"
             className={`transition-colors text-sm font-medium ${
               pathname === "/store"
@@ -192,6 +202,17 @@ export function Header() {
               }`}
             >
               Agents
+            </Link>
+            <Link
+              href="/memory"
+              onClick={closeMobileMenu}
+              className={`block transition-colors text-sm font-medium py-2 ${
+                pathname === "/memory"
+                  ? "text-[#d4d4d4]"
+                  : "text-secondary hover:text-[#d4d4d4]"
+              }`}
+            >
+              Memory
             </Link>
             <Link
               href="/store"

@@ -1,3 +1,5 @@
+import { readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { defineConfig } from "tsup";
 
 export default defineConfig({
@@ -7,7 +9,7 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   splitting: false,
-  treeshake: true,
+  treeshake: false,
   minify: false,
   external: [
     "react",
@@ -16,9 +18,21 @@ export default defineConfig({
     "@ai-sdk/react",
     "@ai-sdk-tools/store",
   ],
-  esbuildOptions(options) {
-    options.banner = {
-      js: '"use client";',
-    };
+  onSuccess: async () => {
+    // Inject 'use client' directive ONLY into client builds
+    const files = ["dist/client.js", "dist/client.mjs"];
+
+    for (const file of files) {
+      try {
+        const content = readFileSync(resolve(__dirname, file), "utf-8");
+        if (!content.startsWith('"use client"')) {
+          const withUseClient = `"use client";\n\n${content}`;
+          writeFileSync(resolve(__dirname, file), withUseClient);
+          console.log(`✅ Added 'use client' to ${file}`);
+        }
+      } catch (error) {
+        console.error(`❌ Failed to add 'use client' to ${file}:`, error);
+      }
+    }
   },
 });
