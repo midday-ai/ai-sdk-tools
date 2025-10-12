@@ -70,6 +70,7 @@ export default function AgentsContent() {
                 dangerouslySetInnerHTML={{
                   __html:
                     highlight(`import { Agent } from '@ai-sdk-tools/agents'
+import { DrizzleProvider } from '@ai-sdk-tools/memory'
 import { openai } from '@ai-sdk/openai'
 
 const mathAgent = new Agent({
@@ -90,10 +91,15 @@ const orchestrator = new Agent({
   name: 'Triage',
   model: openai('gpt-4o-mini'),
   instructions: 'Route to specialists',
-  handoffs: [mathAgent, historyAgent]
+  handoffs: [mathAgent, historyAgent],
+  memory: {
+    provider: new DrizzleProvider(db),
+    workingMemory: { enabled: true, scope: 'user' },
+    history: { enabled: true, limit: 10 }
+  }
 })
 
-// Auto-routes based on pattern matching
+// Auto-routes and remembers context
 const result = await orchestrator.generate({
   prompt: 'What is 15 * 23?'
 })
@@ -143,6 +149,15 @@ console.log(\`Handled by: \${result.finalAgent}\`)
             <p className="text-xs text-secondary font-light leading-relaxed">
               Pass typed context to agents for team/user-specific behavior.
               Dynamic instructions based on preferences, permissions, and state.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-base font-medium mb-3">Persistent Memory</h3>
+            <p className="text-xs text-secondary font-light leading-relaxed">
+              Built-in working memory and conversation history. Agents remember
+              context across chats with flexible storage providers (InMemory,
+              Drizzle, Upstash).
             </p>
           </div>
 

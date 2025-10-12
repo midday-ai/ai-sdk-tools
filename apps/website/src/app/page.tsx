@@ -37,6 +37,7 @@ export default function Home() {
             <div className="flex flex-col gap-2 max-w-sm">
               {[
                 "@ai-sdk-tools/agents",
+                "@ai-sdk-tools/memory",
                 "@ai-sdk-tools/store",
                 "@ai-sdk-tools/devtools",
                 "@ai-sdk-tools/artifacts",
