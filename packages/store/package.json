@@ -1,6 +1,6 @@
 {
   "name": "@ai-sdk-tools/store",
-  "version": "0.8.0",
+  "version": "0.8.2",
   "description": "A drop-in replacement for @ai-sdk/react that automatically syncs chat state to Zustand stores",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

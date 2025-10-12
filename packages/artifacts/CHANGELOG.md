@@ -1,5 +1,11 @@
 # @ai-sdk-tools/artifacts
 
+## 0.8.1
+
+### Patch Changes
+
+- Initial release of unified ai-sdk-tools package. Fixed use client directive handling in artifacts. Added artifacts devDependency to cache package.
+
 ## 0.7.0
 
 ### Minor Changes

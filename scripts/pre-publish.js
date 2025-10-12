@@ -25,7 +25,6 @@ function getPackageVersion(packageName) {
 const packageDependencies = {
   artifacts: ["store"],
   devtools: ["store"],
-  "chrome-extension": ["store", "devtools"],
 };
 
 // Generate dynamic package configurations

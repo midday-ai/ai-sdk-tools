@@ -23,13 +23,9 @@ const memoryTemplate = readFileSync(
 export interface AppContext {
   userId: string;
   fullName: string;
-  email: string;
-  teamId: string;
   companyName: string;
   baseCurrency: string;
   locale: string;
-  currentDate: string;
-  currentTime: string;
   currentDateTime: string;
   timezone: string;
   chatId: string;
@@ -44,8 +40,6 @@ export interface AppContext {
 export function buildAppContext(params: {
   userId: string;
   fullName: string;
-  email: string;
-  teamId: string;
   companyName: string;
   chatId: string;
   baseCurrency?: string;
@@ -56,14 +50,10 @@ export function buildAppContext(params: {
   return {
     userId: params.userId,
     fullName: params.fullName,
-    email: params.email,
-    teamId: params.teamId,
     companyName: params.companyName,
     chatId: params.chatId,
     baseCurrency: params.baseCurrency || "USD",
     locale: params.locale || "en-US",
-    currentDate: now.toISOString().split("T")[0],
-    currentTime: now.toTimeString().split(" ")[0],
     currentDateTime: now.toISOString(),
     timezone:
       params.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -80,7 +70,8 @@ export function buildAppContext(params: {
 export function formatContextForLLM(context: AppContext): string {
   return `
 CURRENT CONTEXT:
-- Date: ${context.currentDate} ${context.currentTime} (${context.timezone})
+- Date: ${context.currentDateTime}
+- Timezone: ${context.timezone}
 - Company: ${context.companyName}
 - Currency: ${context.baseCurrency}
 - Locale: ${context.locale}

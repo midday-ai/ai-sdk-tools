@@ -31,11 +31,11 @@ export async function POST(request: NextRequest) {
     });
   }
 
+  const userId = `user-${ip}}`;
+
   const appContext = buildAppContext({
-    userId: "user-123",
+    userId,
     fullName: "John Doe",
-    email: "john@acme.com",
-    teamId: "team-456",
     companyName: "Acme Inc.",
     baseCurrency: "USD",
     locale: "en-US",
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
   });
 
   return triageAgent.toUIMessageStream({
-    message, // Single message, agent loads history internally
+    message,
     strategy: "auto",
     maxRounds: 5,
     maxSteps: 10,

@@ -1,5 +1,17 @@
 # ai-sdk-tools
 
+## 0.4.0
+
+### Minor Changes
+
+- Initial release of unified ai-sdk-tools package. Fixed use client directive handling in artifacts. Added artifacts devDependency to cache package.
+
+### Patch Changes
+
+- Updated dependencies
+  - @ai-sdk-tools/artifacts@0.8.1
+  - @ai-sdk-tools/cache@0.7.1
+
 ## 0.1.0
 
 ### Initial Release
@@ -14,4 +26,3 @@
   - `store` - State management
 - Single package installation for all features
 - Individual packages still available for granular control
-

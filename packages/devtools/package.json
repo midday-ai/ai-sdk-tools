@@ -1,6 +1,6 @@
 {
   "name": "@ai-sdk-tools/devtools",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "AI development tools for debugging and monitoring AI SDKs streams",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -48,10 +48,10 @@
     "react-dom": "^19.2.0",
     "tsup": "^8.5.0",
     "typescript": "^5.9.3",
-    "@ai-sdk/react": "^2.0.68"
+    "@ai-sdk/react": "^2.0.68",
+    "@ai-sdk-tools/store": "workspace:*"
   },
   "dependencies": {
-    "@ai-sdk-tools/store": "^0.7.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.3.4",
