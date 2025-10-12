@@ -2,9 +2,31 @@
 
 ![AI SDK Tools](image.png)
 
-Essential utilities for building production-ready AI applications with Vercel AI SDK. State management, debugging, structured streaming, intelligent agents, and caching.
+Essential utilities for building production-ready AI applications with Vercel AI SDK. State management, debugging, structured streaming, intelligent agents, caching, and persistent memory.
 
-## Packages
+## Installation
+
+### Unified Package (Recommended)
+
+Install everything in one package:
+
+```bash
+npm install ai-sdk-tools
+```
+
+Import what you need:
+
+```typescript
+// Server-side
+import { Agent, artifact, cached } from 'ai-sdk-tools';
+
+// Client-side
+import { useChat, useArtifact, AIDevtools } from 'ai-sdk-tools/client';
+```
+
+### Individual Packages
+
+Or install only what you need:
 
 ### [@ai-sdk-tools/store](./packages/store)
 AI chat state management that eliminates prop drilling. Clean architecture and better performance for chat components.
@@ -39,6 +61,13 @@ Universal caching for AI SDK tools. Cache expensive operations with zero configu
 
 ```bash
 npm i @ai-sdk-tools/cache
+```
+
+### [@ai-sdk-tools/memory](./packages/memory)
+Persistent memory system for AI agents. Add long-term memory with support for multiple storage backends (In-Memory, Upstash Redis, Drizzle).
+
+```bash
+npm i @ai-sdk-tools/memory
 ```
 
 ## Getting Started
