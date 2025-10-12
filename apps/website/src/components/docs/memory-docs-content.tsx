@@ -189,7 +189,6 @@ const memory = new DrizzleProvider(db, {
               />
             </div>
             <p className="text-xs text-secondary mb-12">
-              📖{" "}
               <a
                 href="https://github.com/midday-ai/ai-sdk-tools/blob/main/packages/memory/DRIZZLE.md"
                 target="_blank"
@@ -574,12 +573,6 @@ function ChatComponent() {
       },
     }),
   })
-  
-  // Agent automatically:
-  // - Loads previous messages from memory
-  // - Maintains working memory across chats
-  // - Generates title on first message
-  // - Persists conversation history
 }`),
                 }}
                 suppressHydrationWarning

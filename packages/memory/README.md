@@ -88,7 +88,7 @@ const memory = new DrizzleProvider(db, {
 });
 ```
 
-📖 **[Full Drizzle documentation →](./DRIZZLE.md)** - Includes PostgreSQL, MySQL, SQLite/Turso examples
+**[Full Drizzle documentation →](./DRIZZLE.md)** - Includes PostgreSQL, MySQL, SQLite/Turso examples
 
 ### Upstash Provider (Production - Serverless)
 

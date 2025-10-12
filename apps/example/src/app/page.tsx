@@ -1,10 +1,14 @@
 "use client";
 
-import { useArtifacts } from "@ai-sdk-tools/artifacts/client";
-import { AIDevtools } from "@ai-sdk-tools/devtools";
-import { useChat, useChatActions, useDataPart } from "@ai-sdk-tools/store";
 import type { ToolUIPart } from "ai";
 import { DefaultChatTransport } from "ai";
+import {
+  AIDevtools,
+  useArtifacts,
+  useChat,
+  useChatActions,
+  useDataPart,
+} from "ai-sdk-tools/client";
 import { type RefObject, useRef, useState } from "react";
 import { toast } from "sonner";
 import {

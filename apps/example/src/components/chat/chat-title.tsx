@@ -1,6 +1,6 @@
 "use client";
 
-import { useDataPart } from "@ai-sdk-tools/store";
+import { useDataPart } from "ai-sdk-tools/client";
 import { AnimatePresence, motion } from "motion/react";
 
 interface ChatTitleData {

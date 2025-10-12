@@ -92,13 +92,7 @@ const agent = new Agent({
       generateTitle: true
     }
   }
-})
-
-// Agent automatically:
-// ✓ Auto-loads conversation history
-// ✓ Injects updateWorkingMemory tool
-// ✓ Persists chats with titles
-// ✓ Tracks message counts and timestamps`),
+})`),
                 }}
                 suppressHydrationWarning
               />

@@ -56,6 +56,7 @@
     "@ai-sdk-tools/store": "^0.7.0"
   },
   "devDependencies": {
+    "@ai-sdk/react": "^2.0.60",
     "@types/react": "^19.2.0",
     "typescript": "^5.9.3",
     "tsup": "^8.5.0"

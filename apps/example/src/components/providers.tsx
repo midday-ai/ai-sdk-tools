@@ -1,4 +1,4 @@
-import { Provider } from "@ai-sdk-tools/store";
+import { Provider } from "ai-sdk-tools/client";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
 

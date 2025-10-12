@@ -1,6 +1,6 @@
 "use client";
 
-import { useChatActions } from "@ai-sdk-tools/store";
+import { useChatActions } from "ai-sdk-tools/client";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 

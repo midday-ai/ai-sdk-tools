@@ -6,10 +6,9 @@
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import type { AgentConfig } from "@ai-sdk-tools/agents";
-import { Agent } from "@ai-sdk-tools/agents";
-import { UpstashProvider } from "@ai-sdk-tools/memory";
 import { Redis } from "@upstash/redis";
+import type { AgentConfig } from "ai-sdk-tools";
+import { Agent, UpstashProvider } from "ai-sdk-tools";
 
 // Load memory template from markdown file
 const memoryTemplate = readFileSync(

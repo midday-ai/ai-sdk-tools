@@ -11,12 +11,7 @@
     "format": "biome format --write"
   },
   "dependencies": {
-    "@ai-sdk-tools/agents": "workspace:*",
-    "@ai-sdk-tools/artifacts": "workspace:*",
-    "@ai-sdk-tools/cache": "workspace:*",
-    "@ai-sdk-tools/devtools": "workspace:*",
-    "@ai-sdk-tools/memory": "workspace:*",
-    "@ai-sdk-tools/store": "workspace:*",
+    "ai-sdk-tools": "workspace:*",
     "@ai-sdk/openai": "^2.0.49",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-collapsible": "^1.1.12",

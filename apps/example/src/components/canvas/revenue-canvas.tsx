@@ -1,6 +1,6 @@
 "use client";
 
-import { useArtifact } from "@ai-sdk-tools/artifacts/client";
+import { useArtifact } from "ai-sdk-tools/client";
 import { format } from "date-fns";
 import { BarChart3, DollarSign, TrendingUp, Users } from "lucide-react";
 import { Bar, BarChart, XAxis, YAxis } from "recharts";
