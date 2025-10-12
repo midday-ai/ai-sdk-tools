@@ -69,8 +69,8 @@ export interface AgentConfig<
   instructions: string | ((context: TContext) => string);
   /** Language model to use */
   model: LanguageModel;
-  /** Tools available to the agent */
-  tools?: Record<string, Tool>;
+  /** Tools available to the agent - static or dynamic function receiving context */
+  tools?: Record<string, Tool> | ((context: TContext) => Record<string, Tool>);
   /** Agents this agent can hand off to */
   handoffs?: Array<Agent<any>>;
   /** Maximum number of turns before stopping */

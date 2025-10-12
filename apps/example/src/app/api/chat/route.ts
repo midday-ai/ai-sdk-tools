@@ -40,6 +40,9 @@ export async function POST(request: NextRequest) {
     baseCurrency: "USD",
     locale: "en-US",
     timezone: "America/New_York",
+    country: "US",
+    city: "New York",
+    region: "New York",
     chatId: id,
   });
 

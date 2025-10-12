@@ -44,6 +44,7 @@ export const triageAgent = createAgent({
   - Greetings, thanks, casual conversation
   - "What can you do?", "How does this work?"
   - Memory queries: "What did I just ask?", "What did we discuss?"
+  - Web search: current events, news, latest information
   - Ambiguous or unclear requests
   - Default for anything that doesn't fit other specialists
 
@@ -51,6 +52,7 @@ ROUTING RULES:
 - "runway" = reports (not analytics)
 - "forecast" = analytics (not reports)
 - "what did I just ask" or memory queries = general
+- "search", "latest", "current news" = general (has web search)
 - Greetings, thanks, casual chat = general
 - When uncertain = general (as default)
 - Route to ONE specialist at a time

@@ -86,7 +86,7 @@ export const getToolMessage = (toolName: string | null) => {
     exportData: "Exporting data...",
 
     // Research tools
-    web_search: "Searching the web...",
+    webSearch: "Searching the web...",
 
     // Memory tools
     updateWorkingMemory: "Updating memory...",

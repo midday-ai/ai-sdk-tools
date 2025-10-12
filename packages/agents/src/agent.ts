@@ -61,7 +61,9 @@ export class Agent<
   private readonly model: LanguageModel;
   private readonly aiAgent: AISDKAgent<Record<string, Tool>>;
   private readonly handoffAgents: Array<IAgent<any>>;
-  private readonly configuredTools: Record<string, Tool>;
+  private readonly configuredTools:
+    | Record<string, Tool>
+    | ((context: TContext) => Record<string, Tool>);
 
   constructor(config: AgentConfig<TContext>) {
     this.name = config.name;
@@ -75,19 +77,8 @@ export class Agent<
     this.model = config.model;
     this.handoffAgents = config.handoffs || [];
 
-    // Prepare tools with handoff capability
-    const tools = { ...config.tools };
-    if (this.handoffAgents.length > 0) {
-      tools.handoff_to_agent = createHandoffTool(this.handoffAgents);
-    }
-
-    // Add working memory tool if enabled
-    if (this.memory?.workingMemory?.enabled) {
-      tools.updateWorkingMemory = this.createWorkingMemoryTool();
-    }
-
-    // Store tools for later reference
-    this.configuredTools = tools;
+    // Store tools config (will be resolved at runtime)
+    this.configuredTools = config.tools || {};
 
     // Note: If instructions is a function, it will be resolved per-call in stream()
     // We still need to create the AI SDK Agent with initial instructions for backwards compatibility
@@ -98,11 +89,11 @@ export class Agent<
         ? promptWithHandoffInstructions(baseInstructions)
         : baseInstructions;
 
-    // Create AI SDK Agent
+    // Create AI SDK Agent (tools will be resolved per-request in stream())
     this.aiAgent = new AISDKAgent<Record<string, Tool>>({
       model: config.model,
       system: systemPrompt,
-      tools,
+      tools: {}, // Empty tools, will be overridden per-request
       stopWhen: stepCountIs(config.maxTurns || 10),
       temperature: config.temperature,
       ...config.modelSettings,
@@ -198,22 +189,37 @@ export class Agent<
         ? promptWithHandoffInstructions(resolvedInstructions + memoryAddition)
         : resolvedInstructions + memoryAddition;
 
+    // Resolve tools dynamically (static object or function)
+    const resolvedTools =
+      typeof this.configuredTools === "function"
+        ? this.configuredTools(executionContext as TContext)
+        : { ...this.configuredTools };
+
+    // Add handoff tool if needed
+    if (this.handoffAgents.length > 0) {
+      resolvedTools.handoff_to_agent = createHandoffTool(this.handoffAgents);
+    }
+
+    // Add working memory tool if enabled
+    if (this.memory?.workingMemory?.enabled) {
+      resolvedTools.updateWorkingMemory = this.createWorkingMemoryTool();
+    }
+
+    // Override working memory tool if preloaded in context
+    if (extendedContext._updateWorkingMemoryTool) {
+      resolvedTools.updateWorkingMemory =
+        extendedContext._updateWorkingMemoryTool;
+    }
+
     // Build additional options to pass to AI SDK
     const additionalOptions: Record<string, unknown> = {
       system: systemPrompt, // Override system prompt per call
+      tools: resolvedTools, // Add resolved tools here
     };
     if (executionContext)
       additionalOptions.experimental_context = executionContext;
     if (maxSteps) additionalOptions.maxSteps = maxSteps;
     if (onStepFinish) additionalOptions.onStepFinish = onStepFinish;
-
-    // Inject working memory tool if preloaded in context
-    if (extendedContext._updateWorkingMemoryTool) {
-      additionalOptions.tools = {
-        ...this.configuredTools,
-        updateWorkingMemory: extendedContext._updateWorkingMemoryTool,
-      };
-    }
 
     // Handle simple { messages } format (like working code)
     if ("messages" in options && !("prompt" in options) && options.messages) {
