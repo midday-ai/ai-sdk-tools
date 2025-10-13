@@ -10,7 +10,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-secondary: var(--secondary);
-  --font-sans: var(--font-geist);
+  --font-sans: var(--font-geist-mono);
   --font-mono: var(--font-geist-mono);
 }
 
@@ -26,7 +26,7 @@ body {
   background-color: #0c0c0c;
   color: #d4d4d4;
   position: relative;
-  font-family: var(--font-geist);
+  font-family: var(--font-geist-mono);
 }
 
 h1 {
