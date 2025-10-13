@@ -3,11 +3,24 @@ import "./globals.css";
 import { Provider } from "@ai-sdk-tools/store";
 import { OpenPanelComponent } from "@openpanel/nextjs";
 import localFont from "next/font/local";
+import { Geist_Mono, Geist } from "next/font/google";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 
 const departureFont = localFont({
   src: "./DepartureMono-Regular.woff2",
+  variable: "--font-departure-mono",
+});
+
+const geist = Geist({
+  subsets: ["latin"],
+  variable: "--font-geist",
+});
+
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-geist-mono",
 });
 
 export const metadata: Metadata = {
@@ -71,8 +84,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${departureFont.className} antialiased`}>
+    <html lang="en" className={`${geist.variable} ${geistMono.variable} ${departureFont.variable}`}>
+      <body className={`${geist.className} antialiased`}>
         <Provider initialMessages={[]}>
           <Header />
           {children}

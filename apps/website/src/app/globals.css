@@ -10,8 +10,8 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-secondary: var(--secondary);
-  --font-sans: var(--font-departure-mono);
-  --font-mono: var(--font-departure-mono);
+  --font-sans: var(--font-geist);
+  --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -26,6 +26,11 @@ body {
   background-color: #0c0c0c;
   color: #d4d4d4;
   position: relative;
+  font-family: var(--font-geist);
+}
+
+h1 {
+  font-family: var(--font-departure-mono);
 }
 
 body::before {
