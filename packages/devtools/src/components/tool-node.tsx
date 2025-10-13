@@ -7,14 +7,12 @@ import { memo } from "react";
 interface ToolNodeData {
   name: string;
   description?: string;
-  inputFields?: number;
-  outputFields?: number;
   label: string;
 }
 
 function ToolNodeComponent({ data }: NodeProps) {
   const nodeData = data as unknown as ToolNodeData;
-  const { name, description, inputFields = 0, outputFields = 0 } = nodeData;
+  const { name, description } = nodeData;
 
   return (
     <>
@@ -85,41 +83,11 @@ function ToolNodeComponent({ data }: NodeProps) {
             style={{
               fontSize: 13,
               color: "#a1a1aa",
-              marginBottom: 12,
             }}
           >
             {description}
           </div>
         )}
-
-        {/* Divider */}
-        <div
-          style={{
-            height: 1,
-            background: "#27272a",
-            margin: "12px 0",
-          }}
-        />
-
-        {/* Input/Output Fields */}
-        <div
-          style={{
-            fontSize: 11,
-            color: "#71717a",
-            display: "flex",
-            flexDirection: "column",
-            gap: 6,
-          }}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <span>Input Fields</span>
-            <span style={{ color: "#a1a1aa" }}>{inputFields}</span>
-          </div>
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <span>Output Fields</span>
-            <span style={{ color: "#a1a1aa" }}>{outputFields}</span>
-          </div>
-        </div>
       </div>
 
       {/* Output handle (right for horizontal layout) */}

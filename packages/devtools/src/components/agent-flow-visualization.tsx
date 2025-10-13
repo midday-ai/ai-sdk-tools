@@ -116,7 +116,8 @@ function processAgentEvents(events: AIEvent[]): AgentFlowData {
           agentMap.set(agentName, {
             name: agentName,
             status: "executing",
-            startTime: event.timestamp,
+            // Preserve original startTime if it exists (don't overwrite on subsequent starts)
+            startTime: existing?.startTime || event.timestamp,
             endTime: existing?.endTime,
             toolCallCount: existing?.toolCallCount || 0,
             routingStrategy: event.metadata?.routingStrategy,
@@ -206,8 +207,17 @@ function processAgentEvents(events: AIEvent[]): AgentFlowData {
         const toolName = event.metadata?.toolName || event.data?.toolName;
         const agentName = currentAgent || event.metadata?.agent;
 
-        // Only track valid tool names (not undefined, empty, or "unknown")
-        if (toolName && toolName !== "unknown" && toolName.trim() !== "") {
+        // Filter out internal orchestration tools from visualization
+        const isInternalTool =
+          toolName === "handoff_to_agent" || toolName === "updateWorkingMemory";
+
+        // Only track valid tool names (not undefined, empty, "unknown", or internal)
+        if (
+          toolName &&
+          toolName !== "unknown" &&
+          toolName.trim() !== "" &&
+          !isInternalTool
+        ) {
           const existing = toolMap.get(toolName);
           toolMap.set(toolName, {
             name: toolName,
@@ -314,8 +324,6 @@ export function AgentFlowVisualization({
           ...tool,
           label: tool.name,
           description: `A ${tool.name} tool`,
-          inputFields: 0,
-          outputFields: 0,
         },
       };
     });

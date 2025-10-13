@@ -34,7 +34,6 @@ import type {
   AgentStreamOptionsUI,
   AgentStreamResult,
   ExtendedExecutionContext,
-  HandoffData,
   HandoffInstruction,
   Agent as IAgent,
   InputGuardrail,
@@ -656,7 +655,7 @@ export class Agent<
 
             // Track for orchestration
             let textAccumulated = "";
-            let handoffData: HandoffData | null = null;
+            let handoffData: HandoffInstruction | null = null;
             const toolCallNames = new Map<string, string>(); // toolCallId -> toolName
             let hasStartedContent = false;
 
@@ -692,8 +691,8 @@ export class Agent<
               // Detect handoff from tool output
               if (chunk.type === "tool-output-available") {
                 const toolName = toolCallNames.get(chunk.toolCallId);
-                if (toolName === "handoff") {
-                  handoffData = chunk.output as HandoffData;
+                if (toolName === "handoff_to_agent") {
+                  handoffData = chunk.output as HandoffInstruction;
                   console.log("[Handoff Detected]", handoffData);
                 }
               }
@@ -720,7 +719,7 @@ export class Agent<
             if (currentAgent === this) {
               if (handoffData) {
                 // Check if this specialist has already been used
-                if (usedSpecialists.has(handoffData.agent)) {
+                if (usedSpecialists.has(handoffData.targetAgent)) {
                   // Don't route to the same specialist twice - task is complete
                   break;
                 }
@@ -728,13 +727,13 @@ export class Agent<
                 // Send routing status
                 writeAgentStatus(writer, {
                   status: "routing",
-                  agent: "orchestrator",
+                  agent: this.name,
                 });
 
                 // Mark specialist as used and route to it
-                usedSpecialists.add(handoffData.agent);
+                usedSpecialists.add(handoffData.targetAgent);
                 const nextAgent = specialists.find(
-                  (a) => a.name === handoffData.agent,
+                  (a) => a.name === handoffData.targetAgent,
                 );
                 if (nextAgent) {
                   currentAgent = nextAgent;
@@ -768,15 +767,15 @@ export class Agent<
               // Specialist done
               if (handoffData) {
                 // Specialist handed off to another specialist
-                if (usedSpecialists.has(handoffData.agent)) {
+                if (usedSpecialists.has(handoffData.targetAgent)) {
                   // Already used this specialist - complete
                   break;
                 }
 
                 // Route to next specialist
-                usedSpecialists.add(handoffData.agent);
+                usedSpecialists.add(handoffData.targetAgent);
                 const nextAgent = specialists.find(
-                  (a) => a.name === handoffData.agent,
+                  (a) => a.name === handoffData.targetAgent,
                 );
                 if (nextAgent) {
                   const previousAgent = currentAgent;

@@ -14,7 +14,7 @@ import { createAgent, formatContextForLLM } from "./shared";
 
 export const analyticsAgent = createAgent({
   name: "analytics",
-  model: openai("gpt-4o-mini"),
+  model: openai("gpt-4o"),
   instructions: (
     ctx,
   ) => `You are an analytics & forecasting specialist with access to business intelligence tools for ${ctx.companyName}.
