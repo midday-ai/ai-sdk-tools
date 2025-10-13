@@ -15,6 +15,12 @@ Persistent memory system for AI agents with built-in providers for development a
 
 ```bash
 npm install @ai-sdk-tools/memory
+# or
+yarn add @ai-sdk-tools/memory
+# or
+pnpm add @ai-sdk-tools/memory
+# or
+bun add @ai-sdk-tools/memory
 ```
 
 ### Optional Dependencies
@@ -34,7 +40,7 @@ npm install @upstash/redis
 Perfect for local development - works immediately, no setup needed.
 
 ```typescript
-import { InMemoryProvider } from '@ai-sdk-tools/memory';
+import { InMemoryProvider } from "@ai-sdk-tools/memory";
 
 const memory = new InMemoryProvider();
 
@@ -45,7 +51,7 @@ const context = buildAppContext({
     provider: memory,
     workingMemory: {
       enabled: true,
-      scope: 'chat',
+      scope: "chat",
     },
   },
 });
@@ -56,28 +62,28 @@ const context = buildAppContext({
 Works with PostgreSQL, MySQL, and SQLite via Drizzle ORM. Perfect if you already use Drizzle in your project.
 
 ```typescript
-import { drizzle } from 'drizzle-orm/vercel-postgres';
-import { sql } from '@vercel/postgres';
-import { pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
-import { DrizzleProvider } from '@ai-sdk-tools/memory';
+import { drizzle } from "drizzle-orm/vercel-postgres";
+import { sql } from "@vercel/postgres";
+import { pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { DrizzleProvider } from "@ai-sdk-tools/memory";
 
 // Define your schema
-const workingMemory = pgTable('working_memory', {
-  id: text('id').primaryKey(),
-  scope: text('scope').notNull(),
-  chatId: text('chat_id'),
-  userId: text('user_id'),
-  content: text('content').notNull(),
-  updatedAt: timestamp('updated_at').notNull(),
+const workingMemory = pgTable("working_memory", {
+  id: text("id").primaryKey(),
+  scope: text("scope").notNull(),
+  chatId: text("chat_id"),
+  userId: text("user_id"),
+  content: text("content").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
 });
 
-const messages = pgTable('conversation_messages', {
-  id: serial('id').primaryKey(),
-  chatId: text('chat_id').notNull(),
-  userId: text('user_id'),
-  role: text('role').notNull(),
-  content: text('content').notNull(),
-  timestamp: timestamp('timestamp').notNull(),
+const messages = pgTable("conversation_messages", {
+  id: serial("id").primaryKey(),
+  chatId: text("chat_id").notNull(),
+  userId: text("user_id"),
+  role: text("role").notNull(),
+  content: text("content").notNull(),
+  timestamp: timestamp("timestamp").notNull(),
 });
 
 // Initialize
@@ -95,8 +101,8 @@ const memory = new DrizzleProvider(db, {
 Perfect for edge and serverless environments.
 
 ```typescript
-import { Redis } from '@upstash/redis';
-import { UpstashProvider } from '@ai-sdk-tools/memory';
+import { Redis } from "@upstash/redis";
+import { UpstashProvider } from "@ai-sdk-tools/memory";
 
 const redis = Redis.fromEnv();
 const memory = new UpstashProvider(redis);
@@ -105,7 +111,7 @@ const memory = new UpstashProvider(redis);
 ## Usage with Agents
 
 ```typescript
-import { InMemoryProvider } from '@ai-sdk-tools/memory';
+import { InMemoryProvider } from "@ai-sdk-tools/memory";
 
 const appContext = buildAppContext({
   userId: "user-123",
@@ -118,7 +124,7 @@ const appContext = buildAppContext({
     provider: new InMemoryProvider(),
     workingMemory: {
       enabled: true,
-      scope: 'chat', // or 'user'
+      scope: "chat", // or 'user'
       template: `# Working Memory
 
 ## Key Facts
@@ -170,12 +176,12 @@ workingMemory: {
 Implement the `MemoryProvider` interface:
 
 ```typescript
-import type { 
-  MemoryProvider, 
-  WorkingMemory, 
+import type {
+  MemoryProvider,
+  WorkingMemory,
   ConversationMessage,
-  MemoryScope 
-} from '@ai-sdk-tools/memory';
+  MemoryScope,
+} from "@ai-sdk-tools/memory";
 
 class MyProvider implements MemoryProvider {
   async getWorkingMemory(params: {
@@ -185,7 +191,7 @@ class MyProvider implements MemoryProvider {
   }): Promise<WorkingMemory | null> {
     // Your implementation
   }
-  
+
   async updateWorkingMemory(params: {
     chatId?: string;
     userId?: string;
@@ -194,12 +200,12 @@ class MyProvider implements MemoryProvider {
   }): Promise<void> {
     // Your implementation
   }
-  
+
   // Optional methods
   async saveMessage(message: ConversationMessage): Promise<void> {
     // Your implementation
   }
-  
+
   async getMessages(params: {
     chatId: string;
     limit?: number;
@@ -225,7 +231,7 @@ interface WorkingMemory {
 #### `MemoryScope`
 
 ```typescript
-type MemoryScope = 'chat' | 'user';
+type MemoryScope = "chat" | "user";
 ```
 
 #### `ConversationMessage`
@@ -234,7 +240,7 @@ type MemoryScope = 'chat' | 'user';
 interface ConversationMessage {
   chatId: string;
   userId?: string;
-  role: 'user' | 'assistant' | 'system';
+  role: "user" | "assistant" | "system";
   content: string;
   timestamp: Date;
 }
@@ -249,16 +255,16 @@ interface MemoryProvider {
     userId?: string;
     scope: MemoryScope;
   }): Promise<WorkingMemory | null>;
-  
+
   updateWorkingMemory(params: {
     chatId?: string;
     userId?: string;
     scope: MemoryScope;
     content: string;
   }): Promise<void>;
-  
+
   saveMessage?(message: ConversationMessage): Promise<void>;
-  
+
   getMessages?(params: {
     chatId: string;
     limit?: number;
@@ -269,4 +275,3 @@ interface MemoryProvider {
 ## License
 
 MIT
-

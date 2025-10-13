@@ -17,6 +17,7 @@
     "@ai-sdk/openai": "^2.0.46",
     "@openpanel/nextjs": "^1.0.8",
     "ai": "^5.0.64",
+    "geist": "^1.5.1",
     "next": "15.5.4",
     "react": "19.2.0",
     "react-dom": "19.2.0",

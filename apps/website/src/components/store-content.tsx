@@ -3,6 +3,7 @@
 import { highlight } from "sugar-high";
 import { LiveDemo } from "./live-demo";
 import { CopyButton } from "./copy-button";
+import { InstallScriptTabs } from "./install-script-tabs";
 
 export function StoreContent() {
   return (
@@ -16,18 +17,13 @@ export function StoreContent() {
             </h1>
 
             <p className="text-base text-secondary max-w-3xl leading-relaxed font-light">
-              A drop-in replacement for @ai-sdk/react with 3-5x performance improvements.
-              Built-in optimizations, O(1) message lookups, batched updates, and 
-              zero configuration required.
+              A drop-in replacement for @ai-sdk/react with 3-5x performance
+              improvements. Built-in optimizations, O(1) message lookups,
+              batched updates, and zero configuration required.
             </p>
 
             {/* Terminal */}
-            <div className="flex items-center justify-between border border-dashed border-[#2a2a2a] px-3 py-1.5 max-w-md">
-              <span className="text-[#d4d4d4] text-xs font-mono">
-                npm i @ai-sdk-tools/store
-              </span>
-                <CopyButton text="npm i @ai-sdk-tools/store" />
-            </div>
+            <InstallScriptTabs packageName="@ai-sdk-tools/store" />
 
             {/* Used by */}
             <div className="space-y-6 max-w-xl">
@@ -246,8 +242,8 @@ function MessageList() {
                 <span className="text-secondary">git: (main)$ </span>
                 <span className="text-white">npm i @ai-sdk-tools/store</span>
               </div>
-              <CopyButton 
-                text="npm i @ai-sdk-tools/store" 
+              <CopyButton
+                text="npm i @ai-sdk-tools/store"
                 className="ml-4 hover:text-white"
                 size={16}
               />

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { highlight } from "sugar-high";
+import { InstallScriptTabs } from "../install-script-tabs";
 
 export default function InstallationContent() {
   return (
@@ -34,31 +35,7 @@ export default function InstallationContent() {
                 Build intelligent workflows with specialized agents and
                 automatic handoffs.
               </p>
-              <div className="flex items-center justify-between border border-dashed border-[#2a2a2a] px-3 py-1.5 max-w-md mb-8">
-                <code className="text-sm">
-                  npm i @ai-sdk-tools/agents ai zod
-                </code>
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(
-                      "npm i @ai-sdk-tools/agents ai zod",
-                    );
-                  }}
-                  className="text-[#888] hover:text-white transition-colors"
-                  aria-label="Copy command"
-                  title='Copy "npm i @ai-sdk-tools/agents ai zod" to clipboard'
-                >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <title>Copy to clipboard</title>
-                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
-                  </svg>
-                </button>
-              </div>
+              <InstallScriptTabs packageName="@ai-sdk-tools/agents ai zod" />
             </div>
 
             <div>
@@ -67,27 +44,7 @@ export default function InstallationContent() {
                 Global state management for AI applications with optimized
                 performance.
               </p>
-              <div className="flex items-center justify-between border border-dashed border-[#2a2a2a] px-3 py-1.5 max-w-md mb-8">
-                <code className="text-sm">npm i @ai-sdk-tools/store</code>
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText("npm i @ai-sdk-tools/store");
-                  }}
-                  className="text-[#888] hover:text-white transition-colors"
-                  aria-label="Copy command"
-                  title='Copy "npm i @ai-sdk-tools/store" to clipboard'
-                >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <title>Copy to clipboard</title>
-                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
-                  </svg>
-                </button>
-              </div>
+              <InstallScriptTabs packageName="@ai-sdk-tools/store" />
             </div>
 
             <div>
@@ -95,29 +52,7 @@ export default function InstallationContent() {
               <p className="text-sm text-secondary mb-4">
                 Powerful debugging and monitoring tool for AI applications.
               </p>
-              <div className="flex items-center justify-between border border-dashed border-[#2a2a2a] px-3 py-1.5 max-w-md mb-8">
-                <code className="text-sm">npm i @ai-sdk-tools/devtools</code>
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(
-                      "npm i @ai-sdk-tools/devtools",
-                    );
-                  }}
-                  className="text-[#888] hover:text-white transition-colors"
-                  aria-label="Copy command"
-                  title='Copy "npm i @ai-sdk-tools/devtools" to clipboard'
-                >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <title>Copy to clipboard</title>
-                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
-                  </svg>
-                </button>
-              </div>
+              <InstallScriptTabs packageName="@ai-sdk-tools/devtools" />
             </div>
 
             <div>
@@ -126,29 +61,7 @@ export default function InstallationContent() {
                 Advanced streaming interfaces with structured data and progress
                 tracking.
               </p>
-              <div className="flex items-center justify-between border border-dashed border-[#2a2a2a] px-3 py-1.5 max-w-md mb-8">
-                <code className="text-sm">npm i @ai-sdk-tools/artifacts</code>
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(
-                      "npm i @ai-sdk-tools/artifacts",
-                    );
-                  }}
-                  className="text-[#888] hover:text-white transition-colors"
-                  aria-label="Copy command"
-                  title='Copy "npm i @ai-sdk-tools/artifacts" to clipboard'
-                >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <title>Copy to clipboard</title>
-                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
-                  </svg>
-                </button>
-              </div>
+              <InstallScriptTabs packageName="@ai-sdk-tools/artifacts" />
             </div>
 
             <div>
@@ -156,27 +69,7 @@ export default function InstallationContent() {
               <p className="text-sm text-secondary mb-4">
                 Cache expensive AI tool executions with zero configuration.
               </p>
-              <div className="flex items-center justify-between border border-dashed border-[#2a2a2a] px-3 py-1.5 max-w-md mb-8">
-                <code className="text-sm">npm i @ai-sdk-tools/cache</code>
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText("npm i @ai-sdk-tools/cache");
-                  }}
-                  className="text-[#888] hover:text-white transition-colors"
-                  aria-label="Copy command"
-                  title='Copy "npm i @ai-sdk-tools/cache" to clipboard'
-                >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <title>Copy to clipboard</title>
-                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
-                  </svg>
-                </button>
-              </div>
+              <InstallScriptTabs packageName="@ai-sdk-tools/cache" />
             </div>
           </div>
         </section>
@@ -191,33 +84,11 @@ export default function InstallationContent() {
               Get all packages at once for the complete AI SDK Tools experience:
             </p>
 
-            <div className="flex items-center justify-between border border-dashed border-[#2a2a2a] px-3 py-1.5 max-w-md mb-8">
-              <code className="text-sm">
-                npm i @ai-sdk-tools/agents @ai-sdk-tools/store
+            <InstallScriptTabs
+              packageName="@ai-sdk-tools/agents @ai-sdk-tools/store
                 @ai-sdk-tools/devtools @ai-sdk-tools/artifacts
-                @ai-sdk-tools/cache ai zod
-              </code>
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(
-                    "npm i @ai-sdk-tools/agents @ai-sdk-tools/store @ai-sdk-tools/devtools @ai-sdk-tools/artifacts @ai-sdk-tools/cache ai zod",
-                  );
-                }}
-                className="text-[#888] hover:text-white transition-colors"
-                aria-label="Copy command"
-                title='Copy "npm i @ai-sdk-tools/agents @ai-sdk-tools/store @ai-sdk-tools/devtools @ai-sdk-tools/artifacts @ai-sdk-tools/cache ai zod" to clipboard'
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <title>Copy to clipboard</title>
-                  <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
-                </svg>
-              </button>
-            </div>
+                @ai-sdk-tools/cache ai zod"
+            />
           </div>
         </section>
 
@@ -225,42 +96,15 @@ export default function InstallationContent() {
         <section className="mb-40">
           <h2 className="text-2xl font-medium mb-8">Package Manager Support</h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="border border-[#3c3c3c] p-6">
-              <h3 className="text-lg font-medium mb-4">npm</h3>
-              <div className="bg-transparent p-4 rounded border border-[#2a2a2a]">
-                <pre
-                  className="text-xs font-mono leading-relaxed"
-                  dangerouslySetInnerHTML={{
-                    __html: highlight(`npm install @ai-sdk-tools/store`),
-                  }}
-                />
-              </div>
-            </div>
-
-            <div className="border border-[#3c3c3c] p-6">
-              <h3 className="text-lg font-medium mb-4">yarn</h3>
-              <div className="bg-transparent p-4 rounded border border-[#2a2a2a]">
-                <pre
-                  className="text-xs font-mono leading-relaxed"
-                  dangerouslySetInnerHTML={{
-                    __html: highlight(`yarn add @ai-sdk-tools/store`),
-                  }}
-                />
-              </div>
-            </div>
-
-            <div className="border border-[#3c3c3c] p-6">
-              <h3 className="text-lg font-medium mb-4">pnpm</h3>
-              <div className="bg-transparent p-4 rounded border border-[#2a2a2a]">
-                <pre
-                  className="text-xs font-mono leading-relaxed"
-                  dangerouslySetInnerHTML={{
-                    __html: highlight(`pnpm add @ai-sdk-tools/store`),
-                  }}
-                />
-              </div>
-            </div>
+          <div className="border border-[#3c3c3c] p-6">
+            <h3 className="text-lg font-medium mb-4">
+              Install Using Any Package Manager
+            </h3>
+            <p className="text-sm text-secondary mb-6">
+              Use your preferred package manager to install any package from AI
+              SDK Tools, for example:
+            </p>
+            <InstallScriptTabs packageName="@ai-sdk-tools/store" />
           </div>
         </section>
 

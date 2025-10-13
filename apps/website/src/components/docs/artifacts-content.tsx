@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { highlight } from "sugar-high";
+import { InstallScriptTabs } from "../install-script-tabs";
 
 export default function ArtifactsContent() {
   return (
@@ -19,31 +20,7 @@ export default function ArtifactsContent() {
               AI tools to React components with progress tracking and error
               handling.
             </p>
-
-            <div className="flex items-center justify-between border border-dashed border-[#2a2a2a] px-3 py-1.5 max-w-md mb-8">
-              <span className="text-[#d4d4d4] text-xs font-mono">
-                npm i @ai-sdk-tools/artifacts
-              </span>
-              <button
-                type="button"
-                onClick={() =>
-                  navigator.clipboard.writeText("npm i @ai-sdk-tools/artifacts")
-                }
-                className="text-secondary hover:text-[#d4d4d4] transition-colors p-1"
-                title={`Copy "npm i @ai-sdk-tools/artifacts" to clipboard`}
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  aria-label="Copy command"
-                >
-                  <title>Copy command to clipboard</title>
-                  <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
-                </svg>
-              </button>
-            </div>
+            <InstallScriptTabs packageName="@ai-sdk-tools/artifacts" />
           </div>
         </section>
 
@@ -111,14 +88,7 @@ export default function ArtifactsContent() {
               <h3 className="text-lg font-medium mb-4">
                 1. Install the package
               </h3>
-              <div className="bg-transparent p-4 rounded border border-[#2a2a2a]">
-                <pre
-                  className="text-xs font-mono leading-relaxed"
-                  dangerouslySetInnerHTML={{
-                    __html: highlight(`npm install @ai-sdk-tools/artifacts`),
-                  }}
-                />
-              </div>
+              <InstallScriptTabs packageName="@ai-sdk-tools/artifacts" />
             </div>
 
             <div>

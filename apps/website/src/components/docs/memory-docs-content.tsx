@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { highlight } from "sugar-high";
 import { CopyButton } from "../copy-button";
+import { InstallScriptTabs } from "../install-script-tabs";
 
 export default function MemoryDocsContent() {
   return (
@@ -20,12 +21,7 @@ export default function MemoryDocsContent() {
               and chat persistence with a simple 4-method interface.
             </p>
 
-            <div className="flex items-center justify-between border border-dashed border-[#2a2a2a] px-3 py-1.5 max-w-md mb-8">
-              <span className="text-[#d4d4d4] text-xs font-mono">
-                npm i @ai-sdk-tools/memory
-              </span>
-              <CopyButton text="npm i @ai-sdk-tools/memory" />
-            </div>
+            <InstallScriptTabs packageName="@ai-sdk-tools/memory" />
           </div>
         </section>
 

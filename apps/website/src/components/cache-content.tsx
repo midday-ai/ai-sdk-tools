@@ -1,6 +1,7 @@
 "use client";
 
 import { highlight } from "sugar-high";
+import { InstallScriptTabs } from "./install-script-tabs";
 
 export function CacheContent() {
   return (
@@ -21,30 +22,7 @@ export function CacheContent() {
             </p>
 
             {/* Terminal */}
-            <div className="flex items-center justify-between border border-dashed border-[#2a2a2a] px-3 py-1.5 max-w-md">
-              <span className="text-[#d4d4d4] text-xs font-mono">
-                npm i @ai-sdk-tools/cache
-              </span>
-              <button
-                type="button"
-                onClick={() =>
-                  navigator.clipboard.writeText("npm i @ai-sdk-tools/cache")
-                }
-                className="text-secondary hover:text-[#d4d4d4] transition-colors p-1"
-                title={`Copy "npm i @ai-sdk-tools/cache" to clipboard`}
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  aria-label="Copy command"
-                >
-                  <title>Copy to clipboard</title>
-                  <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
-                </svg>
-              </button>
-            </div>
+            <InstallScriptTabs packageName="@ai-sdk-tools/cache" />
 
             {/* Used by */}
             <div className="space-y-6 max-w-xl">
