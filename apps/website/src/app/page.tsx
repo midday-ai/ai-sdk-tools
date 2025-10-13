@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { CopyButton } from "@/components/copy-button";
 import { DevtoolsDemo } from "@/components/devtools-demo";
 import { LiveDemo } from "@/components/live-demo";
+import { InstallScriptTabs } from "@/components/install-script-tabs";
 
 export default function Home() {
   const [focusedDemo, setFocusedDemo] = useState<"store" | "devtools">("store");
@@ -35,16 +36,11 @@ export default function Home() {
 
             {/* Package Installation */}
             <div className="flex flex-col gap-3 max-w-sm">
-              <div className="flex items-center justify-between border border-dashed border-[#2a2a2a] px-3 py-2 bg-[#0a0a0a]">
-                <span className="text-[#d4d4d4] text-sm font-mono">
-                  npm i ai-sdk-tools
-                </span>
-                <CopyButton text="npm i ai-sdk-tools" />
-              </div>
               <p className="text-[10px] text-secondary/60 font-light leading-relaxed">
                 Complete toolkit with all features. Individual packages also
                 available.
               </p>
+              <InstallScriptTabs />
             </div>
 
             {/* Used by */}

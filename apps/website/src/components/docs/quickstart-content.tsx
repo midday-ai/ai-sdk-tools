@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { highlight } from "sugar-high";
+import { InstallScriptTabs } from "../install-script-tabs";
 
 export default function QuickstartContent() {
   return (
@@ -40,91 +41,21 @@ export default function QuickstartContent() {
                     <h4 className="text-lg font-normal mb-2">
                       State Management
                     </h4>
-                    <div className="flex items-center justify-between border border-dashed border-[#2a2a2a] px-3 py-1.5 max-w-md mb-8">
-                      <code className="text-sm">npm i @ai-sdk-tools/store</code>
-                      <button
-                        onClick={() => {
-                          navigator.clipboard.writeText(
-                            "npm i @ai-sdk-tools/store",
-                          );
-                        }}
-                        className="text-[#888] hover:text-white transition-colors"
-                        aria-label="Copy command"
-                        title='Copy "npm i @ai-sdk-tools/store" to clipboard'
-                      >
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                        >
-                          <title>Copy to clipboard</title>
-                          <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
-                        </svg>
-                      </button>
-                    </div>
+                    <InstallScriptTabs packageName="@ai-sdk-tools/store" />
                   </div>
 
                   <div>
                     <h4 className="text-lg font-normal mb-2">
                       Debugging Tools
                     </h4>
-                    <div className="flex items-center justify-between border border-dashed border-[#2a2a2a] px-3 py-1.5 max-w-md mb-8">
-                      <code className="text-sm">
-                        npm i @ai-sdk-tools/devtools
-                      </code>
-                      <button
-                        onClick={() => {
-                          navigator.clipboard.writeText(
-                            "npm i @ai-sdk-tools/devtools",
-                          );
-                        }}
-                        className="text-[#888] hover:text-white transition-colors"
-                        aria-label="Copy command"
-                        title='Copy "npm i @ai-sdk-tools/devtools" to clipboard'
-                      >
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                        >
-                          <title>Copy to clipboard</title>
-                          <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
-                        </svg>
-                      </button>
-                    </div>
+                    <InstallScriptTabs packageName="@ai-sdk-tools/devtools" />
                   </div>
 
                   <div>
                     <h4 className="text-lg font-normal mb-2">
                       Streaming Interfaces
                     </h4>
-                    <div className="flex items-center justify-between border border-dashed border-[#2a2a2a] px-3 py-1.5 max-w-md mb-8">
-                      <code className="text-sm">
-                        npm i @ai-sdk-tools/artifacts
-                      </code>
-                      <button
-                        onClick={() => {
-                          navigator.clipboard.writeText(
-                            "npm i @ai-sdk-tools/artifacts",
-                          );
-                        }}
-                        className="text-[#888] hover:text-white transition-colors"
-                        aria-label="Copy command"
-                        title='Copy "npm i @ai-sdk-tools/artifacts" to clipboard'
-                      >
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                        >
-                          <title>Copy to clipboard</title>
-                          <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
-                        </svg>
-                      </button>
-                    </div>
+                    <InstallScriptTabs packageName="@ai-sdk-tools/artifacts" />
                   </div>
                 </div>
               </div>
@@ -132,32 +63,10 @@ export default function QuickstartContent() {
               {/* Complete Toolkit */}
               <div>
                 <h3 className="text-xl font-normal mb-4">Complete Toolkit</h3>
-                <div className="flex items-center justify-between border border-dashed border-[#2a2a2a] px-3 py-1.5 max-w-md mb-8">
-                  <code className="text-sm">
-                    npm i @ai-sdk-tools/store @ai-sdk-tools/devtools
-                    @ai-sdk-tools/artifacts
-                  </code>
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(
-                        "npm i @ai-sdk-tools/store @ai-sdk-tools/devtools @ai-sdk-tools/artifacts",
-                      );
-                    }}
-                    className="text-[#888] hover:text-white transition-colors"
-                    aria-label="Copy command"
-                    title='Copy "npm i @ai-sdk-tools/store @ai-sdk-tools/devtools @ai-sdk-tools/artifacts" to clipboard'
-                  >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <title>Copy to clipboard</title>
-                      <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
-                    </svg>
-                  </button>
-                </div>
+                <InstallScriptTabs
+                  packageName="@ai-sdk-tools/store @ai-sdk-tools/devtools
+                    @ai-sdk-tools/artifacts"
+                />
               </div>
             </div>
           </div>

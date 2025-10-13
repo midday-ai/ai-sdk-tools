@@ -3,6 +3,7 @@
 import { highlight } from "sugar-high";
 import { CopyButton } from "./copy-button";
 import { DevtoolsDemo } from "./devtools-demo";
+import { InstallScriptTabs } from "./install-script-tabs";
 
 export function DevtoolsContent() {
   return (
@@ -23,12 +24,7 @@ export function DevtoolsContent() {
             </p>
 
             {/* Terminal */}
-            <div className="flex items-center justify-between border border-dashed border-[#2a2a2a] px-3 py-1.5 max-w-md">
-              <span className="text-[#d4d4d4] text-xs font-mono">
-                npm i @ai-sdk-tools/devtools
-              </span>
-              <CopyButton text="npm i @ai-sdk-tools/devtools" />
-            </div>
+            <InstallScriptTabs packageName="@ai-sdk-tools/devtools" />
 
             {/* Used by */}
             <div className="space-y-6 max-w-xl">

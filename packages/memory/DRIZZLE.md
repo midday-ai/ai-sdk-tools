@@ -17,6 +17,10 @@ The Drizzle provider enables persistent memory storage using [Drizzle ORM](https
 npm install @ai-sdk-tools/memory drizzle-orm
 # or
 bun add @ai-sdk-tools/memory drizzle-orm
+# or
+pnpm add @ai-sdk-tools/memory drizzle-orm
+# or
+yarn add @ai-sdk-tools/memory drizzle-orm
 ```
 
 You'll also need a database driver:
@@ -94,7 +98,13 @@ const memoryProvider = new DrizzleProvider(db, {
 ```typescript
 import { connect } from "@planetscale/database";
 import { drizzle } from "drizzle-orm/planetscale-serverless";
-import { mysqlTable, int, varchar, text, timestamp } from "drizzle-orm/mysql-core";
+import {
+  mysqlTable,
+  int,
+  varchar,
+  text,
+  timestamp,
+} from "drizzle-orm/mysql-core";
 import { DrizzleProvider } from "@ai-sdk-tools/memory";
 
 const connection = connect({ url: process.env.DATABASE_URL });
@@ -218,25 +228,25 @@ Your tables must have the following columns:
 
 ### Working Memory Table
 
-| Column      | Type                | Required | Description                    |
-| ----------- | ------------------- | -------- | ------------------------------ |
-| `id`        | text/varchar        | Yes      | Primary key                    |
-| `scope`     | text/varchar        | Yes      | "chat" or "user"               |
-| `chatId`    | text/varchar        | No       | Chat identifier (nullable)     |
-| `userId`    | text/varchar        | No       | User identifier (nullable)     |
-| `content`   | text                | Yes      | Memory content                 |
-| `updatedAt` | timestamp/integer   | Yes      | Last update timestamp          |
+| Column      | Type              | Required | Description                |
+| ----------- | ----------------- | -------- | -------------------------- |
+| `id`        | text/varchar      | Yes      | Primary key                |
+| `scope`     | text/varchar      | Yes      | "chat" or "user"           |
+| `chatId`    | text/varchar      | No       | Chat identifier (nullable) |
+| `userId`    | text/varchar      | No       | User identifier (nullable) |
+| `content`   | text              | Yes      | Memory content             |
+| `updatedAt` | timestamp/integer | Yes      | Last update timestamp      |
 
 ### Messages Table
 
-| Column      | Type               | Required | Description                    |
-| ----------- | ------------------ | -------- | ------------------------------ |
-| `id`        | serial/int/integer | Yes      | Primary key (auto-increment)   |
-| `chatId`    | text/varchar       | Yes      | Chat identifier                |
-| `userId`    | text/varchar       | No       | User identifier (nullable)     |
-| `role`      | text/varchar       | Yes      | "user", "assistant", "system"  |
-| `content`   | text               | Yes      | Message content                |
-| `timestamp` | timestamp/integer  | Yes      | Message timestamp              |
+| Column      | Type               | Required | Description                   |
+| ----------- | ------------------ | -------- | ----------------------------- |
+| `id`        | serial/int/integer | Yes      | Primary key (auto-increment)  |
+| `chatId`    | text/varchar       | Yes      | Chat identifier               |
+| `userId`    | text/varchar       | No       | User identifier (nullable)    |
+| `role`      | text/varchar       | Yes      | "user", "assistant", "system" |
+| `content`   | text               | Yes      | Message content               |
+| `timestamp` | timestamp/integer  | Yes      | Message timestamp             |
 
 ## Using Existing Schema
 
@@ -309,9 +319,9 @@ CREATE TABLE IF NOT EXISTS conversation_messages (
   timestamp TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS idx_working_memory_scope 
+CREATE INDEX IF NOT EXISTS idx_working_memory_scope
   ON working_memory(scope, chat_id, user_id);
-CREATE INDEX IF NOT EXISTS idx_messages_chat 
+CREATE INDEX IF NOT EXISTS idx_messages_chat
   ON conversation_messages(chat_id, timestamp DESC);
 ```
 
@@ -367,9 +377,9 @@ CREATE TABLE IF NOT EXISTS conversation_messages (
   timestamp INTEGER NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_working_memory_scope 
+CREATE INDEX IF NOT EXISTS idx_working_memory_scope
   ON working_memory(scope, chat_id, user_id);
-CREATE INDEX IF NOT EXISTS idx_messages_chat 
+CREATE INDEX IF NOT EXISTS idx_messages_chat
   ON conversation_messages(chat_id, timestamp DESC);
 ```
 
@@ -460,7 +470,7 @@ class DrizzleProvider<TWM, TMsg> implements MemoryProvider {
     config: {
       workingMemoryTable: TWM;
       messagesTable: TMsg;
-    },
+    }
   );
 }
 ```
@@ -476,19 +486,20 @@ See the [main README](./README.md) for full API documentation.
 
 ## Comparison with Other Providers
 
-| Feature            | Drizzle | Upstash |
-| ------------------ | ------- | ------- |
-| Type Safety        | ✅      | ✅      |
-| PostgreSQL         | ✅      | ❌      |
-| MySQL              | ✅      | ❌      |
-| SQLite/Turso       | ✅      | ❌      |
-| Redis              | ❌      | ✅      |
-| Edge Compatible    | ✅      | ✅      |
-| ORM Integration    | ✅      | ❌      |
-| Existing Schema    | ✅      | ❌      |
-| Multi-Database     | ✅      | ❌      |
+| Feature         | Drizzle | Upstash |
+| --------------- | ------- | ------- |
+| Type Safety     | ✅      | ✅      |
+| PostgreSQL      | ✅      | ❌      |
+| MySQL           | ✅      | ❌      |
+| SQLite/Turso    | ✅      | ❌      |
+| Redis           | ❌      | ✅      |
+| Edge Compatible | ✅      | ✅      |
+| ORM Integration | ✅      | ❌      |
+| Existing Schema | ✅      | ❌      |
+| Multi-Database  | ✅      | ❌      |
 
 **Choose Drizzle if:**
+
 - You already use Drizzle in your project
 - You need PostgreSQL, MySQL, or SQLite support
 - You want to reuse existing database tables
@@ -496,6 +507,7 @@ See the [main README](./README.md) for full API documentation.
 - You use Turso for edge SQLite
 
 **Choose Upstash if:**
+
 - You want Redis for caching/sessions
 - You need ultra-low latency at edge
 - You don't need relational queries
@@ -508,4 +520,3 @@ See [examples/drizzle-example.ts](./src/examples/drizzle-example.ts) for complet
 ## License
 
 MIT
-

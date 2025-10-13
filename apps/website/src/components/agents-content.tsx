@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { highlight } from "sugar-high";
 import { CopyButton } from "./copy-button";
+import { InstallScriptTabs } from "./install-script-tabs";
 
 export default function AgentsContent() {
   return (
@@ -22,12 +23,7 @@ export default function AgentsContent() {
             </p>
 
             {/* Terminal */}
-            <div className="flex items-center justify-between border border-dashed border-[#2a2a2a] px-3 py-1.5 max-w-md">
-              <span className="text-[#d4d4d4] text-xs font-mono">
-                npm i @ai-sdk-tools/agents ai zod
-              </span>
-              <CopyButton text="npm i @ai-sdk-tools/agents ai zod" />
-            </div>
+            <InstallScriptTabs packageName="@ai-sdk-tools/agents ai zod" />
 
             {/* Used by */}
             <div className="space-y-6 max-w-xl">

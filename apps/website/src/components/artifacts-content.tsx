@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { highlight } from "sugar-high";
 import { CopyButton } from "./copy-button";
+import { InstallScriptTabs } from "./install-script-tabs";
 
 export function ArtifactsContent() {
   const [currentDemo, setCurrentDemo] = useState(0);
@@ -49,12 +50,8 @@ export function ArtifactsContent() {
             </p>
 
             {/* Terminal */}
-            <div className="flex items-center justify-between border border-dashed border-[#2a2a2a] px-3 py-1.5 max-w-md">
-              <span className="text-[#d4d4d4] text-xs font-mono">
-                npm i @ai-sdk-tools/artifacts @ai-sdk-tools/store
-              </span>
-              <CopyButton text="npm i @ai-sdk-tools/artifacts @ai-sdk-tools/store" />
-            </div>
+
+            <InstallScriptTabs packageName="@ai-sdk-tools/artifacts @ai-sdk-tools/store" />
 
             {/* Used by */}
             <div className="space-y-6 max-w-xl">
@@ -427,15 +424,12 @@ function DashboardComponent() {
         {/* Bottom CTA */}
         <div className="text-center space-y-6">
           <div className="border border-dashed border-muted-foreground p-6 max-w-xl mx-auto">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-mono">
-                npm i @ai-sdk-tools/artifacts @ai-sdk-tools/store
-              </span>
-              <CopyButton
-                text="npm i @ai-sdk-tools/artifacts @ai-sdk-tools/store"
-                size={16}
-              />
-            </div>
+            <h1 className="text-left text-xl mb-1">Get started</h1>
+            <p className="text-sm mb-4 text-secondary font-light leading-relaxed text-left">
+              Artifacts requires the store package to work properly, so make
+              sure to install both.
+            </p>
+            <InstallScriptTabs packageName="@ai-sdk-tools/artifacts @ai-sdk-tools/store" />
           </div>
           <p className="text-xs text-[#555555] font-light">
             Comprehensive artifact handling for AI applications.

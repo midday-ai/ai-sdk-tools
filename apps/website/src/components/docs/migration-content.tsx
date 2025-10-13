@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { highlight } from "sugar-high";
+import { InstallScriptTabs } from "../install-script-tabs";
 
 export default function MigrationContent() {
   return (
@@ -57,14 +58,7 @@ import { useChat } from '@ai-sdk-tools/store'`),
               <h3 className="text-lg font-medium mb-4">
                 1. Install the package
               </h3>
-              <div className="bg-transparent p-4 rounded border border-[#2a2a2a]">
-                <pre
-                  className="text-xs font-mono leading-relaxed"
-                  dangerouslySetInnerHTML={{
-                    __html: highlight(`npm install @ai-sdk-tools/store`),
-                  }}
-                />
-              </div>
+              <InstallScriptTabs packageName="@ai-sdk-tools/store" />
             </div>
 
             <div>
