@@ -35,11 +35,7 @@ export default function Home() {
             </p>
 
             {/* Package Installation */}
-            <div className="flex flex-col gap-3 max-w-sm">
-              <p className="text-[10px] text-secondary/60 font-light leading-relaxed">
-                Complete toolkit with all features. Individual packages also
-                available.
-              </p>
+            <div className="flex flex-col max-w-sm">
               <InstallScriptTabs />
             </div>
 

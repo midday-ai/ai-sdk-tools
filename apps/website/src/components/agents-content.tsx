@@ -167,14 +167,7 @@ console.log(\`Handled by: \${result.finalAgent}\`)
             </p>
           </div>
 
-          <div>
-            <h3 className="text-base font-medium mb-3">Production Ready</h3>
-            <p className="text-xs text-secondary font-light leading-relaxed">
-              Built on AI SDK v5 with streaming, error handling, and
-              observability. Real-time event tracking for monitoring and
-              debugging.
-            </p>
-          </div>
+        
         </div>
 
         {/* Use Cases */}
