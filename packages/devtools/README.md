@@ -16,12 +16,25 @@ AI SDK Devtools helps you debug and monitor AI applications by:
 - **Event filtering** - Filter events by type, tool name, or search queries
 - **Context insights** - Visualize token usage and context window utilization
 - **Stream interception** - Automatically capture events from AI SDK streams
+- **State management** - Optional integration with @ai-sdk-tools/store for state debugging
 
 ## Installation
 
 ```bash
 npm install @ai-sdk-tools/devtools
 ```
+
+### Optional Store Integration
+
+For enhanced state debugging capabilities, you can optionally install the store package:
+
+```bash
+npm install @ai-sdk-tools/store
+```
+
+The devtools will automatically detect and integrate with the store if available, but it works perfectly fine without it for basic event monitoring.
+
+**Note:** The store package is an optional peer dependency. If you don't install it, the devtools will work normally but without the State tab for debugging Zustand stores.
 
 ## Quick Start
 

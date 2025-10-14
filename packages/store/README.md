@@ -20,6 +20,24 @@ npm install @ai-sdk-tools/store
 bun add @ai-sdk-tools/store
 ```
 
+## Debug Configuration
+
+The store package includes a debug utility that can be configured to control logging:
+
+### Environment Variable
+
+Set `DEBUG=true` to enable debug logging:
+
+```bash
+# Enable debug logging
+DEBUG=true npm run dev
+
+# Or in your .env file
+DEBUG=true
+```
+
+By default, debug logging is disabled unless `DEBUG=true` is set.
+
 ## Quick Start
 
 ### 1. Wrap Your App

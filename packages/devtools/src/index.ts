@@ -3,7 +3,6 @@
 export { AgentFlowVisualization } from "./components/agent-flow-visualization";
 export { AgentNode } from "./components/agent-node";
 export { AIDevtools } from "./components/ai-dev-tools";
-export { ContextCircle } from "./components/context-circle";
 // Export other components for advanced usage
 export { DevtoolsButton } from "./components/devtools-button";
 export { DevtoolsPanel } from "./components/devtools-panel";
@@ -52,9 +51,4 @@ export {
   groupEventsIntoSessions,
 } from "./utils/session-grouper";
 export { StreamInterceptor } from "./utils/stream-interceptor";
-export {
-  getAvailableStoreIds,
-  getStoreState,
-  isStorePackageAvailable,
-  subscribeToStoreChanges,
-} from "./utils/working-state-detection";
+export { isStorePackageAvailable } from "./utils/working-state-detection";

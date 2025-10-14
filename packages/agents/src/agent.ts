@@ -34,7 +34,6 @@ import type {
   AgentStreamOptionsUI,
   AgentStreamResult,
   ExtendedExecutionContext,
-  HandoffData,
   HandoffInstruction,
   Agent as IAgent,
   InputGuardrail,
@@ -61,7 +60,9 @@ export class Agent<
   private readonly model: LanguageModel;
   private readonly aiAgent: AISDKAgent<Record<string, Tool>>;
   private readonly handoffAgents: Array<IAgent<any>>;
-  private readonly configuredTools: Record<string, Tool>;
+  private readonly configuredTools:
+    | Record<string, Tool>
+    | ((context: TContext) => Record<string, Tool>);
 
   constructor(config: AgentConfig<TContext>) {
     this.name = config.name;
@@ -75,19 +76,8 @@ export class Agent<
     this.model = config.model;
     this.handoffAgents = config.handoffs || [];
 
-    // Prepare tools with handoff capability
-    const tools = { ...config.tools };
-    if (this.handoffAgents.length > 0) {
-      tools.handoff_to_agent = createHandoffTool(this.handoffAgents);
-    }
-
-    // Add working memory tool if enabled
-    if (this.memory?.workingMemory?.enabled) {
-      tools.updateWorkingMemory = this.createWorkingMemoryTool();
-    }
-
-    // Store tools for later reference
-    this.configuredTools = tools;
+    // Store tools config (will be resolved at runtime)
+    this.configuredTools = config.tools || {};
 
     // Note: If instructions is a function, it will be resolved per-call in stream()
     // We still need to create the AI SDK Agent with initial instructions for backwards compatibility
@@ -98,11 +88,11 @@ export class Agent<
         ? promptWithHandoffInstructions(baseInstructions)
         : baseInstructions;
 
-    // Create AI SDK Agent
+    // Create AI SDK Agent (tools will be resolved per-request in stream())
     this.aiAgent = new AISDKAgent<Record<string, Tool>>({
       model: config.model,
       system: systemPrompt,
-      tools,
+      tools: {}, // Empty tools, will be overridden per-request
       stopWhen: stepCountIs(config.maxTurns || 10),
       temperature: config.temperature,
       ...config.modelSettings,
@@ -198,22 +188,37 @@ export class Agent<
         ? promptWithHandoffInstructions(resolvedInstructions + memoryAddition)
         : resolvedInstructions + memoryAddition;
 
+    // Resolve tools dynamically (static object or function)
+    const resolvedTools =
+      typeof this.configuredTools === "function"
+        ? this.configuredTools(executionContext as TContext)
+        : { ...this.configuredTools };
+
+    // Add handoff tool if needed
+    if (this.handoffAgents.length > 0) {
+      resolvedTools.handoff_to_agent = createHandoffTool(this.handoffAgents);
+    }
+
+    // Add working memory tool if enabled
+    if (this.memory?.workingMemory?.enabled) {
+      resolvedTools.updateWorkingMemory = this.createWorkingMemoryTool();
+    }
+
+    // Override working memory tool if preloaded in context
+    if (extendedContext._updateWorkingMemoryTool) {
+      resolvedTools.updateWorkingMemory =
+        extendedContext._updateWorkingMemoryTool;
+    }
+
     // Build additional options to pass to AI SDK
     const additionalOptions: Record<string, unknown> = {
       system: systemPrompt, // Override system prompt per call
+      tools: resolvedTools, // Add resolved tools here
     };
     if (executionContext)
       additionalOptions.experimental_context = executionContext;
     if (maxSteps) additionalOptions.maxSteps = maxSteps;
     if (onStepFinish) additionalOptions.onStepFinish = onStepFinish;
-
-    // Inject working memory tool if preloaded in context
-    if (extendedContext._updateWorkingMemoryTool) {
-      additionalOptions.tools = {
-        ...this.configuredTools,
-        updateWorkingMemory: extendedContext._updateWorkingMemoryTool,
-      };
-    }
 
     // Handle simple { messages } format (like working code)
     if ("messages" in options && !("prompt" in options) && options.messages) {
@@ -274,6 +279,8 @@ export class Agent<
       maxRounds = 5,
       maxSteps = 5,
       context,
+      agentChoice,
+      toolChoice,
       beforeStream,
       onEvent,
       // AI SDK createUIMessageStream options
@@ -431,7 +438,105 @@ export class Agent<
           // Determine starting agent using programmatic routing
           let currentAgent: IAgent<any> = this;
 
-          if (strategy === "auto" && specialists.length > 0) {
+          // Check for explicit agent or tool choice (highest priority)
+          if (agentChoice && specialists.length > 0) {
+            const chosenAgent = specialists.find(
+              (agent) => agent.name === agentChoice,
+            );
+            if (chosenAgent) {
+              currentAgent = chosenAgent;
+              console.log(
+                `[ROUTING] Explicit agent choice: ${currentAgent.name}`,
+              );
+
+              // Mark orchestrator as completing
+              writeAgentStatus(writer, {
+                status: "completing",
+                agent: this.name,
+              });
+
+              if (onEvent) {
+                await onEvent({
+                  type: "agent-finish",
+                  agent: this.name,
+                  round: 0,
+                });
+              }
+
+              // Emit handoff event for explicit choice
+              writer.write({
+                type: "data-agent-handoff",
+                data: {
+                  from: this.name,
+                  to: chosenAgent.name,
+                  reason: "User selected agent",
+                  routingStrategy: "explicit",
+                },
+                transient: true,
+              } as never);
+
+              if (onEvent) {
+                await onEvent({
+                  type: "agent-handoff",
+                  from: this.name,
+                  to: chosenAgent.name,
+                  reason: "User selected agent",
+                });
+              }
+            }
+          } else if (toolChoice && specialists.length > 0) {
+            // Find agent that has the requested tool
+            const agentWithTool = specialists.find((agent) => {
+              const agentImpl = agent as Agent<any>;
+              return (
+                agentImpl.configuredTools &&
+                toolChoice in agentImpl.configuredTools
+              );
+            });
+
+            if (agentWithTool) {
+              currentAgent = agentWithTool;
+              console.log(
+                `[ROUTING] Tool choice routing: ${toolChoice} → ${currentAgent.name}`,
+              );
+
+              // Mark orchestrator as completing
+              writeAgentStatus(writer, {
+                status: "completing",
+                agent: this.name,
+              });
+
+              if (onEvent) {
+                await onEvent({
+                  type: "agent-finish",
+                  agent: this.name,
+                  round: 0,
+                });
+              }
+
+              // Emit handoff event for tool choice
+              writer.write({
+                type: "data-agent-handoff",
+                data: {
+                  from: this.name,
+                  to: agentWithTool.name,
+                  reason: `User requested tool: ${toolChoice}`,
+                  routingStrategy: "tool-choice",
+                  preferredTool: toolChoice,
+                },
+                transient: true,
+              } as never);
+
+              if (onEvent) {
+                await onEvent({
+                  type: "agent-handoff",
+                  from: this.name,
+                  to: agentWithTool.name,
+                  reason: `User requested tool: ${toolChoice}`,
+                });
+              }
+            }
+          } else if (strategy === "auto" && specialists.length > 0) {
             // Try programmatic classification
             const matchedAgent = specialists.find((agent) => {
               if (!agent.matchOn) return false;
@@ -550,7 +655,7 @@ export class Agent<
 
             // Track for orchestration
             let textAccumulated = "";
-            let handoffData: HandoffData | null = null;
+            let handoffData: HandoffInstruction | null = null;
             const toolCallNames = new Map<string, string>(); // toolCallId -> toolName
             let hasStartedContent = false;
 
@@ -586,8 +691,8 @@ export class Agent<
               // Detect handoff from tool output
               if (chunk.type === "tool-output-available") {
                 const toolName = toolCallNames.get(chunk.toolCallId);
-                if (toolName === "handoff") {
-                  handoffData = chunk.output as HandoffData;
+                if (toolName === "handoff_to_agent") {
+                  handoffData = chunk.output as HandoffInstruction;
                   console.log("[Handoff Detected]", handoffData);
                 }
               }
@@ -614,7 +719,7 @@ export class Agent<
             if (currentAgent === this) {
               if (handoffData) {
                 // Check if this specialist has already been used
-                if (usedSpecialists.has(handoffData.agent)) {
+                if (usedSpecialists.has(handoffData.targetAgent)) {
                   // Don't route to the same specialist twice - task is complete
                   break;
                 }
@@ -622,13 +727,13 @@ export class Agent<
                 // Send routing status
                 writeAgentStatus(writer, {
                   status: "routing",
-                  agent: "orchestrator",
+                  agent: this.name,
                 });
 
                 // Mark specialist as used and route to it
-                usedSpecialists.add(handoffData.agent);
+                usedSpecialists.add(handoffData.targetAgent);
                 const nextAgent = specialists.find(
-                  (a) => a.name === handoffData.agent,
+                  (a) => a.name === handoffData.targetAgent,
                 );
                 if (nextAgent) {
                   currentAgent = nextAgent;
@@ -662,15 +767,15 @@ export class Agent<
               // Specialist done
               if (handoffData) {
                 // Specialist handed off to another specialist
-                if (usedSpecialists.has(handoffData.agent)) {
+                if (usedSpecialists.has(handoffData.targetAgent)) {
                   // Already used this specialist - complete
                   break;
                 }
 
                 // Route to next specialist
-                usedSpecialists.add(handoffData.agent);
+                usedSpecialists.add(handoffData.targetAgent);
                 const nextAgent = specialists.find(
-                  (a) => a.name === handoffData.agent,
+                  (a) => a.name === handoffData.targetAgent,
                 );
                 if (nextAgent) {
                   const previousAgent = currentAgent;
@@ -765,6 +870,7 @@ export class Agent<
     chatId: string,
     userMessage: string,
     writer: UIMessageStreamWriter,
+    context?: TContext,
   ): Promise<void> {
     if (!this.memory?.chats?.generateTitle) return;
 
@@ -776,9 +882,19 @@ export class Agent<
         : "Generate a short title based on the user's message. Max 80 characters. No quotes or colons.";
 
     try {
+      // Load working memory to give context to title generation
+      let memoryContext = "";
+      if (context && this.memory?.workingMemory?.enabled) {
+        memoryContext = await this.loadWorkingMemory(context);
+      }
+
+      const systemPrompt = memoryContext
+        ? `${instructions}\n\n${memoryContext}`
+        : instructions;
+
       const { text } = await generateText({
         model,
-        system: instructions,
+        system: systemPrompt,
         prompt: userMessage,
       });
 
@@ -1067,8 +1183,8 @@ export class Agent<
 
     // Only generate for first message
     if (!existingChat || existingChat.messageCount === 0) {
-      this.generateChatTitle(chatId, userMessage, writer).catch((err) =>
-        debug("MEMORY", "Title generation error:", err),
+      this.generateChatTitle(chatId, userMessage, writer, context).catch(
+        (err) => debug("MEMORY", "Title generation error:", err),
       );
     }
   }

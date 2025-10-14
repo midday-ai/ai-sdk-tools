@@ -10,7 +10,6 @@ interface AIDevtoolsProps extends UseAIDevtoolsOptions {
   config?: Partial<DevtoolsConfig>;
   className?: string;
   debug?: boolean;
-  modelId?: string; // Optional model ID for context insights
 }
 
 const defaultConfig: DevtoolsConfig = {
@@ -38,7 +37,6 @@ export function AIDevtools({
   config = {},
   className = "",
   debug = false,
-  modelId,
 }: AIDevtoolsProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [hasNewEvents, setHasNewEvents] = useState(false);
@@ -145,7 +143,6 @@ export function AIDevtools({
           onClose={() => setIsOpen(false)}
           onTogglePosition={togglePosition}
           config={finalConfig}
-          modelId={modelId}
         />
       )}
     </div>

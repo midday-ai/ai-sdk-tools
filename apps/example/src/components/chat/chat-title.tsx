@@ -18,7 +18,7 @@ export function ChatTitle() {
   });
 
   return (
-    <div className="flex items-center justify-center pt-6 pb-4">
+    <div className="flex items-center justify-center pt-6 pb-4 h-8">
       <AnimatePresence mode="wait">
         {chatTitle?.title && (
           <motion.div

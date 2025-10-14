@@ -27,6 +27,9 @@ export interface AppContext {
   baseCurrency: string;
   locale: string;
   currentDateTime: string;
+  country?: string;
+  city?: string;
+  region?: string;
   timezone: string;
   chatId: string;
   // Allow additional properties to satisfy Record<string, unknown> constraint
@@ -41,6 +44,9 @@ export function buildAppContext(params: {
   userId: string;
   fullName: string;
   companyName: string;
+  country?: string;
+  city?: string;
+  region?: string;
   chatId: string;
   baseCurrency?: string;
   locale?: string;
@@ -51,6 +57,9 @@ export function buildAppContext(params: {
     userId: params.userId,
     fullName: params.fullName,
     companyName: params.companyName,
+    country: params.country,
+    city: params.city,
+    region: params.region,
     chatId: params.chatId,
     baseCurrency: params.baseCurrency || "USD",
     locale: params.locale || "en-US",

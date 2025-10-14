@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Get only the last message from client
-  const { message, id } = await request.json();
+  const { message, id, agentChoice, toolChoice } = await request.json();
 
   if (!message) {
     return new Response(JSON.stringify({ error: "No message provided" }), {
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  const userId = `user-${ip}}`;
+  const userId = `user-${ip}`;
 
   const appContext = buildAppContext({
     userId,
@@ -40,6 +40,9 @@ export async function POST(request: NextRequest) {
     baseCurrency: "USD",
     locale: "en-US",
     timezone: "America/New_York",
+    country: "US",
+    city: "New York",
+    region: "New York",
     chatId: id,
   });
 
@@ -49,6 +52,8 @@ export async function POST(request: NextRequest) {
     maxRounds: 5,
     maxSteps: 10,
     context: appContext,
+    agentChoice,
+    toolChoice,
     experimental_transform: smoothStream({ chunking: "word" }),
     sendReasoning: true,
     sendSources: true,

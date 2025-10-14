@@ -1,8 +1,10 @@
 // Types
 export type { UIMessage } from "@ai-sdk/react";
+export { configureDebug, DebugLogger, debug } from "./debug";
 // Store and hooks
 export {
   type ChatActions,
+  ChatStoreContext,
   createChatStoreCreator,
   Provider,
   type StoreState,
@@ -13,6 +15,7 @@ export {
   useChatReset,
   useChatStatus,
   useChatStore,
+  useChatStoreApi,
   useMessageById,
   useMessageCount,
   useMessageIds,

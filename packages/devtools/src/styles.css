@@ -238,11 +238,6 @@
   gap: 0.75rem !important;
 }
 
-.ai-devtools-context-circle-header {
-  margin-left: 0.75rem !important;
-  flex-shrink: 0 !important;
-  order: -1 !important; /* Place before other buttons */
-}
 
 .ai-devtools-count {
   font-size: 10px !important;
@@ -1527,56 +1522,14 @@
   }
 }
 
-/* Context Insights Component */
-.ai-devtools-context-insights {
-  display: flex !important;
-  align-items: center !important;
-  gap: 1rem !important;
-  padding: 0.5rem 0.75rem !important;
-  background-color: #111111 !important;
-  border: 1px solid #333333 !important;
-  border-radius: 0 !important;
-  font-family:
-    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
-  font-size: 0.75rem !important;
-  color: #ffffff !important;
-  -webkit-font-smoothing: antialiased !important;
-  -moz-osx-font-smoothing: grayscale !important;
-  text-rendering: optimizeLegibility !important;
-}
 
-/* Context Circle */
-.ai-devtools-context-circle {
-  position: relative !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 100px !important;
-  height: 100px !important;
-  flex-shrink: 0 !important;
-}
 
-.ai-devtools-context-svg {
-  width: 100px !important;
-  height: 100px !important;
-  transform: rotate(-90deg) !important;
-}
-
-.ai-devtools-context-bg {
-  stroke: #333333 !important;
-  stroke-width: 8 !important;
-  fill: none !important;
-}
-
-.ai-devtools-context-progress {
   stroke-width: 8 !important;
   fill: none !important;
   stroke-linecap: round !important;
   transition: stroke-dashoffset 0.3s ease !important;
 }
 
-.ai-devtools-context-text {
   position: absolute !important;
   top: 50% !important;
   left: 50% !important;
@@ -1585,7 +1538,6 @@
   z-index: 1 !important;
 }
 
-.ai-devtools-context-percent {
   font-size: 1.25rem !important;
   font-weight: 600 !important;
   color: #ffffff !important;
@@ -1593,7 +1545,6 @@
   margin-bottom: 0.125rem !important;
 }
 
-.ai-devtools-context-label {
   font-size: 0.625rem !important;
   color: #888888 !important;
   text-transform: uppercase !important;
@@ -1602,7 +1553,6 @@
 }
 
 /* Context Details */
-.ai-devtools-context-details {
   display: flex !important;
   flex-direction: column !important;
   gap: 0.25rem !important;
@@ -1610,7 +1560,6 @@
   min-width: 0 !important;
 }
 
-.ai-devtools-context-row {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
@@ -1618,7 +1567,6 @@
   padding: 0.125rem 0 !important;
 }
 
-.ai-devtools-context-row.ai-devtools-context-warning {
   color: #fbbf24 !important;
   background-color: rgba(251, 191, 36, 0.1) !important;
   padding: 0.25rem 0.5rem !important;
@@ -1626,7 +1574,6 @@
   border: 1px solid rgba(251, 191, 36, 0.3) !important;
 }
 
-.ai-devtools-context-row .ai-devtools-context-label {
   font-size: 0.6875rem !important;
   color: #888888 !important;
   font-weight: 500 !important;
@@ -1635,7 +1582,6 @@
   flex-shrink: 0 !important;
 }
 
-.ai-devtools-context-row .ai-devtools-context-value {
   font-size: 0.75rem !important;
   color: #ffffff !important;
   font-weight: 600 !important;
@@ -1675,15 +1621,11 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .ai-devtools-context-insights {
     flex-direction: column !important;
     align-items: stretch !important;
     gap: 0.75rem !important;
   }
 
-  .ai-devtools-context-circle {
-    align-self: center !important;
-  }
 
   .ai-devtools-model-info {
     align-items: center !important;
@@ -1691,50 +1633,13 @@
   }
 }
 
-/* Compact Context Circle */
-.ai-devtools-context-circle {
-  position: relative !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 36px !important;
-  height: 36px !important;
-  flex-shrink: 0 !important;
-  cursor: pointer !important;
-  transition: all 0.2s ease !important;
-}
 
-/* Hover scaling removed */
-
-.ai-devtools-context-circle-compact {
-  position: relative !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 36px !important;
-  height: 36px !important;
-}
-
-.ai-devtools-context-svg-compact {
-  width: 36px !important;
-  height: 36px !important;
-  transform: rotate(-90deg) !important;
-}
-
-.ai-devtools-context-bg-compact {
-  stroke: #333333 !important;
-  stroke-width: 2 !important;
-  fill: none !important;
-}
-
-.ai-devtools-context-progress-compact {
   stroke-width: 2 !important;
   fill: none !important;
   stroke-linecap: round !important;
   transition: stroke-dashoffset 0.3s ease !important;
 }
 
-.ai-devtools-context-text-compact {
   position: absolute !important;
   top: 50% !important;
   left: 50% !important;
@@ -1743,7 +1648,6 @@
   z-index: 1 !important;
 }
 
-.ai-devtools-context-percent-compact {
   font-size: 0.625rem !important;
   font-weight: 600 !important;
   color: #ffffff !important;
@@ -1754,7 +1658,6 @@
 }
 
 /* Context Circle Tooltip */
-.ai-devtools-context-tooltip {
   position: absolute !important;
   bottom: calc(100% + 8px) !important;
   right: -20px !important;
@@ -1787,34 +1690,28 @@
 
 /* Arrow removed */
 
-.ai-devtools-context-tooltip-content {
   padding: 1rem !important;
 }
 
 /* Progress Section */
-.ai-devtools-context-tooltip-progress-section {
   margin-bottom: 0.75rem !important;
 }
 
-.ai-devtools-context-tooltip-progress-header {
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
   margin-bottom: 0.5rem !important;
 }
 
-.ai-devtools-context-tooltip-percentage {
   color: #ffffff !important;
   font-weight: 600 !important;
   font-size: 0.8rem !important;
 }
 
-.ai-devtools-context-tooltip-token-count {
   color: #888888 !important;
   font-size: 0.6rem !important;
 }
 
-.ai-devtools-context-tooltip-progress-bar {
   width: 100% !important;
   height: 4px !important;
   background-color: #404040 !important;
@@ -1822,7 +1719,6 @@
   overflow: hidden !important;
 }
 
-.ai-devtools-context-tooltip-progress-fill {
   height: 100% !important;
   background-color: #ffffff !important;
   border-radius: 0 !important;
@@ -1830,35 +1726,29 @@
 }
 
 /* Usage Section */
-.ai-devtools-context-tooltip-usage-section {
   margin-bottom: 0.75rem !important;
   padding-top: 0.75rem !important;
   border-top: 1px solid #404040 !important;
 }
 
-.ai-devtools-context-tooltip-usage-row {
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
   margin-bottom: 0.25rem !important;
 }
 
-.ai-devtools-context-tooltip-usage-row:last-child {
   margin-bottom: 0 !important;
 }
 
-.ai-devtools-context-tooltip-usage-label {
   color: #888888 !important;
   font-size: 0.6rem !important;
 }
 
-.ai-devtools-context-tooltip-usage-value {
   color: #ffffff !important;
   font-size: 0.6rem !important;
 }
 
 /* Cost Section */
-.ai-devtools-context-tooltip-cost-section {
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
@@ -1866,26 +1756,21 @@
   border-top: 1px solid #404040 !important;
 }
 
-.ai-devtools-context-tooltip-cost-label {
   color: #888888 !important;
   font-size: 0.6rem !important;
 }
 
-.ai-devtools-context-tooltip-cost-value {
   color: #ffffff !important;
   font-weight: 600 !important;
   font-size: 0.6rem !important;
 }
 
-.ai-devtools-context-tooltip-section {
   margin-bottom: 0.75rem !important;
 }
 
-.ai-devtools-context-tooltip-section:last-child {
   margin-bottom: 0 !important;
 }
 
-.ai-devtools-context-tooltip-title {
   color: #ffffff !important;
   font-weight: 600 !important;
   font-size: 0.7rem !important;
@@ -1893,7 +1778,6 @@
   line-height: 1.2 !important;
 }
 
-.ai-devtools-context-tooltip-subtitle {
   color: #888888 !important;
   font-size: 0.6rem !important;
   text-transform: uppercase !important;
@@ -1901,7 +1785,6 @@
   margin-bottom: 0.5rem !important;
 }
 
-.ai-devtools-context-tooltip-row {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
@@ -1910,7 +1793,6 @@
   font-size: 0.6rem !important;
 }
 
-.ai-devtools-context-tooltip-row.ai-devtools-context-tooltip-warning {
   color: #fbbf24 !important;
   background-color: rgba(251, 191, 36, 0.1) !important;
   padding: 0.25rem 0.5rem !important;
@@ -1919,7 +1801,6 @@
   margin: 0.25rem 0 !important;
 }
 
-.ai-devtools-context-tooltip-label {
   color: #888888 !important;
   font-weight: 500 !important;
   text-transform: uppercase !important;
@@ -1927,7 +1808,6 @@
   flex-shrink: 0 !important;
 }
 
-.ai-devtools-context-tooltip-value {
   color: #ffffff !important;
   font-weight: 600 !important;
   font-family:
@@ -1938,7 +1818,6 @@
 }
 
 /* Context Insights Demo */
-.ai-devtools-context-insights-demo {
   padding: 1rem !important;
   background-color: #111111 !important;
   border: 1px solid #333333 !important;
@@ -1949,7 +1828,6 @@
   color: #ffffff !important;
 }
 
-.ai-devtools-context-insights-demo h3 {
   font-size: 1rem !important;
   font-weight: 600 !important;
   color: #ffffff !important;
@@ -1986,7 +1864,7 @@
   padding: 0.125rem 0.75rem !important;
   border-top: 1px solid #333333 !important;
   background-color: transparent !important;
-  min-height: 18px !important;
+  height: 24px !important;
   overflow: visible !important;
 }
 
@@ -1995,17 +1873,6 @@
   align-items: center !important;
 }
 
-.ai-devtools-context-section {
-  display: flex !important;
-  align-items: center !important;
-  overflow: visible !important;
-  padding: 0rem 1rem !important;
-}
-
-.ai-devtools-context-circle-bottom {
-  position: relative !important;
-  overflow: visible !important;
-}
 
 /* Streaming Speed Metrics */
 .ai-devtools-speed-metrics {
@@ -2042,7 +1909,6 @@
 }
 
 /* Context Layout */
-.ai-devtools-context-layout {
   position: relative !important;
   display: flex !important;
   align-items: center !important;
@@ -2054,7 +1920,6 @@
   height: 20px !important;
 }
 
-.ai-devtools-context-percentage-text {
   font-family:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
     "Liberation Mono", "Courier New", monospace !important;
@@ -2070,31 +1935,7 @@
   text-rendering: optimizeLegibility !important;
 }
 
-/* Small Context Circle */
-.ai-devtools-context-circle-small {
-  position: relative !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 20px !important;
-  height: 20px !important;
-  flex-shrink: 0 !important;
-  transition: all 0.2s ease !important;
-}
 
-.ai-devtools-context-svg-small {
-  width: 20px !important;
-  height: 20px !important;
-  transform: rotate(-90deg) !important;
-}
-
-.ai-devtools-context-bg-small {
-  stroke: #666666 !important;
-  stroke-width: 1.5 !important;
-  fill: none !important;
-}
-
-.ai-devtools-context-progress-small {
   stroke: #cccccc !important;
   stroke-width: 1.5 !important;
   fill: none !important;
@@ -2558,6 +2399,7 @@
   margin: 0 !important;
   padding: 0 !important;
   margin-left: 0.75rem !important;
+  background: none !important;
 }
 
 /* Additional indentation for nested levels */
@@ -2599,8 +2441,6 @@
   top: 0 !important;
   bottom: 0 !important;
   width: 1px !important;
-  background: #444444 !important;
-  opacity: 0.3 !important;
 }
 
 /* Style for object and array brackets */
@@ -2616,7 +2456,6 @@
 
 /* Add subtle background for better readability */
 .ai-devtools-json-child-fields-container {
-  background: rgba(255, 255, 255, 0.02) !important;
   border-radius: 2px !important;
   margin-top: 0.125rem !important;
   margin-bottom: 0.125rem !important;
@@ -2632,11 +2471,6 @@
   padding-left: 0.25rem !important;
 }
 
-/* Better visual separation for different nesting levels */
-.ai-devtools-json-child-fields-container:nth-child(odd) {
-  background: rgba(255, 255, 255, 0.01) !important;
-}
-
 /* Improve readability of nested content */
 .ai-devtools-json-child-fields-container
 .ai-devtools-json-child-fields-container {
@@ -2648,7 +2482,6 @@
 .ai-devtools-json-child-fields-container .ai-devtools-json-child-fields-container
   .ai-devtools-json-child-fields-container {
   border-left: 1px solid rgba(255, 255, 255, 0.08) !important;
-  background: rgba(255, 255, 255, 0.01) !important;
 }
 
 /* Ensure proper spacing between items */

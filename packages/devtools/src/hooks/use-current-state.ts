@@ -1,12 +1,22 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import {
-  getAvailableStoreIds,
-  getStoreState,
-  isStorePackageAvailable,
-  subscribeToStoreChanges,
-} from "../utils/working-state-detection";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+
+// Type for the store API - we'll use any to avoid complex type issues
+type StoreApi = any;
+
+// Import the store context directly - this will be resolved by the bundler
+// The bundler will handle the optional dependency resolution
+import { ChatStoreContext as ImportedChatStoreContext } from "@ai-sdk-tools/store";
+
+// Use the imported context
+const ChatStoreContext = ImportedChatStoreContext;
 
 export interface UseCurrentStateOptions {
   enabled?: boolean;
@@ -19,83 +29,73 @@ export interface UseCurrentStateReturn {
   refreshStates: () => void;
 }
 
+// Remove unused dummy context
+
 export function useCurrentState(
   options: UseCurrentStateOptions = {},
 ): UseCurrentStateReturn {
   const { enabled = true } = options;
 
-  const [isStoreAvailable, setIsStoreAvailable] = useState(false);
-  const [availableStoreIds, setAvailableStoreIds] = useState<string[]>([]);
-  const [currentStates, setCurrentStates] = useState<Record<string, unknown>>({});
-  
-  const unsubscribeFunctions = useRef<Record<string, () => void>>({});
+  const [currentStates, setCurrentStates] = useState<Record<string, unknown>>(
+    {},
+  );
 
-  // Check if store package is available and get store IDs
-  useEffect(() => {
-    if (!enabled) return;
+  const unsubscribeRef = useRef<(() => void) | null>(null);
 
-    const available = isStorePackageAvailable();
-    setIsStoreAvailable(available);
+  // Create a dummy context for when store is not available
+  const DummyContext = useRef(
+    React.createContext<StoreApi | undefined>(undefined),
+  ).current;
 
-    if (available) {
-      const storeIds = getAvailableStoreIds();
-      setAvailableStoreIds(storeIds);
-    }
-  }, [enabled]);
+  // Use the store context if available, otherwise use dummy
+  const contextToUse = ChatStoreContext || DummyContext;
+  const storeApi: StoreApi | undefined = useContext(contextToUse);
+
+  const isStoreAvailable = storeApi !== undefined && storeApi !== null;
+  const availableStoreIds = isStoreAvailable ? ["default"] : [];
 
   // Refresh states function
-  const refreshStates = () => {
-    if (!isStoreAvailable || availableStoreIds.length === 0) return;
+  const refreshStates = useCallback(() => {
+    if (!storeApi || !isStoreAvailable) return;
 
-    const newStates: Record<string, unknown> = {};
-    for (const storeId of availableStoreIds) {
-      const state = getStoreState(storeId);
-      if (state) {
-        newStates[storeId] = state;
-      }
+    try {
+      const state = storeApi.getState();
+      setCurrentStates({
+        default: state,
+      });
+    } catch {
+      // Failed to get state
     }
-    setCurrentStates(newStates);
-  };
-
-  // Initial state load
-  useEffect(() => {
-    if (isStoreAvailable && availableStoreIds.length > 0) {
-      refreshStates();
-    }
-  }, [isStoreAvailable, availableStoreIds]);
+  }, [storeApi, isStoreAvailable]);
 
   // Subscribe to store changes
   useEffect(() => {
-    if (!enabled || !isStoreAvailable || availableStoreIds.length === 0) return;
+    if (!enabled || !storeApi || !isStoreAvailable) return;
 
-    // Clean up existing subscriptions
-    for (const unsubscribe of Object.values(unsubscribeFunctions.current)) {
-      unsubscribe();
-    }
-    unsubscribeFunctions.current = {};
-
-    // Subscribe to each store
-    for (const storeId of availableStoreIds) {
-      try {
-        const unsubscribe = subscribeToStoreChanges(storeId, (newState) => {
-          setCurrentStates(prev => ({
-            ...prev,
-            [storeId]: newState
-          }));
+    try {
+      // Subscribe to the Zustand store
+      const unsubscribe = storeApi.subscribe((newState: unknown) => {
+        setCurrentStates({
+          default: newState,
         });
-        unsubscribeFunctions.current[storeId] = unsubscribe;
-      } catch (error) {
-        // Silently fail - store might not be available
-      }
-    }
+      });
 
-    return () => {
-      for (const unsubscribe of Object.values(unsubscribeFunctions.current)) {
-        unsubscribe();
-      }
-      unsubscribeFunctions.current = {};
-    };
-  }, [enabled, isStoreAvailable, availableStoreIds]);
+      // Initial state sync
+      refreshStates();
+
+      unsubscribeRef.current = unsubscribe;
+
+      return () => {
+        if (unsubscribeRef.current) {
+          unsubscribeRef.current();
+          unsubscribeRef.current = null;
+        }
+      };
+    } catch {
+      // Failed to subscribe
+      return undefined;
+    }
+  }, [enabled, storeApi, isStoreAvailable, refreshStates]);
 
   return {
     isStoreAvailable,

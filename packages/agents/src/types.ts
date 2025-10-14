@@ -69,8 +69,8 @@ export interface AgentConfig<
   instructions: string | ((context: TContext) => string);
   /** Language model to use */
   model: LanguageModel;
-  /** Tools available to the agent */
-  tools?: Record<string, Tool>;
+  /** Tools available to the agent - static or dynamic function receiving context */
+  tools?: Record<string, Tool> | ((context: TContext) => Record<string, Tool>);
   /** Agents this agent can hand off to */
   handoffs?: Array<Agent<any>>;
   /** Maximum number of turns before stopping */
@@ -241,6 +241,10 @@ export interface AgentStreamOptionsUI<
   maxSteps?: number;
   /** Global timeout (ms) */
   timeout?: number;
+  /** Direct agent selection - bypasses triage routing */
+  agentChoice?: string;
+  /** Tool preference - routes to agent with this tool and hints to use it */
+  toolChoice?: string;
   /**
    * Context for permissions, guardrails, and artifacts.
    * This object will be wrapped in RunContext<T> and passed to all tools and hooks.

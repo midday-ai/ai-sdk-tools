@@ -3,7 +3,6 @@
 import type { ToolUIPart } from "ai";
 import { DefaultChatTransport } from "ai";
 import {
-  AIDevtools,
   useArtifacts,
   useChat,
   useChatActions,
@@ -16,11 +15,11 @@ import {
   ConversationContent,
   ConversationScrollButton,
 } from "@/components/ai-elements/conversation";
-import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 import { ArtifactCanvas } from "@/components/canvas";
 import {
   ChatHeader,
   ChatInput,
+  type ChatInputMessage,
   ChatMessages,
   ChatStatusIndicators,
   ChatTitle,
@@ -37,12 +36,16 @@ export default function Home() {
   const { messages, sendMessage, status, stop } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/chat",
-      // Only send the last message - agent loads history from memory
       prepareSendMessagesRequest({ messages, id }) {
+        const lastMessage = messages[messages.length - 1] as ChatInputMessage;
+
         return {
           body: {
-            message: messages[messages.length - 1],
+            message: lastMessage,
             id,
+            // Pass agent/tool choices if present in message metadata
+            agentChoice: lastMessage.agentChoice,
+            toolChoice: lastMessage.toolChoice,
           },
         };
       },
@@ -103,7 +106,7 @@ export default function Home() {
     reset();
   };
 
-  const handleSubmit = (message: PromptInputMessage) => {
+  const handleSubmit = (message: ChatInputMessage) => {
     // If currently streaming or submitted, stop instead of submitting
     if (status === "streaming" || status === "submitted") {
       stop();
@@ -123,7 +126,11 @@ export default function Home() {
       });
     }
 
-    sendMessage({ text: message.text || "Sent with attachments" });
+    sendMessage({
+      text: message.text || "Sent with attachments",
+      agentChoice: message.agentChoice,
+      toolChoice: message.toolChoice,
+    } as any);
     setText("");
   };
 
@@ -197,23 +204,6 @@ export default function Home() {
           <EmptyState>{chatInput}</EmptyState>
         )}
       </div>
-
-      {process.env.NODE_ENV === "development" && (
-        <AIDevtools modelId="gpt-4o-mini" />
-      )}
-
-      {/* {!hasMessages && (
-        <a
-          href="https://midday.ai?utm_source=ai-sdk-tools"
-          target="_blank"
-          rel="noopener"
-        >
-          <div className="absolute bottom-3 right-0 left-0 flex justify-center items-center gap-2">
-            <span className="text-xs text-muted-foreground/60">Made by</span>
-            <Logo />
-          </div>
-        </a>
-      )} */}
     </div>
   );
 }

@@ -116,7 +116,8 @@ function processAgentEvents(events: AIEvent[]): AgentFlowData {
           agentMap.set(agentName, {
             name: agentName,
             status: "executing",
-            startTime: event.timestamp,
+            // Preserve original startTime if it exists (don't overwrite on subsequent starts)
+            startTime: existing?.startTime || event.timestamp,
             endTime: existing?.endTime,
             toolCallCount: existing?.toolCallCount || 0,
             routingStrategy: event.metadata?.routingStrategy,
@@ -206,8 +207,17 @@ function processAgentEvents(events: AIEvent[]): AgentFlowData {
         const toolName = event.metadata?.toolName || event.data?.toolName;
         const agentName = currentAgent || event.metadata?.agent;
 
-        // Only track valid tool names (not undefined, empty, or "unknown")
-        if (toolName && toolName !== "unknown" && toolName.trim() !== "") {
+        // Filter out internal orchestration tools from visualization
+        const isInternalTool =
+          toolName === "handoff_to_agent" || toolName === "updateWorkingMemory";
+
+        // Only track valid tool names (not undefined, empty, "unknown", or internal)
+        if (
+          toolName &&
+          toolName !== "unknown" &&
+          toolName.trim() !== "" &&
+          !isInternalTool
+        ) {
           const existing = toolMap.get(toolName);
           toolMap.set(toolName, {
             name: toolName,
@@ -314,8 +324,6 @@ export function AgentFlowVisualization({
           ...tool,
           label: tool.name,
           description: `A ${tool.name} tool`,
-          inputFields: 0,
-          outputFields: 0,
         },
       };
     });
@@ -423,70 +431,9 @@ export function AgentFlowVisualization({
   }
 
   return (
-    <div style={{ height: "100%", width: "100%", background: "#09090b" }}>
-      {/* Stats header */}
-      <div
-        style={{
-          padding: "10px 16px",
-          background: "#18181b",
-          borderBottom: "1px solid #27272a",
-          display: "flex",
-          alignItems: "center",
-          gap: 24,
-          fontSize: 11,
-          color: "#71717a",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontWeight: 600, color: "#f4f4f5" }}>
-            {agentFlowData.nodes.length}
-          </span>
-          <span>Agents</span>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontWeight: 600, color: "#f4f4f5" }}>
-            {agentFlowData.handoffs.length}
-          </span>
-          <span>Handoffs</span>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontWeight: 600, color: "#f4f4f5" }}>
-            {agentFlowData.totalRounds}
-          </span>
-          <span>Rounds</span>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontWeight: 600, color: "#f4f4f5" }}>
-            {agentFlowData.totalDuration.toFixed(2)}s
-          </span>
-          <span>Duration</span>
-        </div>
-        {agentFlowData.isActive && (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              color: "#71717a",
-              marginLeft: "auto",
-            }}
-          >
-            <div
-              style={{
-                width: 8,
-                height: 8,
-                borderRadius: "50%",
-                background: "#f59e0b",
-                animation: "pulse 2s ease-in-out infinite",
-              }}
-            />
-            <span style={{ fontWeight: 600 }}>Active</span>
-          </div>
-        )}
-      </div>
-
+    <div style={{ height: "100%", width: "100%", background: "#000000" }}>
       {/* ReactFlow canvas */}
-      <div style={{ height: "calc(100% - 49px)", width: "100%" }}>
+      <div style={{ height: "100%", width: "100%", position: "relative" }}>
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -510,9 +457,49 @@ export function AgentFlowVisualization({
             color="#3f3f46"
             gap={24}
             size={1}
-            style={{ background: "#09090b" }}
+            style={{ background: "#000000" }}
           />
         </ReactFlow>
+        
+        {/* Agent Stats Footer */}
+        <div style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: "24px",
+          display: "flex",
+          justifyContent: "flex-end",
+          alignItems: "center",
+          padding: "0 12px",
+          fontFamily: "Geist Mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace",
+          fontSize: "10px",
+          color: "#cccccc"
+        }}>
+          <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+              <span style={{ fontWeight: 600, color: "#ffffff" }}>{agentFlowData.nodes.length}</span>
+              <span style={{ color: "#666666" }}>Agents</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+              <span style={{ fontWeight: 600, color: "#ffffff" }}>{agentFlowData.handoffs.length}</span>
+              <span style={{ color: "#666666" }}>Handoffs</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+              <span style={{ fontWeight: 600, color: "#ffffff" }}>{agentFlowData.totalRounds}</span>
+              <span style={{ color: "#666666" }}>Rounds</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+              <span style={{ fontWeight: 600, color: "#ffffff" }}>
+                {agentFlowData.totalDuration > 0 
+                  ? `${(agentFlowData.totalDuration / 1000).toFixed(2)}s`
+                  : "0s"
+                }
+              </span>
+              <span style={{ color: "#666666" }}>Duration</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Add pulse animation styles */}
@@ -541,7 +528,7 @@ export function AgentFlowVisualization({
           }
           
           .react-flow__background {
-            background: #09090b;
+            background: #000000;
           }
           
           .react-flow__pane {

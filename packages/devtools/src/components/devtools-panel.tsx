@@ -19,7 +19,6 @@ import { useCurrentState } from "../hooks/use-current-state";
 import type { AIEvent, DevtoolsConfig, FilterOptions } from "../types";
 import { formatToolName, getEventTypeIcon } from "../utils/formatting";
 import { AgentFlowVisualization } from "./agent-flow-visualization";
-import { ContextCircle } from "./context-circle";
 import { EventList } from "./event-list";
 import { StateDataExplorer } from "./state-data-explorer";
 
@@ -76,7 +75,6 @@ interface DevtoolsPanelProps {
   onTogglePosition: () => void;
   config: DevtoolsConfig;
   className?: string;
-  modelId?: string; // Optional model ID for context insights
 }
 
 export function DevtoolsPanel({
@@ -88,7 +86,6 @@ export function DevtoolsPanel({
   onTogglePosition,
   config,
   className = "",
-  modelId,
 }: DevtoolsPanelProps) {
   const [showFilters] = useState(false);
   const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
@@ -134,7 +131,7 @@ export function DevtoolsPanel({
   const lastEventCountRef = useRef(events.length);
 
   // Calculate available tool names, event counts, and detect model
-  const { availableToolNames, eventCounts, detectedModelId } = useMemo(() => {
+  const { availableToolNames, eventCounts } = useMemo(() => {
     const toolNames = new Set<string>();
     const counts = {} as Record<string, number>;
     let detectedModel: string | undefined;
@@ -714,7 +711,6 @@ export function DevtoolsPanel({
           display: "flex",
           gap: 0,
           borderBottom: "1px solid #27272a",
-          background: "#09090b",
         }}
       >
         <button
@@ -724,9 +720,8 @@ export function DevtoolsPanel({
             padding: "8px 16px",
             background: "transparent",
             border: "none",
-            color: activeTab === "events" ? "#e5e7eb" : "#9ca3af",
+            color: activeTab === "events" ? "#e5e7eb" : "#666666",
             fontSize: 11,
-            fontWeight: 600,
             cursor: "pointer",
             transition: "all 0.2s",
           }}
@@ -740,9 +735,8 @@ export function DevtoolsPanel({
             padding: "8px 16px",
             background: "transparent",
             border: "none",
-            color: activeTab === "agents" ? "#e5e7eb" : "#9ca3af",
+            color: activeTab === "agents" ? "#e5e7eb" : "#666666",
             fontSize: 11,
-            fontWeight: 600,
             cursor: "pointer",
             transition: "all 0.2s",
           }}
@@ -757,9 +751,8 @@ export function DevtoolsPanel({
               padding: "8px 16px",
               background: "transparent",
               border: "none",
-              color: activeTab === "state" ? "#e5e7eb" : "#9ca3af",
+              color: activeTab === "state" ? "#e5e7eb" : "#666666",
               fontSize: 11,
-              fontWeight: 600,
               cursor: "pointer",
               transition: "all 0.2s",
             }}
@@ -810,14 +803,6 @@ export function DevtoolsPanel({
           </div>
         </div>
 
-        {/* Context Circle on the right */}
-        <div className="ai-devtools-context-section">
-          <ContextCircle
-            events={events}
-            modelId={modelId || detectedModelId || "gpt-4o"}
-            className="ai-devtools-context-circle-bottom"
-          />
-        </div>
       </div>
     </div>
   );
