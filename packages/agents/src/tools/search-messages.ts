@@ -9,7 +9,10 @@ import type { MemoryProvider } from "@ai-sdk-tools/memory";
  * This tool enables agents to find relevant information from previous conversations
  * without having to remember everything or ask the user again.
  */
-export function createSearchMessagesTool(provider: MemoryProvider) {
+export function createSearchMessagesTool(
+  provider: MemoryProvider,
+  defaultScope: "chat" | "user" = "chat"
+) {
   return tool({
     description:
       "Search through conversation history to find relevant information from previous messages. Use this when you need to reference something the user mentioned earlier or find specific details from past conversations.",
@@ -18,11 +21,11 @@ export function createSearchMessagesTool(provider: MemoryProvider) {
         .string()
         .describe("The search query to find in conversation history"),
       scope: z
-        .enum(["current_chat", "user_chats"])
+        .enum(["chat", "user"])
         .optional()
-        .default("current_chat")
+        .default(defaultScope)
         .describe(
-          "Where to search: 'current_chat' for current conversation only, 'user_chats' for all chats by this user"
+          "Where to search: 'chat' for current conversation only, 'user' for all chats by this user"
         ),
       limit: z
         .number()
@@ -47,7 +50,10 @@ export function createSearchMessagesTool(provider: MemoryProvider) {
         const chatId = context.chatId || context.metadata?.chatId;
         const userId = context.userId || context.metadata?.userId;
 
-        if (!chatId && scope === "current_chat") {
+        // Map the public scope values to internal values
+        const internalScope = scope === "user" ? "user_chats" : "current_chat";
+
+        if (!chatId && internalScope === "current_chat") {
           return {
             success: false,
             error: "Chat ID not available in context",
@@ -58,8 +64,8 @@ export function createSearchMessagesTool(provider: MemoryProvider) {
         if ((provider as any).searchMessages) {
           try {
             const messages = await (provider as any).searchMessages({
-              chatId: scope === "current_chat" ? chatId : undefined,
-              userId: scope === "user_chats" ? userId : undefined,
+              chatId: internalScope === "current_chat" ? chatId : undefined,
+              userId: internalScope === "user_chats" ? userId : undefined,
               query,
               limit,
             });
@@ -83,7 +89,7 @@ export function createSearchMessagesTool(provider: MemoryProvider) {
         }
 
         // Fallback: Get messages and filter manually
-        if (scope === "current_chat" && chatId) {
+        if (internalScope === "current_chat" && chatId) {
           const messages =
             (await provider.getMessages?.({
               chatId,
@@ -103,7 +109,7 @@ export function createSearchMessagesTool(provider: MemoryProvider) {
             })),
             count: filtered.length,
           };
-        } else if (scope === "user_chats" && userId) {
+        } else if (internalScope === "user_chats" && userId) {
           // For user_chats scope, we'd need to get all chats for the user
           // This is more complex and would require additional implementation
           // For now, we'll just return an error

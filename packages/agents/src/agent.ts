@@ -61,7 +61,9 @@ export class Agent<
   public readonly permissions?: ToolPermissions;
   private readonly memory?: MemoryConfig;
   private readonly handoffContext?: HandoffContextConfig;
-  private readonly enableMessageSearch?: boolean;
+  private readonly enableMessageSearch?:
+    | boolean
+    | { enabled: boolean; scope?: "chat" | "user" };
   private readonly model: LanguageModel;
   private readonly aiAgent: AISDKAgent<Record<string, Tool>>;
   private readonly handoffAgents: Array<IAgent<any>>;
@@ -220,9 +222,24 @@ export class Agent<
     }
 
     // Add search messages tool if enabled and memory is available
-    if (this.enableMessageSearch && this.memory?.provider) {
+    const isSearchEnabled =
+      typeof this.enableMessageSearch === "boolean"
+        ? this.enableMessageSearch
+        : this.enableMessageSearch?.enabled;
+
+    if (isSearchEnabled && this.memory?.provider) {
+      // Determine the default scope for search
+      const defaultScope =
+        typeof this.enableMessageSearch === "object" &&
+        this.enableMessageSearch?.scope
+          ? this.enableMessageSearch.scope === "user"
+            ? "user"
+            : "chat"
+          : "chat";
+
       resolvedTools.searchMessages = createSearchMessagesTool(
-        this.memory.provider
+        this.memory.provider,
+        defaultScope
       );
     }
 

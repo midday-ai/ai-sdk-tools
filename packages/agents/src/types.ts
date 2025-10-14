@@ -107,9 +107,13 @@ export interface AgentConfig<
    * When enabled and the memory provider supports search functionality, agents will have
    * access to a built-in searchMessages tool for finding relevant information in past conversations.
    *
+   * Can be a boolean to simply enable/disable, or an object to configure scope:
+   * - `enabled: true` - enables search with default scope (chat)
+   * - `{ enabled: true, scope: 'user' }` - enables search with user-wide scope
+   *
    * @default false
    */
-  enableMessageSearch?: boolean;
+  enableMessageSearch?: boolean | { enabled: boolean; scope?: "chat" | "user" };
 }
 
 /**
