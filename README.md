@@ -2,6 +2,10 @@
 
 ![AI SDK Tools](image.png)
 
+> **⚠️ Active Development Notice**
+> 
+> This package is currently in **active development** and breaking changes may occur between versions. We recommend pinning to specific versions in production environments and staying updated with our changelog.
+
 Essential utilities for building production-ready AI applications with Vercel AI SDK. State management, debugging, structured streaming, intelligent agents, caching, and persistent memory.
 
 ## Installation
