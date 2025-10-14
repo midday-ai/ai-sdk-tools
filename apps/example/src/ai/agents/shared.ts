@@ -13,7 +13,7 @@ import { Agent, UpstashProvider } from "ai-sdk-tools";
 // Load memory template from markdown file
 const memoryTemplate = readFileSync(
   join(process.cwd(), "src/ai/agents/memory-template.md"),
-  "utf-8",
+  "utf-8"
 );
 
 /**
@@ -99,7 +99,7 @@ export const sharedMemoryProvider = new UpstashProvider(
   new Redis({
     url: process.env.UPSTASH_REDIS_REST_URL,
     token: process.env.UPSTASH_REDIS_REST_TOKEN,
-  }),
+  })
 );
 
 /**
@@ -126,5 +126,9 @@ export const createAgent = (config: AgentConfig<AppContext>) =>
         enabled: true,
         generateTitle: true, // Uses agent's model
       },
+    },
+    handoffContext: {
+      currentAgentMessages: "all", // Current agent gets full conversation context
+      specialistMessages: 20, // Specialist agents get last 20 messages
     },
   });

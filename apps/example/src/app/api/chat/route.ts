@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
       {
         status: 429,
         headers: { "Content-Type": "application/json" },
-      },
+      }
     );
   }
 
