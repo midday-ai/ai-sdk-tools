@@ -131,4 +131,5 @@ export const createAgent = (config: AgentConfig<AppContext>) =>
       currentAgentMessages: "all", // Current agent gets full conversation context
       specialistMessages: 20, // Specialist agents get last 20 messages
     },
+    enableMessageSearch: true,
   });

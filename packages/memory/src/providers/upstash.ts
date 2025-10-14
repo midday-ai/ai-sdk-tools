@@ -11,10 +11,7 @@ import type {
  * Upstash Redis provider - serverless edge
  */
 export class UpstashProvider implements MemoryProvider {
-  constructor(
-    private redis: Redis,
-    private prefix: string = "memory:",
-  ) {}
+  constructor(private redis: Redis, private prefix: string = "memory:") {}
 
   async getWorkingMemory(params: {
     chatId?: string;
@@ -59,7 +56,7 @@ export class UpstashProvider implements MemoryProvider {
     const messages = await this.redis.lrange<ConversationMessage>(
       key,
       start,
-      -1,
+      -1
     );
     return messages || [];
   }
@@ -104,7 +101,7 @@ export class UpstashProvider implements MemoryProvider {
             createdAt: new Date(data.createdAt),
             updatedAt: new Date(data.updatedAt),
           } as ChatSession;
-        }),
+        })
       );
 
       return chats.filter((chat): chat is ChatSession => chat !== null);
@@ -126,7 +123,7 @@ export class UpstashProvider implements MemoryProvider {
           createdAt: new Date(data.createdAt),
           updatedAt: new Date(data.updatedAt),
         } as ChatSession;
-      }),
+      })
     );
 
     return chats.filter((chat): chat is ChatSession => chat !== null);
@@ -168,11 +165,36 @@ export class UpstashProvider implements MemoryProvider {
     }
   }
 
+  async searchMessages(params: {
+    chatId?: string;
+    userId?: string;
+    query: string;
+    limit?: number;
+  }): Promise<ConversationMessage[]> {
+    // For Upstash Redis, we'll fetch messages and filter in memory
+    // More advanced implementations could use Redisearch
+    if (!params.chatId) {
+      throw new Error("chatId is required for searching messages");
+    }
+
+    const messages = await this.getMessages({
+      chatId: params.chatId,
+      limit: params.limit || 100,
+    });
+
+    // Filter messages that contain the query
+    const filtered = messages.filter((message) =>
+      message.content.toLowerCase().includes(params.query.toLowerCase())
+    );
+
+    return filtered;
+  }
+
   private getKey(
     type: "wm" | "msg",
     scope: MemoryScope | "chat",
     chatId?: string,
-    userId?: string,
+    userId?: string
   ): string {
     const id = scope === "chat" ? chatId : userId;
     return `${this.prefix}${type}:${scope}:${id}`;

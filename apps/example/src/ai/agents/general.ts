@@ -13,9 +13,9 @@ import { transactionsAgent } from "./transactions";
 export const generalAgent = createAgent({
   name: "general",
   model: openai("gpt-4o"),
-  instructions: (
-    ctx,
-  ) => `You are a general assistant and coordinator for ${ctx.companyName}.
+  instructions: (ctx) => `You are a general assistant and coordinator for ${
+    ctx.companyName
+  }.
 
 🔍 YOU HAVE WEB SEARCH CAPABILITY via the webSearch tool - USE IT!
 
@@ -86,9 +86,10 @@ STYLE:
 - After handoffs, synthesize information clearly
 
 ${formatContextForLLM(ctx)}`,
-  tools: (ctx: AppContext) => ({
-    webSearch: createWebSearchTool(ctx),
-  }),
+  tools: (ctx: AppContext) =>
+    ({
+      webSearch: createWebSearchTool(ctx),
+    } as Record<string, any>),
   handoffs: [
     operationsAgent,
     reportsAgent,

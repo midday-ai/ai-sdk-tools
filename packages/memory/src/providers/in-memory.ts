@@ -79,6 +79,46 @@ export class InMemoryProvider implements MemoryProvider {
     }
   }
 
+  async searchMessages(params: {
+    chatId?: string;
+    userId?: string;
+    query: string;
+    limit?: number;
+  }): Promise<ConversationMessage[]> {
+    // Get all messages
+    let allMessages: ConversationMessage[] = [];
+
+    if (params.chatId) {
+      // If chatId is provided, only get messages for that chat
+      allMessages = this.messages.get(params.chatId) || [];
+    } else if (params.userId) {
+      // If userId is provided, get messages from all chats for that user
+      for (const [chatId, messages] of this.messages.entries()) {
+        const chat = this.chats.get(chatId);
+        if (chat && chat.userId === params.userId) {
+          allMessages.push(...messages);
+        }
+      }
+    } else {
+      // If no filters, get all messages
+      for (const messages of this.messages.values()) {
+        allMessages.push(...messages);
+      }
+    }
+
+    // Filter messages that contain the query
+    const filtered = allMessages.filter((message) =>
+      message.content.toLowerCase().includes(params.query.toLowerCase())
+    );
+
+    // Apply limit if provided
+    if (params.limit) {
+      return filtered.slice(0, params.limit);
+    }
+
+    return filtered;
+  }
+
   private getKey(scope: MemoryScope, chatId?: string, userId?: string): string {
     const id = scope === "chat" ? chatId : userId;
     return `${scope}:${id}`;

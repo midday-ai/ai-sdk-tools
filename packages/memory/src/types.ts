@@ -97,6 +97,14 @@ export interface MemoryProvider {
 
   /** Update chat title (optional) */
   updateChatTitle?(chatId: string, title: string): Promise<void>;
+
+  /** Search messages by content (optional) */
+  searchMessages?(params: {
+    chatId?: string;
+    userId?: string;
+    query: string;
+    limit?: number;
+  }): Promise<ConversationMessage[]>;
 }
 
 /**

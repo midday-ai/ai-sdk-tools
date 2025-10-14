@@ -41,3 +41,11 @@ export {
   formatWorkingMemory,
   getWorkingMemoryInstructions,
 } from "./utils.js";
+
+// Search
+export {
+  searchConversationHistory,
+  findRecentMessage,
+  type SearchOptions,
+  type SearchResult,
+} from "./search.js";

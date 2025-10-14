@@ -61,7 +61,7 @@ export interface ChatsTable {
 export interface DrizzleProviderConfig<
   TWM extends WorkingMemoryTable,
   TMsg extends ConversationMessagesTable,
-  TChat extends ChatsTable = ChatsTable,
+  TChat extends ChatsTable = ChatsTable
 > {
   /** Working memory table */
   workingMemoryTable: TWM;
@@ -89,13 +89,13 @@ export interface DrizzleProviderConfig<
 export class DrizzleProvider<
   TWM extends WorkingMemoryTable,
   TMsg extends ConversationMessagesTable,
-  TChat extends ChatsTable = ChatsTable,
+  TChat extends ChatsTable = ChatsTable
 > implements MemoryProvider
 {
   constructor(
     // Accepts any Drizzle database instance (postgres, mysql, sqlite adapters all have different types)
     private db: any,
-    private config: DrizzleProviderConfig<TWM, TMsg, TChat>,
+    private config: DrizzleProviderConfig<TWM, TMsg, TChat>
   ) {}
 
   async getWorkingMemory(params: {
@@ -291,6 +291,51 @@ export class DrizzleProvider<
         updatedAt: new Date(),
       })
       .where(eq(chatsTable.chatId, chatId));
+  }
+
+  async searchMessages(params: {
+    chatId?: string;
+    userId?: string;
+    query: string;
+    limit?: number;
+  }): Promise<ConversationMessage[]> {
+    const { messagesTable } = this.config;
+
+    // Build query with filters
+    let query = this.db.select().from(messagesTable);
+
+    // Apply chatId filter if provided
+    if (params.chatId) {
+      query = query.where(eq(messagesTable.chatId, params.chatId));
+    }
+
+    // Apply userId filter if provided
+    if (params.userId) {
+      query = query.where(eq(messagesTable.userId, params.userId));
+    }
+
+    // Apply limit
+    if (params.limit) {
+      query = query.limit(params.limit);
+    }
+
+    const result = await query.orderBy(desc(messagesTable.timestamp));
+
+    // Filter results in memory for the search query
+    const filtered = result
+      .map((row: any) => ({
+        chatId: row.chatId,
+        userId: row.userId || undefined,
+        role: row.role as "user" | "assistant" | "system",
+        content: row.content,
+        timestamp: new Date(row.timestamp),
+      }))
+      .filter((message: ConversationMessage) =>
+        message.content.toLowerCase().includes(params.query.toLowerCase())
+      )
+      .reverse();
+
+    return filtered;
   }
 
   private getId(scope: MemoryScope, chatId?: string, userId?: string): string {

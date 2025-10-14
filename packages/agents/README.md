@@ -28,12 +28,14 @@ Complex tasks benefit from specialized expertise. Instead of a single model hand
 ### When to Use Agents
 
 **Use multi-agent systems when:**
+
 - Tasks require distinct expertise (technical vs. creative vs. analytical)
 - Workflow has clear stages that could be handled independently
 - Different models excel at different parts of the task
 - You need better control over specialized behavior
 
 **Use single model when:**
+
 - Task is straightforward and can be handled by general instructions
 - No clear separation of concerns
 - Response time is critical (multi-agent adds orchestration overhead)
@@ -41,13 +43,17 @@ Complex tasks benefit from specialized expertise. Instead of a single model hand
 ## Core Concepts
 
 ### Agent
+
 An AI with specialized instructions, tools, and optional context. Each agent is configured with a language model and system prompt tailored to its role.
 
 ### Handoffs
+
 Agents can transfer control to other agents while preserving conversation context. Handoffs include the reason for transfer and any relevant context.
 
 ### Orchestration
+
 Automatic routing between agents based on:
+
 - **Programmatic matching**: Pattern-based routing with `matchOn`
 - **LLM-based routing**: The orchestrator agent decides which specialist to invoke
 - **Hybrid**: Combine both for optimal performance
@@ -57,18 +63,18 @@ Automatic routing between agents based on:
 ### Basic: Single Agent
 
 ```typescript
-import { Agent } from '@ai-sdk-tools/agents';
-import { openai } from '@ai-sdk/openai';
+import { Agent } from "@ai-sdk-tools/agents";
+import { openai } from "@ai-sdk/openai";
 
 const agent = new Agent({
-  name: 'Assistant',
-  model: openai('gpt-4o'),
-  instructions: 'You are a helpful assistant.',
+  name: "Assistant",
+  model: openai("gpt-4o"),
+  instructions: "You are a helpful assistant.",
 });
 
 // Generate response
 const result = await agent.generate({
-  prompt: 'What is 2+2?',
+  prompt: "What is 2+2?",
 });
 
 console.log(result.text); // "4"
@@ -77,33 +83,33 @@ console.log(result.text); // "4"
 ### Handoffs: Two Specialists
 
 ```typescript
-import { Agent } from '@ai-sdk-tools/agents';
-import { openai } from '@ai-sdk/openai';
+import { Agent } from "@ai-sdk-tools/agents";
+import { openai } from "@ai-sdk/openai";
 
 // Create specialized agents
 const mathAgent = new Agent({
-  name: 'Math Tutor',
-  model: openai('gpt-4o'),
-  instructions: 'You help with math problems. Show step-by-step solutions.',
+  name: "Math Tutor",
+  model: openai("gpt-4o"),
+  instructions: "You help with math problems. Show step-by-step solutions.",
 });
 
 const historyAgent = new Agent({
-  name: 'History Tutor',
-  model: openai('gpt-4o'),
-  instructions: 'You help with history questions. Provide context and dates.',
+  name: "History Tutor",
+  model: openai("gpt-4o"),
+  instructions: "You help with history questions. Provide context and dates.",
 });
 
 // Create orchestrator with handoff capability
 const orchestrator = new Agent({
-  name: 'Triage',
-  model: openai('gpt-4o'),
-  instructions: 'Route questions to the appropriate specialist.',
+  name: "Triage",
+  model: openai("gpt-4o"),
+  instructions: "Route questions to the appropriate specialist.",
   handoffs: [mathAgent, historyAgent],
 });
 
 // LLM decides which specialist to use
 const result = await orchestrator.generate({
-  prompt: 'What is the quadratic formula?',
+  prompt: "What is the quadratic formula?",
 });
 
 console.log(`Handled by: ${result.finalAgent}`); // "Math Tutor"
@@ -116,29 +122,30 @@ Use programmatic routing for instant agent selection without LLM overhead:
 
 ```typescript
 const mathAgent = new Agent({
-  name: 'Math Tutor',
-  model: openai('gpt-4o'),
-  instructions: 'You help with math problems.',
-  matchOn: ['calculate', 'math', 'equation', /\d+\s*[\+\-\*\/]\s*\d+/],
+  name: "Math Tutor",
+  model: openai("gpt-4o"),
+  instructions: "You help with math problems.",
+  matchOn: ["calculate", "math", "equation", /\d+\s*[\+\-\*\/]\s*\d+/],
 });
 
 const historyAgent = new Agent({
-  name: 'History Tutor',
-  model: openai('gpt-4o'),
-  instructions: 'You help with history questions.',
-  matchOn: ['history', 'war', 'civilization', /\d{4}/], // Years
+  name: "History Tutor",
+  model: openai("gpt-4o"),
+  instructions: "You help with history questions.",
+  matchOn: ["history", "war", "civilization", /\d{4}/], // Years
 });
 
 const orchestrator = new Agent({
-  name: 'Smart Router',
-  model: openai('gpt-4o-mini'), // Efficient for routing
-  instructions: 'Route to specialists. Fall back to handling general questions.',
+  name: "Smart Router",
+  model: openai("gpt-4o-mini"), // Efficient for routing
+  instructions:
+    "Route to specialists. Fall back to handling general questions.",
   handoffs: [mathAgent, historyAgent],
 });
 
 // Automatically routes to mathAgent based on pattern match
 const result = await orchestrator.generate({
-  prompt: 'What is 15 * 23?',
+  prompt: "What is 15 * 23?",
 });
 ```
 
@@ -150,13 +157,13 @@ For Next.js route handlers and real-time UI updates:
 
 ```typescript
 // app/api/chat/route.ts
-import { Agent } from '@ai-sdk-tools/agents';
-import { openai } from '@ai-sdk/openai';
+import { Agent } from "@ai-sdk-tools/agents";
+import { openai } from "@ai-sdk/openai";
 
 const supportAgent = new Agent({
-  name: 'Support',
-  model: openai('gpt-4o'),
-  instructions: 'Handle customer support inquiries.',
+  name: "Support",
+  model: openai("gpt-4o"),
+  instructions: "Handle customer support inquiries.",
   handoffs: [technicalAgent, billingAgent],
 });
 
@@ -168,7 +175,7 @@ export async function POST(req: Request) {
     maxRounds: 5, // Max handoffs
     maxSteps: 10, // Max tool calls per agent
     onEvent: async (event) => {
-      if (event.type === 'agent-handoff') {
+      if (event.type === "agent-handoff") {
         console.log(`Handoff: ${event.from} → ${event.to}`);
       }
     },
@@ -179,11 +186,11 @@ export async function POST(req: Request) {
 ### Tools and Context
 
 ```typescript
-import { tool } from 'ai';
-import { z } from 'zod';
+import { tool } from "ai";
+import { z } from "zod";
 
 const calculatorTool = tool({
-  description: 'Perform calculations',
+  description: "Perform calculations",
   parameters: z.object({
     expression: z.string(),
   }),
@@ -193,9 +200,9 @@ const calculatorTool = tool({
 });
 
 const agent = new Agent({
-  name: 'Calculator Agent',
-  model: openai('gpt-4o'),
-  instructions: 'Help with math using the calculator tool.',
+  name: "Calculator Agent",
+  model: openai("gpt-4o"),
+  instructions: "Help with math using the calculator tool.",
   tools: {
     calculator: calculatorTool,
   },
@@ -215,8 +222,8 @@ interface TeamContext {
 }
 
 const agent = new Agent<TeamContext>({
-  name: 'Team Assistant',
-  model: openai('gpt-4o'),
+  name: "Team Assistant",
+  model: openai("gpt-4o"),
   instructions: (context) => {
     return `You are helping team ${context.teamId}. 
     User preferences: ${JSON.stringify(context.preferences)}`;
@@ -227,9 +234,9 @@ const agent = new Agent<TeamContext>({
 agent.toUIMessageStream({
   messages,
   context: {
-    teamId: 'team-123',
-    userId: 'user-456',
-    preferences: { theme: 'dark', language: 'en' },
+    teamId: "team-123",
+    userId: "user-456",
+    preferences: { theme: "dark", language: "en" },
   },
 });
 ```
@@ -238,9 +245,9 @@ agent.toUIMessageStream({
 
 ```typescript
 const expertAgent = new Agent({
-  name: 'Expert',
-  model: openai('gpt-4o'),
-  instructions: 'Handle complex technical questions.',
+  name: "Expert",
+  model: openai("gpt-4o"),
+  instructions: "Handle complex technical questions.",
   matchOn: (message) => {
     const complexity = calculateComplexity(message);
     return complexity > 0.7;
@@ -253,33 +260,33 @@ const expertAgent = new Agent({
 Use the best model for each task:
 
 ```typescript
-import { openai } from '@ai-sdk/openai';
-import { anthropic } from '@ai-sdk/anthropic';
-import { google } from '@ai-sdk/google';
+import { openai } from "@ai-sdk/openai";
+import { anthropic } from "@ai-sdk/anthropic";
+import { google } from "@ai-sdk/google";
 
 const researchAgent = new Agent({
-  name: 'Researcher',
-  model: anthropic('claude-3-5-sonnet-20241022'), // Excellent reasoning
-  instructions: 'Research topics thoroughly.',
+  name: "Researcher",
+  model: anthropic("claude-3-5-sonnet-20241022"), // Excellent reasoning
+  instructions: "Research topics thoroughly.",
 });
 
 const writerAgent = new Agent({
-  name: 'Writer',
-  model: openai('gpt-4o'), // Great at creative writing
-  instructions: 'Create engaging content.',
+  name: "Writer",
+  model: openai("gpt-4o"), // Great at creative writing
+  instructions: "Create engaging content.",
 });
 
 const editorAgent = new Agent({
-  name: 'Editor',
-  model: google('gemini-1.5-pro'), // Strong at review
-  instructions: 'Review and improve content.',
+  name: "Editor",
+  model: google("gemini-1.5-pro"), // Strong at review
+  instructions: "Review and improve content.",
   handoffs: [writerAgent], // Can send back for rewrites
 });
 
 const pipeline = new Agent({
-  name: 'Content Manager',
-  model: openai('gpt-4o-mini'), // Efficient orchestrator
-  instructions: 'Coordinate content creation.',
+  name: "Content Manager",
+  model: openai("gpt-4o-mini"), // Efficient orchestrator
+  instructions: "Coordinate content creation.",
   handoffs: [researchAgent, writerAgent, editorAgent],
 });
 ```
@@ -290,16 +297,16 @@ Control agent behavior with input/output validation:
 
 ```typescript
 const agent = new Agent({
-  name: 'Moderated Agent',
-  model: openai('gpt-4o'),
-  instructions: 'Answer questions helpfully.',
+  name: "Moderated Agent",
+  model: openai("gpt-4o"),
+  instructions: "Answer questions helpfully.",
   inputGuardrails: [
     async (input) => {
       if (containsProfanity(input)) {
-        return { 
-          pass: false, 
-          action: 'block',
-          message: 'Input violates content policy',
+        return {
+          pass: false,
+          action: "block",
+          message: "Input violates content policy",
         };
       }
       return { pass: true };
@@ -308,9 +315,9 @@ const agent = new Agent({
   outputGuardrails: [
     async (output) => {
       if (containsSensitiveInfo(output)) {
-        return { 
-          pass: false, 
-          action: 'modify',
+        return {
+          pass: false,
+          action: "modify",
           modifiedOutput: redactSensitiveInfo(output),
         };
       }
@@ -326,16 +333,16 @@ Control which tools agents can access:
 
 ```typescript
 const agent = new Agent({
-  name: 'Restricted Agent',
-  model: openai('gpt-4o'),
-  instructions: 'Help with tasks.',
+  name: "Restricted Agent",
+  model: openai("gpt-4o"),
+  instructions: "Help with tasks.",
   tools: {
     readData: readDataTool,
     writeData: writeDataTool,
     deleteData: deleteDataTool,
   },
   permissions: {
-    allowed: ['readData', 'writeData'], // deleteData blocked
+    allowed: ["readData", "writeData"], // deleteData blocked
     maxCallsPerTool: {
       writeData: 5, // Limit writes
     },
@@ -352,6 +359,7 @@ class Agent<TContext extends Record<string, unknown> = Record<string, unknown>>
 ```
 
 **Constructor Options:**
+
 - `name: string` - Unique agent identifier
 - `model: LanguageModel` - AI SDK language model
 - `instructions: string | ((context: TContext) => string)` - System prompt
@@ -364,6 +372,7 @@ class Agent<TContext extends Record<string, unknown> = Record<string, unknown>>
 - `inputGuardrails?: InputGuardrail[]` - Pre-execution validation
 - `outputGuardrails?: OutputGuardrail[]` - Post-execution validation
 - `permissions?: ToolPermissions` - Tool access control
+- `enableMessageSearch?: boolean` - Enable conversation history search (requires memory provider with search capability)
 
 **Methods:**
 
@@ -430,6 +439,49 @@ writeAgentStatus(writer: UIMessageStreamWriter, status: {
 }): void
 ```
 
+### Message Search
+
+When `enableMessageSearch` is set to `true` and the memory provider supports search functionality, agents automatically get access to a `searchMessages` tool:
+
+```typescript
+const agent = new Agent({
+  name: "Searchable Agent",
+  model: openai("gpt-4o"),
+  instructions: "You can search conversation history.",
+  memory: {
+    provider: myMemoryProvider, // Must support searchMessages
+    history: { enabled: true },
+  },
+  enableMessageSearch: true,
+});
+```
+
+The `searchMessages` tool allows agents to search through conversation history:
+
+```typescript
+// In agent instructions or tools
+const searchResult = await tools.searchMessages({
+  query: "previous question about pricing",
+  scope: "current_chat", // or 'user_chats'
+  limit: 5,
+});
+```
+
+**Requirements:**
+
+- Memory provider must implement the `searchMessages` method
+- Memory must be enabled with `history: { enabled: true }`
+- `enableMessageSearch` must be set to `true` in agent config
+
+**Supported Scopes:**
+
+- `current_chat`: Search only in the current conversation
+- `user_chats`: Search across all conversations for the current user (if supported by provider)
+
+**Note:** The search functionality works best with memory providers that have native search capabilities (like databases with full-text search). For providers without native search, the system falls back to retrieving messages and filtering in memory.
+
+````
+
 ### Event Types
 
 ```typescript
@@ -440,7 +492,7 @@ type AgentEvent =
   | { type: 'agent-handoff'; from: string; to: string; reason?: string }
   | { type: 'agent-complete'; totalRounds: number }
   | { type: 'agent-error'; error: Error }
-```
+````
 
 ## Integration with Other Packages
 
@@ -449,15 +501,15 @@ type AgentEvent =
 Cache expensive tool calls across agents:
 
 ```typescript
-import { createCached } from '@ai-sdk-tools/cache';
-import { Redis } from '@upstash/redis';
+import { createCached } from "@ai-sdk-tools/cache";
+import { Redis } from "@upstash/redis";
 
 const cached = createCached({ cache: Redis.fromEnv() });
 
 const agent = new Agent({
-  name: 'Data Agent',
-  model: openai('gpt-4o'),
-  instructions: 'Analyze data.',
+  name: "Data Agent",
+  model: openai("gpt-4o"),
+  instructions: "Analyze data.",
   tools: {
     analyze: cached(expensiveAnalysisTool),
   },
@@ -469,38 +521,43 @@ const agent = new Agent({
 Stream structured artifacts from agents:
 
 ```typescript
-import { artifact } from '@ai-sdk-tools/artifacts';
-import { tool } from 'ai';
-import { z } from 'zod';
+import { artifact } from "@ai-sdk-tools/artifacts";
+import { tool } from "ai";
+import { z } from "zod";
 
-const ReportArtifact = artifact('report', z.object({
-  title: z.string(),
-  sections: z.array(z.object({
-    heading: z.string(),
-    content: z.string(),
-  })),
-}));
+const ReportArtifact = artifact(
+  "report",
+  z.object({
+    title: z.string(),
+    sections: z.array(
+      z.object({
+        heading: z.string(),
+        content: z.string(),
+      })
+    ),
+  })
+);
 
 const reportAgent = new Agent({
-  name: 'Report Generator',
-  model: openai('gpt-4o'),
-  instructions: 'Generate structured reports.',
+  name: "Report Generator",
+  model: openai("gpt-4o"),
+  instructions: "Generate structured reports.",
   tools: {
     createReport: tool({
-      description: 'Create a report',
+      description: "Create a report",
       parameters: z.object({
         title: z.string(),
       }),
       execute: async function* ({ title }) {
         const report = ReportArtifact.stream({ title, sections: [] });
-        
-        yield { text: 'Generating report...' };
-        
-        await report.update({ 
-          sections: [{ heading: 'Introduction', content: '...' }],
+
+        yield { text: "Generating report..." };
+
+        await report.update({
+          sections: [{ heading: "Introduction", content: "..." }],
         });
-        
-        yield { text: 'Report complete', forceStop: true };
+
+        yield { text: "Report complete", forceStop: true };
       },
     }),
   },
@@ -512,14 +569,14 @@ const reportAgent = new Agent({
 Debug agent execution in development:
 
 ```typescript
-import { AIDevTools } from '@ai-sdk-tools/devtools';
+import { AIDevTools } from "@ai-sdk-tools/devtools";
 
 const agent = new Agent({
-  name: 'Debug Agent',
-  model: openai('gpt-4o'),
-  instructions: 'Test agent.',
+  name: "Debug Agent",
+  model: openai("gpt-4o"),
+  instructions: "Test agent.",
   onEvent: (event) => {
-    console.log('[Agent Event]', event);
+    console.log("[Agent Event]", event);
   },
 });
 

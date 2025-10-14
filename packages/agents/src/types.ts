@@ -101,6 +101,15 @@ export interface AgentConfig<
    * @see HandoffContextConfig for detailed configuration options
    */
   handoffContext?: HandoffContextConfig;
+  /**
+   * Enable message search capability - allows agents to search through conversation history
+   *
+   * When enabled and the memory provider supports search functionality, agents will have
+   * access to a built-in searchMessages tool for finding relevant information in past conversations.
+   *
+   * @default false
+   */
+  enableMessageSearch?: boolean;
 }
 
 /**

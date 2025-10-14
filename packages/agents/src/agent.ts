@@ -4,6 +4,7 @@ import {
   getWorkingMemoryInstructions,
   type MemoryConfig,
 } from "@ai-sdk-tools/memory";
+import { createSearchMessagesTool } from "./tools/index.js";
 import {
   Experimental_Agent as AISDKAgent,
   convertToModelMessages,
@@ -60,6 +61,7 @@ export class Agent<
   public readonly permissions?: ToolPermissions;
   private readonly memory?: MemoryConfig;
   private readonly handoffContext?: HandoffContextConfig;
+  private readonly enableMessageSearch?: boolean;
   private readonly model: LanguageModel;
   private readonly aiAgent: AISDKAgent<Record<string, Tool>>;
   private readonly handoffAgents: Array<IAgent<any>>;
@@ -77,6 +79,7 @@ export class Agent<
     this.permissions = config.permissions;
     this.memory = config.memory;
     this.handoffContext = config.handoffContext;
+    this.enableMessageSearch = config.enableMessageSearch;
     this.model = config.model;
     this.handoffAgents = config.handoffs || [];
 
@@ -214,6 +217,13 @@ export class Agent<
     if (extendedContext._updateWorkingMemoryTool) {
       resolvedTools.updateWorkingMemory =
         extendedContext._updateWorkingMemoryTool;
+    }
+
+    // Add search messages tool if enabled and memory is available
+    if (this.enableMessageSearch && this.memory?.provider) {
+      resolvedTools.searchMessages = createSearchMessagesTool(
+        this.memory.provider
+      );
     }
 
     // Build additional options to pass to AI SDK
