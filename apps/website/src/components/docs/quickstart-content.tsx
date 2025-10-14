@@ -39,6 +39,13 @@ export default function QuickstartContent() {
                 <div className="space-y-4">
                   <div>
                     <h4 className="text-lg font-normal mb-2">
+                      Multi-Agent Orchestration
+                    </h4>
+                    <InstallScriptTabs packageName="@ai-sdk-tools/agents @ai-sdk-tools/memory ai zod" />
+                  </div>
+
+                  <div>
+                    <h4 className="text-lg font-normal mb-2">
                       State Management
                     </h4>
                     <InstallScriptTabs packageName="@ai-sdk-tools/store" />
@@ -64,8 +71,8 @@ export default function QuickstartContent() {
               <div>
                 <h3 className="text-xl font-normal mb-4">Complete Toolkit</h3>
                 <InstallScriptTabs
-                  packageName="@ai-sdk-tools/store @ai-sdk-tools/devtools
-                    @ai-sdk-tools/artifacts"
+                  packageName="@ai-sdk-tools/agents @ai-sdk-tools/memory @ai-sdk-tools/store @ai-sdk-tools/devtools
+                    @ai-sdk-tools/artifacts ai zod"
                 />
               </div>
             </div>

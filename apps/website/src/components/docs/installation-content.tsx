@@ -35,7 +35,7 @@ export default function InstallationContent() {
                 Build intelligent workflows with specialized agents and
                 automatic handoffs.
               </p>
-              <InstallScriptTabs packageName="@ai-sdk-tools/agents ai zod" />
+              <InstallScriptTabs packageName="@ai-sdk-tools/agents @ai-sdk-tools/memory ai zod" />
             </div>
 
             <div>
@@ -85,7 +85,7 @@ export default function InstallationContent() {
             </p>
 
             <InstallScriptTabs
-              packageName="@ai-sdk-tools/agents @ai-sdk-tools/store
+              packageName="@ai-sdk-tools/agents @ai-sdk-tools/memory @ai-sdk-tools/store
                 @ai-sdk-tools/devtools @ai-sdk-tools/artifacts
                 @ai-sdk-tools/cache ai zod"
             />

@@ -20,10 +20,11 @@ export default function AgentsContent() {
               Multi-agent orchestration for AI SDK v5. Automatic handoffs,
               programmatic routing, and seamless coordination across any AI
               provider. Perfect for complex tasks requiring distinct expertise.
+              <strong className="text-[#d4d4d4]"> Includes built-in memory system for persistent context.</strong>
             </p>
 
             {/* Terminal */}
-            <InstallScriptTabs packageName="@ai-sdk-tools/agents ai zod" />
+            <InstallScriptTabs packageName="@ai-sdk-tools/agents @ai-sdk-tools/memory ai zod" />
 
             {/* Used by */}
             <div className="space-y-6 max-w-xl">

@@ -18,10 +18,11 @@ export default function AgentsDocsContent() {
             <p className="text-base text-secondary max-w-3xl leading-relaxed font-light mb-12">
               Multi-agent orchestration for AI SDK v5. Build intelligent
               workflows with specialized agents, automatic handoffs, and
-              seamless coordination. Works with any AI provider.
+              seamless coordination. Works with any AI provider. 
+              <strong className="text-[#d4d4d4]"> Includes built-in memory system for persistent context.</strong>
             </p>
 
-            <InstallScriptTabs packageName="@ai-sdk-tools/agents ai zod" />
+            <InstallScriptTabs packageName="@ai-sdk-tools/agents @ai-sdk-tools/memory ai zod" />
           </div>
         </section>
 
@@ -107,6 +108,106 @@ export default function AgentsDocsContent() {
                 </div>
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* Memory System */}
+        <section className="mb-40">
+          <div className="max-w-4xl">
+            <h2 className="text-2xl font-normal mb-8">
+              Built-in Memory System
+            </h2>
+            <p className="text-sm text-secondary mb-8 leading-relaxed">
+              Every agent includes a powerful memory system that maintains context across conversations. 
+              Memory is a <strong className="text-[#d4d4d4]">required dependency</strong> that provides:
+            </p>
+            <div className="space-y-3 mb-8">
+              <div className="flex items-start gap-3">
+                <span className="text-xs text-secondary mt-1">•</span>
+                <div>
+                  <p className="text-sm font-medium mb-1">
+                    Working Memory
+                  </p>
+                  <p className="text-xs text-secondary">
+                    Persistent context that agents can read and update during conversations
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-xs text-secondary mt-1">•</span>
+                <div>
+                  <p className="text-sm font-medium mb-1">
+                    Conversation History
+                  </p>
+                  <p className="text-xs text-secondary">
+                    Automatic message persistence and retrieval across chat sessions
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-xs text-secondary mt-1">•</span>
+                <div>
+                  <p className="text-sm font-medium mb-1">
+                    Chat Management
+                  </p>
+                  <p className="text-xs text-secondary">
+                    Automatic title generation and chat organization
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-xs text-secondary mt-1">•</span>
+                <div>
+                  <p className="text-sm font-medium mb-1">
+                    Flexible Scopes
+                  </p>
+                  <p className="text-xs text-secondary">
+                    Chat-level or user-level memory with multiple storage backends
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="border border-[#2a2a2a] p-6">
+              <pre
+                className="text-sm font-mono leading-relaxed"
+                dangerouslySetInnerHTML={{
+                  __html:
+                    highlight(`import { Agent } from '@ai-sdk-tools/agents'
+import { InMemoryProvider } from '@ai-sdk-tools/memory'
+import { openai } from '@ai-sdk/openai'
+
+const agent = new Agent({
+  name: 'Assistant',
+  model: openai('gpt-4o'),
+  instructions: 'You are a helpful assistant.',
+  memory: {
+    provider: new InMemoryProvider(),
+    workingMemory: {
+      enabled: true,
+      scope: 'chat', // or 'user'
+    },
+    history: {
+      enabled: true,
+      limit: 10,
+    },
+    chats: {
+      enabled: true,
+      generateTitle: true,
+    }
+  }
+})`),
+                }}
+                suppressHydrationWarning
+              />
+            </div>
+            <p className="text-xs text-secondary mt-4">
+              <Link
+                href="/docs/memory"
+                className="text-[#d4d4d4] hover:underline"
+              >
+                Learn more about memory configuration →
+              </Link>
+            </p>
           </div>
         </section>
 

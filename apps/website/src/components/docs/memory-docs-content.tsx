@@ -18,7 +18,8 @@ export default function MemoryDocsContent() {
             <p className="text-base text-secondary max-w-3xl leading-relaxed font-light mb-12">
               Persistent memory system for AI agents with built-in providers for
               development and production. Working memory, conversation history,
-              and chat persistence with a simple 4-method interface.
+              and chat persistence with a simple 4-method interface. 
+              <strong className="text-[#d4d4d4]"> Required dependency for @ai-sdk-tools/agents.</strong>
             </p>
 
             <InstallScriptTabs packageName="@ai-sdk-tools/memory" />
@@ -223,7 +224,7 @@ const memory = new UpstashProvider(redis)`),
           <div className="max-w-4xl">
             <h2 className="text-2xl font-normal mb-8">Usage with Agents</h2>
             <p className="text-sm text-secondary mb-6 leading-relaxed">
-              The memory package integrates seamlessly with{" "}
+              The memory package is a <strong className="text-[#d4d4d4]">required dependency</strong> for{" "}
               <Link
                 href="/docs/agents"
                 className="text-[#d4d4d4] hover:underline"

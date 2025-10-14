@@ -25,13 +25,13 @@ export function InstallScriptTabs({
 
   return (
     <div className="not-prose w-full max-w-lg">
-      <div className="flex">
+      <div className="flex gap-4">
         {(["npm", "yarn", "pnpm", "bun"] as const).map((tab) => (
           <button
             key={tab}
-            className={`px-4 py-2 text-sm font-medium transition-colors ${
+            className={`py-2 text-xs font-medium transition-colors ${
               activeTab === tab
-                ? "text-[#d4d4d4] border-b-2 border-[#d4d4d4]"
+                ? "text-[#d4d4d4]"
                 : "text-secondary hover:text-[#d4d4d4]"
             }`}
             onClick={() => setActiveTab(tab)}
@@ -40,7 +40,7 @@ export function InstallScriptTabs({
           </button>
         ))}
       </div>
-      <div className="flex items-center justify-between bg-[#0a0a0a] border border-dashed border-[#2a2a2a] p-4 rounded text-sm overflow-x-auto">
+      <div className="flex mt-1 items-center justify-between bg-[#0a0a0a] border border-dashed border-[#2a2a2a] p-2 text-sm overflow-x-auto">
         <pre>
           <code>{activeCommand}</code>
         </pre>
