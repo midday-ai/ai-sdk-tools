@@ -1,18 +1,44 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CopyButton } from "@/components/copy-button";
 
 interface InstallScriptTabsProps {
   packageName?: string;
 }
 
+type PackageManager = "npm" | "yarn" | "pnpm" | "bun";
+
+const STORAGE_KEY = "ai-sdk-tools-preferred-package-manager";
+
 export function InstallScriptTabs({
   packageName = "ai-sdk-tools",
 }: InstallScriptTabsProps) {
-  const [activeTab, setActiveTab] = useState<"npm" | "yarn" | "pnpm" | "bun">(
-    "npm"
-  );
+  const [activeTab, setActiveTab] = useState<PackageManager>("npm");
+
+  // Load preferred package manager from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved && ["npm", "yarn", "pnpm", "bun"].includes(saved)) {
+        setActiveTab(saved as PackageManager);
+      }
+    } catch (error) {
+      // localStorage not available (SSR, private browsing, etc.)
+      console.warn("localStorage not available:", error);
+    }
+  }, []);
+
+  // Save preferred package manager to localStorage when changed
+  const handleTabChange = (tab: PackageManager) => {
+    setActiveTab(tab);
+    try {
+      localStorage.setItem(STORAGE_KEY, tab);
+    } catch (error) {
+      // localStorage not available (SSR, private browsing, etc.)
+      console.warn("localStorage not available:", error);
+    }
+  };
 
   const installCommands = {
     npm: `npm install ${packageName}`,
@@ -34,7 +60,7 @@ export function InstallScriptTabs({
                 ? "text-[#d4d4d4]"
                 : "text-secondary hover:text-[#d4d4d4]"
             }`}
-            onClick={() => setActiveTab(tab)}
+            onClick={() => handleTabChange(tab)}
           >
             {tab}
           </button>
