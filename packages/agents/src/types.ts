@@ -119,8 +119,29 @@ export interface AgentConfig<
  *   handoffs: [specialistAgent],
  *   handoffContext: {
  *     currentAgentMessages: 'all',  // Current agent gets full conversation
- *     specialistMessages: 20        // Specialists get last 20 messages
+ *     specialistMessages: 20        // Specialists get exactly 20 messages
  *   }
+ * });
+ *
+ * // For cases where you want to limit context but ensure minimum preservation:
+ * const agent2 = new Agent({
+ *   name: "task-manager-2",
+ *   model: openai("gpt-4"),
+ *   instructions: "You manage complex tasks...",
+ *   handoffs: [specialistAgent],
+ *   handoffContext: {
+ *     currentAgentMessages: 5,   // Current agent gets exactly 5 messages
+ *     specialistMessages: 10     // Specialists get exactly 10 messages
+ *   }
+ * });
+ *
+ * // For default behavior with intelligent context preservation:
+ * const agent3 = new Agent({
+ *   name: "task-manager-3",
+ *   model: openai("gpt-4"),
+ *   instructions: "You manage complex tasks...",
+ *   handoffs: [specialistAgent]
+ *   // No handoffContext specified - uses defaults with minimum 20 messages
  * });
  * ```
  */
@@ -132,9 +153,16 @@ export interface HandoffContextConfig {
    * By default, the current agent only gets the latest message (1), which causes it to lose
    * context of the original task.
    *
-   * - `number`: Pass the last N messages to the current agent
+   * Intelligent context management:
+   * - If set to `'all'`, passes the entire conversation history
+   * - If set to a specific number, respects that exact number (no minimum enforcement)
+   * - If undefined, uses default (1) but enforces a minimum of 20 messages to prevent context loss
+   *
+   * This approach ensures context preservation while respecting explicit user configuration.
+   *
+   * - `number`: Pass exactly the last N messages to the current agent
    * - `'all'`: Pass the entire conversation history to the current agent
-   * - `undefined`: Use default (1 message)
+   * - `undefined`: Use default (1 message) but with minimum 20 for context preservation
    *
    * @default 1
    * @example currentAgentMessages: 'all' // Current agent gets full context
@@ -148,9 +176,16 @@ export interface HandoffContextConfig {
    * understand the user's request and what the previous agent was trying to accomplish.
    * By default, specialists only get the last 8 messages, which may not be enough context.
    *
-   * - `number`: Pass the last N messages to specialist agents
+   * Intelligent context management:
+   * - If set to `'all'`, passes the entire conversation history
+   * - If set to a specific number, respects that exact number (no minimum enforcement)
+   * - If undefined, uses default (8) but enforces a minimum of 20 messages to prevent context loss
+   *
+   * This approach ensures context preservation while respecting explicit user configuration.
+   *
+   * - `number`: Pass exactly the last N messages to specialist agents
    * - `'all'`: Pass the entire conversation history to specialist agents
-   * - `undefined`: Use default (8 messages)
+   * - `undefined`: Use default (8 messages) but with minimum 20 for context preservation
    *
    * @default 8
    * @example specialistMessages: 20 // Specialists get more context

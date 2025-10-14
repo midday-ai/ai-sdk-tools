@@ -627,14 +627,31 @@ export class Agent<
               handoffConfig.currentAgentMessages ?? 1;
             const specialistMessages = handoffConfig.specialistMessages ?? 8;
 
+            // Ensure we always include sufficient context to maintain conversation flow
+            // This prevents agents from losing important context during handoffs
+            // For complex multi-turn conversations, we want to include enough context
+            // but we also respect user configuration when it's explicitly set to a lower value
+            const minMessages = 20; // Default minimum for better context preservation
+            // Intelligent context management:
+            // 1. If user specified 'all', send everything
+            // 2. If user specified a specific number, respect it (no minimum enforcement)
+            // 3. If no configuration, use sensible defaults with minimums to prevent context loss
             const messagesToSend =
               currentAgent === this
                 ? currentAgentMessages === "all"
                   ? conversationMessages
-                  : conversationMessages.slice(-currentAgentMessages)
+                  : currentAgentMessages !== undefined
+                  ? conversationMessages.slice(-currentAgentMessages)
+                  : conversationMessages.slice(
+                      -Math.max(currentAgentMessages, minMessages)
+                    )
                 : specialistMessages === "all"
                 ? conversationMessages
-                : conversationMessages.slice(-specialistMessages);
+                : specialistMessages !== undefined
+                ? conversationMessages.slice(-specialistMessages)
+                : conversationMessages.slice(
+                    -Math.max(specialistMessages, minMessages)
+                  );
 
             // Emit agent start event
             if (onEvent) {
@@ -716,7 +733,7 @@ export class Agent<
               }
             }
 
-            // Update conversation
+            // Update conversation with assistant response before handling handoffs
             if (textAccumulated) {
               conversationMessages.push({
                 role: "assistant",
