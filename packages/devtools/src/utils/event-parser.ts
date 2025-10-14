@@ -433,7 +433,7 @@ export function parseEventFromDataPart(
     };
   }
 
-  // Message events (legacy support)
+  // Message events
   if (
     dataPart.type === "text" ||
     (dataPart.type === "text-delta" && !dataPart.delta)

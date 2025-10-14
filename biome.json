@@ -7,7 +7,7 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "includes": ["**", "!node_modules", "!.next", "!dist", "!build"]
+    "ignore": ["packages/devtools/src/styles.css"]
   },
   "formatter": {
     "enabled": true,

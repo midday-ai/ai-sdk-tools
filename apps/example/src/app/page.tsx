@@ -3,7 +3,6 @@
 import type { ToolUIPart } from "ai";
 import { DefaultChatTransport } from "ai";
 import {
-  AIDevtools,
   useArtifacts,
   useChat,
   useChatActions,
@@ -205,23 +204,6 @@ export default function Home() {
           <EmptyState>{chatInput}</EmptyState>
         )}
       </div>
-
-      {process.env.NODE_ENV === "development" && (
-        <AIDevtools modelId="gpt-4o-mini" />
-      )}
-
-      {/* {!hasMessages && (
-        <a
-          href="https://midday.ai?utm_source=ai-sdk-tools"
-          target="_blank"
-          rel="noopener"
-        >
-          <div className="absolute bottom-3 right-0 left-0 flex justify-center items-center gap-2">
-            <span className="text-xs text-muted-foreground/60">Made by</span>
-            <Logo />
-          </div>
-        </a>
-      )} */}
     </div>
   );
 }

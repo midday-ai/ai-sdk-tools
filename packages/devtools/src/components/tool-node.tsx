@@ -34,7 +34,7 @@ function ToolNodeComponent({ data }: NodeProps) {
         style={{
           background: "#18181b",
           border: `1px solid #3f3f46`,
-          borderRadius: 12,
+          borderRadius: 0,
           padding: "16px 18px",
           minWidth: 200,
           boxShadow: "0 4px 12px rgba(0, 0, 0, 0.5)",

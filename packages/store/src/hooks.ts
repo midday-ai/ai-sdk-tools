@@ -8,6 +8,7 @@ import { useStore } from "zustand";
 import { devtools, subscribeWithSelector } from "zustand/middleware";
 import { useShallow } from "zustand/shallow";
 import { createStore, type StateCreator } from "zustand/vanilla";
+import { debug } from "./debug";
 
 // --- Performance monitoring and batching ---
 let __freezeDetectorStarted = false;
@@ -74,7 +75,7 @@ function startFreezeDetector({
     const expected = __freezeLastTs + 16.7;
     const blockedMs = now - expected;
     if (blockedMs > thresholdMs) {
-      console.warn(
+      debug.warn(
         "[Freeze]",
         `${Math.round(blockedMs)}ms`,
         "lastAction=",
@@ -567,7 +568,7 @@ type ChatStoreApi<TMessage extends UIMessage = UIMessage> = ReturnType<
   typeof createChatStore<TMessage>
 >;
 
-const ChatStoreContext = createContext<ChatStoreApi<any> | undefined>(
+export const ChatStoreContext = createContext<ChatStoreApi<any> | undefined>(
   undefined,
 );
 
@@ -675,32 +676,32 @@ export const useMessageCount = () => useChatStore(messageCountSelector);
 export const useChatReset = () => useChatStore((state) => state.reset);
 // Stable fallback functions to prevent infinite loops
 const fallbackSendMessage = async () => {
-  console.warn(
+  debug.warn(
     "sendMessage not configured - make sure useChat is called with transport",
   );
 };
 const fallbackRegenerate = async () => {
-  console.warn(
+  debug.warn(
     "regenerate not configured - make sure useChat is called with transport",
   );
 };
 const fallbackStop = async () => {
-  console.warn(
+  debug.warn(
     "stop not configured - make sure useChat is called with transport",
   );
 };
 const fallbackResumeStream = async () => {
-  console.warn(
+  debug.warn(
     "resumeStream not configured - make sure useChat is called with transport",
   );
 };
 const fallbackAddToolResult = async () => {
-  console.warn(
+  debug.warn(
     "addToolResult not configured - make sure useChat is called with transport",
   );
 };
 const fallbackClearError = () => {
-  console.warn(
+  debug.warn(
     "clearError not configured - make sure useChat is called with transport",
   );
 };
