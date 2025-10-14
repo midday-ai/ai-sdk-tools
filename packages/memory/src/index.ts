@@ -20,6 +20,7 @@ export {
   createSqliteWorkingMemorySchema,
   SQL_SCHEMAS,
 } from "./providers/drizzle-schema.js";
+export { ChromaMemoryProvider } from "./providers/chroma.js";
 export { InMemoryProvider } from "./providers/in-memory.js";
 export { UpstashProvider } from "./providers/upstash.js";
 
