@@ -11,12 +11,7 @@ import React, {
 // Type for the store API - we'll use any to avoid complex type issues
 type StoreApi = any;
 
-// Import the store context directly - this will be resolved by the bundler
-// The bundler will handle the optional dependency resolution
-import { ChatStoreContext as ImportedChatStoreContext } from "@ai-sdk-tools/store";
-
-// Use the imported context
-const ChatStoreContext = ImportedChatStoreContext;
+// Store context will be dynamically imported if available
 
 export interface UseCurrentStateOptions {
   enabled?: boolean;
@@ -39,6 +34,8 @@ export function useCurrentState(
   const [currentStates, setCurrentStates] = useState<Record<string, unknown>>(
     {},
   );
+  const [isStoreAvailable, setIsStoreAvailable] = useState(false);
+  const [storeContext, setStoreContext] = useState<React.Context<any> | undefined>(undefined);
 
   const unsubscribeRef = useRef<(() => void) | null>(null);
 
@@ -47,11 +44,38 @@ export function useCurrentState(
     React.createContext<StoreApi | undefined>(undefined),
   ).current;
 
+  // Dynamically load the store context if available
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadStoreContext = async () => {
+      try {
+        // Try to dynamically import the store package
+        const storeModule = await import("@ai-sdk-tools/store");
+        if (isMounted && storeModule.ChatStoreContext) {
+          setStoreContext(storeModule.ChatStoreContext);
+          setIsStoreAvailable(true);
+        }
+      } catch {
+        // Store package is not available
+        if (isMounted) {
+          setStoreContext(undefined);
+          setIsStoreAvailable(false);
+        }
+      }
+    };
+
+    loadStoreContext();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   // Use the store context if available, otherwise use dummy
-  const contextToUse = ChatStoreContext || DummyContext;
+  const contextToUse = storeContext || DummyContext;
   const storeApi: StoreApi | undefined = useContext(contextToUse);
 
-  const isStoreAvailable = storeApi !== undefined && storeApi !== null;
   const availableStoreIds = isStoreAvailable ? ["default"] : [];
 
   // Refresh states function

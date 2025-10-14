@@ -84,6 +84,8 @@ interface PromptCommandsContextValue {
   selectedIndex: number;
   setSelectedIndex: (index: number) => void;
   onSubmit?: () => void;
+  onToolSubmit?: (toolName: string, toolDescription: string) => void;
+  onAgentSelect?: (agentName: string) => void;
 }
 
 const PromptCommandsContext = createContext<PromptCommandsContextValue | null>(
@@ -108,6 +110,8 @@ export interface PromptCommandsProps {
   metadata: CommandMetadata;
   onSelectionChange?: (selection: CommandSelection) => void;
   onSubmit?: () => void;
+  onToolSubmit?: (toolName: string, toolDescription: string) => void;
+  onAgentSelect?: (agentName: string) => void;
   children: React.ReactNode;
 }
 
@@ -115,6 +119,8 @@ export function PromptCommands({
   metadata,
   onSelectionChange,
   onSubmit,
+  onToolSubmit,
+  onAgentSelect,
   children,
 }: PromptCommandsProps) {
   const [selection, setSelectionState] = useState<CommandSelection>({});
@@ -174,6 +180,8 @@ export function PromptCommands({
       selectedIndex,
       setSelectedIndex,
       onSubmit,
+      onToolSubmit,
+      onAgentSelect,
     }),
     [
       metadata,
@@ -188,6 +196,8 @@ export function PromptCommands({
       anchorEl,
       selectedIndex,
       onSubmit,
+      onToolSubmit,
+      onAgentSelect,
     ],
   );
 
@@ -206,6 +216,7 @@ export type PromptCommandsTextareaProps = ComponentProps<
   typeof InputGroupTextarea
 > & {
   onSelectionSubmit?: (selection: CommandSelection) => void;
+  onToolSubmit?: (toolName: string, toolDescription: string) => void;
 };
 
 export function PromptCommandsTextarea({
@@ -214,6 +225,7 @@ export function PromptCommandsTextarea({
   className,
   placeholder = "What would you like to know?",
   onSelectionSubmit,
+  onToolSubmit,
   ...props
 }: PromptCommandsTextareaProps) {
   const controller = usePromptInputController();
@@ -382,6 +394,7 @@ export function PromptCommandsTextarea({
     }
   }, [commands]);
 
+
   const handlePaste: React.ClipboardEventHandler<HTMLTextAreaElement> = () => {
     // Allow default paste behavior
     // Future: could handle pasted content with commands
@@ -398,10 +411,19 @@ export function PromptCommandsTextarea({
       };
 
   // Adjust placeholder based on whether we have pills
-  const effectivePlaceholder =
-    commands.pills.length > 0
-      ? `Ask ${commands.pills[0].label}...`
-      : placeholder;
+  const effectivePlaceholder = (() => {
+    if (commands.pills.length > 0) {
+      const agentPill = commands.pills.find(p => p.type === "agent");
+      const toolPill = commands.pills.find(p => p.type === "tool");
+      
+      if (agentPill) {
+        return `Ask ${agentPill.label}...`;
+      } else if (toolPill) {
+        return `Use ${toolPill.label}...`;
+      }
+    }
+    return placeholder;
+  })();
 
   return (
     <Popover open={commands.isOpen} onOpenChange={commands.setIsOpen}>
@@ -502,10 +524,13 @@ function PromptCommandsPaletteContent() {
       // For tools/commands, submit immediately
       if (type === "tool") {
         setTimeout(() => {
-          if (commands.onSubmit) {
+          // Call the tool submit callback if provided
+          if (commands.onToolSubmit) {
+            commands.onToolSubmit(value, _data.description);
+          } else if (commands.onSubmit) {
             commands.onSubmit();
           } else {
-            // Fallback to form submit if no onSubmit callback provided
+            // Fallback to form submit if no callbacks provided
             const form = textarea.closest("form");
             if (form) {
               form.requestSubmit();
@@ -513,7 +538,10 @@ function PromptCommandsPaletteContent() {
           }
         }, 10);
       } else {
-        // For agents, focus back on textarea at the position where trigger was removed
+        // For agents, call the agent select callback and focus back on textarea
+        if (commands.onAgentSelect) {
+          commands.onAgentSelect(value);
+        }
         setTimeout(() => {
           textarea.focus();
           const cursorPosition = newValue.length - textAfter.length;
@@ -599,9 +627,6 @@ function PromptCommandsPaletteContent() {
       <div className="py-1">
         {filteredAgents.length > 0 && (
           <div>
-            <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
-              Agents
-            </div>
             {filteredAgents.map((agent, index) => {
               const globalIndex = index;
               return (
@@ -631,9 +656,6 @@ function PromptCommandsPaletteContent() {
 
         {filteredTools.length > 0 && (
           <div>
-            <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
-              Commands
-            </div>
             {filteredTools.map((tool, index) => {
               const globalIndex = filteredAgents.length + index;
               return (
@@ -651,9 +673,9 @@ function PromptCommandsPaletteContent() {
                   )}
                   onClick={() => handleSelect("tool", tool.name, tool)}
                 >
-                  <div className="font-medium text-sm">/{tool.name}</div>
+                  <div className="font-medium text-sm">{tool.description}</div>
                   <div className="text-xs text-muted-foreground">
-                    {tool.description}
+                    /{tool.name}
                   </div>
                 </button>
               );

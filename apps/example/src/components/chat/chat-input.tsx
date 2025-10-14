@@ -164,7 +164,25 @@ export function ChatInput({
 
   return (
     <div>
-      <PromptCommands metadata={metadata} onSelectionChange={setSelection}>
+      <PromptCommands 
+        metadata={metadata} 
+        onSelectionChange={setSelection} 
+        onToolSubmit={(toolName, toolDescription) => {
+          // Submit with the tool description as the message
+          onSubmit({
+            text: toolDescription,
+            agentChoice: selection.agentChoice,
+            toolChoice: toolName,
+          });
+        }}
+        onAgentSelect={(agentName) => {
+          // Agent selected - update selection state
+          setSelection(prev => ({
+            ...prev,
+            agentChoice: agentName,
+          }));
+        }}
+      >
         <ChatInputInner
           text={text}
           setText={setText}
