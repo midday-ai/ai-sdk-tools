@@ -43,7 +43,7 @@ export interface HandoffData {
 
 // Forward declaration
 export interface Agent<
-  TContext extends Record<string, unknown> = Record<string, unknown>,
+  TContext extends Record<string, unknown> = Record<string, unknown>
 > {
   name: string;
   instructions: string | ((context: TContext) => string);
@@ -58,7 +58,7 @@ export interface Agent<
 }
 
 export interface AgentConfig<
-  TContext extends Record<string, unknown> = Record<string, unknown>,
+  TContext extends Record<string, unknown> = Record<string, unknown>
 > {
   /** Unique name for the agent */
   name: string;
@@ -91,6 +91,71 @@ export interface AgentConfig<
   permissions?: ToolPermissions;
   /** Memory configuration - persistent working memory and conversation history */
   memory?: MemoryConfig;
+  /**
+   * Handoff context configuration - controls how much conversation history is passed during agent handoffs.
+   *
+   * This solves the critical issue where agents lose conversation context during multi-turn tasks
+   * or when handing off to specialist agents. Configure how many messages each agent type receives
+   * to ensure proper conversation continuity.
+   *
+   * @see HandoffContextConfig for detailed configuration options
+   */
+  handoffContext?: HandoffContextConfig;
+}
+
+/**
+ * Configuration for handoff context - controls how much conversation history is passed during agent handoffs.
+ *
+ * This configuration solves the issue where agents lose conversation context during multi-turn tasks
+ * or when handing off to specialist agents. By default, the current agent only gets the latest message
+ * and specialist agents only get the last 8 messages, which can cause agents to "forget" what they're doing.
+ *
+ * @example
+ * ```typescript
+ * const agent = new Agent({
+ *   name: "task-manager",
+ *   model: openai("gpt-4"),
+ *   instructions: "You manage complex tasks...",
+ *   handoffs: [specialistAgent],
+ *   handoffContext: {
+ *     currentAgentMessages: 'all',  // Current agent gets full conversation
+ *     specialistMessages: 20        // Specialists get last 20 messages
+ *   }
+ * });
+ * ```
+ */
+export interface HandoffContextConfig {
+  /**
+   * Number of messages to pass to the current agent during execution.
+   *
+   * When an agent is working on a multi-step task, it needs to remember what it was doing.
+   * By default, the current agent only gets the latest message (1), which causes it to lose
+   * context of the original task.
+   *
+   * - `number`: Pass the last N messages to the current agent
+   * - `'all'`: Pass the entire conversation history to the current agent
+   * - `undefined`: Use default (1 message)
+   *
+   * @default 1
+   * @example currentAgentMessages: 'all' // Current agent gets full context
+   */
+  currentAgentMessages?: number | "all";
+
+  /**
+   * Number of messages to pass to specialist agents during handoffs.
+   *
+   * When an agent hands off to a specialist, the specialist needs enough context to
+   * understand the user's request and what the previous agent was trying to accomplish.
+   * By default, specialists only get the last 8 messages, which may not be enough context.
+   *
+   * - `number`: Pass the last N messages to specialist agents
+   * - `'all'`: Pass the entire conversation history to specialist agents
+   * - `undefined`: Use default (8 messages)
+   *
+   * @default 8
+   * @example specialistMessages: 20 // Specialists get more context
+   */
+  specialistMessages?: number | "all";
 }
 
 export interface HandoffInstruction {
@@ -226,7 +291,7 @@ export interface ToolPermissions {
  * Options for agent.toUIMessageStream()
  */
 export interface AgentStreamOptionsUI<
-  TContext extends Record<string, unknown> = Record<string, unknown>,
+  TContext extends Record<string, unknown> = Record<string, unknown>
 > {
   // Agent-specific options
   /** Single new message - agent loads history from memory (recommended when memory is enabled) */
@@ -365,5 +430,5 @@ export interface AgentDataParts {
  */
 export type AgentUIMessage<
   TMetadata = never,
-  TDataParts extends Record<string, unknown> = AgentDataParts,
+  TDataParts extends Record<string, unknown> = AgentDataParts
 > = UIMessage<TMetadata, TDataParts>;

@@ -34,6 +34,8 @@ import type {
   AgentStreamOptionsUI,
   AgentStreamResult,
   ExtendedExecutionContext,
+  HandoffContextConfig,
+  HandoffData,
   HandoffInstruction,
   Agent as IAgent,
   InputGuardrail,
@@ -44,7 +46,7 @@ import type {
 import { extractTextFromMessage } from "./utils.js";
 
 export class Agent<
-  TContext extends Record<string, unknown> = Record<string, unknown>,
+  TContext extends Record<string, unknown> = Record<string, unknown>
 > implements IAgent<TContext>
 {
   public readonly name: string;
@@ -57,6 +59,7 @@ export class Agent<
   public readonly outputGuardrails?: OutputGuardrail[];
   public readonly permissions?: ToolPermissions;
   private readonly memory?: MemoryConfig;
+  private readonly handoffContext?: HandoffContextConfig;
   private readonly model: LanguageModel;
   private readonly aiAgent: AISDKAgent<Record<string, Tool>>;
   private readonly handoffAgents: Array<IAgent<any>>;
@@ -73,6 +76,7 @@ export class Agent<
     this.outputGuardrails = config.outputGuardrails;
     this.permissions = config.permissions;
     this.memory = config.memory;
+    this.handoffContext = config.handoffContext;
     this.model = config.model;
     this.handoffAgents = config.handoffs || [];
 
@@ -152,13 +156,15 @@ export class Agent<
       };
     } catch (error) {
       throw new Error(
-        `Agent ${this.name} failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+        `Agent ${this.name} failed: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
       );
     }
   }
 
   stream(
-    options: AgentStreamOptions | { messages: ModelMessage[] },
+    options: AgentStreamOptions | { messages: ModelMessage[] }
   ): AgentStreamResult {
     debug("STREAM", `${this.name} stream called`);
 
@@ -305,39 +311,39 @@ export class Agent<
     // Extract input from message or messages
     if (message) {
       userMessageText = extractTextFromMessage(
-        convertToModelMessages([message])[0],
+        convertToModelMessages([message])[0]
       );
     } else if (providedMessages) {
       userMessageText = extractTextFromMessage(
-        providedMessages[providedMessages.length - 1],
+        providedMessages[providedMessages.length - 1]
       );
     }
 
     // Wrap onFinish to save messages after streaming
     const wrappedOnFinish: UIMessageStreamOnFinishCallback<never> = async (
-      event,
+      event
     ) => {
       // Save messages and update chat session after stream completes
       if (this.memory?.history?.enabled && context) {
         const { chatId, userId } = this.extractMemoryIdentifiers(
-          context as TContext,
+          context as TContext
         );
 
         if (!chatId) {
           debug(
             "MEMORY",
-            "Cannot save messages: chatId is missing from context",
+            "Cannot save messages: chatId is missing from context"
           );
         } else {
           try {
             const assistantText = this.extractAssistantText(
-              event.responseMessage,
+              event.responseMessage
             );
             await this.saveConversation(
               chatId,
               userId,
               userMessageText,
-              assistantText,
+              assistantText
             );
           } catch (err) {
             debug("MEMORY", "Failed to save conversation:", err);
@@ -362,7 +368,7 @@ export class Agent<
           // Single message - load history if memory is enabled
           messages = await this.loadMessagesWithHistory(
             message,
-            context as TContext,
+            context as TContext
           );
         } else if (providedMessages) {
           // Messages provided - use as-is
@@ -393,7 +399,9 @@ export class Agent<
           writer,
           metadata: {
             agent: this.name,
-            requestId: `req_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+            requestId: `req_${Date.now()}_${Math.random()
+              .toString(36)
+              .substring(7)}`,
           },
         });
 
@@ -441,12 +449,12 @@ export class Agent<
           // Check for explicit agent or tool choice (highest priority)
           if (agentChoice && specialists.length > 0) {
             const chosenAgent = specialists.find(
-              (agent) => agent.name === agentChoice,
+              (agent) => agent.name === agentChoice
             );
             if (chosenAgent) {
               currentAgent = chosenAgent;
               console.log(
-                `[ROUTING] Explicit agent choice: ${currentAgent.name}`,
+                `[ROUTING] Explicit agent choice: ${currentAgent.name}`
               );
 
               // Mark orchestrator as completing
@@ -497,7 +505,7 @@ export class Agent<
             if (agentWithTool) {
               currentAgent = agentWithTool;
               console.log(
-                `[ROUTING] Tool choice routing: ${toolChoice} → ${currentAgent.name}`,
+                `[ROUTING] Tool choice routing: ${toolChoice} → ${currentAgent.name}`
               );
 
               // Mark orchestrator as completing
@@ -613,10 +621,20 @@ export class Agent<
               agent: currentAgent.name,
             });
 
+            // Get handoff context configuration
+            const handoffConfig = this.handoffContext || {};
+            const currentAgentMessages =
+              handoffConfig.currentAgentMessages ?? 1;
+            const specialistMessages = handoffConfig.specialistMessages ?? 8;
+
             const messagesToSend =
               currentAgent === this
-                ? [conversationMessages[conversationMessages.length - 1]] // Latest only
-                : conversationMessages.slice(-8); // Recent context
+                ? currentAgentMessages === "all"
+                  ? conversationMessages
+                  : conversationMessages.slice(-currentAgentMessages)
+                : specialistMessages === "all"
+                ? conversationMessages
+                : conversationMessages.slice(-specialistMessages);
 
             // Emit agent start event
             if (onEvent) {
@@ -733,7 +751,7 @@ export class Agent<
                 // Mark specialist as used and route to it
                 usedSpecialists.add(handoffData.targetAgent);
                 const nextAgent = specialists.find(
-                  (a) => a.name === handoffData.targetAgent,
+                  (a) => a.name === handoffData.targetAgent
                 );
                 if (nextAgent) {
                   currentAgent = nextAgent;
@@ -775,7 +793,7 @@ export class Agent<
                 // Route to next specialist
                 usedSpecialists.add(handoffData.targetAgent);
                 const nextAgent = specialists.find(
-                  (a) => a.name === handoffData.targetAgent,
+                  (a) => a.name === handoffData.targetAgent
                 );
                 if (nextAgent) {
                   const previousAgent = currentAgent;
@@ -870,7 +888,7 @@ export class Agent<
     chatId: string,
     userMessage: string,
     writer: UIMessageStreamWriter,
-    context?: TContext,
+    context?: TContext
   ): Promise<void> {
     if (!this.memory?.chats?.generateTitle) return;
 
@@ -919,13 +937,13 @@ export class Agent<
 
     return tool({
       description: getWorkingMemoryInstructions(
-        this.memory?.workingMemory?.template || DEFAULT_TEMPLATE,
+        this.memory?.workingMemory?.template || DEFAULT_TEMPLATE
       ),
       inputSchema: z.object({
         content: z
           .string()
           .describe(
-            "Updated working memory content in markdown format. Use the template structure provided.",
+            "Updated working memory content in markdown format. Use the template structure provided."
           ),
       }),
       execute: async ({ content }, options) => {
@@ -935,7 +953,7 @@ export class Agent<
 
         const { getContext } = await import("./context.js");
         const ctx = getContext(
-          options as { experimental_context?: Record<string, unknown> },
+          options as { experimental_context?: Record<string, unknown> }
         );
         const contextData = ctx as TContext | undefined;
 
@@ -960,7 +978,7 @@ export class Agent<
           debug(
             "MEMORY",
             "Failed to update working memory:",
-            error instanceof Error ? error.message : error,
+            error instanceof Error ? error.message : error
           );
           return { success: false, message: "Failed to update working memory" };
         }
@@ -993,7 +1011,7 @@ export class Agent<
       debug(
         "MEMORY",
         "Failed to load working memory:",
-        error instanceof Error ? error.message : error,
+        error instanceof Error ? error.message : error
       );
       return "";
     }
@@ -1021,7 +1039,7 @@ export class Agent<
    */
   private async loadMessagesWithHistory(
     message: UIMessage,
-    context: TContext | undefined,
+    context: TContext | undefined
   ): Promise<ModelMessage[]> {
     // No memory - just convert the message
     if (!this.memory?.history?.enabled || !context) {
@@ -1044,7 +1062,7 @@ export class Agent<
 
       debug(
         "MEMORY",
-        `Loading history for chatId=${chatId}: found ${previousMessages.length} messages`,
+        `Loading history for chatId=${chatId}: found ${previousMessages.length} messages`
       );
 
       if (previousMessages.length === 0) {
@@ -1059,7 +1077,7 @@ export class Agent<
 
       debug(
         "MEMORY",
-        `Loaded ${historyMessages.length} history messages for context`,
+        `Loaded ${historyMessages.length} history messages for context`
       );
       return [...historyMessages, ...convertToModelMessages([message])];
     } catch (err) {
@@ -1078,7 +1096,7 @@ export class Agent<
   private async updateChatSession(
     chatId: string,
     userId: string | undefined,
-    incrementBy: number = 2,
+    incrementBy: number = 2
   ): Promise<void> {
     if (!this.memory?.chats?.enabled) return;
 
@@ -1116,13 +1134,16 @@ export class Agent<
     chatId: string,
     userId: string | undefined,
     userMessage: string,
-    assistantMessage: string,
+    assistantMessage: string
   ): Promise<void> {
     if (!this.memory?.provider || !this.memory?.history?.enabled) return;
 
     debug(
       "MEMORY",
-      `Saving conversation for chatId=${chatId}: user="${userMessage.substring(0, 50)}..." assistant="${assistantMessage.substring(0, 50)}..."`,
+      `Saving conversation for chatId=${chatId}: user="${userMessage.substring(
+        0,
+        50
+      )}..." assistant="${assistantMessage.substring(0, 50)}..."`
     );
 
     // Save both messages in parallel for better performance
@@ -1162,7 +1183,7 @@ export class Agent<
   private async maybeGenerateChatTitle(
     context: TContext | undefined,
     userMessage: string,
-    writer: UIMessageStreamWriter,
+    writer: UIMessageStreamWriter
   ): Promise<void> {
     if (
       !this.memory?.chats?.enabled ||
@@ -1184,13 +1205,13 @@ export class Agent<
     // Only generate for first message
     if (!existingChat || existingChat.messageCount === 0) {
       this.generateChatTitle(chatId, userMessage, writer, context).catch(
-        (err) => debug("MEMORY", "Title generation error:", err),
+        (err) => debug("MEMORY", "Title generation error:", err)
       );
     }
   }
 
   static create<
-    TContext extends Record<string, unknown> = Record<string, unknown>,
+    TContext extends Record<string, unknown> = Record<string, unknown>
   >(config: AgentConfig<TContext>): Agent<TContext> {
     return new Agent<TContext>(config);
   }
