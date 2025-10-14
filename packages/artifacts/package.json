@@ -1,7 +1,7 @@
 {
   "name": "@ai-sdk-tools/artifacts",
   "private": false,
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "Advanced streaming interfaces for AI applications",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
