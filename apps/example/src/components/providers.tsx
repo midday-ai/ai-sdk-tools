@@ -19,7 +19,7 @@ export function Providers({ children }: ProvidersProps) {
         {children}
         <Toaster />
         {process.env.NODE_ENV === "development" && (
-          <AIDevtools modelId="gpt-4o-mini" />
+          <AIDevtools />
         )}
       </Provider>
     </ThemeProvider>

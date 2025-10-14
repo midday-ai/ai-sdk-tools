@@ -99,7 +99,7 @@
     },
     "packages/agents": {
       "name": "@ai-sdk-tools/agents",
-      "version": "0.2.1",
+      "version": "0.2.2",
       "dependencies": {
         "@ai-sdk-tools/memory": "workspace:*",
       },
@@ -117,7 +117,7 @@
     },
     "packages/ai-sdk-tools": {
       "name": "ai-sdk-tools",
-      "version": "0.4.1",
+      "version": "0.4.2",
       "dependencies": {
         "@ai-sdk-tools/agents": "workspace:*",
         "@ai-sdk-tools/artifacts": "workspace:*",
@@ -150,7 +150,7 @@
     },
     "packages/artifacts": {
       "name": "@ai-sdk-tools/artifacts",
-      "version": "0.8.1",
+      "version": "0.8.2",
       "dependencies": {
         "zod": "^4.1.11",
       },
@@ -168,7 +168,7 @@
     },
     "packages/cache": {
       "name": "@ai-sdk-tools/cache",
-      "version": "0.7.1",
+      "version": "0.7.2",
       "devDependencies": {
         "@ai-sdk-tools/artifacts": "workspace:*",
         "@types/node": "^24.7.0",
@@ -184,7 +184,7 @@
     },
     "packages/devtools": {
       "name": "@ai-sdk-tools/devtools",
-      "version": "0.8.1",
+      "version": "0.8.2",
       "dependencies": {
         "@emotion/react": "^11.14.0",
         "@emotion/styled": "^11.14.1",
@@ -218,7 +218,7 @@
     },
     "packages/memory": {
       "name": "@ai-sdk-tools/memory",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "dependencies": {
         "zod": "^4.1.12",
       },
