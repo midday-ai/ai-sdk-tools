@@ -549,6 +549,14 @@ export function createChatStoreCreator<TMessage extends UIMessage>(
         state._memoizedSelectors.set(key, { result, deps: [...deps] });
         return result;
       },
+
+      // Effects
+      registerThrottledMessagesEffect: (effect: () => void) => {
+        throttledEffects.add(effect);
+        return () => {
+          throttledEffects.delete(effect);
+        };
+      },
     };
   };
 }
