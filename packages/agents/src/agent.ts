@@ -10,6 +10,7 @@ import {
   createUIMessageStream,
   createUIMessageStreamResponse,
   generateText,
+  generateObject,
   type LanguageModel,
   type ModelMessage,
   type StepResult,
@@ -42,6 +43,11 @@ import type {
   ToolPermissions,
 } from "./types.js";
 import { extractTextFromMessage } from "./utils.js";
+import { ConversationStateManager } from "./conversation-state.js";
+import { 
+  buildContextualMessages, 
+  extractFactsFromResponse, 
+} from "./context-builder.js";
 
 export class Agent<
   TContext extends Record<string, unknown> = Record<string, unknown>,
@@ -371,6 +377,11 @@ export class Agent<
           throw new Error("Either message or messages must be provided");
         }
 
+        // Initialize conversation state
+        const conversationState = new ConversationStateManager(
+          extractTextFromMessage(messages[messages.length - 1])
+        );
+
         // Extract input from last message for routing
         const lastMessage = messages[messages.length - 1];
         const input = extractTextFromMessage(lastMessage);
@@ -537,63 +548,100 @@ export class Agent<
               }
             }
           } else if (strategy === "auto" && specialists.length > 0) {
-            // Try programmatic classification
-            const matchedAgent = specialists.find((agent) => {
-              if (!agent.matchOn) return false;
-              if (typeof agent.matchOn === "function") {
-                return agent.matchOn(input);
-              }
-              if (Array.isArray(agent.matchOn)) {
-                return agent.matchOn.some((pattern) => {
-                  if (typeof pattern === "string") {
-                    return input.toLowerCase().includes(pattern.toLowerCase());
+            // Check if this looks like a compound query that needs intelligent routing
+            const isCompoundQuery = /\b(and|then|also|plus|find.*and|show.*and|can i afford|latest.*and|current.*and)\b/i.test(input) ||
+                                   /\b(afford|compare|versus|latest.*and|current.*and)\b/i.test(input);
+            
+            if (isCompoundQuery) {
+              // Route to triage agent for intelligent routing
+              const triageAgent = specialists.find(agent => agent.name === 'triage');
+              if (triageAgent) {
+                currentAgent = triageAgent;
+                console.log(`[ROUTING] Compound query detected, routing to triage: ${currentAgent.name}`);
+              } else {
+                // Fallback to programmatic routing if no triage agent
+                const matchedAgent = specialists.find((agent) => {
+                  if (!agent.matchOn) return false;
+                  if (typeof agent.matchOn === "function") {
+                    return agent.matchOn(input);
                   }
-                  if (pattern instanceof RegExp) {
-                    return pattern.test(input);
+                  if (Array.isArray(agent.matchOn)) {
+                    return agent.matchOn.some((pattern) => {
+                      if (typeof pattern === "string") {
+                        return input.toLowerCase().includes(pattern.toLowerCase());
+                      }
+                      if (pattern instanceof RegExp) {
+                        return pattern.test(input);
+                      }
+                      return false;
+                    });
                   }
                   return false;
                 });
+                if (matchedAgent) {
+                  currentAgent = matchedAgent;
+                  console.log(`[ROUTING] Programmatic fallback: ${currentAgent.name}`);
+                }
               }
-              return false;
-            });
-
-            if (matchedAgent) {
-              currentAgent = matchedAgent;
-              console.log(`[ROUTING] Programmatic match: ${currentAgent.name}`);
-
-              // Mark orchestrator as completing
-              writeAgentStatus(writer, {
-                status: "completing",
-                agent: this.name,
+            } else {
+              // Use programmatic routing for simple queries
+              const matchedAgent = specialists.find((agent) => {
+                if (!agent.matchOn) return false;
+                if (typeof agent.matchOn === "function") {
+                  return agent.matchOn(input);
+                }
+                if (Array.isArray(agent.matchOn)) {
+                  return agent.matchOn.some((pattern) => {
+                    if (typeof pattern === "string") {
+                      return input.toLowerCase().includes(pattern.toLowerCase());
+                    }
+                    if (pattern instanceof RegExp) {
+                      return pattern.test(input);
+                    }
+                    return false;
+                  });
+                }
+                return false;
               });
 
-              if (onEvent) {
-                await onEvent({
-                  type: "agent-finish",
+              if (matchedAgent) {
+                currentAgent = matchedAgent;
+                console.log(`[ROUTING] Programmatic match: ${currentAgent.name}`);
+
+                // Mark orchestrator as completing
+                writeAgentStatus(writer, {
+                  status: "completing",
                   agent: this.name,
-                  round: 0,
                 });
-              }
 
-              // Emit handoff event for programmatic routing
-              writer.write({
-                type: "data-agent-handoff",
-                data: {
-                  from: this.name,
-                  to: matchedAgent.name,
-                  reason: "Programmatic routing match",
-                  routingStrategy: "programmatic",
-                },
-                transient: true,
-              } as never);
+                if (onEvent) {
+                  await onEvent({
+                    type: "agent-finish",
+                    agent: this.name,
+                    round: 0,
+                  });
+                }
 
-              if (onEvent) {
-                await onEvent({
-                  type: "agent-handoff",
-                  from: this.name,
-                  to: matchedAgent.name,
-                  reason: "Programmatic routing match",
-                });
+                // Emit handoff event for programmatic routing
+                writer.write({
+                  type: "data-agent-handoff",
+                  data: {
+                    from: this.name,
+                    to: matchedAgent.name,
+                    reason: "Programmatic routing match",
+                    routingStrategy: "programmatic",
+                  },
+                  transient: true,
+                } as never);
+
+                if (onEvent) {
+                  await onEvent({
+                    type: "agent-handoff",
+                    from: this.name,
+                    to: matchedAgent.name,
+                    reason: "Programmatic routing match",
+                  });
+                }
               }
             }
           }
@@ -613,10 +661,13 @@ export class Agent<
               agent: currentAgent.name,
             });
 
-            const messagesToSend =
-              currentAgent === this
-                ? [conversationMessages[conversationMessages.length - 1]] // Latest only
-                : conversationMessages.slice(-8); // Recent context
+            // Use intelligent context building instead of hardcoded truncation
+            const messagesToSend = buildContextualMessages(
+              conversationMessages,
+              conversationState,
+              currentAgent,
+              20 // Increased from 8 to 20 messages
+            );
 
             // Emit agent start event
             if (onEvent) {
@@ -704,6 +755,14 @@ export class Agent<
                 role: "assistant",
                 content: textAccumulated,
               });
+
+              // Extract facts from agent response
+              await extractFactsFromResponse(
+                textAccumulated,
+                currentAgent.name,
+                this.model,
+                conversationState
+              );
             }
 
             // Emit agent finish event

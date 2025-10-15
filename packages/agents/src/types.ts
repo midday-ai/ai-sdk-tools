@@ -12,6 +12,9 @@ import type {
   UIMessageStreamWriter,
 } from "ai";
 
+// Re-export conversation state types
+export type { ConversationState, QueryPlan } from './conversation-state.js';
+
 /**
  * Interface for context objects that include memory identifiers
  */

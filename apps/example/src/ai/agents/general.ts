@@ -1,5 +1,6 @@
 import { openai } from "@ai-sdk/openai";
 import { createWebSearchTool } from "../tools/search";
+import { createQueryPlannerTool, createCompoundQueryDetector } from "../tools/query-planner";
 import { analyticsAgent } from "./analytics";
 import { customersAgent } from "./customers";
 import { invoicesAgent } from "./invoices";
@@ -24,6 +25,12 @@ YOUR ROLE:
 - Search the web for current information using your webSearch tool
 - Coordinate compound queries by using web search and handing off to specialists
 
+INTELLIGENT QUERY HANDLING:
+1. First, use compoundQueryDetector to analyze if the query is complex
+2. If compound, use queryPlanner to create a step-by-step execution plan
+3. Execute the plan using available tools and handoffs
+4. Synthesize results into a natural, concise answer
+
 CRITICAL: WEB SEARCH CAPABILITY
 You have the webSearch tool available. ALWAYS use it when:
 - User asks about "latest", "current", "recent" information
@@ -36,9 +43,10 @@ NEVER say "I don't have access to the internet" - YOU DO via webSearch tool!
 
 COORDINATING COMPOUND QUERIES:
 When a query needs multiple pieces of information:
-1. Use webSearch tool FIRST to gather external information (prices, etc.)
-2. Hand off to appropriate specialist for internal data (balance, transactions, etc.)
-3. When specialist returns, synthesize into ONE concise, natural answer
+1. Use compoundQueryDetector to identify complexity
+2. Use queryPlanner to create an execution plan
+3. Execute plan using webSearch tool and handoffs to specialists
+4. Synthesize into ONE concise, natural answer
 
 RESPONSE STYLE - BE CONCISE:
 - Extract KEY facts only from web search (main price, not every variant)
@@ -49,11 +57,13 @@ RESPONSE STYLE - BE CONCISE:
 
 EXAMPLE - Affordability Query:
 User: "Find latest price for Model Y and let me know if I can afford it"
-You: 
-  Step 1: [call webSearch] → extract key price: "$39,990"
-  Step 2: [hand off to operations] → get balance: "$50,000"
-  Step 3: Synthesize naturally: "The Tesla Model Y starts at $39,990. You have 
-          $50,000 available, so yes, you can definitely afford it with about 
+You:
+  Step 1: [call compoundQueryDetector] → "This is compound, needs web search + balance check"
+  Step 2: [call queryPlanner] → "Plan: 1) Search price, 2) Get balance, 3) Compare"
+  Step 3: [call webSearch] → extract key price: "$39,990"
+  Step 4: [hand off to operations] → get balance: "$50,000"
+  Step 5: Synthesize naturally: "The Tesla Model Y starts at $39,990. You have
+          $50,000 available, so yes, you can definitely afford it with about
           $10,000 to spare."
 
 DO NOT:
@@ -88,6 +98,8 @@ STYLE:
 ${formatContextForLLM(ctx)}`,
   tools: (ctx: AppContext) => ({
     webSearch: createWebSearchTool(ctx),
+    queryPlanner: createQueryPlannerTool(),
+    compoundQueryDetector: createCompoundQueryDetector(),
   }),
   handoffs: [
     operationsAgent,

@@ -26,14 +26,6 @@ ${formatContextForLLM(ctx)}`,
     createInvoice: createInvoiceTool,
     updateInvoice: updateInvoiceTool,
   },
-  matchOn: [
-    "invoice",
-    "bill",
-    "create invoice",
-    "send invoice",
-    "unpaid invoice",
-    "paid invoice",
-    /create.*invoice/i,
-  ],
+  // matchOn removed - let triage agent handle routing decisions
   maxTurns: 5,
 });

@@ -26,6 +26,5 @@ ${formatContextForLLM(ctx)}`,
     listDocuments: listDocumentsTool,
     exportData: exportDataTool,
   },
-  matchOn: ["inbox", "document", "export", "balance", "account balance"],
   maxTurns: 5,
 });

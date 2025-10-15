@@ -12,84 +12,35 @@ import { transactionsAgent } from "./transactions";
 export const triageAgent = createAgent({
   name: "triage",
   model: openai("gpt-4o-mini"),
-  instructions: (ctx) => `Route user requests to the appropriate agent:
+  instructions: (ctx) => `You are a routing coordinator for ${ctx.companyName}.
 
-**reports**: Financial metrics and reports
-  - Revenue, P&L, expenses, spending
-  - Burn rate, runway (how long money will last)
-  - Cash flow, balance sheet, tax summary
+Your job is to analyze the user's request and decide the best approach:
 
-**transactions**: Transaction queries
-  - List transactions, search transactions
-  - Get specific transaction details
+**Available Specialists:**
+- **general**: Handles web search, casual conversation, and coordinates complex queries
+- **reports**: Financial reports (revenue, P&L, expenses, burn rate, runway)
+- **analytics**: Forecasting, predictions, business health
+- **transactions**: Transaction queries and search
+- **invoices**: Invoice management
+- **timeTracking**: Time tracking and entries
+- **customers**: Customer management
+- **operations**: Account balances, inbox, documents
 
-**invoices**: Invoice management
-  - Create, update, list invoices
+**Decision Framework:**
 
-**timeTracking**: Time tracking
-  - Start/stop timers, time entries
+1. **Is this a simple, single-domain query?**
+   → Route directly to the appropriate specialist
 
-**customers**: Customer management
-  - Get/create/update customers, profitability analysis
+2. **Does it need external information (web search)?**
+   → Route to general (it has web search)
 
-**analytics**: Advanced forecasting & analysis
-  - Business health score
-  - Cash flow forecasting (future predictions)
-  - Stress testing scenarios
+3. **Does it require multiple specialists or steps?**
+   → Route to general (it can coordinate)
 
-**operations**: Operations
-  - Inbox, balances, documents, exports
+4. **Is it conversational or unclear?**
+   → Route to general (it handles this well)
 
-**general**: General queries, web search, AND compound queries
-  - Greetings, thanks, casual conversation
-  - "What can you do?", "How does this work?"
-  - Memory queries: "What did I just ask?", "What did we discuss?"
-  - Web search: current events, news, latest information, prices
-  - COMPOUND QUERIES: Any query needing web search + internal data
-  - COMPOUND QUERIES: Any query needing multiple specialist domains
-  - Ambiguous or unclear requests
-  - Default for anything that doesn't fit other specialists
-
-CRITICAL: ALWAYS route to **general** for these patterns:
-- ANY query with "latest", "current", "recent" + prices/products = WEB SEARCH NEEDED
-- ANY query asking "can I afford" = COMPOUND (web search + balance)
-- ANY query with "find X and Y" where X is external and Y is internal
-- ANY query combining external lookup + financial check
-
-COMPOUND QUERY DETECTION:
-Route to **general** if query involves:
-- External info (prices, news, products) + internal data (balance, transactions)
-- Multiple specialist domains (e.g., "burn rate and forecast")
-- Affordability questions ("can I afford X?", "should I buy X?")
-- Comparison questions ("X vs my current Y")
-- Price lookups with financial decisions
-
-EXAMPLES:
-- "Find latest price for Model Y and let me know if I can afford it" → **general** (web search + balance check)
-- "Can I afford Tesla Model Y?" → **general** (web search + balance check)
-- "What's the current price of iPhone and can I buy it?" → **general** (web search + balance check)
-- "Show burn rate and forecast when we run out" → **general** (reports + analytics)
-- "Latest iPhone price and my Apple transactions" → **general** (web search + transactions)
-- "Show customer info and their transactions" → **general** (customers + transactions)
-- "My balance and this month's spending" → **general** (operations + reports)
-- "What's the current price of Model Y?" → **general** (web search needed)
-- "Show my balance" → **operations** (single domain, direct)
-- "What's my runway?" → **reports** (single domain, direct)
-- "Forecast cash flow" → **analytics** (single domain, direct)
-
-ROUTING RULES: 
-- "latest", "current", "recent" + price/product = **general** (web search)
-- "can I afford", "should I buy", "do I have enough for" = **general** (compound)
-- "find X and Y" where X is external = **general** (compound)
-- Compound queries (multiple needs) = **general**
-- "latest X and my Y" = **general**
-- "X and Y" where X and Y are different domains = **general**
-- Web search needed = **general**
-- Single domain queries = direct to specialist
-- "runway" alone = reports (not analytics)
-- "forecast" alone = analytics (not reports)
-- Greetings, thanks, casual chat = general
-- When uncertain = general (as default)
+Think about what the user really needs, then hand off to the right specialist.
 
 ${formatContextForLLM(ctx)}`,
   handoffs: [
