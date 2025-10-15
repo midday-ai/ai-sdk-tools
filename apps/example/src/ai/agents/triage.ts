@@ -1,4 +1,6 @@
 import { openai } from "@ai-sdk/openai";
+import { handoff, keepLastNMessages } from "@ai-sdk-tools/agents";
+import { createDefaultInputFilter } from "@ai-sdk-tools/agents";
 import { analyticsAgent } from "./analytics";
 import { customersAgent } from "./customers";
 import { generalAgent } from "./general";
@@ -63,6 +65,9 @@ Route to **general** if query involves:
 - Affordability questions ("can I afford X?", "should I buy X?")
 - Comparison questions ("X vs my current Y")
 - Price lookups with financial decisions
+- References to previous data ("from those transactions", "related to", "based on")
+- Follow-up questions that need context from previous queries
+- Questions about relationships between different data types
 
 EXAMPLES:
 - "Find latest price for Model Y and let me know if I can afford it" → **general** (web search + balance check)
@@ -73,6 +78,9 @@ EXAMPLES:
 - "Show customer info and their transactions" → **general** (customers + transactions)
 - "My balance and this month's spending" → **general** (operations + reports)
 - "What's the current price of Model Y?" → **general** (web search needed)
+- "What about the unpaid invoices from those transactions?" → **general** (follow-up needing context)
+- "Show me the customers related to those invoices" → **general** (follow-up needing context)
+- "Based on those transactions, what's my spending pattern?" → **general** (follow-up needing context)
 - "Show my balance" → **operations** (single domain, direct)
 - "What's my runway?" → **reports** (single domain, direct)
 - "Forecast cash flow" → **analytics** (single domain, direct)
@@ -85,6 +93,8 @@ ROUTING RULES:
 - "latest X and my Y" = **general**
 - "X and Y" where X and Y are different domains = **general**
 - Web search needed = **general**
+- Follow-up questions with "from those", "related to", "based on" = **general** (needs context)
+- Questions referencing previous data = **general** (needs context)
 - Single domain queries = direct to specialist
 - "runway" alone = reports (not analytics)
 - "forecast" alone = analytics (not reports)
@@ -93,14 +103,35 @@ ROUTING RULES:
 
 ${formatContextForLLM(ctx)}`,
   handoffs: [
-    reportsAgent,
-    analyticsAgent,
-    transactionsAgent,
-    invoicesAgent,
-    timeTrackingAgent,
-    customersAgent,
-    operationsAgent,
-    generalAgent,
+    // General agent - PRESERVE tool results for data sharing
+    handoff(generalAgent, {
+      inputFilter: createDefaultInputFilter(),
+    }),
+    // Operations agent - keep more context for balance checks
+    handoff(operationsAgent, {
+      inputFilter: keepLastNMessages(10),
+    }),
+    // Reports agent - keep more context for financial analysis
+    handoff(reportsAgent, {
+      inputFilter: keepLastNMessages(10),
+    }),
+    // Analytics agent - keep more context for forecasting
+    handoff(analyticsAgent, {
+      inputFilter: keepLastNMessages(10),
+    }),
+    // Other agents - use default data sharing
+    handoff(transactionsAgent, {
+      inputFilter: createDefaultInputFilter(),
+    }),
+    handoff(invoicesAgent, {
+      inputFilter: createDefaultInputFilter(),
+    }),
+    handoff(timeTrackingAgent, {
+      inputFilter: createDefaultInputFilter(),
+    }),
+    handoff(customersAgent, {
+      inputFilter: createDefaultInputFilter(),
+    }),
   ],
   maxTurns: 1,
 });

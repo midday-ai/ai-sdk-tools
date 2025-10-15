@@ -32,7 +32,7 @@
     "dev:setup": "node scripts/pre-publish.js restore && bun install"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.2.5",
+    "@biomejs/biome": "^2.2.6",
     "@changesets/cli": "^2.29.7"
   }
 }

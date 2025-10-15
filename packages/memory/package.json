@@ -33,7 +33,7 @@
     }
   },
   "devDependencies": {
-    "@upstash/redis": "^1.35.5",
+    "@upstash/redis": "^1.35.6",
     "drizzle-orm": "^0.44.6",
     "tsup": "^8.5.0",
     "typescript": "^5.9.3"

@@ -46,11 +46,71 @@ An AI with specialized instructions, tools, and optional context. Each agent is 
 ### Handoffs
 Agents can transfer control to other agents while preserving conversation context. Handoffs include the reason for transfer and any relevant context.
 
+**Enhanced Context Management**: The system now supports OpenAI-style context filtering during handoffs, allowing you to control exactly what information is passed between agents using `HandoffInputFilter` functions.
+
 ### Orchestration
 Automatic routing between agents based on:
 - **Programmatic matching**: Pattern-based routing with `matchOn`
 - **LLM-based routing**: The orchestrator agent decides which specialist to invoke
 - **Hybrid**: Combine both for optimal performance
+
+## Enhanced Features (v0.3.0+)
+
+### Context Management & Handoff Filtering
+
+The package now includes OpenAI-style context management with `AgentRunContext` and `HandoffInputFilter` support:
+
+```typescript
+import { Agent, handoff, removeAllTools, keepLastNMessages } from '@ai-sdk-tools/agents';
+
+// Configure handoffs with context filtering
+const specialist = new Agent({
+  name: 'Specialist',
+  model: openai('gpt-4o'),
+  instructions: 'Specialized instructions...',
+});
+
+const orchestrator = new Agent({
+  name: 'Orchestrator',
+  model: openai('gpt-4o'),
+  instructions: 'Route to specialists...',
+  handoffs: [
+    // Remove all tool calls when handing off
+    handoff(specialist, {
+      inputFilter: removeAllTools,
+      onHandoff: async (runContext) => {
+        console.log('Handing off to specialist');
+      },
+    }),
+    // Keep only last 10 messages for context windowing
+    handoff(anotherSpecialist, {
+      inputFilter: keepLastNMessages(10),
+    }),
+  ],
+});
+```
+
+### Shared Memory for Cross-Agent Coordination
+
+Agents can share state using the built-in shared memory tool:
+
+```typescript
+// Agents automatically get sharedMemory tool when handoffs are configured
+const agent = new Agent({
+  name: 'Data Processor',
+  model: openai('gpt-4o'),
+  instructions: 'Process data and store results in shared memory',
+  handoffs: [specialist], // This enables shared memory
+});
+
+// In agent instructions:
+// "Use sharedMemory tool to store processed data for other agents to access"
+```
+
+### Pre-built Handoff Filters
+
+- `removeAllTools()` - Remove all tool-related messages
+- `keepLastNMessages(n)` - Keep only the last N messages for context windowing
 
 ## Quick Start
 
@@ -343,6 +403,62 @@ const agent = new Agent({
 });
 ```
 
+## Complex Multi-Agent Example
+
+Here's a real-world example: determining if a user can afford a Tesla Model Y by combining web research and financial analysis:
+
+```typescript
+import { Agent, handoff, removeAllTools, keepLastNMessages } from '@ai-sdk-tools/agents';
+import { openai } from '@ai-sdk/openai';
+
+// Research Specialist - gathers current product information
+const researchSpecialist = new Agent({
+  name: 'Research Specialist',
+  model: openai('gpt-4o-mini'),
+  instructions: `You research current product information and pricing.
+Store key findings in shared memory for other agents to access.`,
+  tools: {
+    webSearch: webSearchTool,
+    // sharedMemory tool is automatically added when handoffs are configured
+  },
+});
+
+// Financial Analyst - evaluates affordability
+const financialAnalyst = new Agent({
+  name: 'Financial Analyst', 
+  model: openai('gpt-4o-mini'),
+  instructions: `You analyze financial affordability based on user data and research.
+Read research findings from shared memory, then provide comprehensive analysis.`,
+  tools: {
+    getFinancialData: getFinancialDataTool,
+    // sharedMemory tool is automatically added
+  },
+});
+
+// Main Assistant with configured handoffs
+const assistant = new Agent({
+  name: 'Assistant',
+  model: openai('gpt-4o-mini'),
+  instructions: `Help users determine if they can afford major purchases.
+Coordinate research and financial analysis for comprehensive answers.`,
+  handoffs: [
+    // Research first, remove tool calls to keep context clean
+    handoff(researchSpecialist, {
+      inputFilter: removeAllTools,
+    }),
+    // Then financial analysis, keep recent context
+    handoff(financialAnalyst, {
+      inputFilter: keepLastNMessages(10),
+    }),
+  ],
+});
+
+// Usage: "Can I afford a Tesla Model Y?"
+// 1. Assistant → Research Specialist (searches for Tesla pricing, stores in shared memory)
+// 2. Research Specialist → Financial Analyst (reads pricing, gets user's financial data)
+// 3. Financial Analyst provides comprehensive affordability analysis
+```
+
 ## API Reference
 
 ### Agent Class
@@ -411,6 +527,39 @@ isHandoffResult(result: unknown): result is HandoffInstruction
 
 // Create handoff tool for AI SDK
 createHandoffTool(agents: Agent[]): Tool
+
+// Create configured handoff with filtering
+handoff<TContext>(agent: Agent<TContext>, config?: HandoffConfig<TContext>): ConfiguredHandoff<TContext>
+
+// Get transfer message for handoff
+getTransferMessage<TContext>(agent: Agent<TContext>): string
+```
+
+### Handoff Filters
+
+```typescript
+// Remove all tool-related messages
+removeAllTools(data: HandoffInputData): HandoffInputData
+
+// Keep only last N messages
+keepLastNMessages(n: number): HandoffInputFilter
+```
+
+### Context Management
+
+```typescript
+// Run context for workflow state
+class AgentRunContext<TContext = Record<string, unknown>> {
+  context: TContext;
+  metadata: Record<string, unknown>;
+  constructor(context?: TContext);
+  toJSON(): object;
+}
+
+// Shared memory utilities
+createSharedMemoryTool(): Tool
+getSharedMemory(runContext: AgentRunContext, key: string): any
+setSharedMemory(runContext: AgentRunContext, key: string, value: any): void
 
 // Execution context
 createExecutionContext<T>(options: {

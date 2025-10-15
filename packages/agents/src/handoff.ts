@@ -1,6 +1,11 @@
 import { tool } from "ai";
 import { z } from "zod";
-import type { Agent, HandoffInstruction } from "./types.js";
+import type { 
+  Agent, 
+  HandoffInstruction, 
+  HandoffConfig, 
+  ConfiguredHandoff,
+} from "./types.js";
 
 /**
  * Creates a handoff instruction for transferring to another agent
@@ -21,13 +26,43 @@ export function createHandoff(
 }
 
 /**
- * Handoff tool that agents can use to transfer to other agents
+ * Creates a configured handoff from an agent - matches OpenAI's handoff() function
  */
-export function createHandoffTool(availableAgents: Agent[]) {
+export function handoff<TContext extends Record<string, unknown> = Record<string, unknown>>(
+  agent: Agent<TContext>,
+  config?: HandoffConfig<TContext>
+): ConfiguredHandoff<TContext> {
+  return {
+    agent,
+    config,
+  };
+}
+
+/**
+ * Generates the message that will be given as tool output to the model that requested the handoff
+ * Matches OpenAI's getTransferMessage function
+ */
+export function getTransferMessage<TContext extends Record<string, unknown>>(agent: Agent<TContext>): string {
+  return JSON.stringify({ assistant: agent.name });
+}
+
+/**
+ * Handoff tool that agents can use to transfer to other agents
+ * Updated to work with ConfiguredHandoff
+ */
+export function createHandoffTool(availableHandoffs: Array<Agent | ConfiguredHandoff>) {
+  const agentNames = availableHandoffs.map((h) => 
+    'agent' in h ? h.agent.name : h.name
+  );
+
   return tool({
-    description: "Transfer the conversation to another specialized agent",
+    description: `Transfer the conversation to another specialized agent. 
+
+IMPORTANT: Before using this tool, check working memory for existing data that might answer the user's question. Only hand off when you need NEW data not available in working memory.
+
+Available agents: ${agentNames.join(', ')}`,
     inputSchema: z.object({
-      targetAgent: z.enum(availableAgents.map((agent) => agent.name)),
+      targetAgent: z.enum(agentNames as [string, ...string[]]),
       context: z
         .string()
         .optional()

@@ -8,7 +8,7 @@ import {
   useChatActions,
   useDataPart,
 } from "ai-sdk-tools/client";
-import { type RefObject, useRef, useState } from "react";
+import { type RefObject, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
   Conversation,
@@ -51,7 +51,7 @@ export default function Home() {
       },
     }),
   });
-
+ 
   // Extract agent status data part
   const agentStatusData = useDataPart<AgentStatus>("agent-status");
 
@@ -75,22 +75,51 @@ export default function Home() {
       return textPart.text?.trim();
     });
 
-    // If we already have text, don't show tool shimmer
+    // Find actual tool call parts (not step-start or other events)
+    // Only include parts that represent actual tool executions
+    const toolParts = lastMessage.parts.filter((part) => {
+      const type = part.type;
+      // Include parts that start with "tool-" but exclude intermediate streaming events
+      return type.startsWith("tool-") && 
+             type !== "tool-input-start" && 
+             type !== "tool-input-delta" && 
+             type !== "tool-input-available" &&
+             type !== "tool-output-available";
+    }) as ToolUIPart[];
+
+    // Find the most recent tool that's still running (no output yet)
+    let latestRunningTool = null;
+    for (let i = toolParts.length - 1; i >= 0; i--) {
+      const tool = toolParts[i];
+      const toolWithMeta = tool as any;
+      
+      // Check if this tool is still running (no output/result yet)
+      // Tools are considered running if they don't have output, result, or error
+      if (!toolWithMeta.output && !toolWithMeta.result && !toolWithMeta.errorText) {
+        latestRunningTool = tool;
+        break;
+      }
+    }
+
+    // If we have a running tool, show it
+    if (latestRunningTool) {
+      const toolType = latestRunningTool.type as string;
+      if (toolType === "dynamic-tool") {
+        const dynamicTool = latestRunningTool as unknown as { toolName: string };
+        return dynamicTool.toolName;
+      }
+      return toolType.replace(/^tool-/, "");
+    }
+
+    // If we have text content but no running tools, hide the indicator
     if (hasTextContent) return null;
 
-    // Find tool parts
-    const toolParts = lastMessage.parts.filter((part) =>
-      part.type.startsWith("tool-"),
-    ) as ToolUIPart[];
-
-    // Show the most recent tool (they're ordered, so get the last one)
+    // If no running tools but also no text yet, show the most recent completed tool
     const latestTool = toolParts[toolParts.length - 1];
     if (!latestTool) return null;
 
-    // Extract tool name from type (e.g., "tool-burnRate" -> "burnRate")
     const toolType = latestTool.type as string;
     if (toolType === "dynamic-tool") {
-      // Dynamic tools have a toolName property
       const dynamicTool = latestTool as unknown as { toolName: string };
       return dynamicTool.toolName;
     }

@@ -7,8 +7,10 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { Redis } from "@upstash/redis";
-import type { AgentConfig } from "ai-sdk-tools";
-import { Agent, UpstashProvider } from "ai-sdk-tools";
+import type { AgentConfig } from "@ai-sdk-tools/agents";
+import { Agent } from "@ai-sdk-tools/agents";
+import { UpstashProvider } from "ai-sdk-tools";
+import { openai } from "@ai-sdk/openai";
 
 // Load memory template from markdown file
 const memoryTemplate = readFileSync(
@@ -109,7 +111,7 @@ export const sharedMemoryProvider = new UpstashProvider(
  * All agents automatically get shared memory configuration
  */
 export const createAgent = (config: AgentConfig<AppContext>) =>
-  Agent.create<AppContext>({
+  new Agent<AppContext>({
     ...config,
     memory: {
       provider: sharedMemoryProvider,
@@ -124,7 +126,10 @@ export const createAgent = (config: AgentConfig<AppContext>) =>
       },
       chats: {
         enabled: true,
-        generateTitle: true, // Uses agent's model
+        generateTitle: {
+          model: openai("gpt-4o-mini"),
+          instructions: "Generate a short, focused title based on the user's message. Max 50 characters. Focus on the main action or topic. Return ONLY plain text - no markdown, no quotes, no special formatting. Examples: Hiring Analysis, Affordability Check, Burn Rate Forecast, Price Research, Account Balance, Revenue Report"
+        }
       },
     },
   });

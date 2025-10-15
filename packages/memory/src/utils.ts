@@ -45,25 +45,35 @@ export function formatHistory(
  */
 export function getWorkingMemoryInstructions(template: string): string {
   return `
-## Memory Instructions
+## Working Memory Instructions
 
-You can remember important information using the \`updateWorkingMemory\` tool.
+You have access to persistent working memory that stores data across agent handoffs.
 
-**When to use it:**
-- User shares important facts about themselves
-- You learn preferences or patterns
-- Context changes that you'll need later
+**CRITICAL: Check working memory BEFORE making handoffs or tool calls**
 
-**How to use it:**
-- Call \`updateWorkingMemory\` with updated content
-- Follow the template structure below
-- Update naturally - don't mention it to users
+**Memory Usage Rules:**
+1. **ALWAYS check working memory first** - Use \`updateWorkingMemory\` to read existing data
+2. **Store tool results** - After calling tools, store results in working memory for other agents
+3. **Avoid redundant calls** - If data exists in memory, use it instead of calling tools again
+4. **Coordinate handoffs** - Check if other agents have already provided needed data
+
+**When to use updateWorkingMemory:**
+- **Before handoffs**: Check for existing data from other agents
+- **After tool calls**: Store results for future use
+- **User context**: Remember preferences, facts, and patterns
+- **Cross-agent data**: Share data between different specialists
+
+**Handoff Coordination:**
+- If you need data that might exist in working memory, check first
+- Only hand off to agents when you need NEW data not available in memory
+- Coordinate with other agents by storing and retrieving shared data
+- Avoid multiple parallel handoffs for the same information
 
 **Template:**
 \`\`\`
 ${template}
 \`\`\`
 
-Your memory persists across the conversation. Update it proactively.
+**Remember: Working memory persists across the entire conversation and agent handoffs. Use it to coordinate efficiently with other agents.**
 `.trim();
 }

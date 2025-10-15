@@ -23,6 +23,7 @@ import {
 import { z } from "zod";
 import { debug } from "./debug.js";
 import { createHandoffTool, isHandoffResult } from "./handoff.js";
+import { createSharedMemoryTool } from "./tools/shared-memory-tool.js";
 import { promptWithHandoffInstructions } from "./handoff-prompt.js";
 import { writeAgentStatus } from "./streaming.js";
 import type {
@@ -40,8 +41,13 @@ import type {
   MemoryIdentifiers,
   OutputGuardrail,
   ToolPermissions,
+  ConfiguredHandoff,
+  HandoffInputData,
 } from "./types.js";
+import { AgentRunContext } from "./run-context.js";
 import { extractTextFromMessage } from "./utils.js";
+import { createExecutionContext } from "./context.js";
+import { createDefaultInputFilter } from "./tool-result-extractor.js";
 
 export class Agent<
   TContext extends Record<string, unknown> = Record<string, unknown>,
@@ -56,10 +62,11 @@ export class Agent<
   public readonly inputGuardrails?: InputGuardrail[];
   public readonly outputGuardrails?: OutputGuardrail[];
   public readonly permissions?: ToolPermissions;
+  public readonly lastMessages?: number;
   private readonly memory?: MemoryConfig;
   private readonly model: LanguageModel;
   private readonly aiAgent: AISDKAgent<Record<string, Tool>>;
-  private readonly handoffAgents: Array<IAgent<any>>;
+  private readonly handoffAgents: Array<IAgent<any> | ConfiguredHandoff<any>>;
   private readonly configuredTools:
     | Record<string, Tool>
     | ((context: TContext) => Record<string, Tool>);
@@ -72,6 +79,7 @@ export class Agent<
     this.inputGuardrails = config.inputGuardrails;
     this.outputGuardrails = config.outputGuardrails;
     this.permissions = config.permissions;
+    this.lastMessages = config.lastMessages;
     this.memory = config.memory;
     this.model = config.model;
     this.handoffAgents = config.handoffs || [];
@@ -83,10 +91,18 @@ export class Agent<
     // We still need to create the AI SDK Agent with initial instructions for backwards compatibility
     const baseInstructions =
       typeof config.instructions === "string" ? config.instructions : "";
-    const systemPrompt =
+    let systemPrompt =
       this.handoffAgents.length > 0
         ? promptWithHandoffInstructions(baseInstructions)
         : baseInstructions;
+
+    // Add working memory instructions if enabled
+    if (config.memory?.workingMemory?.enabled) {
+      const workingMemoryInstructions = getWorkingMemoryInstructions(
+        config.memory.workingMemory.template || DEFAULT_TEMPLATE,
+      );
+      systemPrompt += `\n\n${workingMemoryInstructions}`;
+    }
 
     // Create AI SDK Agent (tools will be resolved per-request in stream())
     this.aiAgent = new AISDKAgent<Record<string, Tool>>({
@@ -183,10 +199,18 @@ export class Agent<
     const memoryAddition = extendedContext._memoryAddition || "";
 
     // Add handoff instructions if needed
-    const systemPrompt =
+    let systemPrompt =
       this.handoffAgents.length > 0
         ? promptWithHandoffInstructions(resolvedInstructions + memoryAddition)
         : resolvedInstructions + memoryAddition;
+
+    // Add working memory instructions if enabled
+    if (this.memory?.workingMemory?.enabled) {
+      const workingMemoryInstructions = getWorkingMemoryInstructions(
+        this.memory.workingMemory.template || DEFAULT_TEMPLATE,
+      );
+      systemPrompt += `\n\n${workingMemoryInstructions}`;
+    }
 
     // Resolve tools dynamically (static object or function)
     const resolvedTools =
@@ -197,6 +221,9 @@ export class Agent<
     // Add handoff tool if needed
     if (this.handoffAgents.length > 0) {
       resolvedTools.handoff_to_agent = createHandoffTool(this.handoffAgents);
+      
+      // Add shared memory tool for cross-agent coordination
+      resolvedTools.sharedMemory = createSharedMemoryTool();
     }
 
     // Add working memory tool if enabled
@@ -215,8 +242,11 @@ export class Agent<
       system: systemPrompt, // Override system prompt per call
       tools: resolvedTools, // Add resolved tools here
     };
-    if (executionContext)
+    
+    if (executionContext) {
       additionalOptions.experimental_context = executionContext;
+    }
+
     if (maxSteps) additionalOptions.maxSteps = maxSteps;
     if (onStepFinish) additionalOptions.onStepFinish = onStepFinish;
 
@@ -262,7 +292,11 @@ export class Agent<
   }
 
   getHandoffs(): Array<IAgent<any>> {
-    return this.handoffAgents;
+    return this.handoffAgents.map(h => 'agent' in h ? h.agent : h);
+  }
+
+  getConfiguredHandoffs(): Array<ConfiguredHandoff<any>> {
+    return this.handoffAgents.map(h => 'agent' in h ? h : { agent: h });
   }
 
   /**
@@ -376,8 +410,7 @@ export class Agent<
         const input = extractTextFromMessage(lastMessage);
 
         // Import context utilities
-        const { createExecutionContext } = await import("./context.js");
-
+ 
         // Load working memory from agent-level config
         let memoryAddition = "";
         if (context && this.memory?.workingMemory?.enabled) {
@@ -387,15 +420,25 @@ export class Agent<
         // Generate chat title if this is the first message
         await this.maybeGenerateChatTitle(context as TContext, input, writer);
 
+        // Create AgentRunContext for the workflow
+        const runContext = new AgentRunContext(context || {});
+        runContext.metadata = {
+          agent: this.name,
+          requestId: `req_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+        };
+
         // Create execution context with user context and writer
         const executionContext = createExecutionContext({
           context: (context || {}) as Record<string, unknown>,
           writer,
           metadata: {
             agent: this.name,
-            requestId: `req_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+            requestId: runContext.metadata.requestId as string,
           },
         });
+
+        // Add runContext to execution context for shared memory tool
+        (executionContext as any).runContext = runContext;
 
         // Store memory addition for system prompt injection
         if (memoryAddition) {
@@ -445,8 +488,9 @@ export class Agent<
             );
             if (chosenAgent) {
               currentAgent = chosenAgent;
-              console.log(
-                `[ROUTING] Explicit agent choice: ${currentAgent.name}`,
+              debug(
+                "ROUTING",
+                `Explicit agent choice: ${currentAgent.name}`,
               );
 
               // Mark orchestrator as completing
@@ -496,8 +540,9 @@ export class Agent<
 
             if (agentWithTool) {
               currentAgent = agentWithTool;
-              console.log(
-                `[ROUTING] Tool choice routing: ${toolChoice} → ${currentAgent.name}`,
+              debug(
+                "ROUTING",
+                `Tool choice routing: ${toolChoice} → ${currentAgent.name}`,
               );
 
               // Mark orchestrator as completing
@@ -559,7 +604,7 @@ export class Agent<
 
             if (matchedAgent) {
               currentAgent = matchedAgent;
-              console.log(`[ROUTING] Programmatic match: ${currentAgent.name}`);
+              debug("ROUTING", `Programmatic match: ${currentAgent.name}`);
 
               // Mark orchestrator as completing
               writeAgentStatus(writer, {
@@ -613,10 +658,14 @@ export class Agent<
               agent: currentAgent.name,
             });
 
-            const messagesToSend =
-              currentAgent === this
-                ? [conversationMessages[conversationMessages.length - 1]] // Latest only
-                : conversationMessages.slice(-8); // Recent context
+            // Get context window size from agent config, with sensible defaults
+            const lastMessages = currentAgent.lastMessages ?? 10;
+            
+            // Ensure we have at least the original user message
+            let messagesToSend = conversationMessages.slice(-lastMessages);
+            if (messagesToSend.length === 0 && messages.length > 0) {
+              messagesToSend = messages.slice(-1); // Use the last user message
+            }
 
             // Emit agent start event
             if (onEvent) {
@@ -657,6 +706,7 @@ export class Agent<
             let textAccumulated = "";
             let handoffData: HandoffInstruction | null = null;
             const toolCallNames = new Map<string, string>(); // toolCallId -> toolName
+            const toolResults = new Map<string, any>(); // toolName -> result
             let hasStartedContent = false;
 
             // Stream UI chunks - AI SDK handles all the formatting!
@@ -686,14 +736,22 @@ export class Agent<
               // Track tool names when they start
               if (chunk.type === "tool-input-start") {
                 toolCallNames.set(chunk.toolCallId, chunk.toolName);
+                debug("TOOL_CALL", `Tool call started: ${chunk.toolName} (${chunk.toolCallId})`);
               }
 
-              // Detect handoff from tool output
+              // Capture tool results and detect handoffs
               if (chunk.type === "tool-output-available") {
                 const toolName = toolCallNames.get(chunk.toolCallId);
-                if (toolName === "handoff_to_agent") {
-                  handoffData = chunk.output as HandoffInstruction;
-                  console.log("[Handoff Detected]", handoffData);
+                if (toolName) {
+                  // Store tool result for handoff context
+                  toolResults.set(toolName, chunk.output);
+                  debug("TOOL_RESULT", `Captured ${toolName}:`, typeof chunk.output);
+                  
+                  // Detect handoff
+                  if (toolName === "handoff_to_agent") {
+                    handoffData = chunk.output as HandoffInstruction;
+                    debug("HANDOFF", "Handoff detected", handoffData);
+                  }
                 }
               }
             }
@@ -736,6 +794,73 @@ export class Agent<
                   (a) => a.name === handoffData.targetAgent,
                 );
                 if (nextAgent) {
+                  // Apply handoff input filter if configured
+                  const configuredHandoffs = this.getConfiguredHandoffs();
+                  const configuredHandoff = configuredHandoffs.find(
+                    (ch) => ch.agent.name === handoffData.targetAgent
+                  );
+
+                  // Apply handoff input filter if configured
+                  const inputFilter = configuredHandoff?.config?.inputFilter;
+                  if (inputFilter) {
+                    try {
+                      // Build HandoffInputData with captured tool results
+                      const handoffInputData: HandoffInputData = {
+                        inputHistory: conversationMessages,
+                        preHandoffItems: [],
+                        newItems: Array.from(toolResults.entries()).map(([name, result]) => ({
+                          toolName: name,
+                          result: result
+                        })),
+                        runContext,
+                      };
+
+                      // Apply filter to modify conversation history
+                      const filteredData = inputFilter(handoffInputData);
+                      
+                      // Update conversation messages with filtered data
+                      conversationMessages.length = 0;
+                      conversationMessages.push(...filteredData.inputHistory);
+                    } catch (error) {
+                      console.error("Error applying handoff input filter:", error);
+                      // Continue with original conversation messages as fallback
+                    }
+                  } else {
+                    // Use default input filter to modify conversation history
+                    debug("HANDOFF", "Applying default input filter for", handoffData.targetAgent);
+                    const defaultFilter = createDefaultInputFilter();
+                    
+                    const handoffInputData: HandoffInputData = {
+                      inputHistory: conversationMessages,
+                      preHandoffItems: [],
+                      newItems: Array.from(toolResults.entries()).map(([name, result]) => ({
+                        toolName: name,
+                        result: result
+                      })),
+                      runContext,
+                    };
+                    
+                    debug("HANDOFF", "Input history length:", handoffInputData.inputHistory.length);
+                    debug("HANDOFF", "Input history messages:", handoffInputData.inputHistory.map(m => ({ role: m.role, contentType: typeof m.content })));
+                    const filteredData = defaultFilter(handoffInputData);
+                    debug("HANDOFF", "Filtered history length:", filteredData.inputHistory.length);
+                    
+                    // Update conversation messages with filtered data
+                    conversationMessages.length = 0;
+                    conversationMessages.push(...filteredData.inputHistory);
+                    debug("HANDOFF", "Updated conversation messages length:", conversationMessages.length);
+                  }
+
+                  // Call onHandoff callback if configured
+                  if (configuredHandoff?.config?.onHandoff) {
+                    try {
+                      await configuredHandoff.config.onHandoff(runContext);
+                    } catch (error) {
+                      console.error("Error in onHandoff callback:", error);
+                      // Continue execution - callback errors shouldn't stop handoff
+                    }
+                  }
+
                   currentAgent = nextAgent;
 
                   writer.write({
@@ -778,6 +903,44 @@ export class Agent<
                   (a) => a.name === handoffData.targetAgent,
                 );
                 if (nextAgent) {
+                  // Apply handoff input filter if configured
+                  const configuredHandoffs = this.getConfiguredHandoffs();
+                  const configuredHandoff = configuredHandoffs.find(
+                    (ch) => ch.agent.name === handoffData.targetAgent
+                  );
+
+                  if (configuredHandoff?.config?.inputFilter) {
+                    try {
+                      // Build HandoffInputData
+                      const handoffInputData: HandoffInputData = {
+                        inputHistory: conversationMessages.slice(0, -1), // All messages except the last assistant message
+                        preHandoffItems: [], // No pre-handoff items for specialist-to-specialist
+                        newItems: conversationMessages.slice(-1), // The last assistant message
+                        runContext,
+                      };
+
+                      // Apply filter
+                      const filteredData = configuredHandoff.config.inputFilter(handoffInputData);
+                      
+                      // Update conversation messages with filtered data
+                      conversationMessages.length = 0;
+                      conversationMessages.push(...filteredData.inputHistory, ...filteredData.newItems);
+                    } catch (error) {
+                      console.error("Error applying handoff input filter:", error);
+                      // Continue with original conversation messages as fallback
+                    }
+                  }
+
+                  // Call onHandoff callback if configured
+                  if (configuredHandoff?.config?.onHandoff) {
+                    try {
+                      await configuredHandoff.config.onHandoff(runContext);
+                    } catch (error) {
+                      console.error("Error in onHandoff callback:", error);
+                      // Continue execution - callback errors shouldn't stop handoff
+                    }
+                  }
+
                   const previousAgent = currentAgent;
                   currentAgent = nextAgent;
 

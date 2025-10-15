@@ -21,7 +21,6 @@ export function ChatStatusIndicators({
 
   return (
     <>
-      {/* Show shimmer for specialist agents executing */}
       <AnimatedStatusText
         text={statusMessage}
         shimmerDuration={1}
@@ -29,7 +28,7 @@ export function ChatStatusIndicators({
         variant="slide"
         className="text-xs font-normal"
       />
-      {/* Show tool call status */}
+
       <AnimatedStatusText
         text={toolMessage}
         shimmerDuration={1}
@@ -37,7 +36,7 @@ export function ChatStatusIndicators({
         variant="slide"
         className="text-xs font-normal"
       />
-      {/* Show plain loader for orchestrator/general */}
+
       {((agentStatus && !getStatusMessage(agentStatus)) ||
         (status === "submitted" && !agentStatus && !currentToolCall)) && (
         <Loader />
