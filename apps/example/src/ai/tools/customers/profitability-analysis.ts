@@ -4,9 +4,7 @@ import { dateRangeSchema } from "@/ai/types/filters";
 import { generateCustomerProfitability } from "@/ai/utils/fake-data";
 
 export const customerProfitabilityTool = tool({
-  description: `Analyze customer profitability using revenue, costs, and tags.
-  
-Shows revenue, associated costs, net profit, and trends for a customer.`,
+  description: `Analyze customer profitability using revenue, costs, and tags`,
 
   inputSchema: z
     .object({

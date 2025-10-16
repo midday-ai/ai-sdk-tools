@@ -16,16 +16,7 @@ import { delay } from "@/lib/delay";
  * - Financial ratios
  */
 export const balanceSheetTool = tool({
-  description: `Get balance sheet for a specified date or period with interactive visualization.
-  
-Capabilities:
-- Total assets breakdown
-- Total liabilities breakdown
-- Shareholder equity
-- Key financial ratios (current ratio, debt-to-equity)
-- Period comparison
-- Interactive artifact visualization`,
-
+  description: `Get balance sheet analysis for a specified date or period.`,
   inputSchema: dateRangeSchema.merge(currencyFilterSchema).extend({
     categories: z
       .array(z.enum(["assets", "liabilities", "equity"]))
@@ -227,7 +218,10 @@ Capabilities:
       forceStop: true,
     };
 
-    return finalData;
+    return { 
+      ...finalData,
+      forceStop: true,
+    };
     } catch (error) {
       console.error(error);
       throw error;

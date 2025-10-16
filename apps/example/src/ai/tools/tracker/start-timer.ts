@@ -8,12 +8,7 @@ import { generateStartedTimer } from "@/ai/utils/fake-data";
  * Start a new timer for time tracking.
  */
 export const startTimerTool = tool({
-  description: `Start a new timer for tracking time on a project.
-  
-Capabilities:
-- Start timer for a specific project
-- Add optional description
-- Track from current time or specified start time`,
+  description: `Start a new timer for tracking time on a project`,
 
   inputSchema: z.object({
     projectId: z.string().describe("Project ID to track time for"),

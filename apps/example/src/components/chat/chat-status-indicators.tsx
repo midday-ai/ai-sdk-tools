@@ -34,7 +34,7 @@ export function ChatStatusIndicators({
         fadeDuration={0.2}
         variant="fade"
         className="text-xs font-normal"
-        showBorder={false}
+        showBorder={!!toolMessage}
         icon={toolIcon}
       />
 

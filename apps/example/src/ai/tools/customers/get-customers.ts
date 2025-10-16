@@ -3,9 +3,7 @@ import { z } from "zod";
 import { generateCustomer } from "@/ai/utils/fake-data";
 
 export const getCustomersTool = tool({
-  description: `Get a list of customers with optional filtering and sorting.
-  
-Use this to find top customers by revenue, list all customers, or search by criteria.`,
+  description: `Get a list of customers with optional filtering and sorting`,
 
   inputSchema: z.object({
     limit: z

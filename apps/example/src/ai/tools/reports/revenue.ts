@@ -12,15 +12,7 @@ import { getWriter } from "@ai-sdk-tools/artifacts";
  * Generates a comprehensive revenue dashboard with charts and metrics.
  */
 export const revenueDashboardTool = tool({
-  description: `Generate a comprehensive revenue dashboard with charts and metrics.
-  
-Capabilities:
-- Revenue trends and growth analysis
-- Revenue breakdown by category
-- Top customers analysis
-- Monthly and quarterly trends
-- Key performance indicators`,
-
+  description: `Generate a comprehensive revenue dashboard with charts and metrics.`,
   inputSchema: dateRangeSchema.merge(currencyFilterSchema).extend({
     useArtifact: z
       .boolean()
@@ -222,12 +214,7 @@ Capabilities:
 
       await analysis.complete(finalData);
 
-      yield {
-        text: `Revenue dashboard complete. Total revenue: ${currency || "USD"} ${metrics.total.toLocaleString()}. Growth rate: ${metrics.growth.percentChange.toFixed(1)}%.`,
-        forceStop: true,
-      };
-
-      return finalData;
+      return finalData
     } catch (error) {
       console.error(error);
       throw error;
