@@ -702,27 +702,26 @@ export class Agent<
               // Track tool names when they start (do this early for handoff detection)
               if (chunk.type === "tool-input-start") {
                 toolCallNames.set(chunk.toolCallId, chunk.toolName);
-                logger.debug(`Tool call started: ${chunk.toolName} (${chunk.toolCallId})`, { toolName: chunk.toolName, toolCallId: chunk.toolCallId });
+                logger.debug(`Tool call started: ${chunk.toolName} (${chunk.toolCallId})`, { 
+                  toolName: chunk.toolName, 
+                  toolCallId: chunk.toolCallId,
+                  agent: currentAgent.name,
+                  round,
+                });
               }
 
               // Check if this chunk is related to handoff (internal orchestration)
-              const isHandoffChunk = (() => {
-                if (chunk.type === "tool-input-start") {
-                  // tool-input-start has toolName directly
-                  return isHandoffTool((chunk as any).toolName);
-                }
-                if (chunk.type === "tool-input-delta" || chunk.type === "tool-input-available") {
-                  // tool-input-delta and tool-input-available only have toolCallId
-                  // We need to look up the tool name from our tracking map
-                  const toolName = toolCallNames.get((chunk as any).toolCallId);
-                  return isHandoffTool(toolName);
-                }
-                if (chunk.type === "tool-output-available") {
-                  const toolName = toolCallNames.get((chunk as any).toolCallId);
-                  return isHandoffTool(toolName);
-                }
-                return false;
-              })();
+              let isHandoffChunk = false;
+              
+              if (chunk.type === "tool-input-start") {
+                isHandoffChunk = isHandoffTool((chunk as any).toolName);
+              } else if (chunk.type === "tool-input-delta" || chunk.type === "tool-input-available") {
+                const toolName = toolCallNames.get((chunk as any).toolCallId);
+                isHandoffChunk = isHandoffTool(toolName);
+              } else if (chunk.type === "tool-output-available") {
+                const toolName = toolCallNames.get((chunk as any).toolCallId);
+                isHandoffChunk = isHandoffTool(toolName);
+              }
 
               // Clear status on first actual content (text or non-handoff tool)
               if (
@@ -734,6 +733,7 @@ export class Agent<
                   status: "completing",
                   agent: currentAgent.name,
                 });
+                
                 hasStartedContent = true;
               }
 
@@ -764,27 +764,13 @@ export class Agent<
               // But keep agent status events (written separately via writeAgentStatus)
               if (!isHandoffChunk) {
                 try {
-                  // Log chunk details before writing
-                  logger.debug("Writing chunk", { 
-                    chunkType: chunk.type,
-                    hasToolName: 'toolName' in chunk,
-                    hasToolCallId: 'toolCallId' in chunk,
-                  });
                   writer.write(chunk as any);
                 } catch (error) {
                   logger.error("Failed to write chunk to stream", { 
                     chunkType: chunk.type,
                     error,
-                    chunkKeys: Object.keys(chunk),
-                    chunk: JSON.stringify(chunk, null, 2)
                   });
-                  // Don't rethrow - continue processing other chunks
                 }
-              } else {
-                logger.debug("Filtered out handoff chunk", { 
-                  chunkType: chunk.type,
-                  toolName: (chunk as any).toolName
-                });
               }
 
               // Track text for conversation history
