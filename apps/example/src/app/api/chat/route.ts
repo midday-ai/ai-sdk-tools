@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     message,
     strategy: "auto",
     maxRounds: 5,
-    maxSteps: 10,
+    maxSteps: 20,
     context: appContext,
     agentChoice,
     toolChoice,

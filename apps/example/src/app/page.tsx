@@ -76,12 +76,11 @@ export default function Home() {
     });
 
     // Find actual tool call parts (not step-start or other events)
-    // Only include parts that represent actual tool executions
+    // Include tool-input-start to show active tool calls
     const toolParts = lastMessage.parts.filter((part) => {
       const type = part.type;
-      // Include parts that start with "tool-" but exclude intermediate streaming events
+      // Include tool-input-start (active calls) and other tool parts, but exclude deltas and intermediate events
       return type.startsWith("tool-") && 
-             type !== "tool-input-start" && 
              type !== "tool-input-delta" && 
              type !== "tool-input-available" &&
              type !== "tool-output-available";
@@ -92,9 +91,15 @@ export default function Home() {
     for (let i = toolParts.length - 1; i >= 0; i--) {
       const tool = toolParts[i];
       const toolWithMeta = tool as any;
+      const type = tool.type as string;
       
-      // Check if this tool is still running (no output/result yet)
-      // Tools are considered running if they don't have output, result, or error
+      // tool-input-start events are active tool calls
+      if (type === "tool-input-start") {
+        latestRunningTool = tool;
+        break;
+      }
+      
+      // Other tool parts are running if they don't have output/result yet
       if (!toolWithMeta.output && !toolWithMeta.result && !toolWithMeta.errorText) {
         latestRunningTool = tool;
         break;
@@ -104,6 +109,13 @@ export default function Home() {
     // If we have a running tool, show it
     if (latestRunningTool) {
       const toolType = latestRunningTool.type as string;
+      const toolWithMeta = latestRunningTool as any;
+      
+      // For tool-input-start, get the toolName property
+      if (toolType === "tool-input-start" && toolWithMeta.toolName) {
+        return toolWithMeta.toolName;
+      }
+      
       if (toolType === "dynamic-tool") {
         const dynamicTool = latestRunningTool as unknown as { toolName: string };
         return dynamicTool.toolName;

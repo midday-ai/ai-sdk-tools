@@ -92,7 +92,7 @@ export const getToolMessage = (toolName: string | null) => {
     webSearch: "Searching the web...",
 
     // Memory tools
-    updateWorkingMemory: "Saving this to memory...",
+    updateWorkingMemory: "Updating memory...",
 
     // Handoff tools
     handoff_to_agent: "Thinking...",

@@ -227,8 +227,11 @@ export class Agent<
     }
 
     // Add working memory update tool if enabled
-    // Only add to specialist agents (not orchestrators/routers)
-    if (this.memory?.workingMemory?.enabled && this.handoffAgents.length === 0) {
+    // Give to all agents that can do work (have tools beyond just handoff)
+    const hasOtherTools = Object.keys(resolvedTools).some(key => key !== 'handoff_to_agent');
+    const isPureOrchestrator = this.handoffAgents.length > 0 && !hasOtherTools;
+    
+    if (this.memory?.workingMemory?.enabled && !isPureOrchestrator) {
       resolvedTools.updateWorkingMemory = this.createWorkingMemoryTool();
     }
 
@@ -1069,9 +1072,7 @@ export class Agent<
     const extractMemoryIdentifiers = this.extractMemoryIdentifiers.bind(this);
 
     return tool({
-      description: `Update working memory with user preferences, facts, or context. 
-      
-CRITICAL: Call this tool whenever the user shares or corrects ANY information about themselves - name, role, company, preferences, corrections to previous information, etc. Use this to remember important information about the user across conversations.`,
+      description: `Save user information (name, role, company, preferences) to persistent memory for future conversations.`,
       inputSchema: z.object({
         content: z
           .string()
@@ -1107,12 +1108,12 @@ CRITICAL: Call this tool whenever the user shares or corrects ANY information ab
             content,
           });
           logger.debug("Working memory updated successfully");
-          return "Memory updated successfully - this information will be available in future conversations";
+          return "success"; 
         } catch (error) {
           logger.error("Failed to update working memory", { 
             error: error instanceof Error ? error.message : error 
           });
-          return "Failed to update memory";
+          return "error"; 
         }
       },
     });
