@@ -97,12 +97,12 @@ export default function DevtoolsContent() {
                   className="text-xs font-mono leading-relaxed"
                   dangerouslySetInnerHTML={{
                     __html:
-                      highlight(`import { AIDevTools } from '@ai-sdk-tools/devtools'
+                      highlight(`import { AIDevtools } from '@ai-sdk-tools/devtools'
 
 function App() {
   return (
     <div>
-      <AIDevTools />
+      <AIDevtools />
       {/* Your app content */}
     </div>
   )
@@ -206,7 +206,7 @@ const { messages, handleSubmit } = useChat({
 
           <div className="space-y-8">
             <div>
-              <h3 className="text-lg font-medium mb-4">AIDevTools</h3>
+              <h3 className="text-lg font-medium mb-4">AIDevtools</h3>
               <p className="text-sm text-secondary mb-4">
                 The main DevTools component:
               </p>
@@ -214,7 +214,7 @@ const { messages, handleSubmit } = useChat({
                 <pre
                   className="text-xs font-mono leading-relaxed"
                   dangerouslySetInnerHTML={{
-                    __html: highlight(`<AIDevTools
+                    __html: highlight(`<AIDevtools
   position="bottom-right" // Position on screen
   theme="dark" // Theme (dark/light)
   maxEvents={100} // Maximum events to keep
@@ -227,7 +227,7 @@ const { messages, handleSubmit } = useChat({
             </div>
 
             <div>
-              <h3 className="text-lg font-medium mb-4">useAIDevTools</h3>
+              <h3 className="text-lg font-medium mb-4">useAIDevtools</h3>
               <p className="text-sm text-secondary mb-4">
                 Hook for programmatic access to DevTools:
               </p>
@@ -241,7 +241,7 @@ const { messages, handleSubmit } = useChat({
   exportEvents, // Export events as JSON
   isVisible, // DevTools visibility state
   toggleVisibility, // Toggle DevTools visibility
-} = useAIDevTools()`),
+} = useAIDevtools()`),
                   }}
                 />
               </div>

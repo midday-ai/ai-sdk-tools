@@ -123,7 +123,7 @@ import { AIDevTools } from '@ai-sdk-tools/devtools';
 function App() {
   return (
     <div>
-      <AIDevTools />
+      <AIDevtools />
       {/* Your app content */}
     </div>
   );
