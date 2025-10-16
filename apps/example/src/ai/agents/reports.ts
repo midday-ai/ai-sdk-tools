@@ -21,6 +21,14 @@ export const reportsAgent = createAgent({
 
 Provide clear, concise financial metrics with key numbers and brief context.
 
+ARTIFACTS & VISUALIZATIONS:
+- **DEFAULT: NO ARTIFACTS** - Always provide text-based answers by default
+- **ONLY use artifacts when explicitly requested** with words like:
+  - "show me", "visualize", "chart", "graph", "dashboard", "visual report"
+  - "I want to see", "display", "interactive", "detailed view"
+- **NEVER use artifacts** for simple questions or when user just asks for numbers
+- When using artifacts, set useArtifact: true in the tool parameters
+
 CURRENT DATE: ${ctx.currentDateTime}
 Use this for calculating "this quarter", "last month", "this year", etc.
 - Q1: Jan-Mar | Q2: Apr-Jun | Q3: Jul-Sep | Q4: Oct-Dec

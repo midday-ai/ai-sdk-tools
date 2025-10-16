@@ -2,7 +2,7 @@
 
 import type { UIMessage } from "@ai-sdk/react";
 import { useEffect, useMemo } from "react";
-import { useChatMessages } from "./hooks";
+import { useChatMessages, useChatStore } from "./hooks";
 
 /**
  * Interface for a data part extracted from messages
@@ -122,6 +122,9 @@ export function useDataPart<T = unknown>(
 ): T | null {
   const messages = useChatMessages();
   const { onData } = options || {};
+  
+  // Subscribe to the transient data map directly so we re-render when it changes
+  const transientDataParts = useChatStore((state) => state._transientDataParts);
 
   const result = useMemo(() => {
     const dataParts = extractDataPartsFromMessages(messages);
@@ -143,9 +146,20 @@ export function useDataPart<T = unknown>(
         }
       }
     }
+    
+    // Check transient data parts if not found in messages
+    if (!latest) {
+      const transientData = transientDataParts.get(fullType);
+      if (transientData !== undefined) {
+        latest = {
+          type: fullType,
+          data: transientData,
+        };
+      }
+    }
 
     return latest;
-  }, [messages, type]);
+  }, [messages, type, transientDataParts]);
 
   // Call onData callback when data changes
   useEffect(() => {

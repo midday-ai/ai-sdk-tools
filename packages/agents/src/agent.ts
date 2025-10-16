@@ -729,11 +729,6 @@ export class Agent<
                 (chunk.type === "text-delta" ||
                   (chunk.type === "tool-input-start" && !isHandoffChunk))
               ) {
-                writeAgentStatus(writer, {
-                  status: "completing",
-                  agent: currentAgent.name,
-                });
-                
                 hasStartedContent = true;
               }
 

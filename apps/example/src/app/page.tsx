@@ -1,12 +1,10 @@
 "use client";
 
-import type { ToolUIPart } from "ai";
 import { DefaultChatTransport } from "ai";
 import {
   useArtifacts,
   useChat,
   useChatActions,
-  useDataPart,
 } from "ai-sdk-tools/client";
 import { type RefObject, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -26,7 +24,7 @@ import {
   EmptyState,
   RateLimitIndicator,
 } from "@/components/chat";
-import type { AgentStatus } from "@/types/agents";
+import { useChatStatus } from "@/hooks/use-chat-status";
 
 export default function Home() {
   const [text, setText] = useState<string>("");
@@ -52,91 +50,8 @@ export default function Home() {
     }),
   });
  
-  // Extract agent status data part
-  const agentStatusData = useDataPart<AgentStatus>("agent-status");
-
-  // Clear status immediately when completing (smoother UX)
-  const agentStatus =
-    agentStatusData?.status === "completing" ? null : agentStatusData;
-
   const { reset } = useChatActions();
-
-  // Derive current tool call directly from messages (no state needed!)
-  const currentToolCall = (() => {
-    if (messages.length === 0) return null;
-
-    const lastMessage = messages[messages.length - 1];
-    if (lastMessage.role !== "assistant") return null;
-
-    // Check if we have any text content yet
-    const textParts = lastMessage.parts.filter((part) => part.type === "text");
-    const hasTextContent = textParts.some((part) => {
-      const textPart = part as { text?: string };
-      return textPart.text?.trim();
-    });
-
-    // Find actual tool call parts (not step-start or other events)
-    // Include tool-input-start to show active tool calls
-    const toolParts = lastMessage.parts.filter((part) => {
-      const type = part.type;
-      // Include tool-input-start (active calls) and other tool parts, but exclude deltas and intermediate events
-      return type.startsWith("tool-") && 
-             type !== "tool-input-delta" && 
-             type !== "tool-input-available" &&
-             type !== "tool-output-available";
-    }) as ToolUIPart[];
-
-    // Find the most recent tool that's still running (no output yet)
-    let latestRunningTool = null;
-    for (let i = toolParts.length - 1; i >= 0; i--) {
-      const tool = toolParts[i];
-      const toolWithMeta = tool as any;
-      const type = tool.type as string;
-      
-      // tool-input-start events are active tool calls
-      if (type === "tool-input-start") {
-        latestRunningTool = tool;
-        break;
-      }
-      
-      // Other tool parts are running if they don't have output/result yet
-      if (!toolWithMeta.output && !toolWithMeta.result && !toolWithMeta.errorText) {
-        latestRunningTool = tool;
-        break;
-      }
-    }
-
-    // If we have a running tool, show it
-    if (latestRunningTool) {
-      const toolType = latestRunningTool.type as string;
-      const toolWithMeta = latestRunningTool as any;
-      
-      // For tool-input-start, get the toolName property
-      if (toolType === "tool-input-start" && toolWithMeta.toolName) {
-        return toolWithMeta.toolName;
-      }
-      
-      if (toolType === "dynamic-tool") {
-        const dynamicTool = latestRunningTool as unknown as { toolName: string };
-        return dynamicTool.toolName;
-      }
-      return toolType.replace(/^tool-/, "");
-    }
-
-    // If we have text content but no running tools, hide the indicator
-    if (hasTextContent) return null;
-
-    // If no running tools but also no text yet, show the most recent completed tool
-    const latestTool = toolParts[toolParts.length - 1];
-    if (!latestTool) return null;
-
-    const toolType = latestTool.type as string;
-    if (toolType === "dynamic-tool") {
-      const dynamicTool = latestTool as unknown as { toolName: string };
-      return dynamicTool.toolName;
-    }
-    return toolType.replace(/^tool-/, "");
-  })();
+  const { agentStatus, currentToolCall } = useChatStatus(messages, status);
 
   const { artifacts } = useArtifacts();
   const hasArtifacts = artifacts && artifacts.length > 0;

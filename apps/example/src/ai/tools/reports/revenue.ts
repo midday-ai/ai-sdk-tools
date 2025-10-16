@@ -26,7 +26,7 @@ Capabilities:
       .boolean()
       .optional()
       .default(false)
-      .describe("Use interactive artifact visualization"),
+      .describe("When the user asks for visual report, use this flag to enable the visualization"),
   }),
 
   execute: async function* ({ from, to, currency, useArtifact }, executionOptions) {
