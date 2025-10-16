@@ -30,7 +30,6 @@ export interface MemoryIdentifiers {
  */
 export interface ExtendedExecutionContext extends Record<string, unknown> {
   _memoryAddition?: string;
-  _updateWorkingMemoryTool?: Tool;
 }
 
 /**
@@ -267,10 +266,8 @@ export interface AgentStreamOptionsUI<
   TContext extends Record<string, unknown> = Record<string, unknown>,
 > {
   // Agent-specific options
-  /** Single new message - agent loads history from memory (recommended when memory is enabled) */
-  message?: UIMessage;
-  /** Full message array - for apps without memory or manual control */
-  messages?: ModelMessage[];
+  /** New user message - agent automatically loads conversation history from memory */
+  message: UIMessage;
   /** Routing strategy */
   strategy?: "auto" | "llm";
   /** Max orchestration rounds */

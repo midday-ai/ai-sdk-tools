@@ -93,7 +93,6 @@ export const getToolMessage = (toolName: string | null) => {
 
     // Memory tools
     updateWorkingMemory: "Saving this to memory...",
-    sharedMemory: "Getting information...",
 
     // Handoff tools
     handoff_to_agent: "Thinking...",

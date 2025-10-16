@@ -43,6 +43,18 @@ Complex tasks benefit from specialized expertise. Instead of a single model hand
 ### Agent
 An AI with specialized instructions, tools, and optional context. Each agent is configured with a language model and system prompt tailored to its role.
 
+### Memory & Conversation History
+Agents automatically load conversation history from storage when memory is enabled. This creates a clean separation of concerns:
+- **Frontend**: Sends only the new user message
+- **Backend**: Loads conversation history from storage
+- **Storage**: Single source of truth for all conversations
+
+This approach:
+- Reduces network payload (no need to send full history)
+- Provides consistent context across requests
+- Enables server-side control of context window size via `lastMessages` config
+- Integrates seamlessly with `@ai-sdk-tools/memory` providers
+
 ### Handoffs
 Agents can transfer control to other agents while preserving conversation context. Handoffs include the reason for transfer and any relevant context.
 
@@ -90,22 +102,30 @@ const orchestrator = new Agent({
 });
 ```
 
-### Shared Memory for Cross-Agent Coordination
+### Agent Communication During Handoffs
 
-Agents can share state using the built-in shared memory tool:
+Agents automatically share context through conversationMessages during handoffs. No separate tools needed.
+
+### Working Memory
+
+Working memory automatically loads and provides update capability when enabled:
 
 ```typescript
-// Agents automatically get sharedMemory tool when handoffs are configured
-const agent = new Agent({
-  name: 'Data Processor',
-  model: openai('gpt-4o'),
-  instructions: 'Process data and store results in shared memory',
-  handoffs: [specialist], // This enables shared memory
+const agent = createAgent({
+  memory: {
+    workingMemory: { 
+      enabled: true,
+      scope: 'user', // Persists across all chats for this user
+      template: 'Custom template...'
+    }
+  }
 });
-
-// In agent instructions:
-// "Use sharedMemory tool to store processed data for other agents to access"
 ```
+
+When enabled:
+- Working memory loads automatically into system instructions
+- Agent gets `updateWorkingMemory` tool to update preferences/context
+- Updates persist in storage via the memory provider
 
 ### Pre-built Handoff Filters
 
@@ -221,10 +241,11 @@ const supportAgent = new Agent({
 });
 
 export async function POST(req: Request) {
-  const { messages } = await req.json();
+  const { message, chatId } = await req.json();
 
   return supportAgent.toUIMessageStream({
-    messages,
+    message, // Only pass the new user message
+    context: { chatId }, // Storage will provide conversation history
     maxRounds: 5, // Max handoffs
     maxSteps: 10, // Max tool calls per agent
     onEvent: async (event) => {
@@ -285,10 +306,11 @@ const agent = new Agent<TeamContext>({
 
 // Pass context when streaming
 agent.toUIMessageStream({
-  messages,
+  message: userMessage, // New user message
   context: {
     teamId: 'team-123',
     userId: 'user-456',
+    chatId: 'chat-789', // For conversation history
     preferences: { theme: 'dark', language: 'en' },
   },
 });
@@ -416,10 +438,9 @@ const researchSpecialist = new Agent({
   name: 'Research Specialist',
   model: openai('gpt-4o-mini'),
   instructions: `You research current product information and pricing.
-Store key findings in shared memory for other agents to access.`,
+Provide detailed findings for other agents.`,
   tools: {
     webSearch: webSearchTool,
-    // sharedMemory tool is automatically added when handoffs are configured
   },
 });
 
@@ -428,10 +449,9 @@ const financialAnalyst = new Agent({
   name: 'Financial Analyst', 
   model: openai('gpt-4o-mini'),
   instructions: `You analyze financial affordability based on user data and research.
-Read research findings from shared memory, then provide comprehensive analysis.`,
+Use previous conversation context to provide comprehensive analysis.`,
   tools: {
     getFinancialData: getFinancialDataTool,
-    // sharedMemory tool is automatically added
   },
 });
 
@@ -454,7 +474,7 @@ Coordinate research and financial analysis for comprehensive answers.`,
 });
 
 // Usage: "Can I afford a Tesla Model Y?"
-// 1. Assistant → Research Specialist (searches for Tesla pricing, stores in shared memory)
+// 1. Assistant → Research Specialist (searches for Tesla pricing)
 // 2. Research Specialist → Financial Analyst (reads pricing, gets user's financial data)
 // 3. Financial Analyst provides comprehensive affordability analysis
 ```
@@ -498,7 +518,7 @@ stream(options: {
 
 // Stream as UI messages (Next.js route handler)
 toUIMessageStream(options: {
-  messages: ModelMessage[];
+  message: UIMessage; // New user message - history loaded from storage
   strategy?: 'auto' | 'manual';
   maxRounds?: number;
   maxSteps?: number;
@@ -555,11 +575,6 @@ class AgentRunContext<TContext = Record<string, unknown>> {
   constructor(context?: TContext);
   toJSON(): object;
 }
-
-// Shared memory utilities
-createSharedMemoryTool(): Tool
-getSharedMemory(runContext: AgentRunContext, key: string): any
-setSharedMemory(runContext: AgentRunContext, key: string, value: any): void
 
 // Execution context
 createExecutionContext<T>(options: {

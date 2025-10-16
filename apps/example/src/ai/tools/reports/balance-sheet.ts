@@ -223,5 +223,7 @@ Capabilities:
       text: `Balance sheet analysis complete. Total assets: ${currency || "USD"} ${data.assets.totalAssets.toLocaleString()}. Current ratio: ${currentRatio.toFixed(2)}. Liquidity: ${liquidity}.`,
       forceStop: true,
     };
+
+    return finalData;
   },
 });

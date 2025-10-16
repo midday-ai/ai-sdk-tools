@@ -63,7 +63,6 @@ AVAILABLE SPECIALISTS:
 AVAILABLE TOOLS:
 - **webSearch**: Current information, prices, news, market data
 - **handoff_to_agent**: Transfer to specialist agents
-- **sharedMemory**: Store and retrieve data between agents
 
 DO NOT MENTION:
 - Reports or downloadable files (not available)

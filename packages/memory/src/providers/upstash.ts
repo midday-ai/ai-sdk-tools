@@ -6,6 +6,9 @@ import type {
   MemoryScope,
   WorkingMemory,
 } from "../types.js";
+import { createLogger } from "@ai-sdk-tools/debug";
+
+const logger = createLogger('UPSTASH');
 
 /**
  * Upstash Redis provider - serverless edge
@@ -32,6 +35,14 @@ export class UpstashProvider implements MemoryProvider {
     content: string;
   }): Promise<void> {
     const key = this.getKey("wm", params.scope, params.chatId, params.userId);
+    logger.debug("updateWorkingMemory called", { 
+      key, 
+      scope: params.scope, 
+      chatId: params.chatId,
+      userId: params.userId,
+      contentLength: params.content.length 
+    });
+    
     const memory: WorkingMemory = {
       content: params.content,
       updatedAt: new Date(),
@@ -41,13 +52,20 @@ export class UpstashProvider implements MemoryProvider {
     const ttl = params.scope === "user" ? 60 * 60 * 24 * 30 : 60 * 60 * 24;
 
     await this.redis.setex(key, ttl, memory);
+    logger.debug("updateWorkingMemory complete", { key });
   }
 
   async saveMessage(message: ConversationMessage): Promise<void> {
     const key = this.getKey("msg", "chat", message.chatId);
+    logger.debug(`saveMessage: chatId=${message.chatId}`, { 
+      chatId: message.chatId, 
+      role: message.role, 
+      key 
+    });
     await this.redis.rpush(key, message);
     await this.redis.ltrim(key, -100, -1); // Keep last 100
     await this.redis.expire(key, 60 * 60 * 24 * 7); // 7 days
+    logger.debug(`saveMessage complete for ${message.chatId}`, { chatId: message.chatId });
   }
 
   async getMessages(params: {
@@ -61,6 +79,20 @@ export class UpstashProvider implements MemoryProvider {
       start,
       -1,
     );
+    
+    // Debug: Check what we actually retrieved
+    logger.debug(`getMessages for ${params.chatId}`, { 
+      chatId: params.chatId, 
+      key, 
+      start, 
+      found: messages?.length || 0 
+    });
+    if (messages && messages.length > 0) {
+      logger.debug(`Messages retrieved`, { 
+        messages: messages.map(m => ({ role: m.role, content: m.content?.substring(0, 50) })) 
+      });
+    }
+    
     return messages || [];
   }
 

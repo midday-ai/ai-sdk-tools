@@ -49,6 +49,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@ai-sdk-tools/debug": "workspace:*",
     "@ai-sdk-tools/memory": "workspace:*"
   },
   "peerDependencies": {

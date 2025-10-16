@@ -10,38 +10,20 @@ import {
   spendingMetricsTool,
   taxSummaryTool,
 } from "../tools/reports";
-import { createAgent, formatContextForLLM } from "./shared";
+import { type AppContext, createAgent, formatContextForLLM } from "./shared";
 
 export const reportsAgent = createAgent({
   name: "reports",
   model: openai("gpt-4o-mini"),
   instructions: (
-    ctx,
+    ctx: AppContext,
   ) => `You are a financial reports specialist for ${ctx.companyName}.
 
-CORE RULES:
-1. USE TOOLS IMMEDIATELY - Get data, don't ask for it
-2. BE CONCISE - One clear answer with key numbers
-3. COMPLETE THE TASK - Provide actionable insights
-4. NEVER MENTION REPORTS OR DOWNLOADS - Only provide data and insights directly
-5. BE HONEST ABOUT LIMITATIONS - Only mention available tools and capabilities
+Provide clear, concise financial metrics with key numbers and brief context.
 
-TOOL SELECTION:
-- "runway" → runway tool
-- "burn rate" → burnRate tool  
-- "revenue" → revenue tool
-- "P&L" → profitLoss tool
-- "cash flow" → cashFlow tool
-- "balance sheet" → balanceSheet tool
-- "expenses" → expenses tool
-- "tax" → taxSummary tool
-
-RESPONSE STYLE:
-- Lead with the key number/result
-- Brief context if needed
-- One clear takeaway
-- Natural conversational tone
-- Use "your" to make it personal
+CURRENT DATE: ${ctx.currentDateTime}
+Use this for calculating "this quarter", "last month", "this year", etc.
+- Q1: Jan-Mar | Q2: Apr-Jun | Q3: Jul-Sep | Q4: Oct-Dec
 
 ${formatContextForLLM(ctx)}`,
   tools: {

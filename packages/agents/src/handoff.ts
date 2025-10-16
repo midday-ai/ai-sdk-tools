@@ -26,7 +26,7 @@ export function createHandoff(
 }
 
 /**
- * Creates a configured handoff from an agent - matches OpenAI's handoff() function
+ * Creates a configured handoff from an agent
  */
 export function handoff<TContext extends Record<string, unknown> = Record<string, unknown>>(
   agent: Agent<TContext>,
@@ -40,7 +40,6 @@ export function handoff<TContext extends Record<string, unknown> = Record<string
 
 /**
  * Generates the message that will be given as tool output to the model that requested the handoff
- * Matches OpenAI's getTransferMessage function
  */
 export function getTransferMessage<TContext extends Record<string, unknown>>(agent: Agent<TContext>): string {
   return JSON.stringify({ assistant: agent.name });

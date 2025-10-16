@@ -18,6 +18,7 @@
     "dev": "tsup --watch"
   },
   "dependencies": {
+    "@ai-sdk-tools/debug": "workspace:*",
     "zod": "^4.1.12"
   },
   "peerDependencies": {

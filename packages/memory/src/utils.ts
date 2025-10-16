@@ -45,35 +45,21 @@ export function formatHistory(
  */
 export function getWorkingMemoryInstructions(template: string): string {
   return `
-## Working Memory Instructions
+## Working Memory
 
-You have access to persistent working memory that stores data across agent handoffs.
+You have access to persistent working memory that stores user preferences, context, and important facts across conversations.
 
-**CRITICAL: Check working memory BEFORE making handoffs or tool calls**
+**ALWAYS call updateWorkingMemory when:**
+- User shares OR corrects their name, role, company, or preferences
+- User provides OR updates important facts you should remember
+- User corrects previous information about themselves
+- Any new or changed context that should persist for future conversations
 
-**Memory Usage Rules:**
-1. **ALWAYS check working memory first** - Use \`updateWorkingMemory\` to read existing data
-2. **Store tool results** - After calling tools, store results in working memory for other agents
-3. **Avoid redundant calls** - If data exists in memory, use it instead of calling tools again
-4. **Coordinate handoffs** - Check if other agents have already provided needed data
-
-**When to use updateWorkingMemory:**
-- **Before handoffs**: Check for existing data from other agents
-- **After tool calls**: Store results for future use
-- **User context**: Remember preferences, facts, and patterns
-- **Cross-agent data**: Share data between different specialists
-
-**Handoff Coordination:**
-- If you need data that might exist in working memory, check first
-- Only hand off to agents when you need NEW data not available in memory
-- Coordinate with other agents by storing and retrieving shared data
-- Avoid multiple parallel handoffs for the same information
-
-**Template:**
+**Template structure to follow:**
 \`\`\`
 ${template}
 \`\`\`
 
-**Remember: Working memory persists across the entire conversation and agent handoffs. Use it to coordinate efficiently with other agents.**
+**Critical:** After calling updateWorkingMemory, respond to the user confirming the update.
 `.trim();
 }

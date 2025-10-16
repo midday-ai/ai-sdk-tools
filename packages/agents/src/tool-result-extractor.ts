@@ -6,7 +6,9 @@
 
 import type { ModelMessage } from "ai";
 import type { HandoffInputData } from "./types.js";
-import { debug } from "./debug.js";
+import { createLogger } from "@ai-sdk-tools/debug";
+
+const logger = createLogger('TOOL_EXTRACTOR');
 
 /**
  * Extract tool results from conversation messages
@@ -14,22 +16,22 @@ import { debug } from "./debug.js";
 export function extractToolResults(messages: ModelMessage[]): Record<string, any> {
   const toolResults: Record<string, any> = {};
   
-  debug("TOOL_EXTRACTOR", `Analyzing ${messages.length} messages for tool results`);
+  logger.debug(`Analyzing ${messages.length} messages for tool results`, { count: messages.length });
   
   for (let i = 0; i < messages.length; i++) {
     const message = messages[i];
-    debug("TOOL_EXTRACTOR", `Message ${i}: role=${message.role}, content type=${typeof message.content}`);
+    logger.debug(`Message ${i}`, { role: message.role, contentType: typeof message.content });
     
     if (message.role === "assistant" && message.content) {
       // Look for tool calls in assistant messages
       if (Array.isArray(message.content)) {
-        debug("TOOL_EXTRACTOR", `Assistant message has ${message.content.length} content items`);
+        logger.debug(`Assistant message has ${message.content.length} content items`, { count: message.content.length });
         for (const content of message.content) {
-          debug("TOOL_EXTRACTOR", `Content item type: ${content.type}`);
+          logger.debug(`Content item type: ${content.type}`, { type: content.type });
           if (content.type === "tool-result") {
             const toolName = content.toolName;
             const result = (content as any).result || (content as any).output;
-            debug("TOOL_EXTRACTOR", `Found tool result: ${toolName}`);
+            logger.debug(`Found tool result: ${toolName}`, { toolName });
             if (toolName && result) {
               toolResults[toolName] = result;
             }
@@ -42,7 +44,7 @@ export function extractToolResults(messages: ModelMessage[]): Record<string, any
     if (message.role === "tool" && message.content) {
       // Tool messages contain the result directly
       const toolName = (message as any).toolName;
-      debug("TOOL_EXTRACTOR", `Tool message: ${toolName}`);
+      logger.debug(`Tool message: ${toolName}`, { toolName });
       if (toolName && message.content) {
         try {
           const result = typeof message.content === 'string' 
@@ -57,24 +59,31 @@ export function extractToolResults(messages: ModelMessage[]): Record<string, any
     }
   }
   
-  debug("TOOL_EXTRACTOR", "Final tool results:", Object.keys(toolResults));
+  logger.debug("Final tool results", { tools: Object.keys(toolResults) });
   return toolResults;
 }
 
 /**
  * Create a default input filter that modifies conversation history to include tool results
+ * 
+ * @internal This is automatically applied during handoffs. You typically don't need to use this directly.
+ * Simply use `handoff(agent)` without specifying an inputFilter.
  */
 export function createDefaultInputFilter(): (input: HandoffInputData) => HandoffInputData {
   return (input: HandoffInputData) => {
-    debug("TOOL_EXTRACTOR", `Processing input history with ${input.inputHistory.length} messages`);
-    debug("TOOL_EXTRACTOR", `Processing newItems with ${input.newItems.length} items`);
+    logger.debug(`Processing input history with ${input.inputHistory.length} messages`, { 
+      historyCount: input.inputHistory.length 
+    });
+    logger.debug(`Processing newItems with ${input.newItems.length} items`, { 
+      newItemsCount: input.newItems.length 
+    });
     
-    // Extract tool results from newItems (this is the key - OpenAI agents style)
+    // Extract tool results from newItems
     const toolResults: Record<string, any> = {};
     
     // Process newItems to extract tool results
     for (const item of input.newItems) {
-      debug("TOOL_EXTRACTOR", `Processing newItem: ${typeof item}`, item);
+      logger.debug(`Processing newItem: ${typeof item}`, { itemType: typeof item });
       
       // Check if item has tool results
       if (item && typeof item === 'object') {
@@ -84,7 +93,7 @@ export function createDefaultInputFilter(): (input: HandoffInputData) => Handoff
           const result = (item as any).result;
           if (toolName && result) {
             toolResults[toolName] = result;
-            debug("TOOL_EXTRACTOR", `Found tool result in newItems: ${toolName}`);
+            logger.debug(`Found tool result in newItems: ${toolName}`, { toolName });
           }
         }
         
@@ -94,14 +103,14 @@ export function createDefaultInputFilter(): (input: HandoffInputData) => Handoff
           for (const contentItem of content) {
             if (contentItem.type === 'tool-result' && contentItem.toolName && contentItem.result) {
               toolResults[contentItem.toolName] = contentItem.result;
-              debug("TOOL_EXTRACTOR", `Found nested tool result: ${contentItem.toolName}`);
+              logger.debug(`Found nested tool result: ${contentItem.toolName}`, { toolName: contentItem.toolName });
             }
           }
         }
       }
     }
     
-    debug("TOOL_EXTRACTOR", "Extracted tool results from newItems:", Object.keys(toolResults));
+    logger.debug("Extracted tool results from newItems", { tools: Object.keys(toolResults) });
     
     // Create a summary message with the available data
     if (Object.keys(toolResults).length > 0) {
@@ -121,7 +130,7 @@ export function createDefaultInputFilter(): (input: HandoffInputData) => Handoff
       // Add a system message with the available data
       const dataMessage: ModelMessage = {
         role: 'system',
-        content: `Available data from previous agent:\n${dataSummary}\n\nUse this data instead of calling tools for the same information.`
+        content: `Available data from previous agent:\n${dataSummary}\n\n**IMPORTANT**: Only use this data if it's DIRECTLY relevant to the current user question. If the user is asking about something different, ignore this data and call the appropriate tools.`
       };
       
       // Ensure we keep the original conversation and add the data message

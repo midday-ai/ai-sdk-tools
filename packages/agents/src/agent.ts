@@ -2,6 +2,7 @@ import {
   DEFAULT_TEMPLATE,
   formatWorkingMemory,
   getWorkingMemoryInstructions,
+  type ConversationMessage,
   type MemoryConfig,
 } from "@ai-sdk-tools/memory";
 import {
@@ -21,9 +22,8 @@ import {
   type UIMessageStreamWriter,
 } from "ai";
 import { z } from "zod";
-import { debug } from "./debug.js";
+import { createLogger } from "@ai-sdk-tools/debug";
 import { createHandoffTool, isHandoffResult } from "./handoff.js";
-import { createSharedMemoryTool } from "./tools/shared-memory-tool.js";
 import { promptWithHandoffInstructions } from "./handoff-prompt.js";
 import { writeAgentStatus } from "./streaming.js";
 import type {
@@ -48,6 +48,8 @@ import { AgentRunContext } from "./run-context.js";
 import { extractTextFromMessage } from "./utils.js";
 import { createExecutionContext } from "./context.js";
 import { createDefaultInputFilter } from "./tool-result-extractor.js";
+
+const logger = createLogger('AGENT');
 
 export class Agent<
   TContext extends Record<string, unknown> = Record<string, unknown>,
@@ -176,7 +178,7 @@ export class Agent<
   stream(
     options: AgentStreamOptions | { messages: ModelMessage[] },
   ): AgentStreamResult {
-    debug("STREAM", `${this.name} stream called`);
+    logger.debug(`${this.name} stream called`, { name: this.name });
 
     // Extract our internal execution context (we map to/from AI SDK's experimental_context at boundaries)
     const executionContext = (options as Record<string, unknown>)
@@ -221,21 +223,16 @@ export class Agent<
     // Add handoff tool if needed
     if (this.handoffAgents.length > 0) {
       resolvedTools.handoff_to_agent = createHandoffTool(this.handoffAgents);
-      
-      // Add shared memory tool for cross-agent coordination
-      resolvedTools.sharedMemory = createSharedMemoryTool();
+      // Note: Agents communicate via conversationMessages during handoffs
     }
 
-    // Add working memory tool if enabled
-    if (this.memory?.workingMemory?.enabled) {
+    // Add working memory update tool if enabled
+    // Only add to specialist agents (not orchestrators/routers)
+    if (this.memory?.workingMemory?.enabled && this.handoffAgents.length === 0) {
       resolvedTools.updateWorkingMemory = this.createWorkingMemoryTool();
     }
 
-    // Override working memory tool if preloaded in context
-    if (extendedContext._updateWorkingMemoryTool) {
-      resolvedTools.updateWorkingMemory =
-        extendedContext._updateWorkingMemoryTool;
-    }
+    // Note: Conversation history is automatically loaded via loadMessagesWithHistory()
 
     // Build additional options to pass to AI SDK
     const additionalOptions: Record<string, unknown> = {
@@ -252,7 +249,7 @@ export class Agent<
 
     // Handle simple { messages } format (like working code)
     if ("messages" in options && !("prompt" in options) && options.messages) {
-      debug("ORCHESTRATION", `Stream with messages only`, {
+      logger.debug(`Stream with messages only`, {
         messageCount: options.messages.length,
       });
       return this.aiAgent.stream({
@@ -263,7 +260,7 @@ export class Agent<
 
     // Handle full AgentStreamOptions format
     const opts = options as AgentStreamOptions;
-    debug("ORCHESTRATION", `Stream options for ${this.name}`, {
+    logger.debug(`Stream options for ${this.name}`, {
       hasPrompt: !!opts.prompt,
       messageCount: opts.messages?.length || 0,
     });
@@ -308,10 +305,9 @@ export class Agent<
   toUIMessageStream(options: AgentStreamOptionsUI): Response {
     const {
       message,
-      messages: providedMessages,
       strategy = "auto",
       maxRounds = 5,
-      maxSteps = 5,
+      maxSteps = 10,
       context,
       agentChoice,
       toolChoice,
@@ -334,18 +330,12 @@ export class Agent<
     } = options;
 
     // Store user message text for later use in onFinish
-    let userMessageText = "";
+    const userMessageText = extractTextFromMessage(
+      convertToModelMessages([message])[0],
+    );
 
-    // Extract input from message or messages
-    if (message) {
-      userMessageText = extractTextFromMessage(
-        convertToModelMessages([message])[0],
-      );
-    } else if (providedMessages) {
-      userMessageText = extractTextFromMessage(
-        providedMessages[providedMessages.length - 1],
-      );
-    }
+    // Accumulate assistant text during streaming
+    let accumulatedAssistantText = "";
 
     // Wrap onFinish to save messages after streaming
     const wrappedOnFinish: UIMessageStreamOnFinishCallback<never> = async (
@@ -358,23 +348,19 @@ export class Agent<
         );
 
         if (!chatId) {
-          debug(
-            "MEMORY",
-            "Cannot save messages: chatId is missing from context",
-          );
+          logger.warn("Cannot save messages: chatId is missing from context");
         } else {
           try {
-            const assistantText = this.extractAssistantText(
-              event.responseMessage,
-            );
+            // Use accumulated text from streaming instead of responseMessage
+            logger.debug(`Using accumulated assistant text (length: ${accumulatedAssistantText.length})`);
             await this.saveConversation(
               chatId,
               userId,
               userMessageText,
-              assistantText,
+              accumulatedAssistantText,
             );
           } catch (err) {
-            debug("MEMORY", "Failed to save conversation:", err);
+            logger.error("Failed to save conversation", { error: err });
           }
         }
       }
@@ -384,26 +370,16 @@ export class Agent<
     };
 
     const stream = createUIMessageStream({
-      originalMessages: (message ? [message] : providedMessages) as never[],
+      originalMessages: [message] as never[],
       onFinish: wrappedOnFinish,
       onError,
       generateId,
       execute: async ({ writer }) => {
-        // Handle message vs messages parameter and load history from memory
-        let messages: ModelMessage[];
-
-        if (message) {
-          // Single message - load history if memory is enabled
-          messages = await this.loadMessagesWithHistory(
-            message,
-            context as TContext,
-          );
-        } else if (providedMessages) {
-          // Messages provided - use as-is
-          messages = providedMessages;
-        } else {
-          throw new Error("Either message or messages must be provided");
-        }
+        // Load history from memory and merge with new message
+        const messages = await this.loadMessagesWithHistory(
+          message,
+          context as TContext,
+        );
 
         // Extract input from last message for routing
         const lastMessage = messages[messages.length - 1];
@@ -488,10 +464,7 @@ export class Agent<
             );
             if (chosenAgent) {
               currentAgent = chosenAgent;
-              debug(
-                "ROUTING",
-                `Explicit agent choice: ${currentAgent.name}`,
-              );
+              logger.debug(`Explicit agent choice: ${currentAgent.name}`, { agent: currentAgent.name });
 
               // Mark orchestrator as completing
               writeAgentStatus(writer, {
@@ -540,10 +513,7 @@ export class Agent<
 
             if (agentWithTool) {
               currentAgent = agentWithTool;
-              debug(
-                "ROUTING",
-                `Tool choice routing: ${toolChoice} → ${currentAgent.name}`,
-              );
+              logger.debug(`Tool choice routing: ${toolChoice} → ${currentAgent.name}`, { toolChoice, agent: currentAgent.name });
 
               // Mark orchestrator as completing
               writeAgentStatus(writer, {
@@ -604,7 +574,7 @@ export class Agent<
 
             if (matchedAgent) {
               currentAgent = matchedAgent;
-              debug("ROUTING", `Programmatic match: ${currentAgent.name}`);
+              logger.debug(`Programmatic match: ${currentAgent.name}`, { agent: currentAgent.name });
 
               // Mark orchestrator as completing
               writeAgentStatus(writer, {
@@ -736,7 +706,14 @@ export class Agent<
               // Track tool names when they start
               if (chunk.type === "tool-input-start") {
                 toolCallNames.set(chunk.toolCallId, chunk.toolName);
-                debug("TOOL_CALL", `Tool call started: ${chunk.toolName} (${chunk.toolCallId})`);
+                logger.debug(`Tool call started: ${chunk.toolName} (${chunk.toolCallId})`, { toolName: chunk.toolName, toolCallId: chunk.toolCallId });
+              }
+
+              // Log general errors
+              if (chunk.type === "error") {
+                logger.error("Stream error", { 
+                  error: (chunk as any).errorText || (chunk as any).error || chunk
+                });
               }
 
               // Capture tool results and detect handoffs
@@ -745,12 +722,12 @@ export class Agent<
                 if (toolName) {
                   // Store tool result for handoff context
                   toolResults.set(toolName, chunk.output);
-                  debug("TOOL_RESULT", `Captured ${toolName}:`, typeof chunk.output);
+                  logger.debug(`Captured ${toolName}`, { toolName, outputType: typeof chunk.output });
                   
                   // Detect handoff
                   if (toolName === "handoff_to_agent") {
                     handoffData = chunk.output as HandoffInstruction;
-                    debug("HANDOFF", "Handoff detected", handoffData);
+                    logger.debug("Handoff detected", handoffData);
                   }
                 }
               }
@@ -762,6 +739,8 @@ export class Agent<
                 role: "assistant",
                 content: textAccumulated,
               });
+              // Accumulate for memory save
+              accumulatedAssistantText += textAccumulated;
             }
 
             // Emit agent finish event
@@ -822,12 +801,12 @@ export class Agent<
                       conversationMessages.length = 0;
                       conversationMessages.push(...filteredData.inputHistory);
                     } catch (error) {
-                      console.error("Error applying handoff input filter:", error);
+                      logger.error("Error applying handoff input filter", { error });
                       // Continue with original conversation messages as fallback
                     }
                   } else {
                     // Use default input filter to modify conversation history
-                    debug("HANDOFF", "Applying default input filter for", handoffData.targetAgent);
+                    logger.debug("Applying default input filter for", { targetAgent: handoffData.targetAgent });
                     const defaultFilter = createDefaultInputFilter();
                     
                     const handoffInputData: HandoffInputData = {
@@ -840,15 +819,17 @@ export class Agent<
                       runContext,
                     };
                     
-                    debug("HANDOFF", "Input history length:", handoffInputData.inputHistory.length);
-                    debug("HANDOFF", "Input history messages:", handoffInputData.inputHistory.map(m => ({ role: m.role, contentType: typeof m.content })));
+                    logger.debug("Input history length", { length: handoffInputData.inputHistory.length });
+                    logger.debug("Input history messages", { 
+                      messages: handoffInputData.inputHistory.map(m => ({ role: m.role, contentType: typeof m.content }))
+                    });
                     const filteredData = defaultFilter(handoffInputData);
-                    debug("HANDOFF", "Filtered history length:", filteredData.inputHistory.length);
+                    logger.debug("Filtered history length", { length: filteredData.inputHistory.length });
                     
                     // Update conversation messages with filtered data
                     conversationMessages.length = 0;
                     conversationMessages.push(...filteredData.inputHistory);
-                    debug("HANDOFF", "Updated conversation messages length:", conversationMessages.length);
+                    logger.debug("Updated conversation messages length", { length: conversationMessages.length });
                   }
 
                   // Call onHandoff callback if configured
@@ -856,7 +837,7 @@ export class Agent<
                     try {
                       await configuredHandoff.config.onHandoff(runContext);
                     } catch (error) {
-                      console.error("Error in onHandoff callback:", error);
+                      logger.error("Error in onHandoff callback", { error });
                       // Continue execution - callback errors shouldn't stop handoff
                     }
                   }
@@ -926,7 +907,7 @@ export class Agent<
                       conversationMessages.length = 0;
                       conversationMessages.push(...filteredData.inputHistory, ...filteredData.newItems);
                     } catch (error) {
-                      console.error("Error applying handoff input filter:", error);
+                      logger.error("Error applying handoff input filter", { error });
                       // Continue with original conversation messages as fallback
                     }
                   }
@@ -936,7 +917,7 @@ export class Agent<
                     try {
                       await configuredHandoff.config.onHandoff(runContext);
                     } catch (error) {
-                      console.error("Error in onHandoff callback:", error);
+                      logger.error("Error in onHandoff callback", { error });
                       // Continue execution - callback errors shouldn't stop handoff
                     }
                   }
@@ -981,9 +962,14 @@ export class Agent<
             });
           }
 
+          // Log if this was a tool-only turn 
+          if (accumulatedAssistantText.length === 0) {
+            logger.debug("Tool-only turn - no text response generated");
+          }
+
           writer.write({ type: "finish" });
         } catch (error) {
-          console.error("[AGENT] Error in toUIMessageStream:", error);
+          logger.error("Error in toUIMessageStream", { error });
 
           // Emit error event
           if (onEvent) {
@@ -1068,9 +1054,9 @@ export class Agent<
         data: { chatId, title: text },
       });
 
-      debug("MEMORY", `Generated title for ${chatId}: ${text}`);
+      logger.debug(`Generated title for ${chatId}`, { chatId, title: text });
     } catch (err) {
-      debug("MEMORY", "Title generation failed:", err);
+      logger.error("Title generation failed", { error: err });
     }
   }
 
@@ -1079,53 +1065,54 @@ export class Agent<
    */
   private createWorkingMemoryTool() {
     const scope = this.memory?.workingMemory?.scope || "chat";
+    const memory = this.memory;
+    const extractMemoryIdentifiers = this.extractMemoryIdentifiers.bind(this);
 
     return tool({
-      description: getWorkingMemoryInstructions(
-        this.memory?.workingMemory?.template || DEFAULT_TEMPLATE,
-      ),
+      description: `Update working memory with user preferences, facts, or context. 
+      
+CRITICAL: Call this tool whenever the user shares or corrects ANY information about themselves - name, role, company, preferences, corrections to previous information, etc. Use this to remember important information about the user across conversations.`,
       inputSchema: z.object({
         content: z
           .string()
           .describe(
-            "Updated working memory content in markdown format. Use the template structure provided.",
+            "Updated working memory content in markdown format. Include user preferences, role, company, and any important facts to remember.",
           ),
       }),
       execute: async ({ content }, options) => {
-        if (!this.memory?.provider) {
-          return { success: false, message: "Memory provider not configured" };
+        logger.debug("updateWorkingMemory tool called", { contentLength: content.length });
+        
+        if (!memory?.provider) {
+          logger.warn("Memory provider not configured");
+          return "Memory system not configured";
         }
 
         const { getContext } = await import("./context.js");
-        const ctx = getContext(
-          options as { experimental_context?: Record<string, unknown> },
-        );
+        const ctx = getContext(options as { experimental_context?: Record<string, unknown> });
         const contextData = ctx as TContext | undefined;
 
         if (!contextData) {
-          return { success: false, message: "Context not available" };
+          logger.warn("Context not available for working memory update");
+          return "Context not available";
         }
 
-        const { chatId, userId } = this.extractMemoryIdentifiers(contextData);
+        const { chatId, userId } = extractMemoryIdentifiers(contextData);
+        logger.debug("Updating working memory", { chatId, userId, scope });
 
         try {
-          await this.memory.provider.updateWorkingMemory({
+          await memory.provider.updateWorkingMemory({
             chatId,
             userId,
             scope,
             content,
           });
-          return {
-            success: true,
-            message: "Working memory updated successfully",
-          };
+          logger.debug("Working memory updated successfully");
+          return "Memory updated successfully - this information will be available in future conversations";
         } catch (error) {
-          debug(
-            "MEMORY",
-            "Failed to update working memory:",
-            error instanceof Error ? error.message : error,
-          );
-          return { success: false, message: "Failed to update working memory" };
+          logger.error("Failed to update working memory", { 
+            error: error instanceof Error ? error.message : error 
+          });
+          return "Failed to update memory";
         }
       },
     });
@@ -1153,11 +1140,9 @@ export class Agent<
 
       return formatWorkingMemory(memory);
     } catch (error) {
-      debug(
-        "MEMORY",
-        "Failed to load working memory:",
-        error instanceof Error ? error.message : error,
-      );
+      logger.error("Failed to load working memory", { 
+        error: error instanceof Error ? error.message : error 
+      });
       return "";
     }
   }
@@ -1188,13 +1173,20 @@ export class Agent<
   ): Promise<ModelMessage[]> {
     // No memory - just convert the message
     if (!this.memory?.history?.enabled || !context) {
+      logger.debug("History disabled or no context - using single message only");
       return convertToModelMessages([message]);
     }
 
     const { chatId } = this.extractMemoryIdentifiers(context);
 
     if (!chatId) {
-      debug("MEMORY", "Cannot load history: chatId missing from context");
+      logger.warn("Cannot load history: chatId missing from context");
+      return convertToModelMessages([message]);
+    }
+
+    // Check if provider exists
+    if (!this.memory.provider) {
+      logger.warn("No memory provider configured - using single message only");
       return convertToModelMessages([message]);
     }
 
@@ -1205,28 +1197,28 @@ export class Agent<
           limit: this.memory.history.limit,
         })) || [];
 
-      debug(
-        "MEMORY",
-        `Loading history for chatId=${chatId}: found ${previousMessages.length} messages`,
-      );
+      logger.debug(`Loading history for chatId=${chatId}`, { 
+        chatId, 
+        count: previousMessages.length 
+      });
 
       if (previousMessages.length === 0) {
+        logger.debug("No previous messages found - starting new conversation");
         return convertToModelMessages([message]);
       }
 
       // Convert stored messages directly to ModelMessages
-      const historyMessages = previousMessages.map((msg) => ({
+      const historyMessages = previousMessages.map((msg: ConversationMessage) => ({
         role: msg.role,
         content: msg.content || "",
       }));
 
-      debug(
-        "MEMORY",
-        `Loaded ${historyMessages.length} history messages for context`,
-      );
+      logger.debug(`Loaded ${historyMessages.length} history messages for context`, { 
+        count: historyMessages.length 
+      });
       return [...historyMessages, ...convertToModelMessages([message])];
     } catch (err) {
-      debug("MEMORY", `Load history failed for chatId=${chatId}:`, err);
+      logger.error(`Load history failed for chatId=${chatId}`, { chatId, error: err });
       return convertToModelMessages([message]);
     }
   }
@@ -1283,35 +1275,53 @@ export class Agent<
   ): Promise<void> {
     if (!this.memory?.provider || !this.memory?.history?.enabled) return;
 
-    debug(
-      "MEMORY",
-      `Saving conversation for chatId=${chatId}: user="${userMessage.substring(0, 50)}..." assistant="${assistantMessage.substring(0, 50)}..."`,
-    );
+    logger.debug(`Saving conversation for chatId=${chatId}`, {
+      chatId,
+      userLength: userMessage.length,
+      assistantLength: assistantMessage.length,
+    });
 
     // Save both messages in parallel for better performance
-    await Promise.all([
-      this.memory.provider.saveMessage?.({
-        chatId,
-        userId,
-        role: "user",
-        content: userMessage,
-        timestamp: new Date(),
-      }),
-      assistantMessage
-        ? this.memory.provider.saveMessage?.({
+    try {
+      const savePromises = [
+        this.memory.provider.saveMessage?.({
+          chatId,
+          userId,
+          role: "user",
+          content: userMessage,
+          timestamp: new Date(),
+        }),
+      ];
+
+      // Only save assistant message if it has content
+      if (assistantMessage && assistantMessage.length > 0) {
+        logger.debug(`Will save assistant message`, { length: assistantMessage.length });
+        savePromises.push(
+          this.memory.provider.saveMessage?.({
             chatId,
             userId,
             role: "assistant",
             content: assistantMessage,
             timestamp: new Date(),
           })
-        : Promise.resolve(),
-    ]);
+        );
+      } else {
+        logger.warn(`Skipping assistant message save - empty or undefined`);
+      }
 
-    debug("MEMORY", `Successfully saved conversation for chatId=${chatId}`);
+      await Promise.all(savePromises);
 
-    // Update chat session after saving messages
-    await this.updateChatSession(chatId, userId, 2);
+      logger.debug(`Successfully saved ${savePromises.length} messages`, { 
+        chatId, 
+        count: savePromises.length 
+      });
+
+      // Update chat session after saving messages
+      await this.updateChatSession(chatId, userId, savePromises.length);
+    } catch (error) {
+      logger.error(`Failed to save messages for chatId=${chatId}`, { chatId, error });
+      throw error; // Re-throw to make save failures visible
+    }
   }
 
   /**
@@ -1338,7 +1348,7 @@ export class Agent<
     const { chatId } = this.extractMemoryIdentifiers(context);
 
     if (!chatId) {
-      debug("MEMORY", "Cannot generate title: chatId missing from context");
+      logger.warn("Cannot generate title: chatId missing from context");
       return;
     }
 
@@ -1347,7 +1357,7 @@ export class Agent<
     // Only generate for first message
     if (!existingChat || existingChat.messageCount === 0) {
       this.generateChatTitle(chatId, userMessage, writer, context).catch(
-        (err) => debug("MEMORY", "Title generation error:", err),
+        (err) => logger.error("Title generation error", { error: err }),
       );
     }
   }
