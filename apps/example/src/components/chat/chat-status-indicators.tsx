@@ -32,9 +32,8 @@ export function ChatStatusIndicators({
         text={displayMessage}
         shimmerDuration={0.75}
         fadeDuration={0.2}
-        variant="fade"
+        variant="slide"
         className="text-xs font-normal"
-        showBorder={!!toolMessage}
         icon={toolIcon}
       />
 

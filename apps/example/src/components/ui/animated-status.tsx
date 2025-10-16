@@ -12,8 +12,6 @@ interface AnimatedStatusProps {
   fadeDuration?: number;
   /** Animation variant for status changes */
   variant?: "fade" | "slide" | "scale" | "blur-fade";
-  /** Show border around the status (for tool messages) */
-  showBorder?: boolean;
   /** Optional icon to display before the text */
   icon?: IconComponent | null;
 }
@@ -24,7 +22,6 @@ export function AnimatedStatus({
   className,
   fadeDuration = 0.2,
   variant = "fade",
-  showBorder = false,
   icon: Icon,
 }: AnimatedStatusProps) {
   // Animation variants for different effects
@@ -66,10 +63,7 @@ export function AnimatedStatus({
               duration: fadeDuration,
               ease: "easeInOut",
             }}
-            className={cn(
-              "inline-flex items-center gap-1.5 text-muted-foreground dark:text-[#666666]",
-              showBorder && "border border-border px-1.5 py-0.5"
-            )}
+            className="inline-flex items-center gap-1.5 text-muted-foreground dark:text-[#666666]"
           >
             {Icon && <Icon className="h-3 w-3 shrink-0 text-current" />}
             <TextShimmer

@@ -72,6 +72,9 @@ export class Agent<
   private readonly configuredTools:
     | Record<string, Tool>
     | ((context: TContext) => Record<string, Tool>);
+  // Cache for system prompt construction
+  private _cachedSystemPrompt?: string;
+  private _cacheKey?: string;
 
   constructor(config: AgentConfig<TContext>) {
     this.name = config.name;
@@ -89,28 +92,11 @@ export class Agent<
     // Store tools config (will be resolved at runtime)
     this.configuredTools = config.tools || {};
 
-    // Note: If instructions is a function, it will be resolved per-call in stream()
-    // We still need to create the AI SDK Agent with initial instructions for backwards compatibility
-    const baseInstructions =
-      typeof config.instructions === "string" ? config.instructions : "";
-    let systemPrompt =
-      this.handoffAgents.length > 0
-        ? promptWithHandoffInstructions(baseInstructions)
-        : baseInstructions;
-
-    // Add working memory instructions if enabled
-    if (config.memory?.workingMemory?.enabled) {
-      const workingMemoryInstructions = getWorkingMemoryInstructions(
-        config.memory.workingMemory.template || DEFAULT_TEMPLATE,
-      );
-      systemPrompt += `\n\n${workingMemoryInstructions}`;
-    }
-
-    // Create AI SDK Agent (tools will be resolved per-request in stream())
+    // Create AI SDK Agent with minimal config (system prompt overridden per-request in stream())
     this.aiAgent = new AISDKAgent<Record<string, Tool>>({
       model: config.model,
-      system: systemPrompt,
-      tools: {}, // Empty tools, will be overridden per-request
+      system: "", // Will be overridden per-request with resolved instructions
+      tools: {}, // Will be overridden per-request with resolved tools
       stopWhen: stepCountIs(config.maxTurns || 10),
       temperature: config.temperature,
       ...config.modelSettings,
@@ -200,18 +186,36 @@ export class Agent<
     const extendedContext = executionContext as ExtendedExecutionContext;
     const memoryAddition = extendedContext._memoryAddition || "";
 
-    // Add handoff instructions if needed
-    let systemPrompt =
-      this.handoffAgents.length > 0
-        ? promptWithHandoffInstructions(resolvedInstructions + memoryAddition)
-        : resolvedInstructions + memoryAddition;
+    // Build cache key for static parts
+    const cacheKey = `${typeof this.instructions === "string" ? this.instructions : "dynamic"}_${this.handoffAgents.length}_${this.memory?.workingMemory?.enabled || false}`;
+    
+    // Build system prompt with caching for static parts
+    let systemPrompt: string;
+    if (this._cacheKey === cacheKey && this._cachedSystemPrompt && !memoryAddition) {
+      // Use cached version if no dynamic memory addition
+      systemPrompt = this._cachedSystemPrompt;
+    } else {
+      // Build the static base prompt
+      let basePrompt = this.handoffAgents.length > 0
+        ? promptWithHandoffInstructions(resolvedInstructions)
+        : resolvedInstructions;
 
-    // Add working memory instructions if enabled
-    if (this.memory?.workingMemory?.enabled) {
-      const workingMemoryInstructions = getWorkingMemoryInstructions(
-        this.memory.workingMemory.template || DEFAULT_TEMPLATE,
-      );
-      systemPrompt += `\n\n${workingMemoryInstructions}`;
+      // Add working memory instructions if enabled
+      if (this.memory?.workingMemory?.enabled) {
+        const workingMemoryInstructions = getWorkingMemoryInstructions(
+          this.memory.workingMemory.template || DEFAULT_TEMPLATE,
+        );
+        basePrompt += `\n\n${workingMemoryInstructions}`;
+      }
+
+      // Cache the base prompt if instructions are static
+      if (typeof this.instructions === "string" && !memoryAddition) {
+        this._cachedSystemPrompt = basePrompt;
+        this._cacheKey = cacheKey;
+      }
+
+      // Add dynamic memory addition
+      systemPrompt = basePrompt + memoryAddition;
     }
 
     // Resolve tools dynamically (static object or function)
@@ -337,6 +341,9 @@ export class Agent<
       convertToModelMessages([message])[0],
     );
 
+    // Declare variable to store chat metadata (will be loaded in execute block)
+    let existingChatForSave: any = null;
+
     // Accumulate assistant text during streaming
     let accumulatedAssistantText = "";
 
@@ -361,6 +368,7 @@ export class Agent<
               userId,
               userMessageText,
               accumulatedAssistantText,
+              existingChatForSave,
             );
           } catch (err) {
             logger.error("Failed to save conversation", { error: err });
@@ -378,26 +386,26 @@ export class Agent<
       onError,
       generateId,
       execute: async ({ writer }) => {
-        // Load history from memory and merge with new message
-        const messages = await this.loadMessagesWithHistory(
-          message,
-          context as TContext,
-        );
+        // Load history and working memory in parallel for better performance
+        const [messages, memoryAddition] = await Promise.all([
+          this.loadMessagesWithHistory(message, context as TContext),
+          context && this.memory?.workingMemory?.enabled
+            ? this.loadWorkingMemory(context as TContext)
+            : Promise.resolve(""),
+        ]);
+
+        // Load chat metadata once for the entire request (stored in closure for wrappedOnFinish)
+        const { chatId, userId } = this.extractMemoryIdentifiers(context as TContext);
+        if (this.memory?.chats?.enabled && chatId) {
+          existingChatForSave = await this.memory.provider?.getChat?.(chatId);
+        }
 
         // Extract input from last message for routing
         const lastMessage = messages[messages.length - 1];
         const input = extractTextFromMessage(lastMessage);
 
-        // Import context utilities
- 
-        // Load working memory from agent-level config
-        let memoryAddition = "";
-        if (context && this.memory?.workingMemory?.enabled) {
-          memoryAddition = await this.loadWorkingMemory(context as TContext);
-        }
-
-        // Generate chat title if this is the first message
-        await this.maybeGenerateChatTitle(context as TContext, input, writer);
+        // Generate chat title if this is the first message (using pre-loaded chat)
+        await this.maybeGenerateChatTitle(context as TContext, input, writer, existingChatForSave);
 
         // Create AgentRunContext for the workflow
         const runContext = new AgentRunContext(context || {});
@@ -632,22 +640,15 @@ export class Agent<
             });
 
             // Get context window size from agent config, with sensible defaults
-            const lastMessages = currentAgent.lastMessages ?? 10;
+            // Use lower default for specialists (no handoffs) to reduce token usage
+            const defaultLastMessages = currentAgent.getHandoffs().length > 0 ? 10 : 5;
+            const lastMessages = currentAgent.lastMessages ?? defaultLastMessages;
             
             // Ensure we have at least the original user message
             let messagesToSend = conversationMessages.slice(-lastMessages);
             if (messagesToSend.length === 0 && messages.length > 0) {
               messagesToSend = messages.slice(-1); // Use the last user message
             }
-
-            // Inject system message to prevent intermediate text generation
-            const systemMessage = {
-              role: "system" as const,
-              content: `CRITICAL: You must NOT generate any text between tool calls. If you need to call multiple tools, call them ALL at once using parallel tool calling. Do NOT generate explanatory text about what you're about to do - just call the tools silently and wait for results.`
-            };
-            
-            // Insert system message at the beginning
-            messagesToSend = [systemMessage, ...messagesToSend];
 
             // Emit agent start event
             if (onEvent) {
@@ -690,6 +691,9 @@ export class Agent<
             const toolCallNames = new Map<string, string>(); // toolCallId -> toolName
             const toolResults = new Map<string, any>(); // toolName -> result
             let hasStartedContent = false;
+            
+            // Optimize handoff detection with Set for O(1) lookups
+            const handoffToolNames = new Set([HANDOFF_TOOL_NAME]);
 
             // Stream UI chunks - AI SDK handles all the formatting!
             for await (const chunk of uiStream) {
@@ -714,13 +718,13 @@ export class Agent<
               let isHandoffChunk = false;
               
               if (chunk.type === "tool-input-start") {
-                isHandoffChunk = isHandoffTool((chunk as any).toolName);
+                isHandoffChunk = handoffToolNames.has((chunk as any).toolName);
               } else if (chunk.type === "tool-input-delta" || chunk.type === "tool-input-available") {
                 const toolName = toolCallNames.get((chunk as any).toolCallId);
-                isHandoffChunk = isHandoffTool(toolName);
+                isHandoffChunk = toolName ? handoffToolNames.has(toolName) : false;
               } else if (chunk.type === "tool-output-available") {
                 const toolName = toolCallNames.get((chunk as any).toolCallId);
-                isHandoffChunk = isHandoffTool(toolName);
+                isHandoffChunk = toolName ? handoffToolNames.has(toolName) : false;
               }
 
               // Clear status on first actual content (text or non-handoff tool)
@@ -748,7 +752,7 @@ export class Agent<
                   logger.debug(`Captured ${toolName}`, { toolName, outputType: typeof chunk.output });
                   
                   // Detect handoff
-                  if (isHandoffTool(toolName)) {
+                  if (handoffToolNames.has(toolName)) {
                     handoffData = chunk.output as HandoffInstruction;
                     logger.debug("Handoff detected", handoffData);
                   }
@@ -1081,19 +1085,10 @@ export class Agent<
         : "Generate a short title based on the user's message. Max 80 characters. No quotes or colons.";
 
     try {
-      // Load working memory to give context to title generation
-      let memoryContext = "";
-      if (context && this.memory?.workingMemory?.enabled) {
-        memoryContext = await this.loadWorkingMemory(context);
-      }
-
-      const systemPrompt = memoryContext
-        ? `${instructions}\n\n${memoryContext}`
-        : instructions;
-
+      // Generate title based only on the user's message
       const { text } = await generateText({
         model,
-        system: systemPrompt,
+        system: instructions,
         prompt: userMessage,
       });
 
@@ -1314,12 +1309,14 @@ export class Agent<
    * @param userId - Optional user identifier
    * @param userMessage - The user's message text
    * @param assistantMessage - The assistant's response text
+   * @param existingChat - Pre-loaded chat object to avoid duplicate queries
    */
   private async saveConversation(
     chatId: string,
     userId: string | undefined,
     userMessage: string,
     assistantMessage: string,
+    existingChat?: any,
   ): Promise<void> {
     if (!this.memory?.provider || !this.memory?.history?.enabled) return;
 
@@ -1329,7 +1326,7 @@ export class Agent<
       assistantLength: assistantMessage.length,
     });
 
-    // Save both messages in parallel for better performance
+    // Save messages and update chat session in parallel for better performance
     try {
       const savePromises = [
         this.memory.provider.saveMessage?.({
@@ -1357,15 +1354,25 @@ export class Agent<
         logger.warn(`Skipping assistant message save - empty or undefined`);
       }
 
+      // Batch chat session update with message saves (using passed existingChat to avoid duplicate query)
+      if (this.memory?.chats?.enabled) {
+        const messageCount = savePromises.length;
+        
+        savePromises.push(
+          this.memory.provider.saveChat?.({
+            ...(existingChat || { chatId, userId, createdAt: new Date() }),
+            messageCount: (existingChat?.messageCount || 0) + messageCount,
+            updatedAt: new Date(),
+          })
+        );
+      }
+
       await Promise.all(savePromises);
 
-      logger.debug(`Successfully saved ${savePromises.length} messages`, { 
+      logger.debug(`Successfully saved ${savePromises.length} items`, { 
         chatId, 
         count: savePromises.length 
       });
-
-      // Update chat session after saving messages
-      await this.updateChatSession(chatId, userId, savePromises.length);
     } catch (error) {
       logger.error(`Failed to save messages for chatId=${chatId}`, { chatId, error });
       throw error; // Re-throw to make save failures visible
@@ -1379,11 +1386,13 @@ export class Agent<
    * @param context - Execution context containing chatId
    * @param userMessage - The user's message to generate title from
    * @param writer - Stream writer for sending title update
+   * @param existingChat - Pre-loaded chat object to avoid duplicate queries
    */
   private async maybeGenerateChatTitle(
     context: TContext | undefined,
     userMessage: string,
     writer: UIMessageStreamWriter,
+    existingChat?: any,
   ): Promise<void> {
     if (
       !this.memory?.chats?.enabled ||
@@ -1400,10 +1409,9 @@ export class Agent<
       return;
     }
 
-    const existingChat = await this.memory.provider?.getChat?.(chatId);
-
-    // Only generate for first message
-    if (!existingChat || existingChat.messageCount === 0) {
+    // Only generate for first message (using passed existingChat to avoid duplicate query)
+    const isFirstMessage = !existingChat || existingChat.messageCount === 0;
+    if (isFirstMessage) {
       this.generateChatTitle(chatId, userMessage, writer, context).catch(
         (err) => logger.error("Title generation error", { error: err }),
       );
