@@ -20,6 +20,8 @@ export {
   createHandoff,
   createHandoffTool,
   isHandoffResult,
+  isHandoffTool,
+  HANDOFF_TOOL_NAME,
   handoff,
   getTransferMessage,
 } from "./handoff.js";

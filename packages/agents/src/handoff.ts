@@ -55,10 +55,8 @@ export function createHandoffTool(availableHandoffs: Array<Agent | ConfiguredHan
   );
 
   return tool({
-    description: `Transfer the conversation to another specialized agent. 
-
-IMPORTANT: Before using this tool, check working memory for existing data that might answer the user's question. Only hand off when you need NEW data not available in working memory.
-
+    description: `Transfer the conversation to another specialized agent.
+    
 Available agents: ${agentNames.join(', ')}`,
     inputSchema: z.object({
       targetAgent: z.enum(agentNames as [string, ...string[]]),
@@ -73,6 +71,18 @@ Available agents: ${agentNames.join(', ')}`,
       return createHandoff(targetAgent, context, reason);
     },
   });
+}
+
+/**
+ * The standard name for the handoff tool
+ */
+export const HANDOFF_TOOL_NAME = "handoff_to_agent";
+
+/**
+ * Checks if a tool name is the handoff tool
+ */
+export function isHandoffTool(toolName: string | undefined): boolean {
+  return toolName === HANDOFF_TOOL_NAME;
 }
 
 /**

@@ -23,7 +23,7 @@ import {
 } from "ai";
 import { z } from "zod";
 import { createLogger } from "@ai-sdk-tools/debug";
-import { createHandoffTool, isHandoffResult } from "./handoff.js";
+import { createHandoffTool, isHandoffResult, isHandoffTool, HANDOFF_TOOL_NAME } from "./handoff.js";
 import { promptWithHandoffInstructions } from "./handoff-prompt.js";
 import { writeAgentStatus } from "./streaming.js";
 import type {
@@ -222,13 +222,13 @@ export class Agent<
 
     // Add handoff tool if needed
     if (this.handoffAgents.length > 0) {
-      resolvedTools.handoff_to_agent = createHandoffTool(this.handoffAgents);
+      resolvedTools[HANDOFF_TOOL_NAME] = createHandoffTool(this.handoffAgents);
       // Note: Agents communicate via conversationMessages during handoffs
     }
 
     // Add working memory update tool if enabled
     // Give to all agents that can do work (have tools beyond just handoff)
-    const hasOtherTools = Object.keys(resolvedTools).some(key => key !== 'handoff_to_agent');
+    const hasOtherTools = Object.keys(resolvedTools).some(key => key !== HANDOFF_TOOL_NAME);
     const isPureOrchestrator = this.handoffAgents.length > 0 && !hasOtherTools;
     
     if (this.memory?.workingMemory?.enabled && !isPureOrchestrator) {
@@ -640,6 +640,15 @@ export class Agent<
               messagesToSend = messages.slice(-1); // Use the last user message
             }
 
+            // Inject system message to prevent intermediate text generation
+            const systemMessage = {
+              role: "system" as const,
+              content: `CRITICAL: You must NOT generate any text between tool calls. If you need to call multiple tools, call them ALL at once using parallel tool calling. Do NOT generate explanatory text about what you're about to do - just call the tools silently and wait for results.`
+            };
+            
+            // Insert system message at the beginning
+            messagesToSend = [systemMessage, ...messagesToSend];
+
             // Emit agent start event
             if (onEvent) {
               await onEvent({
@@ -684,32 +693,48 @@ export class Agent<
 
             // Stream UI chunks - AI SDK handles all the formatting!
             for await (const chunk of uiStream) {
-              // Clear status on first actual content (text or tool)
+              // Skip undefined/null chunks
+              if (!chunk) {
+                logger.warn("Received null/undefined chunk from uiStream");
+                continue;
+              }
+
+              // Track tool names when they start (do this early for handoff detection)
+              if (chunk.type === "tool-input-start") {
+                toolCallNames.set(chunk.toolCallId, chunk.toolName);
+                logger.debug(`Tool call started: ${chunk.toolName} (${chunk.toolCallId})`, { toolName: chunk.toolName, toolCallId: chunk.toolCallId });
+              }
+
+              // Check if this chunk is related to handoff (internal orchestration)
+              const isHandoffChunk = (() => {
+                if (chunk.type === "tool-input-start") {
+                  // tool-input-start has toolName directly
+                  return isHandoffTool((chunk as any).toolName);
+                }
+                if (chunk.type === "tool-input-delta" || chunk.type === "tool-input-available") {
+                  // tool-input-delta and tool-input-available only have toolCallId
+                  // We need to look up the tool name from our tracking map
+                  const toolName = toolCallNames.get((chunk as any).toolCallId);
+                  return isHandoffTool(toolName);
+                }
+                if (chunk.type === "tool-output-available") {
+                  const toolName = toolCallNames.get((chunk as any).toolCallId);
+                  return isHandoffTool(toolName);
+                }
+                return false;
+              })();
+
+              // Clear status on first actual content (text or non-handoff tool)
               if (
                 !hasStartedContent &&
                 (chunk.type === "text-delta" ||
-                  chunk.type === "tool-input-start")
+                  (chunk.type === "tool-input-start" && !isHandoffChunk))
               ) {
                 writeAgentStatus(writer, {
                   status: "completing",
                   agent: currentAgent.name,
                 });
                 hasStartedContent = true;
-              }
-
-              // Write chunk - type assertion needed because our custom AgentUIMessage
-              // type is more restrictive than the chunks from toUIMessageStream()
-              writer.write(chunk as any);
-
-              // Track text for conversation history
-              if (chunk.type === "text-delta") {
-                textAccumulated += chunk.delta;
-              }
-
-              // Track tool names when they start
-              if (chunk.type === "tool-input-start") {
-                toolCallNames.set(chunk.toolCallId, chunk.toolName);
-                logger.debug(`Tool call started: ${chunk.toolName} (${chunk.toolCallId})`, { toolName: chunk.toolName, toolCallId: chunk.toolCallId });
               }
 
               // Log general errors
@@ -728,22 +753,63 @@ export class Agent<
                   logger.debug(`Captured ${toolName}`, { toolName, outputType: typeof chunk.output });
                   
                   // Detect handoff
-                  if (toolName === "handoff_to_agent") {
+                  if (isHandoffTool(toolName)) {
                     handoffData = chunk.output as HandoffInstruction;
                     logger.debug("Handoff detected", handoffData);
                   }
                 }
               }
+
+              // Filter out handoff tool chunks from UI (internal orchestration)
+              // But keep agent status events (written separately via writeAgentStatus)
+              if (!isHandoffChunk) {
+                try {
+                  // Log chunk details before writing
+                  logger.debug("Writing chunk", { 
+                    chunkType: chunk.type,
+                    hasToolName: 'toolName' in chunk,
+                    hasToolCallId: 'toolCallId' in chunk,
+                  });
+                  writer.write(chunk as any);
+                } catch (error) {
+                  logger.error("Failed to write chunk to stream", { 
+                    chunkType: chunk.type,
+                    error,
+                    chunkKeys: Object.keys(chunk),
+                    chunk: JSON.stringify(chunk, null, 2)
+                  });
+                  // Don't rethrow - continue processing other chunks
+                }
+              } else {
+                logger.debug("Filtered out handoff chunk", { 
+                  chunkType: chunk.type,
+                  toolName: (chunk as any).toolName
+                });
+              }
+
+              // Track text for conversation history
+              if (chunk.type === "text-delta") {
+                textAccumulated += chunk.delta;
+              }
             }
 
-            // Update conversation
-            if (textAccumulated) {
+            // Update conversation - only add text if it's a complete response
+            // Don't add intermediate text that was generated between tool calls
+            if (textAccumulated && !handoffData) {
+              // Only add to conversation if this is a final response (no handoff occurred)
               conversationMessages.push({
                 role: "assistant",
                 content: textAccumulated,
               });
               // Accumulate for memory save
               accumulatedAssistantText += textAccumulated;
+            } else if (textAccumulated && handoffData) {
+              // If there was a handoff, this text was intermediate - don't add to conversation
+              // The handoff agent will provide the final response
+              logger.debug("Skipping intermediate text due to handoff", { 
+                textLength: textAccumulated.length,
+                handoffTarget: handoffData.targetAgent
+              });
             }
 
             // Emit agent finish event
