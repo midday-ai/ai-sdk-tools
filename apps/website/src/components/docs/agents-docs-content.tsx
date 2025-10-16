@@ -18,7 +18,7 @@ export default function AgentsDocsContent() {
             <p className="text-base text-secondary max-w-3xl leading-relaxed font-light mb-12">
               Multi-agent orchestration for AI SDK v5. Build intelligent
               workflows with specialized agents, automatic handoffs, and
-              seamless coordination. Works with any AI provider. 
+              seamless coordination. Works with any AI provider.
               <strong className="text-[#d4d4d4]"> Includes built-in memory system for persistent context.</strong>
             </p>
 
@@ -118,7 +118,7 @@ export default function AgentsDocsContent() {
               Built-in Memory System
             </h2>
             <p className="text-sm text-secondary mb-8 leading-relaxed">
-              Every agent includes a powerful memory system that maintains context across conversations. 
+              Every agent includes a powerful memory system that maintains context across conversations.
               Memory is a <strong className="text-[#d4d4d4]">required dependency</strong> that provides:
             </p>
             <div className="space-y-3 mb-8">
@@ -441,7 +441,7 @@ const agent = new Agent<TeamContext>({
   name: 'Team Assistant',
   model: openai('gpt-4o'),
   instructions: (context) => {
-    return \`You are helping team \${context.teamId}. 
+    return \`You are helping team \${context.teamId}.
     User preferences: \${JSON.stringify(context.preferences)}\`
   },
 })
@@ -529,8 +529,8 @@ const pipeline = new Agent({
   inputGuardrails: [
     async (input) => {
       if (containsProfanity(input)) {
-        return { 
-          pass: false, 
+        return {
+          pass: false,
           action: 'block',
           message: 'Input violates content policy',
         }
@@ -541,8 +541,8 @@ const pipeline = new Agent({
   outputGuardrails: [
     async (output) => {
       if (containsSensitiveInfo(output)) {
-        return { 
-          pass: false, 
+        return {
+          pass: false,
           action: 'modify',
           modifiedOutput: redactSensitiveInfo(output),
         }
@@ -837,7 +837,7 @@ const reportAgent = new Agent({
                     className="text-sm font-mono leading-relaxed"
                     dangerouslySetInnerHTML={{
                       __html:
-                        highlight(`import { AIDevTools } from '@ai-sdk-tools/devtools'
+                        highlight(`import { AIDevtools } from '@ai-sdk-tools/devtools'
 
 const agent = new Agent({
   name: 'Debug Agent',
@@ -853,7 +853,7 @@ export default function App() {
   return (
     <>
       <YourChatInterface />
-      <AIDevTools />
+      <AIDevtools />
     </>
   )
 }`),

@@ -113,7 +113,7 @@ export const store = createAIStore({
                   className="text-xs font-mono leading-relaxed"
                   dangerouslySetInnerHTML={{
                     __html:
-                      highlight(`import { AIDevTools } from '@ai-sdk-tools/devtools'
+                      highlight(`import { AIDevtools } from '@ai-sdk-tools/devtools'
 
 function App() {
   return (
@@ -183,7 +183,7 @@ function App() {
                     __html: highlight(`// Before: Props everywhere
 function App() {
   const { messages, input, handleSubmit } = useChat()
-  
+
   return (
     <div>
       <Header messages={messages} />
