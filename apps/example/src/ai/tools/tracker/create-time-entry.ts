@@ -3,9 +3,7 @@ import { z } from "zod";
 import { generateCreatedTimeEntry } from "@/ai/utils/fake-data";
 
 export const createTimeEntryTool = tool({
-  description: `Create a manual time entry (not from timer).
-  
-Useful for logging past time or bulk entry creation.`,
+  description: `Create a manual time entry (not from timer)`,
 
   inputSchema: z.object({
     projectId: z.string().describe("Project ID"),

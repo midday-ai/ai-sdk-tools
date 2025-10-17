@@ -9,7 +9,7 @@ interface ChatTitleData {
 }
 
 export function ChatTitle() {
-  const chatTitle = useDataPart<ChatTitleData>("chat-title", {
+  const [chatTitle] = useDataPart<ChatTitleData>("chat-title", {
     onData: (dataPart) => {
       if (dataPart.data.title) {
         document.title = `${dataPart.data.title} - AI SDK Tools`;

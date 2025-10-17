@@ -7,6 +7,19 @@
 import { faker } from "@faker-js/faker";
 
 /**
+ * Hash function for consistent seeding
+ */
+function hashString(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  return Math.abs(hash);
+}
+
+/**
  * Generate revenue metrics for a date range
  */
 export function generateRevenueMetrics(params: {
@@ -14,6 +27,9 @@ export function generateRevenueMetrics(params: {
   to: string;
   currency?: string;
 }) {
+  // Seed with date range for consistency
+  faker.seed(hashString(`revenue-${params.from}-${params.to}`));
+  
   const currency = params.currency || "USD";
   const totalRevenue = faker.number.float({
     min: 50000,
@@ -59,6 +75,9 @@ export function generateProfitLossMetrics(params: {
   to: string;
   currency?: string;
 }) {
+  // Seed with date range for consistency
+  faker.seed(hashString(`profitloss-${params.from}-${params.to}`));
+  
   const currency = params.currency || "USD";
   const revenue = faker.number.float({
     min: 100000,
@@ -115,6 +134,9 @@ export function generateRunwayMetrics(params: {
   to: string;
   currency?: string;
 }) {
+  // Seed with date range for consistency
+  faker.seed(hashString(`runway-${params.from}-${params.to}`));
+  
   const currency = params.currency || "USD";
   const cashBalance = faker.number.float({
     min: 200000,
@@ -161,6 +183,9 @@ export function generateBurnRateMetrics(params: {
   to: string;
   currency?: string;
 }) {
+  // Seed with date range for consistency
+  faker.seed(hashString(`burnrate-${params.from}-${params.to}`));
+  
   const currency = params.currency || "USD";
   const monthlyBurn = faker.number.float({
     min: 30000,
@@ -202,6 +227,9 @@ export function generateSpendingMetrics(params: {
   currency?: string;
   breakdown?: "general" | "category" | "merchant" | "tag";
 }) {
+  // Seed with date range for consistency
+  faker.seed(hashString(`spending-${params.from}-${params.to}`));
+  
   const currency = params.currency || "USD";
   const totalSpending = faker.number.float({
     min: 50000,
@@ -491,6 +519,9 @@ export function generateInvoice(id: string) {
 
 // Reports
 export function generateCashFlowMetrics(params: any) {
+  // Seed with date range for consistency
+  faker.seed(hashString(`cashflow-${params.from}-${params.to}`));
+  
   const operating = faker.number.float({
     min: 50000,
     max: 200000,
@@ -671,6 +702,9 @@ export function generateBalanceSheet(params: any) {
 }
 
 export function generateExpensesMetrics(params: any) {
+  // Seed with date range for consistency
+  faker.seed(hashString(`expenses-${params.from}-${params.to}`));
+  
   const total = faker.number.float({
     min: 50000,
     max: 200000,

@@ -1,14 +1,12 @@
 "use client";
 
-import type { ToolUIPart } from "ai";
 import { DefaultChatTransport } from "ai";
 import {
   useArtifacts,
   useChat,
   useChatActions,
-  useDataPart,
 } from "ai-sdk-tools/client";
-import { type RefObject, useRef, useState } from "react";
+import { type RefObject, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
   Conversation,
@@ -25,8 +23,9 @@ import {
   ChatTitle,
   EmptyState,
   RateLimitIndicator,
+  SuggestedPrompts,
 } from "@/components/chat";
-import type { AgentStatus } from "@/types/agents";
+import { useChatStatus } from "@/hooks/use-chat-status";
 
 export default function Home() {
   const [text, setText] = useState<string>("");
@@ -51,51 +50,9 @@ export default function Home() {
       },
     }),
   });
-
-  // Extract agent status data part
-  const agentStatusData = useDataPart<AgentStatus>("agent-status");
-
-  // Clear status immediately when completing (smoother UX)
-  const agentStatus =
-    agentStatusData?.status === "completing" ? null : agentStatusData;
-
+ 
   const { reset } = useChatActions();
-
-  // Derive current tool call directly from messages (no state needed!)
-  const currentToolCall = (() => {
-    if (messages.length === 0) return null;
-
-    const lastMessage = messages[messages.length - 1];
-    if (lastMessage.role !== "assistant") return null;
-
-    // Check if we have any text content yet
-    const textParts = lastMessage.parts.filter((part) => part.type === "text");
-    const hasTextContent = textParts.some((part) => {
-      const textPart = part as { text?: string };
-      return textPart.text?.trim();
-    });
-
-    // If we already have text, don't show tool shimmer
-    if (hasTextContent) return null;
-
-    // Find tool parts
-    const toolParts = lastMessage.parts.filter((part) =>
-      part.type.startsWith("tool-"),
-    ) as ToolUIPart[];
-
-    // Show the most recent tool (they're ordered, so get the last one)
-    const latestTool = toolParts[toolParts.length - 1];
-    if (!latestTool) return null;
-
-    // Extract tool name from type (e.g., "tool-burnRate" -> "burnRate")
-    const toolType = latestTool.type as string;
-    if (toolType === "dynamic-tool") {
-      // Dynamic tools have a toolName property
-      const dynamicTool = latestTool as unknown as { toolName: string };
-      return dynamicTool.toolName;
-    }
-    return toolType.replace(/^tool-/, "");
-  })();
+  const { agentStatus, currentToolCall } = useChatStatus(messages, status);
 
   const { artifacts } = useArtifacts();
   const hasArtifacts = artifacts && artifacts.length > 0;
@@ -196,6 +153,7 @@ export default function Home() {
               }`}
             >
               <div className="w-full px-4 pb-4 max-w-2xl mx-auto">
+                <SuggestedPrompts />
                 {chatInput}
               </div>
             </div>

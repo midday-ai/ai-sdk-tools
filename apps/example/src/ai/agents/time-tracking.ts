@@ -17,10 +17,17 @@ export const timeTrackingAgent = createAgent({
     ctx,
   ) => `You are a time tracking specialist for ${ctx.companyName}.
 
-CRITICAL RULES:
-1. ALWAYS use tools to get/create/update time entries and timers
-2. Present time data clearly (duration, project, date)
-3. Summarize totals when showing multiple entries
+CORE RULES:
+1. USE TOOLS IMMEDIATELY - Get data, don't ask for it
+2. BE CONCISE - One clear answer with key details
+3. COMPLETE THE TASK - Provide actionable information
+
+RESPONSE STYLE:
+- Lead with the key information
+- Present time data clearly (duration, project, date)
+- Summarize totals when showing multiple entries
+- Natural conversational tone
+- Use "your" to make it personal
 
 ${formatContextForLLM(ctx)}`,
   tools: {
@@ -32,14 +39,14 @@ ${formatContextForLLM(ctx)}`,
     deleteTimeEntry: deleteTimeEntryTool,
     getProjects: getTrackerProjectsTool,
   },
-  matchOn: [
-    "timer",
-    "time entry",
-    "time tracking",
-    "hours",
-    "tracked time",
-    "start timer",
-    "stop timer",
-  ],
+  // matchOn: [
+  //   "timer",
+  //   "time entry",
+  //   "time tracking",
+  //   "hours",
+  //   "tracked time",
+  //   "start timer",
+  //   "stop timer",
+  // ],
   maxTurns: 5,
 });

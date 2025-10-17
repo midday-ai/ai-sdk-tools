@@ -1,5 +1,5 @@
 import { tool } from "ai";
-import { getWriter } from "ai-sdk-tools";
+import { getWriter } from "@ai-sdk-tools/artifacts";
 import { z } from "zod";
 import { BalanceSheetArtifact } from "@/ai/artifacts/balance-sheet";
 import { currencyFilterSchema, dateRangeSchema } from "@/ai/types/filters";
@@ -16,16 +16,7 @@ import { delay } from "@/lib/delay";
  * - Financial ratios
  */
 export const balanceSheetTool = tool({
-  description: `Get balance sheet for a specified date or period with interactive visualization.
-  
-Capabilities:
-- Total assets breakdown
-- Total liabilities breakdown
-- Shareholder equity
-- Key financial ratios (current ratio, debt-to-equity)
-- Period comparison
-- Interactive artifact visualization`,
-
+  description: `Get balance sheet analysis for a specified date or period.`,
   inputSchema: dateRangeSchema.merge(currencyFilterSchema).extend({
     categories: z
       .array(z.enum(["assets", "liabilities", "equity"]))
@@ -34,20 +25,23 @@ Capabilities:
     useArtifact: z
       .boolean()
       .optional()
-      .default(true)
-      .describe("Use interactive artifact visualization"),
+      .default(false)
+      .describe("When the user asks for visual report, use this flag to enable the visualization"),
   }),
 
   execute: async function* (
     { from, to, currency, categories, useArtifact },
     executionOptions,
   ) {
-    const writer = getWriter(executionOptions);
+    try {
+      const writer = getWriter(executionOptions);
 
-    if (!useArtifact) {
-      // Legacy mode - return raw data
-      return generateBalanceSheet({ from, to, currency, categories });
-    }
+      if (!useArtifact) {
+         const data = generateBalanceSheet({ from, to, currency, categories });
+        yield { text: `Balance sheet data for ${from} to ${to}: Total assets: ${currency || "USD"} ${data.assets.totalAssets.toLocaleString()}. Current ratio: ${data.ratios.currentRatio.toFixed(2)}.` };
+      
+        return data;
+      }
 
     // Artifact mode - stream the balance sheet with visualization
     const analysis = BalanceSheetArtifact.stream(
@@ -223,5 +217,14 @@ Capabilities:
       text: `Balance sheet analysis complete. Total assets: ${currency || "USD"} ${data.assets.totalAssets.toLocaleString()}. Current ratio: ${currentRatio.toFixed(2)}. Liquidity: ${liquidity}.`,
       forceStop: true,
     };
+
+    return { 
+      ...finalData,
+      forceStop: true,
+    };
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
   },
 });

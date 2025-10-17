@@ -11,6 +11,7 @@ import type {
   UIMessageStreamOnFinishCallback,
   UIMessageStreamWriter,
 } from "ai";
+import type { AgentRunContext } from "./run-context.js";
 
 /**
  * Interface for context objects that include memory identifiers
@@ -29,7 +30,6 @@ export interface MemoryIdentifiers {
  */
 export interface ExtendedExecutionContext extends Record<string, unknown> {
   _memoryAddition?: string;
-  _updateWorkingMemoryTool?: Tool;
 }
 
 /**
@@ -40,6 +40,23 @@ export interface HandoffData {
   reason?: string;
   data?: Record<string, unknown>;
 }
+
+
+/**
+ * ConfiguredHandoff - represents an agent with handoff configuration
+ */
+export interface HandoffConfig<TContext extends Record<string, unknown> = Record<string, unknown>> {
+  /** Callback when handoff is invoked */
+  onHandoff?: (context: AgentRunContext<TContext>) => void | Promise<void>;
+  /** Input filter to modify data passed to the next agent */
+  inputFilter?: HandoffInputFilter;
+}
+
+export interface ConfiguredHandoff<TContext extends Record<string, unknown> = Record<string, unknown>> {
+  agent: Agent<TContext>;
+  config?: HandoffConfig<TContext>;
+}
+
 
 // Forward declaration
 export interface Agent<
@@ -52,6 +69,7 @@ export interface Agent<
   inputGuardrails?: InputGuardrail[];
   outputGuardrails?: OutputGuardrail[];
   permissions?: ToolPermissions;
+  lastMessages?: number;
   generate(options: AgentGenerateOptions): Promise<AgentGenerateResult>;
   stream(options: AgentStreamOptions): AgentStreamResult;
   getHandoffs(): Array<Agent<any>>;
@@ -72,7 +90,9 @@ export interface AgentConfig<
   /** Tools available to the agent - static or dynamic function receiving context */
   tools?: Record<string, Tool> | ((context: TContext) => Record<string, Tool>);
   /** Agents this agent can hand off to */
-  handoffs?: Array<Agent<any>>;
+  handoffs?: Array<Agent<any> | ConfiguredHandoff<any>>;
+  /** Description of when to hand off to this agent */
+  handoffDescription?: string;
   /** Maximum number of turns before stopping */
   maxTurns?: number;
   /** Temperature for model responses */
@@ -91,6 +111,8 @@ export interface AgentConfig<
   permissions?: ToolPermissions;
   /** Memory configuration - persistent working memory and conversation history */
   memory?: MemoryConfig;
+  /** Number of last messages from memory thread to include in context (default: 10) */
+  lastMessages?: number;
 }
 
 export interface HandoffInstruction {
@@ -100,7 +122,22 @@ export interface HandoffInstruction {
   context?: string;
   /** Reason for the handoff */
   reason?: string;
+  /** Tool results that are already available */
+  availableData?: Record<string, any>;
 }
+
+export interface HandoffInputData {
+  /** The input history before the handoff */
+  inputHistory: ModelMessage[];
+  /** Items generated before the handoff */
+  preHandoffItems: any[];
+  /** New items generated during current turn (including tool results) */
+  newItems: any[];
+  /** Run context */
+  runContext?: any;
+}
+
+export type HandoffInputFilter = (input: HandoffInputData) => HandoffInputData;
 
 /**
  * Generate options for agents
@@ -229,10 +266,8 @@ export interface AgentStreamOptionsUI<
   TContext extends Record<string, unknown> = Record<string, unknown>,
 > {
   // Agent-specific options
-  /** Single new message - agent loads history from memory (recommended when memory is enabled) */
-  message?: UIMessage;
-  /** Full message array - for apps without memory or manual control */
-  messages?: ModelMessage[];
+  /** New user message - agent automatically loads conversation history from memory */
+  message: UIMessage;
   /** Routing strategy */
   strategy?: "auto" | "llm";
   /** Max orchestration rounds */
@@ -326,6 +361,10 @@ export interface AgentDataParts {
     remaining: number;
     reset: string;
     code?: string;
+  };
+  /** Suggested prompts (transient) */
+  "suggestions": {
+    prompts: string[];
   };
   // Allow extension with custom data parts
   [key: string]: unknown;

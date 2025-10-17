@@ -13,15 +13,7 @@ import { generateExpensesMetrics } from "@/ai/utils/fake-data";
  * - Trend analysis
  */
 export const expensesTool = tool({
-  description: `Get expense analysis for a specified period.
-  
-Capabilities:
-- Total expenses
-- Recurring expenses identification
-- One-time expenses
-- Category breakdown
-- Merchant analysis
-- Period comparison`,
+  description: `Get expense analysis for a specified period`,
 
   inputSchema: dateRangeSchema.merge(currencyFilterSchema).extend({
     recurring: z

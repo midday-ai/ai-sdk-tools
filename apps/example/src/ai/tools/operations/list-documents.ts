@@ -3,9 +3,7 @@ import { z } from "zod";
 import { generateDocuments } from "@/ai/utils/fake-data";
 
 export const listDocumentsTool = tool({
-  description: `List stored documents with filtering and search.
-  
-Search and filter documents by tags, date, or text query.`,
+  description: `List stored documents with filtering and search`,
 
   inputSchema: z.object({
     q: z.string().optional().describe("Search query"),

@@ -13,14 +13,7 @@ import { generateCashFlowMetrics } from "@/ai/utils/fake-data";
  * - Net cash flow
  */
 export const cashFlowTool = tool({
-  description: `Get cash flow statement and analysis for a specified period.
-  
-Capabilities:
-- Operating cash flow
-- Investing cash flow
-- Financing cash flow
-- Net cash position
-- Period-over-period comparison`,
+  description: `Get cash flow statement and analysis for a specified period`,
 
   inputSchema: dateRangeSchema.merge(currencyFilterSchema).extend({
     categories: z

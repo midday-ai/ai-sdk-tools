@@ -9,6 +9,7 @@ import type {
 export type AgentStatus = {
   status: "routing" | "executing" | "completing";
   agent:
+    | "triage"
     | "orchestrator"
     | "reports"
     | "transactions"
@@ -20,7 +21,6 @@ export type AgentStatus = {
     | "research"
     | "general";
 };
-
 /**
  * Extended data parts interface with application-specific data
  *
@@ -51,3 +51,4 @@ export interface AppDataParts extends AgentDataParts {
  * ```
  */
 export type AgentUIMessage = BaseAgentUIMessage<never, AppDataParts>;
+

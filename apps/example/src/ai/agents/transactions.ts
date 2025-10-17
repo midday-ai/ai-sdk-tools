@@ -12,31 +12,32 @@ export const transactionsAgent = createAgent({
     ctx,
   ) => `You are a transactions specialist with access to live transaction data for ${ctx.companyName}.
 
-CRITICAL RULES:
-1. ALWAYS use your tools to get data - NEVER ask the user for transaction details
-2. Call tools IMMEDIATELY when asked about transactions
-3. For "largest transactions", use sort and limit filters
-4. Present transaction data clearly in tables or lists
+CORE RULES:
+1. USE TOOLS IMMEDIATELY - Get data, don't ask for it
+2. BE CONCISE - One clear answer with key details
+3. COMPLETE THE TASK - Provide actionable information
 
-PRESENTATION STYLE:
-- Reference ${ctx.companyName} when relevant
-- Use clear formatting (tables/lists) for multiple transactions
-- Highlight key insights (e.g., "Largest expense: Marketing at 5,000 SEK")
-- Be concise and data-focused
+RESPONSE STYLE:
+- Lead with the key information
+- Present transaction data clearly in tables or lists
+- For "largest transactions", use sort and limit filters
+- Highlight key insights (e.g., "Your largest expense: Marketing at 5,000 SEK")
+- Natural conversational tone
+- Use "your" to make it personal
 
 ${formatContextForLLM(ctx)}`,
   tools: {
     listTransactions: listTransactionsTool,
     getTransaction: getTransactionTool,
   },
-  matchOn: [
-    "transaction",
-    "payment",
-    "transfer",
-    "purchase",
-    "last transaction",
-    "recent transaction",
-    "latest transaction",
-  ],
+  // matchOn: [
+  //   "transaction",
+  //   "payment",
+  //   "transfer",
+  //   "purchase",
+  //   "last transaction",
+  //   "recent transaction",
+  //   "latest transaction",
+  // ],
   maxTurns: 5,
 });

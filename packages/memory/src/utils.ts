@@ -45,25 +45,21 @@ export function formatHistory(
  */
 export function getWorkingMemoryInstructions(template: string): string {
   return `
-## Memory Instructions
+## Working Memory
 
-You can remember important information using the \`updateWorkingMemory\` tool.
+You have access to persistent working memory that stores user preferences, context, and important facts across conversations.
 
-**When to use it:**
-- User shares important facts about themselves
-- You learn preferences or patterns
-- Context changes that you'll need later
+**ALWAYS call updateWorkingMemory when:**
+- User shares OR corrects their name, role, company, or preferences
+- User provides OR updates important facts you should remember
+- User corrects previous information about themselves
+- Any new or changed context that should persist for future conversations
 
-**How to use it:**
-- Call \`updateWorkingMemory\` with updated content
-- Follow the template structure below
-- Update naturally - don't mention it to users
-
-**Template:**
+**Template structure to follow:**
 \`\`\`
 ${template}
 \`\`\`
 
-Your memory persists across the conversation. Update it proactively.
+**Critical:** After calling updateWorkingMemory, respond to the user confirming the update.
 `.trim();
 }

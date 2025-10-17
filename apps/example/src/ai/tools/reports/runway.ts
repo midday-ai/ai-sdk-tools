@@ -8,13 +8,7 @@ import { generateRunwayMetrics } from "@/ai/utils/fake-data";
  * Calculates how long the company can operate with current burn rate.
  */
 export const runwayMetricsTool = tool({
-  description: `Get runway metrics showing how long the company can operate with current burn rate.
-  
-Capabilities:
-- Months of runway remaining
-- Projected zero-cash date
-- Burn rate analysis
-- Runway scenarios`,
+  description: `Get runway metrics showing how long the company can operate with current burn rate`,
 
   inputSchema: dateRangeSchema.merge(currencyFilterSchema),
 

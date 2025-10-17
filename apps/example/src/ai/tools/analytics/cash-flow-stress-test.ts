@@ -3,13 +3,7 @@ import { z } from "zod";
 import { generateCashFlowStressTest } from "@/ai/utils/fake-data";
 
 export const cashFlowStressTestTool = tool({
-  description: `Perform cash flow stress testing under various scenarios.
-  
-Tests business resilience under:
-- Revenue decline scenarios
-- Expense increase scenarios
-- Payment delay scenarios
-- Combined worst-case scenarios`,
+  description: `Perform cash flow stress testing under various scenarios`,
 
   inputSchema: z.object({
     scenarios: z

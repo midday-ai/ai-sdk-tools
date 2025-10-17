@@ -3,9 +3,7 @@ import { z } from "zod";
 import { generateInboxItems } from "@/ai/utils/fake-data";
 
 export const listInboxItemsTool = tool({
-  description: `List items in the inbox (receipts, documents awaiting processing).
-  
-Filter by status: pending or done.`,
+  description: `List items in the inbox (receipts, documents awaiting processing)`,
 
   inputSchema: z.object({
     status: z

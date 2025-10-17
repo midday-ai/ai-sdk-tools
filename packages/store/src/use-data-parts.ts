@@ -1,8 +1,8 @@
 "use client";
 
 import type { UIMessage } from "@ai-sdk/react";
-import { useEffect, useMemo } from "react";
-import { useChatMessages } from "./hooks";
+import { useCallback, useEffect, useMemo } from "react";
+import { useChatMessages, useChatStore } from "./hooks";
 
 /**
  * Interface for a data part extracted from messages
@@ -84,27 +84,33 @@ export function useDataParts(): UseDataPartsReturn {
 
 /**
  * Hook to extract and access a specific data part by type.
- * Returns the latest value for the specified data part type.
+ * Returns a tuple with the data and a clear function, similar to useState.
  *
  * @template T - The type of the data part's data property
  * @param type - The data part type without 'data-' prefix (e.g., 'agent-status', 'rate-limit')
  * @param options - Optional configuration including onData callback
+ * @returns Tuple of [data, clearFunction] - data is the latest value, clearFunction removes the data part
  *
  * @example
  * ```tsx
  * function AgentStatusIndicator() {
- *   const agentStatus = useDataPart<{ status: string; agent: string }>('agent-status');
+ *   const [agentStatus, clearStatus] = useDataPart<{ status: string; agent: string }>('agent-status');
  *
  *   if (!agentStatus) return null;
  *
- *   return <p>Agent {agentStatus.agent} is {agentStatus.status}</p>;
+ *   return (
+ *     <div>
+ *       <p>Agent {agentStatus.agent} is {agentStatus.status}</p>
+ *       <button onClick={clearStatus}>Clear</button>
+ *     </div>
+ *   );
  * }
  * ```
  *
  * @example With callback
  * ```tsx
  * function RateLimitMonitor() {
- *   const rateLimit = useDataPart('rate-limit', {
+ *   const [rateLimit] = useDataPart('rate-limit', {
  *     onData: (data) => {
  *       if (data.data.remaining < 10) {
  *         toast.warning('Rate limit running low!');
@@ -119,9 +125,13 @@ export function useDataParts(): UseDataPartsReturn {
 export function useDataPart<T = unknown>(
   type: string,
   options?: UseDataPartOptions<T>,
-): T | null {
+): [T | null, () => void] {
   const messages = useChatMessages();
   const { onData } = options || {};
+  
+  // Subscribe to the transient data map directly so we re-render when it changes
+  const transientDataParts = useChatStore((state) => state._transientDataParts);
+  const removeTransientDataPart = useChatStore((state) => state.removeTransientDataPart);
 
   const result = useMemo(() => {
     const dataParts = extractDataPartsFromMessages(messages);
@@ -143,9 +153,20 @@ export function useDataPart<T = unknown>(
         }
       }
     }
+    
+    // Check transient data parts if not found in messages
+    if (!latest) {
+      const transientData = transientDataParts.get(fullType);
+      if (transientData !== undefined) {
+        latest = {
+          type: fullType,
+          data: transientData,
+        };
+      }
+    }
 
     return latest;
-  }, [messages, type]);
+  }, [messages, type, transientDataParts]);
 
   // Call onData callback when data changes
   useEffect(() => {
@@ -154,7 +175,13 @@ export function useDataPart<T = unknown>(
     }
   }, [result, onData]);
 
-  return result ? result.data : null;
+  // Memoize clear function to maintain referential equality
+  const clear = useCallback(() => {
+    const fullType = type.startsWith("data-") ? type : `data-${type}`;
+    removeTransientDataPart(fullType);
+  }, [type, removeTransientDataPart]);
+
+  return [result ? result.data : null, clear];
 }
 
 /**

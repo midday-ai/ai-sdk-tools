@@ -43,14 +43,94 @@ Complex tasks benefit from specialized expertise. Instead of a single model hand
 ### Agent
 An AI with specialized instructions, tools, and optional context. Each agent is configured with a language model and system prompt tailored to its role.
 
+### Memory & Conversation History
+Agents automatically load conversation history from storage when memory is enabled. This creates a clean separation of concerns:
+- **Frontend**: Sends only the new user message
+- **Backend**: Loads conversation history from storage
+- **Storage**: Single source of truth for all conversations
+
+This approach:
+- Reduces network payload (no need to send full history)
+- Provides consistent context across requests
+- Enables server-side control of context window size via `lastMessages` config
+- Integrates seamlessly with `@ai-sdk-tools/memory` providers
+
 ### Handoffs
 Agents can transfer control to other agents while preserving conversation context. Handoffs include the reason for transfer and any relevant context.
+
+**Enhanced Context Management**: The system now supports OpenAI-style context filtering during handoffs, allowing you to control exactly what information is passed between agents using `HandoffInputFilter` functions.
 
 ### Orchestration
 Automatic routing between agents based on:
 - **Programmatic matching**: Pattern-based routing with `matchOn`
 - **LLM-based routing**: The orchestrator agent decides which specialist to invoke
 - **Hybrid**: Combine both for optimal performance
+
+## Enhanced Features (v0.3.0+)
+
+### Context Management & Handoff Filtering
+
+The package now includes OpenAI-style context management with `AgentRunContext` and `HandoffInputFilter` support:
+
+```typescript
+import { Agent, handoff, removeAllTools, keepLastNMessages } from '@ai-sdk-tools/agents';
+
+// Configure handoffs with context filtering
+const specialist = new Agent({
+  name: 'Specialist',
+  model: openai('gpt-4o'),
+  instructions: 'Specialized instructions...',
+});
+
+const orchestrator = new Agent({
+  name: 'Orchestrator',
+  model: openai('gpt-4o'),
+  instructions: 'Route to specialists...',
+  handoffs: [
+    // Remove all tool calls when handing off
+    handoff(specialist, {
+      inputFilter: removeAllTools,
+      onHandoff: async (runContext) => {
+        console.log('Handing off to specialist');
+      },
+    }),
+    // Keep only last 10 messages for context windowing
+    handoff(anotherSpecialist, {
+      inputFilter: keepLastNMessages(10),
+    }),
+  ],
+});
+```
+
+### Agent Communication During Handoffs
+
+Agents automatically share context through conversationMessages during handoffs. No separate tools needed.
+
+### Working Memory
+
+Working memory automatically loads and provides update capability when enabled:
+
+```typescript
+const agent = createAgent({
+  memory: {
+    workingMemory: { 
+      enabled: true,
+      scope: 'user', // Persists across all chats for this user
+      template: 'Custom template...'
+    }
+  }
+});
+```
+
+When enabled:
+- Working memory loads automatically into system instructions
+- Agent gets `updateWorkingMemory` tool to update preferences/context
+- Updates persist in storage via the memory provider
+
+### Pre-built Handoff Filters
+
+- `removeAllTools()` - Remove all tool-related messages
+- `keepLastNMessages(n)` - Keep only the last N messages for context windowing
 
 ## Quick Start
 
@@ -161,10 +241,11 @@ const supportAgent = new Agent({
 });
 
 export async function POST(req: Request) {
-  const { messages } = await req.json();
+  const { message, chatId } = await req.json();
 
   return supportAgent.toUIMessageStream({
-    messages,
+    message, // Only pass the new user message
+    context: { chatId }, // Storage will provide conversation history
     maxRounds: 5, // Max handoffs
     maxSteps: 10, // Max tool calls per agent
     onEvent: async (event) => {
@@ -225,10 +306,11 @@ const agent = new Agent<TeamContext>({
 
 // Pass context when streaming
 agent.toUIMessageStream({
-  messages,
+  message: userMessage, // New user message
   context: {
     teamId: 'team-123',
     userId: 'user-456',
+    chatId: 'chat-789', // For conversation history
     preferences: { theme: 'dark', language: 'en' },
   },
 });
@@ -343,6 +425,60 @@ const agent = new Agent({
 });
 ```
 
+## Complex Multi-Agent Example
+
+Here's a real-world example: determining if a user can afford a Tesla Model Y by combining web research and financial analysis:
+
+```typescript
+import { Agent, handoff, removeAllTools, keepLastNMessages } from '@ai-sdk-tools/agents';
+import { openai } from '@ai-sdk/openai';
+
+// Research Specialist - gathers current product information
+const researchSpecialist = new Agent({
+  name: 'Research Specialist',
+  model: openai('gpt-4o-mini'),
+  instructions: `You research current product information and pricing.
+Provide detailed findings for other agents.`,
+  tools: {
+    webSearch: webSearchTool,
+  },
+});
+
+// Financial Analyst - evaluates affordability
+const financialAnalyst = new Agent({
+  name: 'Financial Analyst', 
+  model: openai('gpt-4o-mini'),
+  instructions: `You analyze financial affordability based on user data and research.
+Use previous conversation context to provide comprehensive analysis.`,
+  tools: {
+    getFinancialData: getFinancialDataTool,
+  },
+});
+
+// Main Assistant with configured handoffs
+const assistant = new Agent({
+  name: 'Assistant',
+  model: openai('gpt-4o-mini'),
+  instructions: `Help users determine if they can afford major purchases.
+Coordinate research and financial analysis for comprehensive answers.`,
+  handoffs: [
+    // Research first, remove tool calls to keep context clean
+    handoff(researchSpecialist, {
+      inputFilter: removeAllTools,
+    }),
+    // Then financial analysis, keep recent context
+    handoff(financialAnalyst, {
+      inputFilter: keepLastNMessages(10),
+    }),
+  ],
+});
+
+// Usage: "Can I afford a Tesla Model Y?"
+// 1. Assistant → Research Specialist (searches for Tesla pricing)
+// 2. Research Specialist → Financial Analyst (reads pricing, gets user's financial data)
+// 3. Financial Analyst provides comprehensive affordability analysis
+```
+
 ## API Reference
 
 ### Agent Class
@@ -382,7 +518,7 @@ stream(options: {
 
 // Stream as UI messages (Next.js route handler)
 toUIMessageStream(options: {
-  messages: ModelMessage[];
+  message: UIMessage; // New user message - history loaded from storage
   strategy?: 'auto' | 'manual';
   maxRounds?: number;
   maxSteps?: number;
@@ -411,6 +547,34 @@ isHandoffResult(result: unknown): result is HandoffInstruction
 
 // Create handoff tool for AI SDK
 createHandoffTool(agents: Agent[]): Tool
+
+// Create configured handoff with filtering
+handoff<TContext>(agent: Agent<TContext>, config?: HandoffConfig<TContext>): ConfiguredHandoff<TContext>
+
+// Get transfer message for handoff
+getTransferMessage<TContext>(agent: Agent<TContext>): string
+```
+
+### Handoff Filters
+
+```typescript
+// Remove all tool-related messages
+removeAllTools(data: HandoffInputData): HandoffInputData
+
+// Keep only last N messages
+keepLastNMessages(n: number): HandoffInputFilter
+```
+
+### Context Management
+
+```typescript
+// Run context for workflow state
+class AgentRunContext<TContext = Record<string, unknown>> {
+  context: TContext;
+  metadata: Record<string, unknown>;
+  constructor(context?: TContext);
+  toJSON(): object;
+}
 
 // Execution context
 createExecutionContext<T>(options: {

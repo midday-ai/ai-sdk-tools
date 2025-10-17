@@ -4,7 +4,6 @@ import { generateUpdatedCustomer } from "@/ai/utils/fake-data";
 
 export const updateCustomerTool = tool({
   description: `Update customer information.`,
-
   inputSchema: z.object({
     customerId: z.string().describe("Customer ID to update"),
     name: z.string().optional().describe("Updated name"),
@@ -13,6 +12,5 @@ export const updateCustomerTool = tool({
     address: z.string().optional().describe("Updated address"),
     tags: z.array(z.string()).optional().describe("Updated tags"),
   }),
-
   execute: async (params) => generateUpdatedCustomer(params),
 });

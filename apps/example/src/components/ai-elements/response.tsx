@@ -14,6 +14,32 @@ export const Response = memo(
         className,
       )}
       {...props}
+      components={{
+        h2: ({ children, node, ...props }) => (
+          <h3
+            className="font-medium text-sm text-primary tracking-wide"
+            {...props}
+          >
+            {children}
+          </h3>
+        ),
+        h3: ({ children, node, ...props }) => (
+          <h3
+            className="font-medium text-sm text-primary tracking-wide"
+            {...props}
+          >
+            {children}
+          </h3>
+        ),
+        h4: ({ children, node, ...props }) => (
+          <h4
+            className="font-medium text-sm text-primary tracking-wide"
+            {...props}
+          >
+            {children}
+          </h4>
+        ),
+      }}
     />
   ),
   (prevProps, nextProps) => prevProps.children === nextProps.children,

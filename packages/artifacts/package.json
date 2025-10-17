@@ -52,11 +52,11 @@
     "access": "public"
   },
   "dependencies": {
-    "zod": "^4.1.11"
+    "zod": "^4.1.12"
   },
   "devDependencies": {
-    "@ai-sdk/react": "^2.0.60",
-    "@types/react": "^19.2.0",
+    "@ai-sdk/react": "^2.0.71",
+    "@types/react": "^19.2.2",
     "typescript": "^5.9.3",
     "tsup": "^8.5.0",
     "@ai-sdk-tools/store": "workspace:*"

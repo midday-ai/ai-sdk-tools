@@ -8,15 +8,7 @@ import { generateTransactions } from "@/ai/utils/fake-data";
  * Query transactions with comprehensive filtering options.
  */
 export const listTransactionsTool = tool({
-  description: `List transactions with optional filters for accounts, dates, amounts, categories, etc.
-  
-Filter by:
-- Date range (start/end)
-- Bank accounts
-- Categories
-- Status (pending, completed, archived, posted, excluded)
-- Type (income/expense)
-- Search query`,
+  description: `List transactions`,
 
   inputSchema: z.object({
     pageSize: z

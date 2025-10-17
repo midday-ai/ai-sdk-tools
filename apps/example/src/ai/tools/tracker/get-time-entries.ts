@@ -3,9 +3,7 @@ import { z } from "zod";
 import { generateTimeEntries } from "@/ai/utils/fake-data";
 
 export const getTimeEntriesTool = tool({
-  description: `Get time tracking entries with filtering options.
-  
-Filter by date range, project, or user.`,
+  description: `Get time tracking entries with filtering options`,
 
   inputSchema: z.object({
     from: z.string().describe("Start date in YYYY-MM-DD format"),

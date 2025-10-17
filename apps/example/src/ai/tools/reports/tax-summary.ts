@@ -13,14 +13,7 @@ import { generateTaxSummary } from "@/ai/utils/fake-data";
  * - Quarterly estimates
  */
 export const taxSummaryTool = tool({
-  description: `Get tax summary and estimates for a specified period.
-  
-Capabilities:
-- Estimated tax liability
-- Deductible expenses
-- Tax by category (income, sales, payroll, etc.)
-- Quarterly tax estimates
-- Tax credits and deductions`,
+  description: `Get tax summary and estimates for a specified period`,
 
   inputSchema: dateRangeSchema.merge(currencyFilterSchema).extend({
     taxType: z

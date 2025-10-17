@@ -208,8 +208,7 @@ function processAgentEvents(events: AIEvent[]): AgentFlowData {
         const agentName = currentAgent || event.metadata?.agent;
 
         // Filter out internal orchestration tools from visualization
-        const isInternalTool =
-          toolName === "handoff_to_agent" || toolName === "updateWorkingMemory";
+        const isInternalTool = toolName === "handoff_to_agent"
 
         // Only track valid tool names (not undefined, empty, "unknown", or internal)
         if (

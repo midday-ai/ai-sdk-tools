@@ -8,13 +8,7 @@ import { generateProfitLossMetrics } from "@/ai/utils/fake-data";
  * Generates profit and loss statements for financial reporting.
  */
 export const profitLossTool = tool({
-  description: `Get profit and loss (P&L) metrics for a specified date range.
-  
-Capabilities:
-- Revenue vs Expenses breakdown
-- Gross profit and net profit
-- Operating expenses analysis
-- EBITDA calculations`,
+  description: `Get profit and loss (P&L) metrics for a specified date range`,
 
   inputSchema: dateRangeSchema.merge(currencyFilterSchema),
 

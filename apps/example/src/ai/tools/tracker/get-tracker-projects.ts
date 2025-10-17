@@ -3,9 +3,7 @@ import { z } from "zod";
 import { generateTrackerProjects } from "@/ai/utils/fake-data";
 
 export const getTrackerProjectsTool = tool({
-  description: `Get list of time tracking projects.
-  
-Filter by status (in_progress or completed).`,
+  description: `Get list of time tracking projects`,
 
   inputSchema: z.object({
     status: z

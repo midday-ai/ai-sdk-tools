@@ -4,9 +4,7 @@ import { dateRangeSchema } from "@/ai/types/filters";
 import { generateDataExport } from "@/ai/utils/fake-data";
 
 export const exportDataTool = tool({
-  description: `Export financial data in various formats.
-  
-Export transactions, invoices, or reports to CSV, Excel, or PDF.`,
+  description: `Export financial data in various formats (CSV, Excel, ZIP)`,
 
   inputSchema: z
     .object({
@@ -14,7 +12,7 @@ Export transactions, invoices, or reports to CSV, Excel, or PDF.`,
         .enum(["transactions", "invoices", "reports", "all"])
         .describe("Type of data to export"),
       format: z
-        .enum(["csv", "excel", "pdf"])
+        .enum(["csv", "excel", "zip"])
         .default("csv")
         .describe("Export format"),
     })

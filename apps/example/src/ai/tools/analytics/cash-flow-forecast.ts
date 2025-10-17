@@ -4,9 +4,7 @@ import { currencyFilterSchema } from "@/ai/types/filters";
 import { generateCashFlowForecast } from "@/ai/utils/fake-data";
 
 export const cashFlowForecastTool = tool({
-  description: `Forecast future cash flow based on historical data and unpaid invoices.
-  
-Uses historical patterns and outstanding invoices to predict future cash flow.`,
+  description: `Forecast future cash flow based on historical data and unpaid invoices`,
 
   inputSchema: z
     .object({

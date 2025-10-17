@@ -55,12 +55,12 @@
   },
   "devDependencies": {
     "@ai-sdk-tools/artifacts": "workspace:*",
-    "@types/node": "^24.7.0",
+    "@types/node": "^24.7.2",
     "tsup": "^8.5.0",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4",
-    "zod": "^4.1.11",
-    "ai": "^5.0.60"
+    "zod": "^4.1.12",
+    "ai": "^5.0.71"
   },
   "publishConfig": {
     "access": "public"

@@ -8,14 +8,7 @@ import { generateUpdatedInvoice } from "@/ai/utils/fake-data";
  * Update an existing invoice's details, status, or send it.
  */
 export const updateInvoiceTool = tool({
-  description: `Update an existing invoice.
-  
-Capabilities:
-- Update invoice status (draft → sent, mark as paid, cancel)
-- Modify line items
-- Update due date
-- Send invoice to customer
-- Add notes or payment details`,
+  description: `Update an existing invoice`,
 
   inputSchema: z.object({
     invoiceId: z.string().describe("Invoice ID to update"),

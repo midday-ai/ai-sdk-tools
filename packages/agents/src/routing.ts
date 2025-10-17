@@ -5,6 +5,9 @@
  */
 
 import type { Agent } from "./types.js";
+import { createLogger } from "@ai-sdk-tools/debug";
+
+const logger = createLogger('ROUTING');
 
 /**
  * Normalize text for better matching
@@ -43,10 +46,10 @@ export function matchAgent(
       const result = matchOn(message);
       return { matched: result, score: result ? 10 : 0 };
     } catch (error) {
-      console.error(
-        `[Routing] Error in matchOn function for ${agent.name}:`,
-        error,
-      );
+      logger.error(`Error in matchOn function for ${agent.name}`, { 
+        agent: agent.name, 
+        error 
+      });
       return { matched: false, score: 0 };
     }
   }

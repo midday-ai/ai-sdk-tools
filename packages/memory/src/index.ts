@@ -27,6 +27,7 @@ export type {
   ChatSession,
   ChatsConfig,
   ConversationMessage,
+  GenerateSuggestionsConfig,
   GenerateTitleConfig,
   MemoryConfig,
   MemoryProvider,

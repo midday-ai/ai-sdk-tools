@@ -13,15 +13,7 @@ import { generateSpendingMetrics } from "@/ai/utils/fake-data";
  * - Comparison with previous periods
  */
 export const spendingMetricsTool = tool({
-  description: `Get comprehensive spending analysis and breakdown.
-  
-Capabilities:
-- General spending overview with totals
-- Category-wise breakdown
-- Trend analysis over time
-- Period-over-period comparison
-
-This tool uses embeddings for intelligent transaction categorization.`,
+  description: `Get comprehensive spending analysis and breakdown`,
 
   inputSchema: dateRangeSchema.merge(currencyFilterSchema).extend({
     breakdown: z

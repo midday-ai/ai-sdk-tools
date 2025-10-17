@@ -1,6 +1,5 @@
 {
-    "recommendations": [
-      "yoavbls.pretty-ts-errors"
-    ]
-  }
-  
+  "recommendations": [
+    "yoavbls.pretty-ts-errors"
+  ]
+}

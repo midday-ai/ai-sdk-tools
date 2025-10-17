@@ -1,10 +1,3 @@
-/**
- * Guardrails for AI Agents
- *
- * Following OpenAI Agents SDK pattern for input/output validation
- * https://openai.github.io/openai-agents-js/guides/guardrails/
- */
-
 import type { InputGuardrail, OutputGuardrail } from "./types.js";
 
 /**

@@ -89,3 +89,28 @@ export function writeRateLimit(
 ): void {
   writeDataPart(writer, "data-rate-limit", rateLimit, { transient: true });
 }
+
+/**
+ * Write transient suggested prompts.
+ *
+ * Suggested prompts are ephemeral and won't be added to message history.
+ * They're only available via the onData callback in useChat.
+ *
+ * @param writer - The UI message stream writer
+ * @param prompts - Array of suggested prompt strings
+ *
+ * @example
+ * ```typescript
+ * writeSuggestions(writer, [
+ *   'Show me the balance sheet',
+ *   'What is our burn rate?',
+ *   'Analyze revenue trends'
+ * ]);
+ * ```
+ */
+export function writeSuggestions(
+  writer: UIMessageStreamWriter,
+  prompts: string[],
+): void {
+  writeDataPart(writer, "data-suggestions", { prompts }, { transient: true });
+}
