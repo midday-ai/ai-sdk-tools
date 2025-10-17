@@ -11,7 +11,7 @@ interface RateLimitData {
 }
 
 export function RateLimitIndicator() {
-  const rateLimit = useDataPart<RateLimitData>("rate-limit", {
+  const [rateLimit] = useDataPart<RateLimitData>("rate-limit", {
     onData: (dataPart) => {
       if (dataPart.data.remaining <= 5) {
         toast.warning("Rate limit running low", {

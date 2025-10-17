@@ -23,6 +23,7 @@ import {
   ChatTitle,
   EmptyState,
   RateLimitIndicator,
+  SuggestedPrompts,
 } from "@/components/chat";
 import { useChatStatus } from "@/hooks/use-chat-status";
 
@@ -152,6 +153,7 @@ export default function Home() {
               }`}
             >
               <div className="w-full px-4 pb-4 max-w-2xl mx-auto">
+                <SuggestedPrompts />
                 {chatInput}
               </div>
             </div>

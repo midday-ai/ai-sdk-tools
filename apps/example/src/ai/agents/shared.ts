@@ -18,6 +18,12 @@ const memoryTemplate = readFileSync(
   "utf-8",
 );
 
+// Load suggestions instructions from markdown file
+const suggestionsInstructions = readFileSync(
+  join(process.cwd(), "src/ai/agents/suggestions-instructions.md"),
+  "utf-8",
+);
+
 /**
  * Application context passed to agents
  * Built dynamically per-request with current date/time
@@ -123,6 +129,12 @@ export const createAgent = (config: AgentConfig<AppContext>) => {
         generateTitle: {
           model: openai("gpt-4o-mini"),
           instructions: "Generate a short, focused title based on the user's message. Max 50 characters. Focus on the main action or topic. Return ONLY plain text - no markdown, no quotes, no special formatting. Examples: Hiring Analysis, Affordability Check, Burn Rate Forecast, Price Research, Account Balance, Revenue Report"
+        },
+        generateSuggestions: {
+          enabled: true,
+          model: openai("gpt-4o-mini"),
+          limit: 5,
+          instructions: suggestionsInstructions,
         },
       },
 

@@ -24,7 +24,7 @@ export function useChatStatus(
   messages: UIMessage[],
   status: ChatStatus,
 ): ChatStatusResult {
-  const agentStatusData = useDataPart<AgentStatus>("agent-status");
+  const [agentStatusData] = useDataPart<AgentStatus>("agent-status");
 
   const result = useMemo(() => {
     if (messages.length === 0) {

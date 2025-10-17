@@ -10,6 +10,7 @@ import {
   convertToModelMessages,
   createUIMessageStream,
   createUIMessageStreamResponse,
+  generateObject,
   generateText,
   type LanguageModel,
   type ModelMessage,
@@ -23,9 +24,9 @@ import {
 } from "ai";
 import { z } from "zod";
 import { createLogger } from "@ai-sdk-tools/debug";
-import { createHandoffTool, isHandoffResult, isHandoffTool, HANDOFF_TOOL_NAME } from "./handoff.js";
+import { createHandoffTool, isHandoffResult, HANDOFF_TOOL_NAME } from "./handoff.js";
 import { promptWithHandoffInstructions } from "./handoff-prompt.js";
-import { writeAgentStatus } from "./streaming.js";
+import { writeAgentStatus, writeSuggestions } from "./streaming.js";
 import type {
   AgentConfig,
   AgentEvent,
@@ -1021,6 +1022,35 @@ export class Agent<
             logger.debug("Tool-only turn - no text response generated");
           }
 
+          // Generate suggestions after orchestration completes
+          const config = this.memory?.chats?.generateSuggestions;
+          const minLength = typeof config === "object" && config.minResponseLength 
+            ? config.minResponseLength 
+            : 100;
+
+          // Only generate if response is substantial enough
+          if (accumulatedAssistantText.length >= minLength) {
+            // Use focused context window (recent exchanges) instead of full history
+            const contextWindow = typeof config === "object" && config.contextWindow
+              ? config.contextWindow
+              : 1;
+
+            // Get last N exchanges (user + assistant pairs)
+            const recentMessages = conversationMessages.slice(-(contextWindow * 2));
+            
+            const conversationContext = recentMessages
+              .map((msg) => {
+                const role = msg.role === "user" ? "User" : "Assistant";
+                return `${role}: ${typeof msg.content === "string" ? msg.content : JSON.stringify(msg.content)}`;
+              })
+              .join("\n\n");
+
+            // Generate suggestions based on recent context
+            await this.generateSuggestions(conversationContext, writer, context as TContext).catch(
+              (err) => logger.error("Suggestion generation error", { error: err }),
+            );
+          }
+
           writer.write({ type: "finish" });
         } catch (error) {
           logger.error("Error in toUIMessageStream", { error });
@@ -1102,6 +1132,122 @@ export class Agent<
       logger.debug(`Generated title for ${chatId}`, { chatId, title: text });
     } catch (err) {
       logger.error("Title generation failed", { error: err });
+    }
+  }
+
+  /**
+   * Build capabilities description from available tools and agents
+   */
+  private buildCapabilitiesDescription(context?: TContext): string {
+    const capabilities: string[] = [];
+
+    // Add tools (exclude internal tools)
+    if (this.configuredTools) {
+      // Resolve tools if they're a function
+      const resolvedTools =
+        typeof this.configuredTools === "function" && context
+          ? this.configuredTools(context)
+          : typeof this.configuredTools === "object"
+            ? this.configuredTools
+            : {};
+
+      const toolNames = Object.keys(resolvedTools).filter(
+        (name) => name !== "handoff_to_agent" && name !== "updateWorkingMemory"
+      );
+      
+      if (toolNames.length > 0) {
+        capabilities.push("Available tools:");
+        for (const toolName of toolNames) {
+          const tool = resolvedTools[toolName];
+          // @ts-expect-error - accessing internal tool properties
+          const description = tool?.spec?.description || toolName;
+          capabilities.push(`- ${toolName}: ${description}`);
+        }
+      }
+    }
+
+    // Add handoff agents
+    const handoffs = this.getHandoffs();
+    if (handoffs.length > 0) {
+      if (capabilities.length > 0) capabilities.push("");
+      capabilities.push("Can route to specialist agents:");
+      for (const agent of handoffs) {
+        // @ts-expect-error - accessing internal agent properties
+        const description = agent.handoffDescription || `${agent.name} agent`;
+        capabilities.push(`- ${agent.name}: ${description}`);
+      }
+    }
+
+    return capabilities.join("\n");
+  }
+
+  /**
+   * Generate contextual prompt suggestions after agent response
+   */
+  private async generateSuggestions(
+    conversationContext: string,
+    writer: UIMessageStreamWriter,
+    context?: TContext,
+  ): Promise<void> {
+    const config = this.memory?.chats?.generateSuggestions;
+    if (!config) return;
+    
+    // Handle boolean true (use defaults) or object config with enabled check
+    const enabled = typeof config === "boolean" ? config : config.enabled;
+    if (!enabled) return;
+    
+    const model = typeof config === "object" && config.model ? config.model : this.model;
+    const limit = typeof config === "object" && config.limit ? config.limit : 5;
+    
+    // Build default instructions with actual capabilities
+    const defaultInstructions = `Generate ${limit} contextual follow-up suggestions based on what was JUST discussed.
+
+${this.buildCapabilitiesDescription(context)}
+
+Guidelines:
+1. Analyze what the assistant just showed/discussed (data, analysis, insights)
+2. Suggest logical NEXT STEPS that build on this specific response
+3. Keep suggestions ultra-brief (2-3 words ideal, max 5 words)
+4. Use action verbs ("Show", "Compare", "Analyze", "Check", "List", "Explore")
+5. Make suggestions specific to the context, not generic
+6. Focus on available capabilities that provide value
+
+Good suggestions are:
+- Specific to what was just discussed
+- Actionable using available capabilities
+- Brief and clear (2-3 words)
+- Natural next steps, not repetitive`;
+
+    const instructions =
+      typeof config === "object" && config.instructions
+        ? config.instructions
+        : defaultInstructions;
+
+    try {
+      // Define schema for structured output
+      const suggestionsSchema = z.object({
+        prompts: z
+          .array(z.string().max(40))
+          .min(3)
+          .max(limit)
+          .describe(`Array of prompt suggestions (2-5 words each)`),
+      });
+
+      // Generate suggestions using structured output
+      const { object } = await generateObject({
+        model,
+        system: instructions,
+        prompt: conversationContext,
+        schema: suggestionsSchema,
+        mode: "json",
+      });
+
+      const { prompts } = object;
+
+      // Stream suggestions as transient data part
+      writeSuggestions(writer, prompts);
+    } catch (err) {
+      logger.error("Suggestion generation failed", { error: err });
     }
   }
 

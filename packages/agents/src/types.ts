@@ -362,6 +362,10 @@ export interface AgentDataParts {
     reset: string;
     code?: string;
   };
+  /** Suggested prompts (transient) */
+  "suggestions": {
+    prompts: string[];
+  };
   // Allow extension with custom data parts
   [key: string]: unknown;
 }
