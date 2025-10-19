@@ -8,15 +8,7 @@ import { generateTransaction } from "@/ai/utils/fake-data";
  * Retrieve detailed information about a specific transaction.
  */
 export const getTransactionTool = tool({
-  description: `Get details of a specific transaction by its ID.
-  
-Returns:
-- Transaction amount and currency
-- Date and description
-- Category and tags
-- Bank account information
-- Attachments
-- Status`,
+  description: `Get details of a specific transaction`,
 
   inputSchema: z.object({
     id: z.string().describe("Transaction ID (UUID)"),

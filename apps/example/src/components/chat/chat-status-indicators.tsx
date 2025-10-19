@@ -1,8 +1,9 @@
 "use client";
 
 import { Loader } from "@/components/ai-elements/loader";
-import { AnimatedStatusText } from "@/components/ui/animated-status-text";
+import { AnimatedStatus } from "@/components/ui/animated-status";
 import { getStatusMessage, getToolMessage } from "@/lib/agent-utils";
+import { getToolIcon } from "@/lib/tool-config";
 import type { AgentStatus } from "@/types/agents";
 
 interface ChatStatusIndicatorsProps {
@@ -19,25 +20,23 @@ export function ChatStatusIndicators({
   const statusMessage = getStatusMessage(agentStatus);
   const toolMessage = getToolMessage(currentToolCall);
 
+  // Prioritize tool message over agent status
+  const displayMessage = toolMessage || statusMessage;
+
+  // Get icon for current tool
+  const toolIcon = currentToolCall ? getToolIcon(currentToolCall) : null;
+
   return (
     <>
-      {/* Show shimmer for specialist agents executing */}
-      <AnimatedStatusText
-        text={statusMessage}
-        shimmerDuration={1}
+      <AnimatedStatus
+        text={displayMessage}
+        shimmerDuration={0.75}
         fadeDuration={0.2}
         variant="slide"
         className="text-xs font-normal"
+        icon={toolIcon}
       />
-      {/* Show tool call status */}
-      <AnimatedStatusText
-        text={toolMessage}
-        shimmerDuration={1}
-        fadeDuration={0.2}
-        variant="slide"
-        className="text-xs font-normal"
-      />
-      {/* Show plain loader for orchestrator/general */}
+
       {((agentStatus && !getStatusMessage(agentStatus)) ||
         (status === "submitted" && !agentStatus && !currentToolCall)) && (
         <Loader />

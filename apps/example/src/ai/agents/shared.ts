@@ -7,12 +7,20 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { Redis } from "@upstash/redis";
-import type { AgentConfig } from "ai-sdk-tools";
-import { Agent, UpstashProvider } from "ai-sdk-tools";
+import type { AgentConfig } from "@ai-sdk-tools/agents";
+import { Agent } from "@ai-sdk-tools/agents";
+import { UpstashProvider, type MemoryConfig } from "ai-sdk-tools";
+import { openai } from "@ai-sdk/openai";
 
 // Load memory template from markdown file
 const memoryTemplate = readFileSync(
   join(process.cwd(), "src/ai/agents/memory-template.md"),
+  "utf-8",
+);
+
+// Load suggestions instructions from markdown file
+const suggestionsInstructions = readFileSync(
+  join(process.cwd(), "src/ai/agents/suggestions-instructions.md"),
   "utf-8",
 );
 
@@ -92,39 +100,47 @@ Important:
 }
 
 /**
- * Shared memory provider instance - used across all agents
+ * Memory provider instance - used across all agents
  * Can be accessed for direct queries (e.g., listing chats)
  */
-export const sharedMemoryProvider = new UpstashProvider(
+export const memoryProvider = new UpstashProvider(
   new Redis({
     url: process.env.UPSTASH_REDIS_REST_URL,
     token: process.env.UPSTASH_REDIS_REST_TOKEN,
   }),
 );
 
-/**
- * Create a typed agent with AppContext pre-applied
- * This enables automatic type inference for the context parameter
- *
- * All agents automatically get shared memory configuration
- */
-export const createAgent = (config: AgentConfig<AppContext>) =>
-  Agent.create<AppContext>({
+export const createAgent = (config: AgentConfig<AppContext>) => {
+  return new Agent<AppContext>({
+    modelSettings: {
+      parallel_tool_calls: true,
+    },
     ...config,
     memory: {
-      provider: sharedMemoryProvider,
-      workingMemory: {
-        enabled: true,
-        scope: "user",
-        template: memoryTemplate,
-      },
+      provider: memoryProvider,
       history: {
         enabled: true,
         limit: 10,
       },
+      workingMemory: {
+        enabled: true,
+        template: memoryTemplate,
+        scope: "user",
+      },
       chats: {
         enabled: true,
-        generateTitle: true, // Uses agent's model
+        generateTitle: {
+          model: openai("gpt-4.1-nano"),
+          instructions: "Generate a short, focused title based on the user's message. Max 50 characters. Focus on the main action or topic. Return ONLY plain text - no markdown, no quotes, no special formatting. Examples: Hiring Analysis, Affordability Check, Burn Rate Forecast, Price Research, Account Balance, Revenue Report"
+        },
+        generateSuggestions: {
+          enabled: true,
+          model: openai("gpt-4.1-nano"),
+          limit: 5,
+          instructions: suggestionsInstructions,
+        },
       },
-    },
+
+    }
   });
+};

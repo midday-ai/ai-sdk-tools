@@ -8,15 +8,7 @@ import { generateCreatedInvoice } from "@/ai/utils/fake-data";
  * Create a new invoice with line items, customer info, and optional auto-send.
  */
 export const createInvoiceTool = tool({
-  description: `Create a new invoice for a customer.
-  
-Capabilities:
-- Create draft invoice
-- Create and send invoice immediately
-- Add line items with descriptions and amounts
-- Set due date and payment terms
-- Apply discounts or taxes`,
-
+  description: `Create a new invoice for a customer`,
   inputSchema: z.object({
     customerId: z.string().describe("Customer ID to invoice"),
     lineItems: z

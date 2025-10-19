@@ -32,12 +32,41 @@ export function useChat<TMessage extends UIMessage = UIMessage>(
     enableBatching = true,
     ...originalOptions
   } = options;
-
-  const chatHelpers = useOriginalChat<TMessage>(originalOptions);
-
+  
+  const originalOnData = (options as any).onData;
+  
   // Use custom store if provided, otherwise use the context store
   const contextStore = useChatStoreApi<TMessage>();
   const store = customStore || contextStore;
+  
+  // Wrap onData to capture transient data parts
+  const wrappedOnData = useCallback((dataPart: any) => {
+    // Check if it's a data part (starts with 'data-')
+    if (dataPart.type && dataPart.type.startsWith('data-')) {
+      // Store transient data parts in the store
+      if (typeof (store as any).getState === 'function') {
+        const storeState = (store as any).getState();
+        // If data is null or undefined, remove the transient data part
+        if (dataPart.data === null || dataPart.data === undefined) {
+          if (storeState.removeTransientDataPart) {
+            storeState.removeTransientDataPart(dataPart.type);
+          }
+        } else if (storeState.setTransientDataPart) {
+          storeState.setTransientDataPart(dataPart.type, dataPart.data);
+        }
+      }
+    }
+    
+    // Call original onData handler if provided
+    if (originalOnData) {
+      originalOnData(dataPart);
+    }
+  }, [store, originalOnData]);
+
+  const chatHelpers = useOriginalChat<TMessage>({
+    ...originalOptions,
+    onData: wrappedOnData,
+  });
 
   const storeRef = useRef<CompatibleChatStore<TMessage> | typeof contextStore>(
     store,

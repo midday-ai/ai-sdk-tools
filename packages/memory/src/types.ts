@@ -45,11 +45,24 @@ export interface GenerateTitleConfig {
 }
 
 /**
+ * Configuration for automatic prompt suggestions generation
+ */
+export interface GenerateSuggestionsConfig {
+  enabled: boolean | ((params: { messages: any[]; context?: Record<string, unknown> }) => boolean | Promise<boolean>);
+  model?: any; // Use 'any' to avoid AI SDK dependency
+  instructions?: string;
+  limit?: number; // Max number of suggestions (default: 5)
+  minResponseLength?: number; // Minimum assistant response length to generate suggestions (default: 100)
+  contextWindow?: number; // Number of recent message exchanges to use as context (default: 1)
+}
+
+/**
  * Configuration for chat session management
  */
 export interface ChatsConfig {
   enabled: boolean;
   generateTitle?: boolean | GenerateTitleConfig;
+  generateSuggestions?: boolean | GenerateSuggestionsConfig;
 }
 
 /**

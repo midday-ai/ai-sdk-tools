@@ -8,13 +8,7 @@ import { generateBurnRateMetrics } from "@/ai/utils/fake-data";
  * Tracks monthly cash consumption and spending velocity.
  */
 export const burnRateMetricsTool = tool({
-  description: `Get burn rate metrics showing monthly cash consumption.
-  
-Capabilities:
-- Monthly burn rate
-- Net burn vs gross burn
-- Burn rate trends
-- Efficiency metrics`,
+  description: `Get burn rate metrics showing monthly cash consumption`,
 
   inputSchema: dateRangeSchema.merge(currencyFilterSchema),
 

@@ -20,7 +20,12 @@ export {
   createHandoff,
   createHandoffTool,
   isHandoffResult,
+  isHandoffTool,
+  HANDOFF_TOOL_NAME,
+  handoff,
+  getTransferMessage,
 } from "./handoff.js";
+export { AgentRunContext } from "./run-context.js";
 // Permissions
 export {
   checkToolPermission,
@@ -46,8 +51,10 @@ export type {
   AgentStreamOptionsUI,
   AgentStreamResult,
   AgentUIMessage,
+  ConfiguredHandoff,
   ExtendedExecutionContext,
   GuardrailResult,
+  HandoffConfig,
   HandoffData,
   HandoffInstruction,
   InputGuardrail,

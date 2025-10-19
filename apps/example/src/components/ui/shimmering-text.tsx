@@ -1,108 +1,57 @@
-"use client";
+'use client';
+import React, { useMemo, type JSX } from 'react';
+import { motion } from 'motion/react';
+import { cn } from '@/lib/utils';
 
-import { motion, type UseInViewOptions, useInView } from "motion/react";
-import type React from "react";
-import { useMemo, useRef } from "react";
-import { cn } from "@/lib/utils";
-
-interface ShimmeringTextProps {
-  /** Text to display with shimmer effect */
-  text: string;
-  /** Animation duration in seconds */
-  duration?: number;
-  /** Delay before starting animation */
-  delay?: number;
-  /** Whether to repeat the animation */
-  repeat?: boolean;
-  /** Pause duration between repeats in seconds */
-  repeatDelay?: number;
-  /** Custom className */
+export type TextShimmerProps = {
+  children: string;
+  as?: React.ElementType;
   className?: string;
-  /** Whether to start animation when component enters viewport */
-  startOnView?: boolean;
-  /** Whether to animate only once */
-  once?: boolean;
-  /** Margin for in-view detection (rootMargin) */
-  inViewMargin?: UseInViewOptions["margin"];
-  /** Shimmer spread multiplier */
+  duration?: number;
   spread?: number;
-  /** Base text color */
-  color?: string;
-  /** Shimmer gradient color */
-  shimmerColor?: string;
-}
+};
 
-export function ShimmeringText({
-  text,
-  duration = 2,
-  delay = 0,
-  repeat = true,
-  repeatDelay = 0.5,
+function TextShimmerComponent({
+  children,
+  as: Component = 'p',
   className,
-  startOnView = true,
-  once = false,
-  inViewMargin,
+  duration = 2,
   spread = 2,
-  color,
-  shimmerColor,
-}: ShimmeringTextProps) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref, { once, margin: inViewMargin });
+}: TextShimmerProps) {
+  const MotionComponent = motion.create(
+    Component as keyof JSX.IntrinsicElements
+  );
 
-  // Calculate dynamic spread based on text length
   const dynamicSpread = useMemo(() => {
-    return text.length * spread;
-  }, [text, spread]);
-
-  // Determine if we should start animation
-  const shouldAnimate = !startOnView || isInView;
+    return children.length * spread;
+  }, [children, spread]);
 
   return (
-    <motion.span
-      ref={ref}
+    <MotionComponent
       className={cn(
-        "relative inline-block bg-[length:250%_100%,auto] bg-clip-text text-transparent",
-        "[--base-color:var(--color-zinc-400)] [--shimmer-color:var(--color-zinc-950)]",
-        "[background-repeat:no-repeat,padding-box]",
-        "[--shimmer-bg:linear-gradient(90deg,transparent_calc(50%-var(--spread)),var(--shimmer-color),transparent_calc(50%+var(--spread)))]",
-        "dark:[--base-color:var(--color-zinc-600)] dark:[--shimmer-color:var(--color-white)]",
-        className,
+        'relative inline-block bg-[length:250%_100%,auto] bg-clip-text',
+        'text-transparent [--base-color:#a1a1aa] [--base-gradient-color:#b3b3b3]',
+        '[background-repeat:no-repeat,padding-box] [--bg:linear-gradient(90deg,#0000_calc(50%-var(--spread)),var(--base-gradient-color),#0000_calc(50%+var(--spread)))]',
+        'dark:[--base-color:#666666] dark:[--base-gradient-color:#888888] dark:[--bg:linear-gradient(90deg,#0000_calc(50%-var(--spread)),var(--base-gradient-color),#0000_calc(50%+var(--spread)))]',
+        className
       )}
+      initial={{ backgroundPosition: '100% center' }}
+      animate={{ backgroundPosition: '0% center' }}
+      transition={{
+        repeat: Infinity,
+        duration,
+        ease: 'linear',
+      }}
       style={
         {
-          "--spread": `${dynamicSpread}px`,
-          ...(color && { "--base-color": color }),
-          ...(shimmerColor && { "--shimmer-color": shimmerColor }),
-          backgroundImage: `var(--shimmer-bg), linear-gradient(var(--base-color), var(--base-color))`,
+          '--spread': `${dynamicSpread}px`,
+          backgroundImage: `var(--bg), linear-gradient(var(--base-color), var(--base-color))`,
         } as React.CSSProperties
       }
-      initial={{
-        backgroundPosition: "100% center",
-        opacity: 0,
-      }}
-      animate={
-        shouldAnimate
-          ? {
-              backgroundPosition: "0% center",
-              opacity: 1,
-            }
-          : {}
-      }
-      transition={{
-        backgroundPosition: {
-          repeat: repeat ? Infinity : 0,
-          duration,
-          delay,
-          repeatDelay,
-          ease: "linear",
-        },
-        opacity: {
-          duration: 0.3,
-          delay,
-        },
-      }}
     >
-      {text}
-    </motion.span>
+      {children}
+    </MotionComponent>
   );
 }
+
+export const TextShimmer = React.memo(TextShimmerComponent);

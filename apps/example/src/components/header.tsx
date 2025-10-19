@@ -5,7 +5,7 @@ import { Github } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 
-export function ChatHeader() {
+export function Header() {
   const reset = useChatReset();
   const { stop } = useChatActions();
 

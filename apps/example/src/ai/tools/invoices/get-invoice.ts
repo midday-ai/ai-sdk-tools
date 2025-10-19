@@ -8,15 +8,7 @@ import { generateInvoice } from "@/ai/utils/fake-data";
  * Retrieve detailed information about a specific invoice.
  */
 export const getInvoiceTool = tool({
-  description: `Get details of a specific invoice by its ID.
-  
-Returns:
-- Invoice amount and currency
-- Due date and issue date
-- Customer information
-- Line items
-- Payment status
-- Payment terms`,
+  description: `Get details of a specific invoice by its ID`,
 
   inputSchema: z.object({
     id: z.string().describe("Invoice ID"),

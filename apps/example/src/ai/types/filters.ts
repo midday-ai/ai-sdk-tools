@@ -5,8 +5,8 @@ import { z } from "zod";
  */
 
 export const dateRangeSchema = z.object({
-  from: z.string().describe("Start date in ISO 8601 format (e.g., 2024-01-01)"),
-  to: z.string().describe("End date in ISO 8601 format (e.g., 2024-12-31)"),
+  from: z.string().describe("Start date in ISO 8601 format (e.g., 2024-01-01)").default("2024-01-01"),
+  to: z.string().describe("End date in ISO 8601 format (e.g., 2024-12-31)").default("2024-12-31"),
 });
 
 export const optionalDateRangeSchema = z.object({

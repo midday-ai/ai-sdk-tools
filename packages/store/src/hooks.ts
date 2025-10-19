@@ -189,6 +189,9 @@ export interface StoreState<TMessage extends UIMessage = UIMessage> {
   _throttledMessages: TMessage[] | null;
   _messageIndex: MessageIndex<TMessage>;
   _memoizedSelectors: Map<string, { result: any; deps: any[] }>;
+  
+  // Transient data parts (not persisted in messages)
+  _transientDataParts: Map<string, any>;
 
   // Actions with batching
   setId: (id: string | undefined) => void;
@@ -230,6 +233,12 @@ export interface StoreState<TMessage extends UIMessage = UIMessage> {
 
   // Effects
   registerThrottledMessagesEffect: (effect: () => void) => () => void;
+  
+  // Transient data methods
+  setTransientDataPart: (type: string, data: any) => void;
+  getTransientDataPart: (type: string) => any;
+  removeTransientDataPart: (type: string) => void;
+  clearTransientDataParts: () => void;
 }
 
 const MESSAGES_THROTTLE_MS = 16; // ~60fps for smooth streaming
@@ -274,6 +283,7 @@ export function createChatStoreCreator<TMessage extends UIMessage>(
       _throttledMessages: [...initialMessages],
       _messageIndex: messageIndex,
       _memoizedSelectors: new Map(),
+      _transientDataParts: new Map(),
 
       // Chat helpers
       sendMessage: undefined,
@@ -478,6 +488,7 @@ export function createChatStoreCreator<TMessage extends UIMessage>(
             _throttledMessages: [],
             _messageIndex: newMessageIndex,
             _memoizedSelectors: new Map(),
+            _transientDataParts: new Map(),
           });
         });
       },
@@ -556,6 +567,39 @@ export function createChatStoreCreator<TMessage extends UIMessage>(
         return () => {
           throttledEffects.delete(effect);
         };
+      },
+      
+      // Transient data methods
+      setTransientDataPart: (type, data) => {
+        markLastAction("chat:setTransientDataPart");
+        batchUpdates(() => {
+          set((state) => {
+            const newTransientDataParts = new Map(state._transientDataParts);
+            newTransientDataParts.set(type, data);
+            return { _transientDataParts: newTransientDataParts };
+          });
+        });
+      },
+      
+      getTransientDataPart: (type) => {
+        const state = get();
+        return state._transientDataParts.get(type);
+      },
+      
+      removeTransientDataPart: (type) => {
+        markLastAction("chat:removeTransientDataPart");
+        batchUpdates(() => {
+          set((state) => {
+            const newTransientDataParts = new Map(state._transientDataParts);
+            newTransientDataParts.delete(type);
+            return { _transientDataParts: newTransientDataParts };
+          });
+        });
+      },
+      
+      clearTransientDataParts: () => {
+        markLastAction("chat:clearTransientDataParts");
+        batchUpdates(() => set({ _transientDataParts: new Map() }));
       },
     };
   };

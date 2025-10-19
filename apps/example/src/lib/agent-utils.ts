@@ -8,26 +8,30 @@ export const getStatusMessage = (status?: AgentStatus | null) => {
 
   const { agent, status: state } = status;
 
-  if (state === "executing") {
-    const messages: Record<
-      Exclude<AgentStatus["agent"], "orchestrator" | "general">,
-      string
-    > = {
-      reports: "Generating financial reports...",
-      transactions: "Fetching transactions...",
-      invoices: "Managing invoices...",
-      timeTracking: "Processing time entries...",
-      customers: "Accessing customer data...",
-      analytics: "Running analytics...",
-      operations: "Processing request...",
-      research: "Searching the web...",
-    };
+  console.log("status", status);
+  console.log("agent", agent);
+  console.log("state", state);
 
-    return messages[agent as keyof typeof messages];
+  if (state === "routing") {
+    return "Thinking...";
   }
 
-  if (state === "completing") {
-    return "Completing task...";
+  if (state === "executing") {
+    const messages: Record<AgentStatus["agent"], string> = {
+      triage: "Thinking...",
+      orchestrator: "Coordinating your request...",
+      general: "Working on it...",
+      reports: "Preparing your financial reports...",
+      transactions: "Looking up transactions...",
+      invoices: "Checking your invoices...",
+      timeTracking: "Reviewing your time entries...",
+      customers: "Finding customer details...",
+      analytics: "Analyzing your data...",
+      operations: "Processing your request...",
+      research: "Searching for information...",
+    };
+  
+    return messages[agent];
   }
 
   return null;
@@ -39,13 +43,13 @@ export const getToolMessage = (toolName: string | null) => {
 
   const toolMessages: Record<string, string> = {
     // Reports tools
-    revenue: "Calculating revenue metrics...",
-    profitLoss: "Generating profit & loss statement...",
+    revenue: "Analyzing revenue data...",
+    profitLoss: "Calculating profit & loss...",
     cashFlow: "Analyzing cash flow...",
-    balanceSheet: "Preparing balance sheet...",
-    expenses: "Breaking down expenses...",
+    balanceSheet: "Generating balance sheet...",
+    expenses: "Analyzing expenses...",
     burnRate: "Calculating burn rate...",
-    runway: "Projecting runway...",
+    runway: "Calculating runway...",
     spending: "Analyzing spending patterns...",
     taxSummary: "Generating tax summary...",
 
@@ -55,20 +59,20 @@ export const getToolMessage = (toolName: string | null) => {
     stressTest: "Running stress test scenarios...",
 
     // Customer tools
-    getCustomer: "Retrieving customer data...",
-    createCustomer: "Creating customer record...",
-    updateCustomer: "Updating customer information...",
+    getCustomer: "Fetching customer data...",
+    createCustomer: "Creating new customer...",
+    updateCustomer: "Updating customer record...",
     profitabilityAnalysis: "Analyzing customer profitability...",
 
     // Invoice tools
     listInvoices: "Fetching invoices...",
-    getInvoice: "Retrieving invoice details...",
+    getInvoice: "Fetching invoice details...",
     createInvoice: "Creating invoice...",
     updateInvoice: "Updating invoice...",
 
     // Transaction tools
     listTransactions: "Fetching transactions...",
-    getTransaction: "Retrieving transaction details...",
+    getTransaction: "Fetching transaction details...",
 
     // Time tracking tools
     startTimer: "Starting timer...",
@@ -80,8 +84,8 @@ export const getToolMessage = (toolName: string | null) => {
     getProjects: "Fetching projects...",
 
     // Operations tools
-    listInbox: "Checking inbox...",
-    getBalances: "Retrieving balances...",
+    listInbox: "Fetching inbox items...",
+    getBalances: "Fetching account balances...",
     listDocuments: "Fetching documents...",
     exportData: "Exporting data...",
 
@@ -89,8 +93,12 @@ export const getToolMessage = (toolName: string | null) => {
     webSearch: "Searching the web...",
 
     // Memory tools
-    updateWorkingMemory: "Updating memory...",
+    updateWorkingMemory: "Updating working memory...",
+
+    // Handoff tools
+    handoff_to_agent: "Routing to specialist...",
   };
 
   return toolMessages[toolName];
 };
+

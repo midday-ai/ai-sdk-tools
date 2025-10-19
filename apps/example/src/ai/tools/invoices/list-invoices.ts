@@ -8,14 +8,7 @@ import { generateInvoices } from "@/ai/utils/fake-data";
  * Query invoices with filtering options.
  */
 export const listInvoicesTool = tool({
-  description: `List invoices with optional filters for customers, dates, statuses, etc.
-  
-Filter by:
-- Date range (start/end)
-- Customer IDs
-- Status (draft, overdue, paid, unpaid, canceled)
-- Search query`,
-
+  description: `List invoices with optional filters for customers`,
   inputSchema: z.object({
     pageSize: z
       .number()
