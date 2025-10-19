@@ -12,6 +12,7 @@ import { transactionsAgent } from "./transactions";
 export const triageAgent = createAgent({
   name: "triage",
   model: openai("gpt-4o-mini"),
+  modelSettings: { toolChoice: "required", activeTools: ["handoff_to_agent"] },
   instructions: (ctx) => `Route user requests to the appropriate agent:
 
 **reports**: Financial metrics and reports
