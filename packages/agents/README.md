@@ -12,9 +12,9 @@ npm install @ai-sdk-tools/agents ai zod
 
 Complex tasks benefit from specialized expertise. Instead of a single model handling everything, break work into focused agents:
 
-**Customer Support**: Triage → Technical Support → Billing  
-**Content Pipeline**: Research → Writing → Editing → Publishing  
-**Code Development**: Planning → Implementation → Testing → Documentation  
+**Customer Support**: Triage → Technical Support → Billing
+**Content Pipeline**: Research → Writing → Editing → Publishing
+**Code Development**: Planning → Implementation → Testing → Documentation
 **Data Analysis**: Collection → Processing → Visualization → Insights
 
 ### Benefits
@@ -299,7 +299,7 @@ const agent = new Agent<TeamContext>({
   name: 'Team Assistant',
   model: openai('gpt-4o'),
   instructions: (context) => {
-    return `You are helping team ${context.teamId}. 
+    return `You are helping team ${context.teamId}.
     User preferences: ${JSON.stringify(context.preferences)}`;
   },
 });
@@ -378,8 +378,8 @@ const agent = new Agent({
   inputGuardrails: [
     async (input) => {
       if (containsProfanity(input)) {
-        return { 
-          pass: false, 
+        return {
+          pass: false,
           action: 'block',
           message: 'Input violates content policy',
         };
@@ -390,8 +390,8 @@ const agent = new Agent({
   outputGuardrails: [
     async (output) => {
       if (containsSensitiveInfo(output)) {
-        return { 
-          pass: false, 
+        return {
+          pass: false,
           action: 'modify',
           modifiedOutput: redactSensitiveInfo(output),
         };
@@ -657,13 +657,13 @@ const reportAgent = new Agent({
       }),
       execute: async function* ({ title }) {
         const report = ReportArtifact.stream({ title, sections: [] });
-        
+
         yield { text: 'Generating report...' };
-        
-        await report.update({ 
+
+        await report.update({
           sections: [{ heading: 'Introduction', content: '...' }],
         });
-        
+
         yield { text: 'Report complete', forceStop: true };
       },
     }),
@@ -676,7 +676,7 @@ const reportAgent = new Agent({
 Debug agent execution in development:
 
 ```typescript
-import { AIDevTools } from '@ai-sdk-tools/devtools';
+import { AIDevtools } from '@ai-sdk-tools/devtools';
 
 const agent = new Agent({
   name: 'Debug Agent',
@@ -692,7 +692,7 @@ export default function App() {
   return (
     <>
       <YourChatInterface />
-      <AIDevTools />
+      <AIDevtools />
     </>
   );
 }
