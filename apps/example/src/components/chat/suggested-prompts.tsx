@@ -31,7 +31,7 @@ export function SuggestedPrompts() {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 10 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
-        className="flex flex-wrap gap-2 mb-2"
+        className="flex gap-2 mb-2 overflow-x-auto scrollbar-hide"
       >
         {prompts.map((prompt, index) => (
           <motion.div
@@ -50,7 +50,7 @@ export function SuggestedPrompts() {
               variant="ghost"
               size="sm"
               onClick={() => handlePromptClick(prompt)}
-              className="rounded-full text-xs font-normal text-muted-foreground/60 hover:text-foreground hover:bg-accent border border-border/50 bg-white/80 dark:bg-black/80 backdrop-blur-xl"
+              className="rounded-full text-xs font-normal text-muted-foreground/60 hover:text-foreground hover:bg-accent border border-border/50 bg-white/80 dark:bg-black/80 backdrop-blur-xl flex-shrink-0 whitespace-nowrap"
             >
               {prompt}
             </Button>

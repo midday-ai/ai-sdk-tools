@@ -48,7 +48,7 @@ export interface GenerateTitleConfig {
  * Configuration for automatic prompt suggestions generation
  */
 export interface GenerateSuggestionsConfig {
-  enabled: boolean;
+  enabled: boolean | ((params: { messages: any[]; context?: Record<string, unknown> }) => boolean | Promise<boolean>);
   model?: any; // Use 'any' to avoid AI SDK dependency
   instructions?: string;
   limit?: number; // Max number of suggestions (default: 5)

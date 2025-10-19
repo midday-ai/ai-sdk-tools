@@ -1046,7 +1046,7 @@ export class Agent<
               .join("\n\n");
 
             // Generate suggestions based on recent context
-            await this.generateSuggestions(conversationContext, writer, context as TContext).catch(
+            await this.generateSuggestions(conversationContext, conversationMessages, writer, context as TContext).catch(
               (err) => logger.error("Suggestion generation error", { error: err }),
             );
           }
@@ -1186,6 +1186,7 @@ export class Agent<
    */
   private async generateSuggestions(
     conversationContext: string,
+    conversationMessages: ModelMessage[],
     writer: UIMessageStreamWriter,
     context?: TContext,
   ): Promise<void> {
@@ -1193,7 +1194,16 @@ export class Agent<
     if (!config) return;
     
     // Handle boolean true (use defaults) or object config with enabled check
-    const enabled = typeof config === "boolean" ? config : config.enabled;
+    let enabled: boolean;
+    if (typeof config === "boolean") {
+      enabled = config;
+    } else if (typeof config.enabled === "function") {
+      // Call the function with messages and context
+      enabled = await config.enabled({ messages: conversationMessages, context });
+    } else {
+      enabled = config.enabled;
+    }
+    
     if (!enabled) return;
     
     const model = typeof config === "object" && config.model ? config.model : this.model;

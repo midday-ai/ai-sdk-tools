@@ -131,7 +131,7 @@ export default function Home() {
         {hasMessages ? (
           <>
             {/* Conversation view - messages */}
-            <div className="flex-1 max-w-2xl mx-auto w-full pb-38">
+            <div className="flex-1 max-w-2xl mx-auto w-full pb-48">
               <ChatTitle />
               <Conversation>
                 <ConversationContent>
