@@ -12,9 +12,11 @@ import { transactionsAgent } from "./transactions";
 export const triageAgent = createAgent({
   name: "triage",
   model: openai("gpt-4o-mini"),
+  modelSettings: {
+    toolChoice: "required",
+    activeTools: ["handoff_to_agent"],
+  },
   instructions: (ctx: AppContext) => `You are a routing specialist. Your ONLY job is to route requests to the appropriate agent.
-
-CRITICAL: DO NOT answer questions yourself. ONLY use the handoff_to_agent tool to route.
 
 ROUTING RULES:
 - "runway" OR "burn rate" OR "revenue" OR "profit" OR "loss" → **reports**
@@ -36,8 +38,6 @@ AGENT CAPABILITIES:
 **customers** - Customer management and profitability
 **timeTracking** - Time tracking and entries
 **general** - Everything else: greetings, web search, compound queries
-
-REMEMBER: Always hand off immediately. Never try to answer the question yourself.
 
 ${formatContextForLLM(ctx)}`,
   handoffs: [

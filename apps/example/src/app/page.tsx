@@ -15,14 +15,12 @@ import {
 } from "@/components/ai-elements/conversation";
 import { ArtifactCanvas } from "@/components/canvas";
 import {
-  ChatHeader,
   ChatInput,
   type ChatInputMessage,
   ChatMessages,
   ChatStatusIndicators,
   ChatTitle,
   EmptyState,
-  RateLimitIndicator,
   SuggestedPrompts,
 } from "@/components/chat";
 import { useChatStatus } from "@/hooks/use-chat-status";
@@ -87,7 +85,7 @@ export default function Home() {
       text: message.text || "Sent with attachments",
       agentChoice: message.agentChoice,
       toolChoice: message.toolChoice,
-    } as any);
+    });
     setText("");
   };
 
@@ -106,10 +104,6 @@ export default function Home() {
 
   return (
     <div className="relative flex size-full overflow-hidden min-h-screen">
-      <RateLimitIndicator />
-
-      <ChatHeader />
-
       {/* Canvas slides in from right when artifacts are present */}
       <div
         className={`fixed right-0 top-0 bottom-0 z-20 ${

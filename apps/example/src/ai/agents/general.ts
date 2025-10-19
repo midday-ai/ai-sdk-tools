@@ -3,7 +3,6 @@ import { createWebSearchTool } from "../tools/search";
 import { analyticsAgent } from "./analytics";
 import { customersAgent } from "./customers";
 import { invoicesAgent } from "./invoices";
-// Import specialists for handoffs
 import { operationsAgent } from "./operations";
 import { reportsAgent } from "./reports";
 import { type AppContext, createAgent, formatContextForLLM } from "./shared";
@@ -13,9 +12,6 @@ import { transactionsAgent } from "./transactions";
 export const generalAgent = createAgent({
   name: "general",
   model: openai("gpt-4o"),
-  modelSettings: {
-    parallel_tool_calls: true, // Enable parallel tool calling for OpenAI
-  },
   instructions: (ctx: AppContext) => `You are a general assistant and coordinator for ${ctx.companyName}.
 
 WEB SEARCH: Use webSearch tool for current information, prices, news, etc.

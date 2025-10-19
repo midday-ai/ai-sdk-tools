@@ -112,6 +112,9 @@ export const memoryProvider = new UpstashProvider(
 
 export const createAgent = (config: AgentConfig<AppContext>) => {
   return new Agent<AppContext>({
+    modelSettings: {
+      parallel_tool_calls: true,
+    },
     ...config,
     memory: {
       provider: memoryProvider,
@@ -127,12 +130,12 @@ export const createAgent = (config: AgentConfig<AppContext>) => {
       chats: {
         enabled: true,
         generateTitle: {
-          model: openai("gpt-4o-mini"),
+          model: openai("gpt-4.1-nano"),
           instructions: "Generate a short, focused title based on the user's message. Max 50 characters. Focus on the main action or topic. Return ONLY plain text - no markdown, no quotes, no special formatting. Examples: Hiring Analysis, Affordability Check, Burn Rate Forecast, Price Research, Account Balance, Revenue Report"
         },
         generateSuggestions: {
           enabled: true,
-          model: openai("gpt-4o-mini"),
+          model: openai("gpt-4.1-nano"),
           limit: 5,
           instructions: suggestionsInstructions,
         },
