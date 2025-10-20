@@ -67,7 +67,7 @@ export default function MemoryContent() {
                 dangerouslySetInnerHTML={{
                   __html:
                     highlight(`import { Agent } from '@ai-sdk-tools/agents'
-import { DrizzleProvider } from '@ai-sdk-tools/memory'
+import { DrizzleProvider } from '@ai-sdk-tools/memory/drizzle'
 
 const agent = new Agent({
   name: 'Assistant',
@@ -163,7 +163,7 @@ const agent = new Agent({
                   className="text-xs font-mono leading-relaxed"
                   dangerouslySetInnerHTML={{
                     __html:
-                      highlight(`import { InMemoryProvider } from '@ai-sdk-tools/memory'
+                      highlight(`import { InMemoryProvider } from '@ai-sdk-tools/memory/in-memory'
 
 const memory = new InMemoryProvider()
 
@@ -188,7 +188,7 @@ const memory = new InMemoryProvider()
                   className="text-xs font-mono leading-relaxed"
                   dangerouslySetInnerHTML={{
                     __html:
-                      highlight(`import { DrizzleProvider } from '@ai-sdk-tools/memory'
+                      highlight(`import { DrizzleProvider } from '@ai-sdk-tools/memory/drizzle'
 
 const memory = new DrizzleProvider(db, {
   workingMemoryTable,
@@ -215,7 +215,7 @@ const memory = new DrizzleProvider(db, {
                   className="text-xs font-mono leading-relaxed"
                   dangerouslySetInnerHTML={{
                     __html:
-                      highlight(`import { UpstashProvider } from '@ai-sdk-tools/memory'
+                      highlight(`import { UpstashProvider } from '@ai-sdk-tools/memory/upstash'
 import { Redis } from '@upstash/redis'
 
 const memory = new UpstashProvider(

@@ -1,28 +1,5 @@
-// Providers
-
-export type {
-  ChatsTable,
-  ConversationMessagesTable,
-  DrizzleProviderConfig,
-  WorkingMemoryTable,
-} from "./providers/drizzle.js";
-export { DrizzleProvider } from "./providers/drizzle.js";
-// Schema Helpers
-export {
-  createMysqlChatsSchema,
-  createMysqlMessagesSchema,
-  createMysqlWorkingMemorySchema,
-  createPgChatsSchema,
-  createPgMessagesSchema,
-  createPgWorkingMemorySchema,
-  createSqliteChatsSchema,
-  createSqliteMessagesSchema,
-  createSqliteWorkingMemorySchema,
-  SQL_SCHEMAS,
-} from "./providers/drizzle-schema.js";
-export { InMemoryProvider } from "./providers/in-memory.js";
-export { UpstashProvider } from "./providers/upstash.js";
-
+// Provider-agnostic root exports only.
+// Note: You can add provider-specific helpers in /providers (to avoid peer dependency conflicts)
 export type {
   ChatSession,
   ChatsConfig,

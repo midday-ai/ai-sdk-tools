@@ -20,7 +20,10 @@ export default function AgentsContent() {
               Multi-agent orchestration for AI SDK v5. Automatic handoffs,
               programmatic routing, and seamless coordination across any AI
               provider. Perfect for complex tasks requiring distinct expertise.
-              <strong className="text-[#d4d4d4]"> Includes built-in memory system for persistent context.</strong>
+              <strong className="text-[#d4d4d4]">
+                {" "}
+                Includes built-in memory system for persistent context.
+              </strong>
             </p>
 
             {/* Terminal */}
@@ -67,7 +70,7 @@ export default function AgentsContent() {
                 dangerouslySetInnerHTML={{
                   __html:
                     highlight(`import { Agent } from '@ai-sdk-tools/agents'
-import { DrizzleProvider } from '@ai-sdk-tools/memory'
+import { DrizzleProvider } from '@ai-sdk-tools/memory/drizzle'
 import { openai } from '@ai-sdk/openai'
 
 const mathAgent = new Agent({
@@ -166,8 +169,6 @@ console.log(\`Handled by: \${result.finalAgent}\`)
               execution.
             </p>
           </div>
-
-        
         </div>
 
         {/* Use Cases */}
