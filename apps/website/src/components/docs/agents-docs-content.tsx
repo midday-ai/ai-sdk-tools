@@ -18,8 +18,11 @@ export default function AgentsDocsContent() {
             <p className="text-base text-secondary max-w-3xl leading-relaxed font-light mb-12">
               Multi-agent orchestration for AI SDK v5. Build intelligent
               workflows with specialized agents, automatic handoffs, and
-              seamless coordination. Works with any AI provider. 
-              <strong className="text-[#d4d4d4]"> Includes built-in memory system for persistent context.</strong>
+              seamless coordination. Works with any AI provider.
+              <strong className="text-[#d4d4d4]">
+                {" "}
+                Includes built-in memory system for persistent context.
+              </strong>
             </p>
 
             <InstallScriptTabs packageName="@ai-sdk-tools/agents @ai-sdk-tools/memory ai zod" />
@@ -118,18 +121,19 @@ export default function AgentsDocsContent() {
               Built-in Memory System
             </h2>
             <p className="text-sm text-secondary mb-8 leading-relaxed">
-              Every agent includes a powerful memory system that maintains context across conversations. 
-              Memory is a <strong className="text-[#d4d4d4]">required dependency</strong> that provides:
+              Every agent includes a powerful memory system that maintains
+              context across conversations. Memory is a{" "}
+              <strong className="text-[#d4d4d4]">required dependency</strong>{" "}
+              that provides:
             </p>
             <div className="space-y-3 mb-8">
               <div className="flex items-start gap-3">
                 <span className="text-xs text-secondary mt-1">•</span>
                 <div>
-                  <p className="text-sm font-medium mb-1">
-                    Working Memory
-                  </p>
+                  <p className="text-sm font-medium mb-1">Working Memory</p>
                   <p className="text-xs text-secondary">
-                    Persistent context that agents can read and update during conversations
+                    Persistent context that agents can read and update during
+                    conversations
                   </p>
                 </div>
               </div>
@@ -140,16 +144,15 @@ export default function AgentsDocsContent() {
                     Conversation History
                   </p>
                   <p className="text-xs text-secondary">
-                    Automatic message persistence and retrieval across chat sessions
+                    Automatic message persistence and retrieval across chat
+                    sessions
                   </p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <span className="text-xs text-secondary mt-1">•</span>
                 <div>
-                  <p className="text-sm font-medium mb-1">
-                    Chat Management
-                  </p>
+                  <p className="text-sm font-medium mb-1">Chat Management</p>
                   <p className="text-xs text-secondary">
                     Automatic title generation and chat organization
                   </p>
@@ -158,11 +161,10 @@ export default function AgentsDocsContent() {
               <div className="flex items-start gap-3">
                 <span className="text-xs text-secondary mt-1">•</span>
                 <div>
-                  <p className="text-sm font-medium mb-1">
-                    Flexible Scopes
-                  </p>
+                  <p className="text-sm font-medium mb-1">Flexible Scopes</p>
                   <p className="text-xs text-secondary">
-                    Chat-level or user-level memory with multiple storage backends
+                    Chat-level or user-level memory with multiple storage
+                    backends
                   </p>
                 </div>
               </div>
@@ -173,7 +175,7 @@ export default function AgentsDocsContent() {
                 dangerouslySetInnerHTML={{
                   __html:
                     highlight(`import { Agent } from '@ai-sdk-tools/agents'
-import { InMemoryProvider } from '@ai-sdk-tools/memory'
+import { InMemoryProvider } from '@ai-sdk-tools/memory/in-memory'
 import { openai } from '@ai-sdk/openai'
 
 const agent = new Agent({
@@ -721,7 +723,7 @@ const pipeline = new Agent({
                     className="text-sm font-mono leading-relaxed"
                     dangerouslySetInnerHTML={{
                       __html:
-                        highlight(`import { DrizzleProvider } from '@ai-sdk-tools/memory'
+                        highlight(`import { DrizzleProvider } from '@ai-sdk-tools/memory/drizzle'
 
 const agent = new Agent({
   name: 'Assistant',

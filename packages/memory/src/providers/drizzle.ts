@@ -61,7 +61,7 @@ export interface ChatsTable {
 export interface DrizzleProviderConfig<
   TWM extends WorkingMemoryTable,
   TMsg extends ConversationMessagesTable,
-  TChat extends ChatsTable = ChatsTable,
+  TChat extends ChatsTable = ChatsTable
 > {
   /** Working memory table */
   workingMemoryTable: TWM;
@@ -89,13 +89,13 @@ export interface DrizzleProviderConfig<
 export class DrizzleProvider<
   TWM extends WorkingMemoryTable,
   TMsg extends ConversationMessagesTable,
-  TChat extends ChatsTable = ChatsTable,
+  TChat extends ChatsTable = ChatsTable
 > implements MemoryProvider
 {
   constructor(
     // Accepts any Drizzle database instance (postgres, mysql, sqlite adapters all have different types)
     private db: any,
-    private config: DrizzleProviderConfig<TWM, TMsg, TChat>,
+    private config: DrizzleProviderConfig<TWM, TMsg, TChat>
   ) {}
 
   async getWorkingMemory(params: {
@@ -298,3 +298,17 @@ export class DrizzleProvider<
     return `${scope}:${id}`;
   }
 }
+
+// Re-export schema helpers under drizzle subpath
+export {
+  createMysqlChatsSchema,
+  createMysqlMessagesSchema,
+  createMysqlWorkingMemorySchema,
+  createPgChatsSchema,
+  createPgMessagesSchema,
+  createPgWorkingMemorySchema,
+  createSqliteChatsSchema,
+  createSqliteMessagesSchema,
+  createSqliteWorkingMemorySchema,
+  SQL_SCHEMAS,
+} from "./drizzle-schema.js";

@@ -16,7 +16,7 @@
  * @example
  * ```ts
  * import { pgTable } from 'drizzle-orm/pg-core';
- * import { createPgWorkingMemorySchema } from '@ai-sdk-tools/memory';
+ * import { createPgWorkingMemorySchema } from '@ai-sdk-tools/memory/drizzle';
  *
  * export const workingMemory = pgTable('working_memory', createPgWorkingMemorySchema());
  * ```
@@ -40,7 +40,7 @@ export function createPgWorkingMemorySchema() {
  * @example
  * ```ts
  * import { pgTable, serial } from 'drizzle-orm/pg-core';
- * import { createPgMessagesSchema } from '@ai-sdk-tools/memory';
+ * import { createPgMessagesSchema } from '@ai-sdk-tools/memory/drizzle';
  *
  * export const messages = pgTable('conversation_messages', createPgMessagesSchema());
  * ```
@@ -63,7 +63,7 @@ export function createPgMessagesSchema() {
  * @example
  * ```ts
  * import { mysqlTable } from 'drizzle-orm/mysql-core';
- * import { createMysqlWorkingMemorySchema } from '@ai-sdk-tools/memory';
+ * import { createMysqlWorkingMemorySchema } from '@ai-sdk-tools/memory/drizzle';
  *
  * export const workingMemory = mysqlTable('working_memory', createMysqlWorkingMemorySchema());
  * ```
@@ -100,7 +100,7 @@ export function createMysqlMessagesSchema() {
  * @example
  * ```ts
  * import { sqliteTable } from 'drizzle-orm/sqlite-core';
- * import { createSqliteWorkingMemorySchema } from '@ai-sdk-tools/memory';
+ * import { createSqliteWorkingMemorySchema } from '@ai-sdk-tools/memory/drizzle';
  *
  * export const workingMemory = sqliteTable('working_memory', createSqliteWorkingMemorySchema());
  * ```
@@ -140,7 +140,7 @@ export function createSqliteMessagesSchema() {
  * @example
  * ```ts
  * import { pgTable } from 'drizzle-orm/pg-core';
- * import { createPgChatsSchema } from '@ai-sdk-tools/memory';
+ * import { createPgChatsSchema } from '@ai-sdk-tools/memory/drizzle';
  *
  * export const chats = pgTable('chat_sessions', createPgChatsSchema());
  * ```
@@ -162,7 +162,7 @@ export function createPgChatsSchema() {
  * @example
  * ```ts
  * import { mysqlTable } from 'drizzle-orm/mysql-core';
- * import { createMysqlChatsSchema } from '@ai-sdk-tools/memory';
+ * import { createMysqlChatsSchema } from '@ai-sdk-tools/memory/drizzle';
  *
  * export const chats = mysqlTable('chat_sessions', createMysqlChatsSchema());
  * ```
@@ -184,7 +184,7 @@ export function createMysqlChatsSchema() {
  * @example
  * ```ts
  * import { sqliteTable } from 'drizzle-orm/sqlite-core';
- * import { createSqliteChatsSchema } from '@ai-sdk-tools/memory';
+ * import { createSqliteChatsSchema } from '@ai-sdk-tools/memory/drizzle';
  *
  * export const chats = sqliteTable('chat_sessions', createSqliteChatsSchema());
  * ```
