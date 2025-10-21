@@ -1,31 +1,31 @@
-import type { ComponentType, SVGProps } from "react";
 import {
+  ArrowRight,
   BarChart3,
+  Brain,
   Calculator,
-  TrendingUp,
-  FileText,
-  PieChart,
-  Flame,
   Calendar,
-  CreditCard,
-  Receipt,
-  DollarSign,
-  Users,
-  User,
-  FileSpreadsheet,
   Clock,
-  Timer,
-  Play,
-  Square,
+  CreditCard,
+  DollarSign,
+  Download,
+  FileArchive,
+  FileSpreadsheet,
+  FileText,
+  Flame,
   FolderOpen,
   Inbox,
-  Wallet,
-  FileArchive,
-  Download,
+  PieChart,
+  Play,
+  Receipt,
   Search,
-  Brain,
-  ArrowRight,
+  Square,
+  Timer,
+  TrendingUp,
+  User,
+  Users,
+  Wallet,
 } from "lucide-react";
+import type { ComponentType, SVGProps } from "react";
 
 export type IconComponent = ComponentType<SVGProps<SVGSVGElement>>;
 
@@ -259,4 +259,3 @@ export function getToolDisplayName(toolName: string): string | null {
   const config = getToolConfig(toolName);
   return config?.name || null;
 }
-

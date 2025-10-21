@@ -9,7 +9,7 @@ import { join } from "node:path";
 import { Redis } from "@upstash/redis";
 import type { AgentConfig } from "@ai-sdk-tools/agents";
 import { Agent } from "@ai-sdk-tools/agents";
-import { UpstashProvider, type MemoryConfig } from "ai-sdk-tools";
+import { UpstashProvider } from "@ai-sdk-tools/memory/upstash";
 import { openai } from "@ai-sdk/openai";
 
 // Load memory template from markdown file

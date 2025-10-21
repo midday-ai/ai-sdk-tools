@@ -1,5 +1,3 @@
 {
-  "recommendations": [
-    "yoavbls.pretty-ts-errors"
-  ]
+  "recommendations": ["biomejs.biome", "yoavbls.pretty-ts-errors"]
 }

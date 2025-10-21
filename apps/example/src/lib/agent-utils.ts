@@ -8,10 +8,6 @@ export const getStatusMessage = (status?: AgentStatus | null) => {
 
   const { agent, status: state } = status;
 
-  console.log("status", status);
-  console.log("agent", agent);
-  console.log("state", state);
-
   if (state === "routing") {
     return "Thinking...";
   }
@@ -30,7 +26,7 @@ export const getStatusMessage = (status?: AgentStatus | null) => {
       operations: "Processing your request...",
       research: "Searching for information...",
     };
-  
+
     return messages[agent];
   }
 
@@ -101,4 +97,3 @@ export const getToolMessage = (toolName: string | null) => {
 
   return toolMessages[toolName];
 };
-

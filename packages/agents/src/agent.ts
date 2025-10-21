@@ -345,9 +345,6 @@ export class Agent<
     // Declare variable to store chat metadata (will be loaded in execute block)
     let existingChatForSave: any = null;
 
-    // Accumulate assistant text during streaming
-    let accumulatedAssistantText = "";
-
     // Wrap onFinish to save messages after streaming
     const wrappedOnFinish: UIMessageStreamOnFinishCallback<never> = async (
       event,
@@ -362,13 +359,16 @@ export class Agent<
           logger.warn("Cannot save messages: chatId is missing from context");
         } else {
           try {
-            // Use accumulated text from streaming instead of responseMessage
-            logger.debug(`Using accumulated assistant text (length: ${accumulatedAssistantText.length})`);
+            // The AI SDK provides complete messages with all parts in event.messages
+            const userMsg = event.messages[event.messages.length - 2]; // second to last is user message
+            const assistantMsg = event.messages[event.messages.length - 1]; // last is assistant message
+
+            logger.debug(`Saving messages with all parts included`);
             await this.saveConversation(
               chatId,
               userId,
-              userMessageText,
-              accumulatedAssistantText,
+              JSON.stringify(userMsg), // Serialize entire message object
+              JSON.stringify(assistantMsg), // Serialize entire message object
               existingChatForSave,
             );
           } catch (err) {
@@ -787,8 +787,6 @@ export class Agent<
                 role: "assistant",
                 content: textAccumulated,
               });
-              // Accumulate for memory save
-              accumulatedAssistantText += textAccumulated;
             } else if (textAccumulated && handoffData) {
               // If there was a handoff, this text was intermediate - don't add to conversation
               // The handoff agent will provide the final response
@@ -1017,19 +1015,20 @@ export class Agent<
             });
           }
 
-          // Log if this was a tool-only turn 
-          if (accumulatedAssistantText.length === 0) {
-            logger.debug("Tool-only turn - no text response generated");
-          }
-
           // Generate suggestions after orchestration completes
           const config = this.memory?.chats?.generateSuggestions;
           const minLength = typeof config === "object" && config.minResponseLength 
             ? config.minResponseLength 
             : 100;
 
+          // Get accumulated text length from conversation messages
+          const assistantMessages = conversationMessages.filter(m => m.role === 'assistant');
+          const totalTextLength = assistantMessages.reduce((sum, m) => {
+            return sum + (typeof m.content === 'string' ? m.content.length : 0);
+          }, 0);
+
           // Only generate if response is substantial enough
-          if (accumulatedAssistantText.length >= minLength) {
+          if (totalTextLength >= minLength) {
             // Use focused context window (recent exchanges) instead of full history
             const contextWindow = typeof config === "object" && config.contextWindow
               ? config.contextWindow
