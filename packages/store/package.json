@@ -47,7 +47,7 @@
     "tsup": "^8.5.0",
     "typescript": "^5.9.3",
     "zustand": "^5.0.8",
-    "@ai-sdk/react": "^2.0.71"
+    "@ai-sdk/react": "^2.0.76"
   },
   "repository": {
     "type": "git",
@@ -61,6 +61,6 @@
     "access": "public"
   },
   "dependencies": {
-    "ai": "^5.0.71"
+    "ai": "^5.0.76"
   }
 }

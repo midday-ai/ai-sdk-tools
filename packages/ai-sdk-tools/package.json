@@ -99,11 +99,11 @@
     }
   },
   "devDependencies": {
-    "@types/node": "^24.7.2",
+    "@types/node": "^24.9.1",
     "tsup": "^8.5.0",
     "typescript": "^5.9.3",
     "zod": "^4.1.12",
-    "ai": "^5.0.71"
+    "ai": "^5.0.76"
   },
   "publishConfig": {
     "access": "public"
