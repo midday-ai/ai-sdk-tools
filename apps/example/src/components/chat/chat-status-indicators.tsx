@@ -31,7 +31,7 @@ export function ChatStatusIndicators({
       <AnimatedStatus
         text={displayMessage}
         shimmerDuration={0.75}
-        fadeDuration={0.2}
+        fadeDuration={0.1}
         variant="slide"
         className="text-xs font-normal"
         icon={toolIcon}

@@ -1,8 +1,10 @@
 "use client";
 
+import { useChatId } from "@ai-sdk-tools/store";
 import { useChatActions } from "ai-sdk-tools/client";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
+import { useChatInterface } from "@/hooks/use-chat-interface";
 
 const SUGGESTIONS = [
   "Show me the balance sheet",
@@ -14,8 +16,14 @@ const SUGGESTIONS = [
 
 export function SuggestionPills() {
   const { sendMessage } = useChatActions();
+  const { setChatId } = useChatInterface();
+  const chatId = useChatId();
 
   const handleSuggestionClick = (suggestion: string) => {
+    if (chatId) {
+      setChatId(chatId);
+    }
+
     sendMessage({ text: suggestion });
   };
 

@@ -1,15 +1,10 @@
 "use client";
 
 import { useArtifacts } from "ai-sdk-tools/client";
-import { X } from "lucide-react";
 import { BalanceSheetCanvas } from "./balance-sheet-canvas";
 import { RevenueCanvas } from "./revenue-canvas";
 
-interface ArtifactCanvasProps {
-  onClose?: () => void;
-}
-
-export function ArtifactCanvas({ onClose }: ArtifactCanvasProps) {
+export function ArtifactCanvas() {
   const { current } = useArtifacts();
 
   if (!current) {
@@ -30,20 +25,7 @@ export function ArtifactCanvas({ onClose }: ArtifactCanvasProps) {
   };
 
   return (
-    <div className="relative h-full bg-background border-l">
-      {/* Close button */}
-      {onClose && (
-        <button
-          type="button"
-          onClick={onClose}
-          className="absolute top-4 right-4 z-10 inline-flex items-center justify-center rounded-md p-2 hover:bg-accent transition-colors"
-          aria-label="Close canvas"
-        >
-          <X className="h-5 w-5" />
-        </button>
-      )}
-
-      {/* Canvas content */}
+    <div className="relative h-full bg-background border-l font-mono">
       {renderCanvas()}
     </div>
   );

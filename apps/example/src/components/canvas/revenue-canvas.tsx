@@ -1,7 +1,6 @@
 "use client";
 
 import { useArtifact } from "ai-sdk-tools/client";
-import { format } from "date-fns";
 import { BarChart3, DollarSign, TrendingUp, Users } from "lucide-react";
 import { Bar, BarChart, XAxis, YAxis } from "recharts";
 import { RevenueArtifact } from "@/ai/artifacts/revenue";
@@ -20,7 +19,6 @@ export function RevenueCanvas() {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-center space-y-2">
-          <div className="animate-spin h-8 w-8 border-b-2 border-primary mx-auto" />
           <p className="text-xs text-muted-foreground">
             Loading revenue data...
           </p>
@@ -54,11 +52,8 @@ export function RevenueCanvas() {
       {/* Header */}
       <div className="space-y-1">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-serif">{data.title}</h2>
+          <h2 className="text-2xl tracking-tight font-mono">{data.title}</h2>
         </div>
-        <p className="text-xs text-muted-foreground">
-          As of {format(new Date(data.asOfDate), "MMMM d, yyyy")}
-        </p>
       </div>
 
       {/* Monthly Revenue Chart */}

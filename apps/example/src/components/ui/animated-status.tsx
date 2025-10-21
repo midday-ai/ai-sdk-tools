@@ -1,9 +1,8 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { cn } from "@/lib/utils";
-import { TextShimmer } from "./shimmering-text";
 import type { IconComponent } from "@/lib/tool-config";
+import { TextShimmer } from "./shimmering-text";
 
 interface AnimatedStatusProps {
   text: string | null;
@@ -51,8 +50,8 @@ export function AnimatedStatus({
   const selectedAnimation = animations[variant];
 
   return (
-    <div className="relative whitespace-nowrap">
-      <AnimatePresence mode="popLayout">
+    <div className="relative whitespace-nowrap h-8 flex items-center">
+      <AnimatePresence mode="wait">
         {text && (
           <motion.div
             key={text} // Re-mount when text changes to trigger animation
@@ -63,14 +62,12 @@ export function AnimatedStatus({
               duration: fadeDuration,
               ease: "easeInOut",
             }}
-            className="inline-flex items-center gap-1.5 text-muted-foreground dark:text-[#666666]"
+            className="flex items-center gap-1.5 text-muted-foreground dark:text-[#666666]"
           >
             {Icon && <Icon className="h-3 w-3 shrink-0 text-current" />}
-            <TextShimmer
-              children={text || ""}
-              className={className}
-              duration={shimmerDuration}
-            />
+            <TextShimmer className={className} duration={shimmerDuration}>
+              {text || ""}
+            </TextShimmer>
           </motion.div>
         )}
       </AnimatePresence>

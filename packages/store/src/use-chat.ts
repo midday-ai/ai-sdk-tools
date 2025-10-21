@@ -5,6 +5,7 @@ import {
   useChat as useOriginalChat,
 } from "@ai-sdk/react";
 import { useCallback, useEffect, useRef } from "react";
+import { useStore } from "zustand";
 import { type StoreState, useChatStoreApi } from "./hooks";
 
 export type { UseChatOptions, UseChatHelpers };
@@ -32,36 +33,39 @@ export function useChat<TMessage extends UIMessage = UIMessage>(
     enableBatching = true,
     ...originalOptions
   } = options;
-  
+
   const originalOnData = (options as any).onData;
-  
+
   // Use custom store if provided, otherwise use the context store
   const contextStore = useChatStoreApi<TMessage>();
   const store = customStore || contextStore;
-  
+
   // Wrap onData to capture transient data parts
-  const wrappedOnData = useCallback((dataPart: any) => {
-    // Check if it's a data part (starts with 'data-')
-    if (dataPart.type && dataPart.type.startsWith('data-')) {
-      // Store transient data parts in the store
-      if (typeof (store as any).getState === 'function') {
-        const storeState = (store as any).getState();
-        // If data is null or undefined, remove the transient data part
-        if (dataPart.data === null || dataPart.data === undefined) {
-          if (storeState.removeTransientDataPart) {
-            storeState.removeTransientDataPart(dataPart.type);
+  const wrappedOnData = useCallback(
+    (dataPart: any) => {
+      // Check if it's a data part (starts with 'data-')
+      if (dataPart.type?.startsWith("data-")) {
+        // Store transient data parts in the store
+        if (typeof (store as any).getState === "function") {
+          const storeState = (store as any).getState();
+          // If data is null or undefined, remove the transient data part
+          if (dataPart.data === null || dataPart.data === undefined) {
+            if (storeState.removeTransientDataPart) {
+              storeState.removeTransientDataPart(dataPart.type);
+            }
+          } else if (storeState.setTransientDataPart) {
+            storeState.setTransientDataPart(dataPart.type, dataPart.data);
           }
-        } else if (storeState.setTransientDataPart) {
-          storeState.setTransientDataPart(dataPart.type, dataPart.data);
         }
       }
-    }
-    
-    // Call original onData handler if provided
-    if (originalOnData) {
-      originalOnData(dataPart);
-    }
-  }, [store, originalOnData]);
+
+      // Call original onData handler if provided
+      if (originalOnData) {
+        originalOnData(dataPart);
+      }
+    },
+    [store, originalOnData],
+  );
 
   const chatHelpers = useOriginalChat<TMessage>({
     ...originalOptions,
@@ -101,13 +105,17 @@ export function useChat<TMessage extends UIMessage = UIMessage>(
       chatHelpers.messages.length === 0
     );
 
-    // Only sync state data, not function references to avoid re-render loops
-    const stateData = {
+    // Only sync state data
+    const stateData: any = {
       id: chatHelpers.id,
-      messages: shouldSyncMessages ? chatHelpers.messages : undefined,
       error: chatHelpers.error,
       status: chatHelpers.status,
     };
+
+    // Only add messages to sync object if we should sync them
+    if (shouldSyncMessages) {
+      stateData.messages = chatHelpers.messages;
+    }
 
     // Sync functions separately and only once
     const functionsData = {
@@ -150,5 +158,15 @@ export function useChat<TMessage extends UIMessage = UIMessage>(
     chatHelpers.addToolResult,
   ]);
 
-  return chatHelpers;
+  // Return the store's messages as the source of truth, not chatHelpers.messages
+  // Subscribe to store messages so this is reactive
+  const storeMessages = useStore(
+    store as any,
+    (state: any) => state.messages as TMessage[],
+  );
+
+  return {
+    ...chatHelpers,
+    messages: storeMessages || chatHelpers.messages,
+  };
 }
