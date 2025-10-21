@@ -35,11 +35,5 @@ ${formatContextForLLM(ctx)}`,
     updateCustomer: updateCustomerTool,
     profitabilityAnalysis: customerProfitabilityTool,
   },
-  // matchOn: [
-  //   "customer",
-  //   "client",
-  //   "customer profitability",
-  //   "customer analysis",
-  // ],
   maxTurns: 5,
 });
