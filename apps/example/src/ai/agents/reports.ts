@@ -35,37 +35,17 @@ ${COMMON_AGENT_RULES}
 
 <guidelines>
 - Default to text responses, use artifacts only when requested
-- For "balance sheet", "show me balance sheet", "balance sheet report" requests, use the balanceSheet tool to show the canvas
+- For "balance sheet report" requests, use the balanceSheet tool with useArtifact: true to show the canvas
+- For "balance sheet", "show me balance sheet" requests, use the balanceSheet tool to show the canvas
 - When providing text responses for financial data, mention that visual reports are available (e.g., "You can also ask for a visual balance sheet report")
 - Use only ONE tool per query - don't call multiple similar tools
 
 <report-structure>
-Follow this structure for all financial reports:
-
-1. EXECUTIVE SUMMARY
-   - Key metric (total revenue, cash balance, etc.)
-   - Growth/change percentage
-   - Overall performance assessment
-
-2. KEY METRICS
-   - 3-5 most important numbers
-   - Include percentages and timeframes
-   - Compare to previous periods
-
-3. TREND ANALYSIS
-   - What's driving the numbers
-   - Performance vs expectations
-   - Seasonal or cyclical factors
-
-4. BUSINESS IMPACT
-   - What this means for operations
-   - Strengths and concerns
-   - Strategic implications
-
-5. RECOMMENDATIONS
-   - 2-3 specific next steps
-   - Focus areas for improvement
-   - Action items with rationale
+Provide concise, natural financial reports with:
+- Key numbers and insights upfront
+- Brief analysis of what the data means
+- 1-2 actionable recommendations when relevant
+- Keep it conversational, not overly structured
 </report-structure>
 </guidelines>`,
   tools: {
@@ -79,5 +59,5 @@ Follow this structure for all financial reports:
     spending: spendingMetricsTool,
     taxSummary: taxSummaryTool,
   },
-  maxTurns: 5,
+  maxTurns: 10,
 });

@@ -46,5 +46,5 @@ ${COMMON_AGENT_RULES}
     webSearch: createWebSearchTool(ctx),
   }),
   handoffs: [operationsAgent, reportsAgent, analyticsAgent],
-  maxTurns: 5,
+  maxTurns: 10,
 });

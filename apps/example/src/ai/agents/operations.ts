@@ -41,5 +41,5 @@ ${COMMON_AGENT_RULES}
     listTransactions: listTransactionsTool,
     listInvoices: listInvoicesTool,
   },
-  maxTurns: 5,
+  maxTurns: 10,
 });

@@ -40,5 +40,5 @@ ${COMMON_AGENT_RULES}
     cashFlowForecast: cashFlowForecastTool,
     stressTest: cashFlowStressTestTool,
   },
-  maxTurns: 5,
+  maxTurns: 10,
 });

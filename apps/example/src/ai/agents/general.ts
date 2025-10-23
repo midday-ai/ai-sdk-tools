@@ -44,5 +44,5 @@ ${COMMON_AGENT_RULES}
     invoicesAgent,
     timeTrackingAgent,
   ],
-  maxTurns: 5,
+  maxTurns: 10,
 });
