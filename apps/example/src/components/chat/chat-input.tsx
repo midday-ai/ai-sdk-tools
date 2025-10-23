@@ -104,8 +104,8 @@ function ChatInputInner({
             rateLimit?.code === "RATE_LIMIT_EXCEEDED"
               ? "Rate limit exceeded. Please try again tomorrow."
               : hasMessages
-                ? undefined
-                : "Ask me anything"
+                ? "Ask me anything (or use @agent or /tool)"
+                : "Ask me anything (or use @agent or /tool)"
           }
           disabled={rateLimit?.code === "RATE_LIMIT_EXCEEDED"}
           autoFocus

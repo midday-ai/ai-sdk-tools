@@ -43,9 +43,9 @@ export function ChatInterface() {
           body: {
             message: lastMessage,
             id,
-            // Pass agent/tool choices if present in message metadata
             agentChoice: lastMessage.agentChoice,
             toolChoice: lastMessage.toolChoice,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
           },
         };
       },

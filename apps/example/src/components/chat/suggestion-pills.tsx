@@ -7,12 +7,12 @@ import { Button } from "@/components/ui/button";
 import { useChatInterface } from "@/hooks/use-chat-interface";
 
 const SUGGESTIONS = [
-  "Balance sheet report",
+  "Show me my balance sheet",
   "What's our revenue this year",
   "Analyze our burn rate",
-  "Show recent invoices",
-  "Visual P&L report",
-  "Cash flow report",
+  "Can I afford a Tesla Model Y",
+  "Show recent transactions",
+  "How healthy is my business",
 ];
 
 export function SuggestionPills() {

@@ -21,6 +21,8 @@ export const triageAgent = createAgent({
   },
   instructions: (
     ctx: AppContext,
+    agentChoice?: string,
+    toolChoice?: string,
   ) => `Route user requests to the appropriate specialist.
 
 <background-data>
@@ -38,6 +40,17 @@ customers: Customer management
 timeTracking: Time tracking
 </agent-capabilities>
 </background-data>
+
+${
+  agentChoice || toolChoice
+    ? `<user-preferences>
+${agentChoice ? `Agent preference: ${agentChoice}` : ""}
+${toolChoice ? `Tool preference: ${toolChoice}` : ""}
+
+If the user has specified an agent or tool preference, prioritize routing to that agent/tool when it makes sense for their request.
+</user-preferences>`
+    : ""
+}
 
 <routing-rules>
 "can I afford" → research
