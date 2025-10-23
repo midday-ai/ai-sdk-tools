@@ -30,17 +30,17 @@ ${formatContextForLLM(ctx)}
 ${COMMON_AGENT_RULES}
 
 <workflow>
-1. Use webSearch for current pricing and financing options
+1. Use webSearch ONCE for comprehensive pricing and financing information
 2. Get financial data from specialists (operations, reports, analytics)
 3. Calculate purchase impact on cash runway
 4. Provide YES/NO recommendation with specific rationale
 </workflow>
 
 <web-search-guidelines>
-- Use simple, focused search queries (2-4 words max)
-- Examples: "Tesla Model Y price", "Tesla financing options", "Tesla lease deals"
-- Avoid complex phrases or internal reasoning in search queries
-- Search for specific, actionable information
+- Use webSearch only ONCE per analysis
+- Create a comprehensive search query that covers all needed information
+- Combine multiple aspects into a single search query
+- Avoid making multiple separate searches
 </web-search-guidelines>
 
 <requirements>

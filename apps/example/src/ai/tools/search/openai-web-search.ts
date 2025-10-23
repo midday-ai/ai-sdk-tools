@@ -12,12 +12,12 @@ interface SourceItem {
 export function createOpenAIWebSearchTool(appContext: AppContext) {
   return tool({
     description:
-      "Search the web for current information, prices, news, and external data. Use simple, focused queries (2-4 words). Returns concise factual data for analysis.",
+      "Search the web for current information, prices, news, and external data. Use comprehensive queries that combine multiple aspects. Returns concise factual data for analysis.",
     inputSchema: z.object({
       query: z
         .string()
         .describe(
-          "Simple search query (2-4 words max, e.g., 'Tesla Model Y price')",
+          "Comprehensive search query combining multiple aspects (e.g., 'Tesla Model Y price financing lease options 2024')",
         ),
     }),
     execute: async ({ query }) => {
@@ -26,7 +26,7 @@ export function createOpenAIWebSearchTool(appContext: AppContext) {
         const currentDate = new Date(
           appContext.currentDateTime,
         ).toLocaleDateString();
-        const enhancedPrompt = `Current date: ${currentDate}. Search for: ${query}. Focus on recent information. Keep search queries simple and focused (2-4 words max).`;
+        const enhancedPrompt = `Current date: ${currentDate}. Search for: ${query}. Focus on recent information. This is a comprehensive search covering multiple aspects.`;
 
         const result = await generateText({
           model: openai("gpt-4o-mini"),

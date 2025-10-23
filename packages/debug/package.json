@@ -24,5 +24,8 @@
   },
   "scripts": {
     "build": "tsup"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

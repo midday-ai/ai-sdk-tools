@@ -3,15 +3,15 @@ import { Redis } from "@upstash/redis";
 
 const ratelimit = new Ratelimit({
   redis: Redis.fromEnv(),
-  limiter: Ratelimit.fixedWindow(50, "24h"), // 5 requests per 24 hours
+  limiter: Ratelimit.fixedWindow(10, "24h"), // 10 requests per 24 hours
 });
 
 export async function checkRateLimit(identifier: string) {
   if (process.env.NODE_ENV === "development") {
     return {
       success: true,
-      limit: 50,
-      remaining: 50,
+      limit: 10,
+      remaining: 10,
       reset: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
     };
   }

@@ -42,7 +42,12 @@ export const getToolMessage = (
 
   // Dynamic messages based on tool input
   if (toolName === "webSearch" && toolInput?.query) {
-    return `Searching the web for "${toolInput.query}"`;
+    const query = toolInput.query as string;
+    // Truncate long queries for better display
+    if (query.length > 40) {
+      return `Searching for "${query.substring(0, 37)}..."`;
+    }
+    return `Searching for "${query}"`;
   }
 
   const toolMessages: Record<string, string> = {

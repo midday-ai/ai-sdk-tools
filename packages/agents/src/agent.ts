@@ -418,9 +418,7 @@ export class Agent<
         ]);
 
         // Load chat metadata once for the entire request (stored in closure for wrappedOnFinish)
-        const { chatId, userId } = this.extractMemoryIdentifiers(
-          context as TContext,
-        );
+        const { chatId } = this.extractMemoryIdentifiers(context as TContext);
         if (this.memory?.chats?.enabled && chatId) {
           existingChatForSave = await this.memory.provider?.getChat?.(chatId);
         }
