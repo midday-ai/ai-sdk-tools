@@ -52,7 +52,10 @@ export function ChatInterface() {
     }),
   });
 
-  const { agentStatus, currentToolCall } = useChatStatus(messages, status);
+  const { agentStatus, currentToolCall, currentToolInput } = useChatStatus(
+    messages,
+    status,
+  );
 
   const { artifacts } = useArtifacts();
   const hasArtifacts = artifacts && artifacts.length > 0;
@@ -151,6 +154,7 @@ export function ChatInterface() {
                     <ChatStatusIndicators
                       agentStatus={agentStatus}
                       currentToolCall={currentToolCall}
+                      currentToolInput={currentToolInput}
                       status={status}
                     />
                   </div>

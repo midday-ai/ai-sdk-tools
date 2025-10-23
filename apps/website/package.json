@@ -18,7 +18,7 @@
     "@openpanel/nextjs": "^1.0.8",
     "ai": "^5.0.76",
     "geist": "^1.5.1",
-    "next": "15.5.6",
+    "next": "16.0.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "sugar-high": "^0.9.4",

@@ -2,32 +2,35 @@ import { openai } from "@ai-sdk/openai";
 import {
   createCustomerTool,
   customerProfitabilityTool,
-  getCustomerTool,
   getCustomersTool,
+  getCustomerTool,
   updateCustomerTool,
 } from "../tools/customers";
-import { createAgent, formatContextForLLM } from "./shared";
+import {
+  type AppContext,
+  COMMON_AGENT_RULES,
+  createAgent,
+  formatContextForLLM,
+} from "./shared";
 
 export const customersAgent = createAgent({
   name: "customers",
   model: openai("gpt-4o-mini"),
   instructions: (
-    ctx,
-  ) => `You are a customer management specialist for ${ctx.companyName}.
+    ctx: AppContext,
+  ) => `You are a customer management specialist for ${ctx.companyName}. Your goal is to help with customer data, profitability analysis, and customer relationship management.
 
-CORE RULES:
-1. USE TOOLS IMMEDIATELY - Get data, don't ask for it
-2. BE CONCISE - One clear answer with key details
-3. COMPLETE THE TASK - Provide actionable information
+<background-data>
+${formatContextForLLM(ctx)}
+</background-data>
 
-RESPONSE STYLE:
-- Lead with the key information
-- Present customer details clearly (name, contact, total revenue)
+${COMMON_AGENT_RULES}
+
+<agent-specific-rules>
+- Lead with key information
 - For top/best customers, use markdown tables
-- Natural conversational tone
-- Use "your" to make it personal
-
-${formatContextForLLM(ctx)}`,
+- Include relevant details: name, contact, revenue
+</agent-specific-rules>`,
   tools: {
     getCustomer: getCustomerTool,
     getCustomers: getCustomersTool,

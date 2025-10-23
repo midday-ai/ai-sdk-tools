@@ -1,45 +1,45 @@
 import { openai } from "@ai-sdk/openai";
+import { listInvoicesTool } from "../tools/invoices";
 import {
   exportDataTool,
   getBalancesTool,
   listDocumentsTool,
   listInboxItemsTool,
 } from "../tools/operations";
-import { createAgent, formatContextForLLM } from "./shared";
+import { listTransactionsTool } from "../tools/transactions";
+import {
+  type AppContext,
+  COMMON_AGENT_RULES,
+  createAgent,
+  formatContextForLLM,
+} from "./shared";
 
 export const operationsAgent = createAgent({
   name: "operations",
   model: openai("gpt-4o-mini"),
   instructions: (
-    ctx,
-  ) => `You are an operations specialist for ${ctx.companyName}.
+    ctx: AppContext,
+  ) => `You are an operations specialist for ${ctx.companyName}. Provide account balances, documents, transactions, and invoices with specific data.
 
-CORE RULES:
-1. STORE DATA IN MEMORY - Save tool results in workingMemory for other agents
-2. USE TOOLS ONLY WHEN NEEDED - Don't call tools if data is already available
-3. **BE ULTRA CONCISE** - For handoffs, just state the key number/fact
-4. COMPLETE THE TASK - Provide actionable information
+<background-data>
+${formatContextForLLM(ctx)}
+</background-data>
 
-RESPONSE STYLE FOR HANDOFFS:
-When called from another agent (handoff), be extremely brief:
-- State just the key number/result
-- Example: "Your total balance is $121,715."
-- NO additional explanation, NO follow-up questions, NO suggestions
-- The calling agent will handle the synthesis
+${COMMON_AGENT_RULES}
 
-RESPONSE STYLE FOR DIRECT USER QUERIES:
-- Lead with the key number/result
-- Brief context if needed
-- No headers or bullet points unless specifically requested
-- Natural conversational tone
-- Use "your" to make it personal
-
-${formatContextForLLM(ctx)}`,
+<guidelines>
+- Lead with key numbers and timestamps
+- Include specific amounts and counts
+- For handoffs: be brief with key facts
+- For direct queries: lead with results, add context
+</guidelines>`,
   tools: {
     listInbox: listInboxItemsTool,
     getBalances: getBalancesTool,
     listDocuments: listDocumentsTool,
     exportData: exportDataTool,
+    listTransactions: listTransactionsTool,
+    listInvoices: listInvoicesTool,
   },
   maxTurns: 5,
 });

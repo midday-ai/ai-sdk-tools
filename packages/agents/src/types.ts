@@ -41,22 +41,24 @@ export interface HandoffData {
   data?: Record<string, unknown>;
 }
 
-
 /**
  * ConfiguredHandoff - represents an agent with handoff configuration
  */
-export interface HandoffConfig<TContext extends Record<string, unknown> = Record<string, unknown>> {
+export interface HandoffConfig<
+  TContext extends Record<string, unknown> = Record<string, unknown>,
+> {
   /** Callback when handoff is invoked */
   onHandoff?: (context: AgentRunContext<TContext>) => void | Promise<void>;
   /** Input filter to modify data passed to the next agent */
   inputFilter?: HandoffInputFilter;
 }
 
-export interface ConfiguredHandoff<TContext extends Record<string, unknown> = Record<string, unknown>> {
+export interface ConfiguredHandoff<
+  TContext extends Record<string, unknown> = Record<string, unknown>,
+> {
   agent: Agent<TContext>;
   config?: HandoffConfig<TContext>;
 }
-
 
 // Forward declaration
 export interface Agent<
@@ -363,7 +365,7 @@ export interface AgentDataParts {
     code?: string;
   };
   /** Suggested prompts (transient) */
-  "suggestions": {
+  suggestions: {
     prompts: string[];
   };
   // Allow extension with custom data parts

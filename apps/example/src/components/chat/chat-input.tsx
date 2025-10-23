@@ -90,7 +90,7 @@ function ChatInputInner({
       globalDrop
       multiple
       onSubmit={handleSubmit}
-      className="bg-white/80 dark:bg-black/80 backdrop-blur-xl"
+      className="bg-[#fafafa]/80 dark:bg-background/50 backdrop-blur-xl"
     >
       <PromptInputBody>
         <PromptInputAttachments>
