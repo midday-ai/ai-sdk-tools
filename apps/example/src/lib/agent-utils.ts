@@ -24,7 +24,7 @@ export const getStatusMessage = (status?: AgentStatus | null) => {
       customers: "Finding customer details...",
       analytics: "Analyzing your data...",
       operations: "Processing your request...",
-      research: "Searching for information...",
+      research: "Gathering data and analyzing...",
     };
 
     return messages[agent];
@@ -34,8 +34,13 @@ export const getStatusMessage = (status?: AgentStatus | null) => {
 };
 
 // Generate user-friendly tool messages
-export const getToolMessage = (toolName: string | null) => {
+export const getToolMessage = (toolName: string | null, toolInput?: any) => {
   if (!toolName) return null;
+
+  // Dynamic messages based on tool input
+  if (toolName === "webSearch" && toolInput?.query) {
+    return `Searching the web for "${toolInput.query}"`;
+  }
 
   const toolMessages: Record<string, string> = {
     // Reports tools

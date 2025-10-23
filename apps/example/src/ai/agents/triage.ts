@@ -5,6 +5,7 @@ import { generalAgent } from "./general";
 import { invoicesAgent } from "./invoices";
 import { operationsAgent } from "./operations";
 import { reportsAgent } from "./reports";
+import { researchAgent } from "./research";
 import { type AppContext, createAgent, formatContextForLLM } from "./shared";
 import { timeTrackingAgent } from "./time-tracking";
 import { transactionsAgent } from "./transactions";
@@ -13,34 +14,41 @@ export const triageAgent = createAgent({
   name: "triage",
   model: openai("gpt-4o-mini"),
   modelSettings: {
-    toolChoice: "required",
-    activeTools: ["handoff_to_agent"],
+    toolChoice: {
+      type: "tool",
+      toolName: "handoff_to_agent",
+    },
   },
-  instructions: (ctx: AppContext) => `You are a routing specialist. Your ONLY job is to route requests to the appropriate agent.
+  instructions: (
+    ctx: AppContext,
+  ) => `Route user requests to the appropriate specialist.
 
-ROUTING RULES:
-- "runway" OR "burn rate" OR "revenue" OR "profit" OR "loss" → **reports**
-- "balance sheet" OR "assets" OR "liabilities" OR "equity" → **reports**
-- "account balance" OR "bank balance" → **operations**  
-- "forecast" OR "health score" OR "stress test" → **analytics**
-- "transaction" OR "spending" → **transactions**
-- "invoice" → **invoices**
-- "customer" → **customers**
-- "time" OR "tracking" → **timeTracking**
-- Greetings, unclear, or complex multi-specialist → **general**
+<background-data>
+${formatContextForLLM(ctx)}
 
-AGENT CAPABILITIES:
-**reports** - Financial metrics: revenue, P&L, burn rate, runway, cash flow, balance sheet, expenses, taxes
-**operations** - Account operations: account balances, inbox, documents, exports
-**analytics** - Forecasting: business health score, cash flow predictions, stress testing
-**transactions** - Transaction queries and search
-**invoices** - Invoice management
-**customers** - Customer management and profitability
-**timeTracking** - Time tracking and entries
-**general** - Everything else: greetings, web search, compound queries
+<agent-capabilities>
+research: AFFORDABILITY ANALYSIS ("can I afford X?", "should I buy X?"), purchase decisions, market comparisons
+general: General questions, greetings, web search
+operations: Account balances, documents, inbox
+reports: Financial reports (revenue, expenses, burn rate, runway, P&L)
+analytics: Forecasts, health scores, predictions, stress tests
+transactions: Transaction history
+invoices: Invoice management
+customers: Customer management
+timeTracking: Time tracking
+</agent-capabilities>
+</background-data>
 
-${formatContextForLLM(ctx)}`,
+<routing-rules>
+"can I afford" → research
+"should I buy" → research
+"balance sheet" → reports
+"what's my balance" → operations
+"show me revenue" → reports
+"forecast my cash flow" → analytics
+</routing-rules>`,
   handoffs: [
+    researchAgent,
     generalAgent,
     operationsAgent,
     reportsAgent,

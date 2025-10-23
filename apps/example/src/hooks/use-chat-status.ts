@@ -1,20 +1,20 @@
 "use client";
 
-import { useMemo } from "react";
-import type { UIMessage, ToolUIPart } from "ai";
-import type { ChatStatus } from "ai";
+import type { ChatStatus, ToolUIPart, UIMessage } from "ai";
 import { useDataPart } from "ai-sdk-tools/client";
+import { useMemo } from "react";
 import type { AgentStatus } from "@/types/agents";
 
 interface ChatStatusResult {
   agentStatus: AgentStatus | null;
   currentToolCall: string | null;
+  currentToolInput: any | null;
   hasTextContent: boolean;
 }
 
 /**
  * Hook to derive chat status indicators from messages and streaming state.
- * 
+ *
  * This hook manages the logic for showing agent status and tool messages:
  * - Agent status: shown when routing or executing (before content starts)
  * - Tool message: shown when a tool is actively running
@@ -31,6 +31,7 @@ export function useChatStatus(
       return {
         agentStatus: agentStatusData,
         currentToolCall: null,
+        currentToolInput: null,
         hasTextContent: false,
       };
     }
@@ -40,6 +41,7 @@ export function useChatStatus(
       return {
         agentStatus: agentStatusData,
         currentToolCall: null,
+        currentToolInput: null,
         hasTextContent: false,
       };
     }
@@ -51,54 +53,63 @@ export function useChatStatus(
       return textPart.text?.trim();
     });
 
-    // Find active tool calls
-    const toolParts = lastMessage.parts.filter((part) => {
+    const _textLength = textParts.reduce((acc, part) => {
+      const textPart = part as { text?: string };
+      return acc + (textPart.text?.length || 0);
+    }, 0);
+
+    // Find active tool calls - check ALL tool-related parts
+    const allParts = lastMessage.parts;
+
+    const toolParts = allParts.filter((part) => {
       const type = part.type;
-      return (
-        type.startsWith("tool-") &&
-        type !== "tool-input-delta" &&
-        type !== "tool-input-available" &&
-        type !== "tool-output-available"
-      );
+      return type.startsWith("tool-");
     }) as ToolUIPart[];
 
-    // Find the most recent running tool
+    // Find the most recent running tool and extract metadata
     let currentToolCall: string | null = null;
+    let currentToolInput: any = null;
+    let _toolMetadata: any = null;
+
     for (let i = toolParts.length - 1; i >= 0; i--) {
       const tool = toolParts[i];
       const toolWithMeta = tool as any;
       const type = tool.type as string;
 
-      if (type === "tool-input-start") {
-        currentToolCall = toolWithMeta.toolName || type.replace(/^tool-/, "");
-        break;
-      }
+      // Extract tool name from type (e.g., "tool-webSearch" -> "webSearch")
+      const toolName =
+        type === "dynamic-tool"
+          ? toolWithMeta.toolName
+          : type.replace(/^tool-/, "");
 
-      if (!toolWithMeta.output && !toolWithMeta.result && !toolWithMeta.errorText) {
-        if (type === "dynamic-tool") {
-          currentToolCall = toolWithMeta.toolName;
-        } else {
-          currentToolCall = type.replace(/^tool-/, "");
-        }
-        break;
+      // Always detect the tool if we haven't found one yet
+      if (!currentToolCall) {
+        currentToolCall = toolName;
+        currentToolInput = toolWithMeta.input || null;
+        _toolMetadata = toolWithMeta;
       }
     }
 
-    // If we have text content, hide tool indicator (but keep for next time)
-    if (hasTextContent) {
+    // Hide tool when text starts streaming or when complete
+    if (currentToolCall && (hasTextContent || status === "ready")) {
       currentToolCall = null;
+      currentToolInput = null;
+      _toolMetadata = null;
     }
 
-    // Hide agent status when streaming text or when complete
-    const agentStatus = status === "ready" || hasTextContent ? null : agentStatusData;
+    // Hide agent status when streaming text, when complete, or when tool is showing
+    const agentStatus =
+      status === "ready" || hasTextContent || currentToolCall
+        ? null
+        : agentStatusData;
 
     return {
       agentStatus,
       currentToolCall,
+      currentToolInput,
       hasTextContent,
     };
   }, [messages, status, agentStatusData]);
 
   return result;
 }
-

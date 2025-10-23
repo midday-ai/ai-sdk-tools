@@ -25,7 +25,6 @@ export {
   handoff,
   getTransferMessage,
 } from "./handoff.js";
-export { AgentRunContext } from "./run-context.js";
 // Permissions
 export {
   checkToolPermission,
@@ -34,6 +33,7 @@ export {
 } from "./permissions.js";
 // Routing
 export { findBestMatch, matchAgent } from "./routing.js";
+export { AgentRunContext } from "./run-context.js";
 // Streaming utilities
 export {
   writeAgentStatus,

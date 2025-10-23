@@ -49,7 +49,7 @@ export function SuggestedPrompts() {
               variant="ghost"
               size="sm"
               onClick={() => handlePromptClick(prompt)}
-              className="rounded-full text-xs font-normal text-muted-foreground/60 hover:text-foreground hover:bg-accent border border-border/50 bg-background/80 dark:bg-background/50 backdrop-blur-sm flex-shrink-0 whitespace-nowrap"
+              className="rounded-full text-xs font-normal text-muted-foreground/60 hover:text-foreground hover:bg-accent border border-border/50 bg-[#fafafa]/80 dark:bg-background/50 backdrop-blur-sm flex-shrink-0 whitespace-nowrap"
             >
               {prompt}
             </Button>

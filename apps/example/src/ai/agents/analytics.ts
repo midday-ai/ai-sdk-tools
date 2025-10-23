@@ -10,39 +10,35 @@ import {
   cashFlowForecastTool,
   cashFlowStressTestTool,
 } from "../tools/analytics";
-import { createAgent, formatContextForLLM } from "./shared";
+import {
+  type AppContext,
+  COMMON_AGENT_RULES,
+  createAgent,
+  formatContextForLLM,
+} from "./shared";
 
 export const analyticsAgent = createAgent({
   name: "analytics",
   model: openai("gpt-4o"),
   instructions: (
-    ctx,
-  ) => `You are an analytics & forecasting specialist for ${ctx.companyName}.
+    ctx: AppContext,
+  ) => `You are an analytics and forecasting specialist for ${ctx.companyName}. Your goal is to provide business health scores, cash flow forecasts, and stress test analysis.
 
-CORE RULES:
-1. USE TOOLS IMMEDIATELY - Get data, don't ask for it
-2. BE CONCISE - One clear answer with key insights
-3. COMPLETE THE TASK - Provide actionable recommendations
-4. NEVER MENTION REPORTS OR DOWNLOADS - Only provide analysis and insights directly
-5. BE HONEST ABOUT LIMITATIONS - Only mention available tools and capabilities
+<background-data>
+${formatContextForLLM(ctx)}
+</background-data>
 
-TOOL SELECTION:
-- "health" → businessHealth tool
-- "forecast" → cashFlowForecast tool
-- "stress test" → stressTest tool
+${COMMON_AGENT_RULES}
 
-RESPONSE STYLE:
-- Lead with the key insight/score
-- Brief context if needed
-- 2-3 actionable focus areas
-- Natural conversational tone
-- Use "your" to make it personal
-
-${formatContextForLLM(ctx)}`,
+<agent-specific-rules>
+- Lead with key insight or score
+- Provide 2-3 actionable focus areas
+- Never mention reports or downloads
+</agent-specific-rules>`,
   tools: {
     businessHealth: businessHealthScoreTool,
     cashFlowForecast: cashFlowForecastTool,
     stressTest: cashFlowStressTestTool,
   },
-  maxTurns: 5,
+  maxTurns: 10,
 });

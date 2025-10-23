@@ -8,28 +8,31 @@ import {
   stopTimerTool,
   updateTimeEntryTool,
 } from "../tools/tracker";
-import { createAgent, formatContextForLLM } from "./shared";
+import {
+  type AppContext,
+  COMMON_AGENT_RULES,
+  createAgent,
+  formatContextForLLM,
+} from "./shared";
 
 export const timeTrackingAgent = createAgent({
   name: "timeTracking",
   model: openai("gpt-4o-mini"),
   instructions: (
-    ctx,
-  ) => `You are a time tracking specialist for ${ctx.companyName}.
+    ctx: AppContext,
+  ) => `You are a time tracking specialist for ${ctx.companyName}. Your goal is to help manage time entries, track project hours, and control timers.
 
-CORE RULES:
-1. USE TOOLS IMMEDIATELY - Get data, don't ask for it
-2. BE CONCISE - One clear answer with key details
-3. COMPLETE THE TASK - Provide actionable information
+<background-data>
+${formatContextForLLM(ctx)}
+</background-data>
 
-RESPONSE STYLE:
-- Lead with the key information
-- Present time data clearly (duration, project, date)
+${COMMON_AGENT_RULES}
+
+<agent-specific-rules>
+- Lead with key information
+- Present time data clearly: duration, project, date
 - Summarize totals when showing multiple entries
-- Natural conversational tone
-- Use "your" to make it personal
-
-${formatContextForLLM(ctx)}`,
+</agent-specific-rules>`,
   tools: {
     startTimer: startTimerTool,
     stopTimer: stopTimerTool,

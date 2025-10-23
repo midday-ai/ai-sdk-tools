@@ -6,11 +6,11 @@
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { Redis } from "@upstash/redis";
-import type { AgentConfig } from "@ai-sdk-tools/agents";
+import { openai } from "@ai-sdk/openai";
 import { Agent } from "@ai-sdk-tools/agents";
 import { UpstashProvider } from "@ai-sdk-tools/memory/upstash";
-import { openai } from "@ai-sdk/openai";
+import { Redis } from "@upstash/redis";
+import type { LanguageModel, Tool } from "ai";
 
 // Load memory template from markdown file
 const memoryTemplate = readFileSync(
@@ -42,6 +42,22 @@ export interface AppContext {
   chatId: string;
   // Allow additional properties to satisfy Record<string, unknown> constraint
   [key: string]: unknown;
+}
+
+/**
+ * Agent configuration type (subset of full AgentConfig from @ai-sdk-tools/agents)
+ */
+interface AgentConfig<TContext extends Record<string, unknown>> {
+  name: string;
+  model: LanguageModel;
+  instructions: string | ((context: TContext) => string);
+  tools?: Record<string, Tool> | ((context: TContext) => Record<string, Tool>);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  handoffs?: Array<any>;
+  handoffDescription?: string;
+  maxTurns?: number;
+  modelSettings?: Record<string, unknown>;
+  matchOn?: (string | RegExp)[] | ((message: string) => boolean);
 }
 
 /**
@@ -78,6 +94,17 @@ export function buildAppContext(params: {
 }
 
 /**
+ * Common rules for all agents about tool execution
+ */
+export const COMMON_AGENT_RULES = `<agent-behavior-rules>
+- Call tools immediately without explanatory text
+- Use parallel tool calls when possible
+- Provide specific numbers and actionable insights
+- Explain your reasoning
+- Lead with the most important information first
+</agent-behavior-rules>`;
+
+/**
  * Format context for LLM system prompts
  * Auto-injected by agent instructions functions
  *
@@ -85,18 +112,15 @@ export function buildAppContext(params: {
  * not hardcoded here. This keeps system context separate from learned user context.
  */
 export function formatContextForLLM(context: AppContext): string {
-  return `
-CURRENT CONTEXT:
-- Date: ${context.currentDateTime}
-- Timezone: ${context.timezone}
-- Company: ${context.companyName}
-- Currency: ${context.baseCurrency}
-- Locale: ${context.locale}
+  return `<context>
+Date: ${context.currentDateTime}
+Timezone: ${context.timezone}
+Company: ${context.companyName}
+Currency: ${context.baseCurrency}
+Locale: ${context.locale}
+</context>
 
-Important: 
-- Use the current date/time above for any time-sensitive operations
-- User-specific information (name, role, preferences) is maintained in your working memory
-`;
+Important: Use the current date/time above for time-sensitive operations. User-specific information is maintained in your working memory.`;
 }
 
 /**
@@ -111,7 +135,7 @@ export const memoryProvider = new UpstashProvider(
 );
 
 export const createAgent = (config: AgentConfig<AppContext>) => {
-  return new Agent<AppContext>({
+  return new Agent({
     modelSettings: {
       parallel_tool_calls: true,
     },
@@ -131,7 +155,8 @@ export const createAgent = (config: AgentConfig<AppContext>) => {
         enabled: true,
         generateTitle: {
           model: openai("gpt-4.1-nano"),
-          instructions: "Generate a short, focused title based on the user's message. Max 50 characters. Focus on the main action or topic. Return ONLY plain text - no markdown, no quotes, no special formatting. Examples: Hiring Analysis, Affordability Check, Burn Rate Forecast, Price Research, Account Balance, Revenue Report"
+          instructions:
+            "Generate a short, focused title based on the user's message. Max 50 characters. Focus on the main action or topic. Return ONLY plain text - no markdown, no quotes, no special formatting. Examples: Hiring Analysis, Affordability Check, Burn Rate Forecast, Price Research, Account Balance, Revenue Report",
         },
         generateSuggestions: {
           enabled: true,
@@ -140,7 +165,6 @@ export const createAgent = (config: AgentConfig<AppContext>) => {
           instructions: suggestionsInstructions,
         },
       },
-
-    }
+    },
   });
 };
