@@ -1197,7 +1197,23 @@ export class Agent<
     const instructions =
       typeof config === "object" && config.instructions
         ? config.instructions
-        : "Generate a short title based on the user's message. Max 80 characters. No quotes or colons.";
+        : `<task-context>
+You are a helpful assistant that can generate titles for conversations.
+</task-context>
+
+<rules>
+Find the most concise title that captures the essence of the conversation.
+Titles should be at most 30 characters.
+Titles should be formatted in sentence case, with capital letters at the start of each word. Do not provide a period at the end.
+</rules>
+
+<the-ask>
+Generate a title for the conversation.
+</the-ask>
+
+<output-format>
+Return only the title.
+</output-format>`;
 
     try {
       // Generate title based only on the user's message
@@ -1205,6 +1221,7 @@ export class Agent<
         model,
         system: instructions,
         prompt: userMessage,
+        temperature: 0,
       });
 
       await this.memory.provider?.updateChatTitle?.(chatId, text);
