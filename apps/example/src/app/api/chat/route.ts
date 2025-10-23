@@ -37,12 +37,12 @@ export async function POST(request: NextRequest) {
     userId,
     fullName: "John Doe",
     companyName: "Acme Inc.",
-    baseCurrency: "USD",
-    locale: "en-US",
-    timezone: "America/New_York",
-    country: "US",
-    city: "New York",
-    region: "New York",
+    baseCurrency: "SEK",
+    locale: "sv-SE",
+    timezone: "Europe/Stockholm",
+    country: "SE",
+    city: "Stockholm",
+    region: "Stockholm",
     chatId: id,
   });
 

@@ -36,5 +36,5 @@ ${COMMON_AGENT_RULES}
     createInvoice: createInvoiceTool,
     updateInvoice: updateInvoiceTool,
   },
-  maxTurns: 10,
+  maxTurns: 5,
 });

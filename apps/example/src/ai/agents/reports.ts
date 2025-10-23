@@ -59,5 +59,5 @@ Provide concise, natural financial reports with:
     spending: spendingMetricsTool,
     taxSummary: taxSummaryTool,
   },
-  maxTurns: 10,
+  maxTurns: 5,
 });

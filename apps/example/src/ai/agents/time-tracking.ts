@@ -42,5 +42,5 @@ ${COMMON_AGENT_RULES}
     deleteTimeEntry: deleteTimeEntryTool,
     getProjects: getTrackerProjectsTool,
   },
-  maxTurns: 5,
+  maxTurns: 2,
 });
