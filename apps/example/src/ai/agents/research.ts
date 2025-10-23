@@ -36,6 +36,13 @@ ${COMMON_AGENT_RULES}
 4. Provide YES/NO recommendation with specific rationale
 </workflow>
 
+<web-search-guidelines>
+- Use simple, focused search queries (2-4 words max)
+- Examples: "Tesla Model Y price", "Tesla financing options", "Tesla lease deals"
+- Avoid complex phrases or internal reasoning in search queries
+- Search for specific, actionable information
+</web-search-guidelines>
+
 <requirements>
 - Include specific amounts and timeframes
 - Calculate runway impact: "Reduces from X to Y months"
