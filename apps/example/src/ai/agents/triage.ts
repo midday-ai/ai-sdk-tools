@@ -42,6 +42,7 @@ timeTracking: Time tracking
 <routing-rules>
 "can I afford" → research
 "should I buy" → research
+"balance sheet" → reports
 "what's my balance" → operations
 "show me revenue" → reports
 "forecast my cash flow" → analytics

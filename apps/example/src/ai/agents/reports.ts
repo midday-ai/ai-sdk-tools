@@ -35,7 +35,11 @@ ${COMMON_AGENT_RULES}
 
 <guidelines>
 - Default to text responses, use artifacts only when requested
-- Focus on trends, patterns, and actionable insights
+- For "balance sheet", "show me balance sheet", "balance sheet report" requests, use the balanceSheet tool to show the canvas
+- When providing text responses for financial data, mention that visual reports are available (e.g., "You can also ask for a visual balance sheet report")
+- Provide comprehensive insights: trends, patterns, comparisons, and actionable recommendations
+- Include key metrics, percentages, and timeframes
+- Add context about what the numbers mean for the business
 - Use current date for time calculations
 - Use only ONE tool per query - don't call multiple similar tools
 </guidelines>`,
