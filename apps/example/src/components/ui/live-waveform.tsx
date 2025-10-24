@@ -81,11 +81,11 @@ export function LiveWaveform({
   }, [audioStream, barCount, minHeight, maxHeight]);
 
   return (
-    <div className={cn("flex items-center justify-center gap-1", className)}>
+    <div className={cn("flex items-center justify-center gap-0.5", className)}>
       {heights.map((height, i) => (
         <div
           key={barKeys[i]}
-          className="w-1 rounded-full bg-current transition-all duration-75"
+          className="w-0.5 rounded-full bg-current transition-all duration-75"
           style={{ height: `${height}px` }}
         />
       ))}

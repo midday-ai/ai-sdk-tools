@@ -1,6 +1,12 @@
 "use client";
 
-import { type RefObject, useCallback, useRef, useState } from "react";
+import {
+  type RefObject,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { toast } from "sonner";
 import {
   VoiceButton,
@@ -10,18 +16,32 @@ import {
 interface VoiceInputButtonProps {
   textareaRef?: RefObject<HTMLTextAreaElement | null>;
   onTranscriptionChange?: (text: string) => void;
+  onRecordingStateChange?: (isRecording: boolean) => void;
+  onAudioStreamChange?: (stream: MediaStream | null) => void;
   className?: string;
 }
 
 export function VoiceInputButton({
   textareaRef,
   onTranscriptionChange,
+  onRecordingStateChange,
+  onAudioStreamChange,
   className,
 }: VoiceInputButtonProps) {
   const [state, setState] = useState<VoiceButtonState>("idle");
   const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+
+  // Notify parent of recording state changes
+  useEffect(() => {
+    onRecordingStateChange?.(state === "recording");
+  }, [state, onRecordingStateChange]);
+
+  // Notify parent of audio stream changes
+  useEffect(() => {
+    onAudioStreamChange?.(audioStream);
+  }, [audioStream, onAudioStreamChange]);
 
   const startRecording = useCallback(async () => {
     try {
@@ -135,7 +155,6 @@ export function VoiceInputButton({
     <VoiceButton
       state={state}
       onPress={handlePress}
-      audioStream={audioStream}
       className={className}
       size="icon"
     />

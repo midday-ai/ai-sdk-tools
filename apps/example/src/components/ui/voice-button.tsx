@@ -2,9 +2,8 @@
 
 import { CheckIcon, Loader2Icon, MicIcon, XIcon } from "lucide-react";
 import * as React from "react";
-import { Button, type ButtonProps } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { LiveWaveform } from "./live-waveform";
 
 export type VoiceButtonState =
   | "idle"
@@ -14,15 +13,13 @@ export type VoiceButtonState =
   | "error";
 
 export interface VoiceButtonProps
-  extends Omit<ButtonProps, "onClick" | "children"> {
+  extends Omit<React.ComponentProps<typeof Button>, "onClick" | "children"> {
   state?: VoiceButtonState;
   onPress?: () => void;
   label?: React.ReactNode;
   trailing?: React.ReactNode;
   icon?: React.ReactNode;
-  waveformClassName?: string;
   feedbackDuration?: number;
-  audioStream?: MediaStream | null;
 }
 
 export const VoiceButton = React.forwardRef<
@@ -39,9 +36,7 @@ export const VoiceButton = React.forwardRef<
       variant = "outline",
       size = "default",
       className,
-      waveformClassName,
       feedbackDuration = 1500,
-      audioStream,
       disabled,
       ...props
     },
@@ -70,12 +65,7 @@ export const VoiceButton = React.forwardRef<
         case "idle":
           return icon || <MicIcon className="size-4" />;
         case "recording":
-          return (
-            <LiveWaveform
-              className={cn("text-current", waveformClassName)}
-              audioStream={audioStream}
-            />
-          );
+          return <MicIcon className="size-4 animate-pulse" />;
         case "processing":
           return <Loader2Icon className="size-4 animate-spin" />;
         case "success":
