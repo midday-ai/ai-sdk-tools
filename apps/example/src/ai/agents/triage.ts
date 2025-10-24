@@ -6,13 +6,19 @@ import { invoicesAgent } from "./invoices";
 import { operationsAgent } from "./operations";
 import { reportsAgent } from "./reports";
 import { researchAgent } from "./research";
-import { type AppContext, createAgent, formatContextForLLM } from "./shared";
+import {
+  type AppContext,
+  createAgent,
+  formatContextForLLM,
+  formatUserPreferences,
+} from "./shared";
 import { timeTrackingAgent } from "./time-tracking";
 import { transactionsAgent } from "./transactions";
 
 export const triageAgent = createAgent({
   name: "triage",
   model: openai("gpt-4o-mini"),
+  temperature: 0.1,
   modelSettings: {
     toolChoice: {
       type: "tool",
@@ -41,25 +47,7 @@ timeTracking: Time tracking
 </agent-capabilities>
 </background-data>
 
-${
-  agentChoice || toolChoice
-    ? `<user-preferences>
-${agentChoice ? `Agent preference: ${agentChoice}` : ""}
-${toolChoice ? `Tool preference: ${toolChoice}` : ""}
-
-If the user has specified an agent or tool preference, prioritize routing to that agent/tool when it makes sense for their request.
-</user-preferences>`
-    : ""
-}
-
-<routing-rules>
-"can I afford" → research
-"should I buy" → research
-"balance sheet" → reports
-"what's my balance" → operations
-"show me revenue" → reports
-"forecast my cash flow" → analytics
-</routing-rules>`,
+${formatUserPreferences(agentChoice, toolChoice)}`,
   handoffs: [
     researchAgent,
     generalAgent,

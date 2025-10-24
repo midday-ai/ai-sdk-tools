@@ -20,6 +20,7 @@ import {
 export const analyticsAgent = createAgent({
   name: "analytics",
   model: openai("gpt-4o"),
+  temperature: 0.5,
   instructions: (
     ctx: AppContext,
   ) => `You are an analytics and forecasting specialist for ${ctx.companyName}. Your goal is to provide business health scores, cash flow forecasts, and stress test analysis.

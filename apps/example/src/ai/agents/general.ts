@@ -17,6 +17,7 @@ import { transactionsAgent } from "./transactions";
 export const generalAgent = createAgent({
   name: "general",
   model: openai("gpt-4o"),
+  temperature: 0.8,
   instructions: (
     ctx: AppContext,
   ) => `You are a helpful assistant for ${ctx.companyName}. Handle general questions and web searches.

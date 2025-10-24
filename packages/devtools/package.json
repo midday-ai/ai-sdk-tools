@@ -54,7 +54,7 @@
     "react-dom": "^19.2.0",
     "tsup": "^8.5.0",
     "typescript": "^5.9.3",
-    "@ai-sdk/react": "^2.0.76",
+    "@ai-sdk/react": "^2.0.78",
     "@ai-sdk-tools/store": "workspace:*"
   },
   "dependencies": {
@@ -64,7 +64,7 @@
     "@mui/material": "^7.3.4",
     "@types/dagre": "^0.7.53",
     "@xyflow/react": "^12.9.0",
-    "ai": "^5.0.76",
+    "ai": "^5.0.78",
     "dagre": "^0.8.5",
     "react-json-view-lite": "^2.5.0"
   },

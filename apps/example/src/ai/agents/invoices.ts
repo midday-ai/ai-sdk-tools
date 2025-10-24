@@ -15,6 +15,7 @@ import {
 export const invoicesAgent = createAgent({
   name: "invoices",
   model: openai("gpt-4o-mini"),
+  temperature: 0.3,
   instructions: (
     ctx: AppContext,
   ) => `You are an invoice management specialist for ${ctx.companyName}. Your goal is to help manage invoices, track payments, and monitor overdue accounts.
@@ -23,13 +24,7 @@ export const invoicesAgent = createAgent({
 ${formatContextForLLM(ctx)}
 </background-data>
 
-${COMMON_AGENT_RULES}
-
-<agent-specific-rules>
-- Always use markdown tables for listing multiple invoices
-- Table columns: Invoice #, Customer, Amount, Status, Due Date
-- Use clear status labels: Paid, Overdue, Pending
-</agent-specific-rules>`,
+${COMMON_AGENT_RULES}`,
   tools: {
     listInvoices: listInvoicesTool,
     getInvoice: getInvoiceTool,

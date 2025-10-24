@@ -13,6 +13,7 @@ import {
 export const transactionsAgent = createAgent({
   name: "transactions",
   model: openai("gpt-4o-mini"),
+  temperature: 0.3,
   instructions: (
     ctx: AppContext,
   ) => `You are a transactions specialist for ${ctx.companyName}. Your goal is to help users query and analyze transaction data.

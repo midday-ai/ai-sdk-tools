@@ -39,12 +39,15 @@ export function ChatInterface() {
       prepareSendMessagesRequest({ messages, id }) {
         const lastMessage = messages[messages.length - 1] as ChatInputMessage;
 
+        const agentChoice = lastMessage.metadata?.agentChoice;
+        const toolChoice = lastMessage.metadata?.toolChoice;
+
         return {
           body: {
             message: lastMessage,
             id,
-            agentChoice: lastMessage.agentChoice,
-            toolChoice: lastMessage.toolChoice,
+            agentChoice,
+            toolChoice,
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
           },
         };
@@ -87,8 +90,8 @@ export function ChatInterface() {
     sendMessage({
       text: message.text || "Sent with attachments",
       metadata: {
-        agentChoice: message.agentChoice,
-        toolChoice: message.toolChoice,
+        agentChoice: message.metadata?.agentChoice,
+        toolChoice: message.metadata?.toolChoice,
       },
     });
     setText("");

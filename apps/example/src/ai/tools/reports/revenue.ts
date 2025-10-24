@@ -1,10 +1,10 @@
+import { getWriter } from "@ai-sdk-tools/artifacts";
 import { tool } from "ai";
 import { z } from "zod";
 import { RevenueArtifact } from "@/ai/artifacts/revenue";
 import { currencyFilterSchema, dateRangeSchema } from "@/ai/types/filters";
 import { generateRevenueMetrics } from "@/ai/utils/fake-data";
 import { delay } from "@/lib/delay";
-import { getWriter } from "@ai-sdk-tools/artifacts";
 
 /**
  * Revenue Dashboard Tool
@@ -18,35 +18,45 @@ export const revenueDashboardTool = tool({
       .boolean()
       .optional()
       .default(false)
-      .describe("When the user asks for visual report, use this flag to enable the visualization"),
+      .describe(
+        "When the user asks for visual report, use this flag to enable the visualization",
+      ),
   }),
 
-  execute: async function* ({ from, to, currency, useArtifact }, executionOptions) {
+  execute: async function* (
+    { from, to, currency, useArtifact },
+    executionOptions,
+  ) {
     try {
       if (!useArtifact) {
         const metrics = generateRevenueMetrics({ from, to, currency });
-        yield { text: `Revenue data for ${from} to ${to}: Total revenue is ${currency || "USD"} ${metrics.total.toLocaleString()}. Growth rate: ${metrics.growth.percentChange.toFixed(1)}%.` };
+        yield {
+          text: `Revenue data for ${from} to ${to}: Total revenue is ${currency || "USD"} ${metrics.total.toLocaleString()}. Growth rate: ${metrics.growth.percentChange.toFixed(1)}%.`,
+        };
         return metrics;
       }
 
       const writer = getWriter(executionOptions);
 
       // Artifact mode - stream the revenue dashboard with visualization
-      const analysis = RevenueArtifact.stream({
-        title: "Revenue Dashboard",
-        asOfDate: to,
-        stage: "generating",
-        progress: 0,
-        data: {
-          totalRevenue: 0,
-          growthRate: 0,
-          averageDealSize: 0,
-          monthlyRevenue: [],
-          revenueByCategory: [],
-          quarterlyTrends: [],
-          topCustomers: [],
+      const analysis = RevenueArtifact.stream(
+        {
+          title: "Revenue Dashboard",
+          asOfDate: to,
+          stage: "generating",
+          progress: 0,
+          data: {
+            totalRevenue: 0,
+            growthRate: 0,
+            averageDealSize: 0,
+            monthlyRevenue: [],
+            revenueByCategory: [],
+            quarterlyTrends: [],
+            topCustomers: [],
+          },
         },
-      }, writer);
+        writer,
+      );
 
       yield { text: `Generating revenue dashboard for ${from} to ${to}...` };
       await delay(300);
@@ -100,14 +110,26 @@ export const revenueDashboardTool = tool({
       ];
 
       const quarterlyTrends = [
-        { quarter: "Q1", revenue: Math.floor(metrics.total * 0.22), growth: 5.2 },
-        { quarter: "Q2", revenue: Math.floor(metrics.total * 0.25), growth: 8.1 },
+        {
+          quarter: "Q1",
+          revenue: Math.floor(metrics.total * 0.22),
+          growth: 5.2,
+        },
+        {
+          quarter: "Q2",
+          revenue: Math.floor(metrics.total * 0.25),
+          growth: 8.1,
+        },
         {
           quarter: "Q3",
           revenue: Math.floor(metrics.total * 0.28),
           growth: 12.3,
         },
-        { quarter: "Q4", revenue: Math.floor(metrics.total * 0.25), growth: 3.7 },
+        {
+          quarter: "Q4",
+          revenue: Math.floor(metrics.total * 0.25),
+          growth: 3.7,
+        },
       ];
 
       const topCustomers = [
@@ -214,7 +236,7 @@ export const revenueDashboardTool = tool({
 
       await analysis.complete(finalData);
 
-      return finalData
+      return finalData;
     } catch (error) {
       console.error(error);
       throw error;

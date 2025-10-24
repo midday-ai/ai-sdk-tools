@@ -17,6 +17,7 @@ import {
 export const operationsAgent = createAgent({
   name: "operations",
   model: openai("gpt-4o-mini"),
+  temperature: 0.3,
   instructions: (
     ctx: AppContext,
   ) => `You are an operations specialist for ${ctx.companyName}. Provide account balances, documents, transactions, and invoices with specific data.
@@ -28,9 +29,6 @@ ${formatContextForLLM(ctx)}
 ${COMMON_AGENT_RULES}
 
 <guidelines>
-- Lead with key numbers and timestamps
-- Include specific amounts and counts
-- For handoffs: be brief with key facts
 - For direct queries: lead with results, add context
 </guidelines>`,
   tools: {

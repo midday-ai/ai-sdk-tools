@@ -30,8 +30,10 @@ import {
 import { useChatInterface } from "@/hooks/use-chat-interface";
 
 export interface ChatInputMessage extends PromptInputMessage {
-  agentChoice?: string;
-  toolChoice?: string;
+  metadata?: {
+    agentChoice?: string;
+    toolChoice?: string;
+  };
 }
 
 interface ChatInputProps {
@@ -77,8 +79,10 @@ function ChatInputInner({
     // Merge message with command selection
     onSubmit({
       ...message,
-      agentChoice: selection.agentChoice,
-      toolChoice: selection.toolChoice,
+      metadata: {
+        agentChoice: selection.agentChoice,
+        toolChoice: selection.toolChoice,
+      },
     });
 
     // Clear pills after submit

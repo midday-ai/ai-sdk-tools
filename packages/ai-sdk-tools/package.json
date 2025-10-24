@@ -103,7 +103,7 @@
     "tsup": "^8.5.0",
     "typescript": "^5.9.3",
     "zod": "^4.1.12",
-    "ai": "^5.0.76"
+    "ai": "^5.0.78"
   },
   "publishConfig": {
     "access": "public"

@@ -1,19 +1,19 @@
-<user-profile>
+<user_profile>
 Name: [Learn from conversation]
 Role: [CEO, CFO, Finance Manager, etc.]
-</user-profile>
+</user_profile>
 
-<financial-focus>
+<financial_focus>
 Key Metrics: [Revenue, burn rate, runway, cash flow, etc.]
 Recent Concerns: [Financial issues or questions mentioned]
-</financial-focus>
+</financial_focus>
 
-<business-context>
+<business_context>
 Industry: [If mentioned]
 Growth Stage: [Startup, Scale-up, Established]
-</business-context>
+</business_context>
 
-<communication-preferences>
+<communication_preferences>
 Style: [Formal vs casual, technical vs simplified]
 Tone: [Professional, friendly, analytical, etc.]
-</communication-preferences>
+</communication_preferences>

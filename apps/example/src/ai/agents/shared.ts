@@ -12,6 +12,49 @@ import { UpstashProvider } from "@ai-sdk-tools/memory/upstash";
 import { Redis } from "@upstash/redis";
 import type { LanguageModel, Tool } from "ai";
 
+/**
+ * Format user preferences for agent instructions
+ */
+export function formatUserPreferences(
+  agentChoice?: string,
+  toolChoice?: string,
+): string {
+  if (!agentChoice && !toolChoice) {
+    return "";
+  }
+
+  const preferences = [];
+  if (agentChoice) {
+    preferences.push(`Agent preference: ${agentChoice}`);
+  }
+  if (toolChoice) {
+    preferences.push(`Tool preference: ${toolChoice}`);
+  }
+
+  return `<user-preferences>
+${preferences.join("\n")}
+
+If the user has specified an agent or tool preference, prioritize routing to that agent/tool when it makes sense for their request.
+</user-preferences>`;
+}
+
+/**
+ * Format agent capabilities for triage routing
+ */
+export function formatAgentCapabilities(): string {
+  return `<agent-capabilities>
+research: AFFORDABILITY ANALYSIS ("can I afford X?", "should I buy X?"), purchase decisions, market comparisons
+general: General questions, greetings, web search
+operations: Account balances, documents, inbox
+reports: Financial reports (revenue, expenses, burn rate, runway, P&L)
+analytics: Forecasts, health scores, predictions, stress tests
+transactions: Transaction history
+invoices: Invoice management
+customers: Customer management
+timeTracking: Time tracking
+</agent-capabilities>`;
+}
+
 // Load memory template from markdown file
 const memoryTemplate = readFileSync(
   join(process.cwd(), "src/ai/agents/memory-template.md"),
@@ -56,6 +99,7 @@ interface AgentConfig<TContext extends Record<string, unknown>> {
   handoffs?: Array<any>;
   handoffDescription?: string;
   maxTurns?: number;
+  temperature?: number;
   modelSettings?: Record<string, unknown>;
   matchOn?: (string | RegExp)[] | ((message: string) => boolean);
 }
@@ -95,14 +139,16 @@ export function buildAppContext(params: {
 
 /**
  * Common rules for all agents about tool execution
+ * Using consistent XML tags as per Claude's best practices
  */
-export const COMMON_AGENT_RULES = `<agent-behavior-rules>
+export const COMMON_AGENT_RULES = `<behavior_rules>
 - Call tools immediately without explanatory text
 - Use parallel tool calls when possible
 - Provide specific numbers and actionable insights
 - Explain your reasoning
 - Lead with the most important information first
-</agent-behavior-rules>`;
+- When presenting structured data (multiple items, comparisons, time periods), use markdown tables for clarity
+</behavior_rules>`;
 
 /**
  * Format context for LLM system prompts
@@ -112,13 +158,13 @@ export const COMMON_AGENT_RULES = `<agent-behavior-rules>
  * not hardcoded here. This keeps system context separate from learned user context.
  */
 export function formatContextForLLM(context: AppContext): string {
-  return `<context>
-Date: ${context.currentDateTime}
-Timezone: ${context.timezone}
-Company: ${context.companyName}
-Currency: ${context.baseCurrency}
-Locale: ${context.locale}
-</context>
+  return `<company_info>
+<current_date>${context.currentDateTime}</current_date>
+<timezone>${context.timezone}</timezone>
+<company_name>${context.companyName}</company_name>
+<base_currency>${context.baseCurrency}</base_currency>
+<locale>${context.locale}</locale>
+</company_info>
 
 Important: Use the current date/time above for time-sensitive operations. User-specific information is maintained in your working memory.`;
 }

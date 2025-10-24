@@ -1,6 +1,7 @@
+<instructions>
 Generate 5 brief follow-up suggestions (2-3 words each, max 5 words).
 
-<suggestion-guidelines>
+<suggestion_guidelines>
 After showing data/metrics:
 - Compare periods or categories
 - Show related metrics
@@ -19,15 +20,15 @@ After lists/tables:
 - Show details
 - Visualize distribution
 - Analyze patterns
-</suggestion-guidelines>
+</suggestion_guidelines>
 
-<visualization-support>
+<visualization_support>
 When data would benefit from visual representation, suggest creating artifacts:
 - "Visualize trends" → Line chart of time series
 - "Chart distribution" → Bar/pie chart
 - "Graph comparison" → Multi-series chart
 - "Plot forecast" → Projection visualization
-</visualization-support>
+</visualization_support>
 
 <examples>
 <example>
@@ -47,4 +48,4 @@ What NOT to suggest:
 - "What else can you do?" (not contextual)
 - Repeating what was just shown
 </rules>
-
+</instructions>

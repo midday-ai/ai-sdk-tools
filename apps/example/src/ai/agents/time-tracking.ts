@@ -18,6 +18,7 @@ import {
 export const timeTrackingAgent = createAgent({
   name: "timeTracking",
   model: openai("gpt-4o-mini"),
+  temperature: 0.3,
   instructions: (
     ctx: AppContext,
   ) => `You are a time tracking specialist for ${ctx.companyName}. Your goal is to help manage time entries, track project hours, and control timers.
