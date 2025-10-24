@@ -6,19 +6,14 @@ import {
   getCustomerTool,
   updateCustomerTool,
 } from "../tools/customers";
-import {
-  type AppContext,
-  COMMON_AGENT_RULES,
-  createAgent,
-  formatContextForLLM,
-} from "./shared";
+import { COMMON_AGENT_RULES, createAgent, formatContextForLLM } from "./shared";
 
 export const customersAgent = createAgent({
   name: "customers",
   model: openai("gpt-4o-mini"),
   temperature: 0.3,
   instructions: (
-    ctx: AppContext,
+    ctx,
   ) => `You are a customer management specialist for ${ctx.companyName}. Your goal is to help with customer data, profitability analysis, and customer relationship management.
 
 <background-data>

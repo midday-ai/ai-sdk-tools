@@ -5,19 +5,14 @@ import {
   listInvoicesTool,
   updateInvoiceTool,
 } from "../tools/invoices";
-import {
-  type AppContext,
-  COMMON_AGENT_RULES,
-  createAgent,
-  formatContextForLLM,
-} from "./shared";
+import { COMMON_AGENT_RULES, createAgent, formatContextForLLM } from "./shared";
 
 export const invoicesAgent = createAgent({
   name: "invoices",
   model: openai("gpt-4o-mini"),
   temperature: 0.3,
   instructions: (
-    ctx: AppContext,
+    ctx,
   ) => `You are an invoice management specialist for ${ctx.companyName}. Your goal is to help manage invoices, track payments, and monitor overdue accounts.
 
 <background-data>

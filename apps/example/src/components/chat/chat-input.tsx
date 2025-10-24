@@ -76,17 +76,20 @@ function ChatInputInner({
       setChatId(chatId);
     }
 
-    // Merge message with command selection
+    // Merge message with command selection and web search button
     onSubmit({
       ...message,
       metadata: {
         agentChoice: selection.agentChoice,
-        toolChoice: selection.toolChoice,
+        // If Search button is active and no tool selected, use webSearch
+        toolChoice:
+          selection.toolChoice || (useWebSearch ? "webSearch" : undefined),
       },
     });
 
-    // Clear pills after submit
+    // Clear pills and reset search button after submit
     clearPills();
+    setUseWebSearch(false);
   };
 
   return (

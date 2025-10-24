@@ -55,10 +55,7 @@ export function ChatInterface() {
     }),
   });
 
-  const { agentStatus, currentToolCall, currentToolInput } = useChatStatus(
-    messages,
-    status,
-  );
+  const { agentStatus, currentToolCall } = useChatStatus(messages, status);
 
   const { artifacts } = useArtifacts();
   const hasArtifacts = artifacts && artifacts.length > 0;
@@ -153,11 +150,15 @@ export function ChatInterface() {
               <Conversation>
                 <ConversationContent className="pb-48 pt-14">
                   <div className="max-w-2xl mx-auto w-full">
-                    <ChatMessages messages={messages} />
+                    <ChatMessages
+                      messages={messages}
+                      isStreaming={
+                        status === "streaming" || status === "submitted"
+                      }
+                    />
                     <ChatStatusIndicators
                       agentStatus={agentStatus}
                       currentToolCall={currentToolCall}
-                      currentToolInput={currentToolInput}
                       status={status}
                     />
                   </div>
@@ -177,7 +178,7 @@ export function ChatInterface() {
               )}
             >
               <div className="w-full pb-4 max-w-2xl mx-auto">
-                <SuggestedPrompts />
+                <SuggestedPrompts delay={1} />
                 {chatInput}
               </div>
             </div>

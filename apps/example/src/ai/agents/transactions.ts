@@ -3,19 +3,14 @@ import {
   getTransactionTool,
   listTransactionsTool,
 } from "../tools/transactions";
-import {
-  type AppContext,
-  COMMON_AGENT_RULES,
-  createAgent,
-  formatContextForLLM,
-} from "./shared";
+import { COMMON_AGENT_RULES, createAgent, formatContextForLLM } from "./shared";
 
 export const transactionsAgent = createAgent({
   name: "transactions",
   model: openai("gpt-4o-mini"),
   temperature: 0.3,
   instructions: (
-    ctx: AppContext,
+    ctx,
   ) => `You are a transactions specialist for ${ctx.companyName}. Your goal is to help users query and analyze transaction data.
 
 <background-data>

@@ -6,12 +6,7 @@ import { invoicesAgent } from "./invoices";
 import { operationsAgent } from "./operations";
 import { reportsAgent } from "./reports";
 import { researchAgent } from "./research";
-import {
-  type AppContext,
-  createAgent,
-  formatContextForLLM,
-  formatUserPreferences,
-} from "./shared";
+import { createAgent, formatContextForLLM } from "./shared";
 import { timeTrackingAgent } from "./time-tracking";
 import { transactionsAgent } from "./transactions";
 
@@ -25,11 +20,7 @@ export const triageAgent = createAgent({
       toolName: "handoff_to_agent",
     },
   },
-  instructions: (
-    ctx: AppContext,
-    agentChoice?: string,
-    toolChoice?: string,
-  ) => `Route user requests to the appropriate specialist.
+  instructions: (ctx) => `Route user requests to the appropriate specialist.
 
 <background-data>
 ${formatContextForLLM(ctx)}
@@ -45,9 +36,7 @@ invoices: Invoice management
 customers: Customer management
 timeTracking: Time tracking
 </agent-capabilities>
-</background-data>
-
-${formatUserPreferences(agentChoice, toolChoice)}`,
+</background-data>`,
   handoffs: [
     researchAgent,
     generalAgent,

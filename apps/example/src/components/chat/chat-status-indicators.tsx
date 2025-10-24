@@ -9,18 +9,16 @@ import type { AgentStatus } from "@/types/agents";
 interface ChatStatusIndicatorsProps {
   agentStatus: AgentStatus | null;
   currentToolCall: string | null;
-  currentToolInput?: any;
   status?: string;
 }
 
 export function ChatStatusIndicators({
   agentStatus,
   currentToolCall,
-  currentToolInput,
   status,
 }: ChatStatusIndicatorsProps) {
   const statusMessage = getStatusMessage(agentStatus);
-  const toolMessage = getToolMessage(currentToolCall, currentToolInput);
+  const toolMessage = getToolMessage(currentToolCall);
 
   // Always prioritize tool message over agent status when a tool is running
   const displayMessage = toolMessage || statusMessage;

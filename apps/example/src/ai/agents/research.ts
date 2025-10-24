@@ -3,7 +3,7 @@ import {
   businessHealthScoreTool,
   cashFlowForecastTool,
 } from "../tools/analytics";
-import { createWebSearchTool } from "../tools/search";
+import { webSearchTool } from "../tools/search";
 import { operationsAgent } from "./operations";
 import { reportsAgent } from "./reports";
 import {
@@ -39,32 +39,39 @@ ${COMMON_AGENT_RULES}
 </workflow>
 
 <response_structure>
-1. **Recommendation first**: Start with a clear YES/NO and the main reason
-   - Lead with your recommendation and key reason (1-2 sentences)
-   - Skip confidence percentages - make it informative and actionable
-   
-   <example>
-   "I'd recommend against purchasing a Tesla Model Y right now - the monthly lease cost of 8,850-10,690 SEK would significantly impact your cash runway given your current financial projections."
-   </example>
+Format your response with these sections:
 
-2. **Supporting details**: Follow with financial data, calculations, tables, and analysis
-   - Current costs and options
-   - Cash flow impact with specific numbers
-   - Detailed forecasts in tables
-   - Risk considerations
+## Summary
+- 2-3 sentences with your recommendation and the key numbers
+- Include: cost, monthly impact, and bottom-line guidance
+- Example: "At 8,500 SEK/month with zero-interest financing, this purchase would reduce your runway from 18 to 14 months. Given your healthy cash flow trend, this is manageable if you maintain current revenue."
 
-3. **Actionable next steps**: End with alternatives or what to do next
+## Financial Impact
+Show concrete numbers in a clear breakdown:
+- **Purchase Cost**: Total price, down payment, monthly payment
+- **Current Financial Position**: Cash balance, monthly avg cash flow
+- **Impact on Runway**: Before vs After with specific months
+- Use a simple comparison table if helpful
+
+## Business Context
+- Business health score with what it means for this decision
+- Cash flow trend (improving/stable/declining) with supporting data
+- Relevant considerations (tax benefits, operational impact, etc.)
+
+## Next Steps
+Prioritized list (most important first):
+- Immediate action items with specific criteria
+- Alternatives if not recommended
+- Clear trigger points for reassessment
 </response_structure>
 
 <analysis_requirements>
-- Get current cash balance and calculate actual runway (before/after)
-- Calculate exact monthly payment based on specific financing found
-- Show runway impact: "Current: X months → After purchase: Y months"
-- Mention business context: tax deductions, operational benefits, etc.
-- Explain trends: WHY is cash flow increasing/decreasing?
-- Provide specific alternatives with price comparisons
-- Give clear metrics for when to reassess (e.g., "Revisit when monthly cash flow exceeds X")
-- Be specific, not vague - actual numbers and concrete advice
+- Calculate actual runway impact: "X months → Y months after purchase"
+- Use real numbers from tools - never estimate or guess
+- Explain trends with context: "Cash flow improving due to seasonal revenue"
+- Include business tax benefits when relevant (VAT recovery, deductions)
+- Provide specific metrics for reassessment
+- Always be concrete - no vague advice like "consider carefully"
 </analysis_requirements>
 
 <smb_considerations>
@@ -79,18 +86,13 @@ ${COMMON_AGENT_RULES}
 - Use webSearch only ONCE per analysis
 - Use short, focused queries (2-4 words max) for faster results
 - Avoid long, complex queries that slow down search
-
-<search_examples>
-Good queries: "Tesla Model Y price", "Tesla financing", "Tesla lease"
-Bad queries: "What is the complete pricing structure with all options for Tesla Model Y in Sweden including financing"
-</search_examples>
 </search_guidelines>
 </instructions>`,
-  tools: (ctx: AppContext) => ({
-    webSearch: createWebSearchTool(ctx),
+  tools: {
+    webSearch: webSearchTool,
     businessHealth: businessHealthScoreTool,
     cashFlowForecast: cashFlowForecastTool,
-  }),
+  },
   handoffs: [operationsAgent, reportsAgent],
   maxTurns: 5,
 });

@@ -7,19 +7,14 @@ import {
   listInboxItemsTool,
 } from "../tools/operations";
 import { listTransactionsTool } from "../tools/transactions";
-import {
-  type AppContext,
-  COMMON_AGENT_RULES,
-  createAgent,
-  formatContextForLLM,
-} from "./shared";
+import { COMMON_AGENT_RULES, createAgent, formatContextForLLM } from "./shared";
 
 export const operationsAgent = createAgent({
   name: "operations",
   model: openai("gpt-4o-mini"),
   temperature: 0.3,
   instructions: (
-    ctx: AppContext,
+    ctx,
   ) => `You are an operations specialist for ${ctx.companyName}. Provide account balances, documents, transactions, and invoices with specific data.
 
 <background-data>

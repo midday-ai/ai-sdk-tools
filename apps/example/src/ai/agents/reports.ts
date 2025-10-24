@@ -10,19 +10,14 @@ import {
   spendingMetricsTool,
   taxSummaryTool,
 } from "../tools/reports";
-import {
-  type AppContext,
-  COMMON_AGENT_RULES,
-  createAgent,
-  formatContextForLLM,
-} from "./shared";
+import { COMMON_AGENT_RULES, createAgent, formatContextForLLM } from "./shared";
 
 export const reportsAgent = createAgent({
   name: "reports",
   model: openai("gpt-4o-mini"),
   temperature: 0.3,
   instructions: (
-    ctx: AppContext,
+    ctx,
   ) => `You are a financial reports specialist for ${ctx.companyName}. Provide clear financial metrics and insights.
 
 <context>

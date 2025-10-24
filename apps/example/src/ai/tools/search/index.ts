@@ -1,1 +1,1 @@
-export { createOpenAIWebSearchTool as createWebSearchTool } from "./openai-web-search";
+export { webSearchTool } from "./openai-web-search";

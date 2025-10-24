@@ -13,32 +13,6 @@ import { Redis } from "@upstash/redis";
 import type { LanguageModel, Tool } from "ai";
 
 /**
- * Format user preferences for agent instructions
- */
-export function formatUserPreferences(
-  agentChoice?: string,
-  toolChoice?: string,
-): string {
-  if (!agentChoice && !toolChoice) {
-    return "";
-  }
-
-  const preferences = [];
-  if (agentChoice) {
-    preferences.push(`Agent preference: ${agentChoice}`);
-  }
-  if (toolChoice) {
-    preferences.push(`Tool preference: ${toolChoice}`);
-  }
-
-  return `<user-preferences>
-${preferences.join("\n")}
-
-If the user has specified an agent or tool preference, prioritize routing to that agent/tool when it makes sense for their request.
-</user-preferences>`;
-}
-
-/**
  * Format agent capabilities for triage routing
  */
 export function formatAgentCapabilities(): string {
@@ -147,7 +121,8 @@ export const COMMON_AGENT_RULES = `<behavior_rules>
 - Provide specific numbers and actionable insights
 - Explain your reasoning
 - Lead with the most important information first
-- When presenting structured data (multiple items, comparisons, time periods), use markdown tables for clarity
+- When presenting repeated structured data (lists of items, multiple entries, time series), always use markdown tables
+- Tables make data scannable and easier to compare - use them for any data with 2+ rows
 </behavior_rules>`;
 
 /**
@@ -201,17 +176,15 @@ export const createAgent = (config: AgentConfig<AppContext>) => {
         enabled: true,
         generateTitle: {
           model: openai("gpt-4.1-nano"),
-          instructions: `<task-context>
-You are a helpful assistant that can generate titles for conversations.
-</task-context>
+          instructions: `Generate a concise title that captures the user's intent.
 
 <rules>
-Find the most concise title that captures what the user is asking for.
-Titles should be at most 30 characters.
-Titles should be formatted in sentence case (only first word capitalized). Include a period only if it makes sense for the title.
-Focus on the user's intent and what they want to know or do.
-Use proper abbreviations like Q1, Q2, Q3, Q4 when referring to quarters.
-Examples: "Tesla affordability check", "Q3 revenue performance", "Cash balance", "Balance sheet report"
+- Extract the core topic/intent, not the question itself
+- Use noun phrases (e.g., "Tesla affordability" not "Can I afford Tesla")
+- Maximum 30 characters
+- Sentence case (only first word capitalized)
+- No periods unless it's an abbreviation
+- Use proper abbreviations (Q1, Q2, etc.)
 </rules>
 
 <the-ask>

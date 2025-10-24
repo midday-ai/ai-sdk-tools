@@ -10,19 +10,14 @@ import {
   cashFlowForecastTool,
   cashFlowStressTestTool,
 } from "../tools/analytics";
-import {
-  type AppContext,
-  COMMON_AGENT_RULES,
-  createAgent,
-  formatContextForLLM,
-} from "./shared";
+import { COMMON_AGENT_RULES, createAgent, formatContextForLLM } from "./shared";
 
 export const analyticsAgent = createAgent({
   name: "analytics",
   model: openai("gpt-4o"),
   temperature: 0.5,
   instructions: (
-    ctx: AppContext,
+    ctx,
   ) => `You are an analytics and forecasting specialist for ${ctx.companyName}. Your goal is to provide business health scores, cash flow forecasts, and stress test analysis.
 
 <background-data>

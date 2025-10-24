@@ -8,7 +8,6 @@ import type { AgentStatus } from "@/types/agents";
 interface ChatStatusResult {
   agentStatus: AgentStatus | null;
   currentToolCall: string | null;
-  currentToolInput: any | null;
   hasTextContent: boolean;
 }
 
@@ -31,7 +30,6 @@ export function useChatStatus(
       return {
         agentStatus: agentStatusData,
         currentToolCall: null,
-        currentToolInput: null,
         hasTextContent: false,
       };
     }
@@ -41,7 +39,6 @@ export function useChatStatus(
       return {
         agentStatus: agentStatusData,
         currentToolCall: null,
-        currentToolInput: null,
         hasTextContent: false,
       };
     }
@@ -66,34 +63,48 @@ export function useChatStatus(
       return type.startsWith("tool-");
     }) as ToolUIPart[];
 
-    // Find the most recent running tool and extract metadata
     let currentToolCall: string | null = null;
-    let currentToolInput: any = null;
-    let _toolMetadata: any = null;
+    let _toolMetadata: Record<string, unknown> | null = null;
 
-    for (let i = toolParts.length - 1; i >= 0; i--) {
-      const tool = toolParts[i];
-      const toolWithMeta = tool as any;
+    // Check if any web search is still pending (no output yet)
+    const hasPendingWebSearch = toolParts.some((part) => {
+      const type = part.type as string;
+      const toolWithOutput = part as Record<string, unknown>;
+      return type === "tool-webSearch" && !toolWithOutput.output;
+    });
+
+    // If web searches are active, prioritize showing that
+    if (hasPendingWebSearch) {
+      // Find the most recent web search for the query text
+      for (let i = toolParts.length - 1; i >= 0; i--) {
+        const tool = toolParts[i];
+        const type = tool.type as string;
+        if (type === "tool-webSearch") {
+          const toolWithMeta = tool as Record<string, unknown>;
+          currentToolCall = "webSearch";
+          _toolMetadata = toolWithMeta;
+          break;
+        }
+      }
+    } else if (toolParts.length > 0) {
+      // No web searches active, get the most recent tool
+      const tool = toolParts[toolParts.length - 1];
+      const toolWithMeta = tool as Record<string, unknown>;
       const type = tool.type as string;
 
-      // Extract tool name from type (e.g., "tool-webSearch" -> "webSearch")
+      // Extract tool name from type (e.g., "tool-cashFlow" -> "cashFlow")
       const toolName =
         type === "dynamic-tool"
-          ? toolWithMeta.toolName
+          ? (toolWithMeta.toolName as string)
           : type.replace(/^tool-/, "");
 
-      // Always detect the tool if we haven't found one yet
-      if (!currentToolCall) {
-        currentToolCall = toolName;
-        currentToolInput = toolWithMeta.input || null;
-        _toolMetadata = toolWithMeta;
-      }
+      currentToolCall = toolName;
+      _toolMetadata = toolWithMeta;
     }
 
     // Hide tool when text starts streaming or when complete
     if (currentToolCall && (hasTextContent || status === "ready")) {
       currentToolCall = null;
-      currentToolInput = null;
       _toolMetadata = null;
     }
 
@@ -106,7 +117,6 @@ export function useChatStatus(
     return {
       agentStatus,
       currentToolCall,
-      currentToolInput,
       hasTextContent,
     };
   }, [messages, status, agentStatusData]);
