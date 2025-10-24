@@ -8,7 +8,11 @@ type SuggestionsData = {
   prompts: string[];
 };
 
-export function SuggestedPrompts() {
+interface SuggestedPromptsProps {
+  delay?: number;
+}
+
+export function SuggestedPrompts({ delay = 0 }: SuggestedPromptsProps = {}) {
   const [suggestions, clearSuggestions] =
     useDataPart<SuggestionsData>("suggestions");
   const { sendMessage } = useChatActions();
@@ -30,7 +34,7 @@ export function SuggestedPrompts() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 10 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
+        transition={{ duration: 0.3, delay, ease: "easeOut" }}
         className="flex gap-2 mb-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {prompts.map((prompt, index) => (
@@ -41,7 +45,7 @@ export function SuggestedPrompts() {
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{
               duration: 0.2,
-              delay: index * 0.05,
+              delay: delay + index * 0.05, // Add base delay to stagger
               ease: "easeOut",
             }}
           >

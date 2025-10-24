@@ -30,8 +30,10 @@ import {
 import { useChatInterface } from "@/hooks/use-chat-interface";
 
 export interface ChatInputMessage extends PromptInputMessage {
-  agentChoice?: string;
-  toolChoice?: string;
+  metadata?: {
+    agentChoice?: string;
+    toolChoice?: string;
+  };
 }
 
 interface ChatInputProps {
@@ -74,15 +76,20 @@ function ChatInputInner({
       setChatId(chatId);
     }
 
-    // Merge message with command selection
+    // Merge message with command selection and web search button
     onSubmit({
       ...message,
-      agentChoice: selection.agentChoice,
-      toolChoice: selection.toolChoice,
+      metadata: {
+        agentChoice: selection.agentChoice,
+        // If Search button is active and no tool selected, use webSearch
+        toolChoice:
+          selection.toolChoice || (useWebSearch ? "webSearch" : undefined),
+      },
     });
 
-    // Clear pills after submit
+    // Clear pills and reset search button after submit
     clearPills();
+    setUseWebSearch(false);
   };
 
   return (

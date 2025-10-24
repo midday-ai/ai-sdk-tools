@@ -58,9 +58,9 @@
     "@types/node": "^24.9.1",
     "tsup": "^8.5.0",
     "typescript": "^5.9.3",
-    "vitest": "^3.2.4",
+    "vitest": "^4.0.2",
     "zod": "^4.1.12",
-    "ai": "^5.0.76"
+    "ai": "^5.0.78"
   },
   "publishConfig": {
     "access": "public"

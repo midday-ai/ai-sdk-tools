@@ -1,17 +1,13 @@
 "use client";
 
 import type { UIMessage } from "ai";
+import { FaviconStack } from "@/components/ai-elements/favicon-stack";
 import { Message, MessageContent } from "@/components/ai-elements/message";
 import { Response } from "@/components/ai-elements/response";
-import {
-  Source,
-  Sources,
-  SourcesContent,
-  SourcesTrigger,
-} from "@/components/ai-elements/sources";
 
 interface ChatMessagesProps {
   messages: UIMessage[];
+  isStreaming?: boolean;
 }
 
 interface SourceItem {
@@ -63,10 +59,13 @@ function extractAiSdkSources(parts: UIMessage["parts"]): SourceItem[] {
   return sources;
 }
 
-export function ChatMessages({ messages }: ChatMessagesProps) {
+export function ChatMessages({
+  messages,
+  isStreaming = false,
+}: ChatMessagesProps) {
   return (
     <>
-      {messages.map(({ parts, ...message }) => {
+      {messages.map(({ parts, ...message }, index) => {
         // Extract text parts
         const textParts = parts.filter((part) => part.type === "text");
         const textContent = textParts
@@ -86,12 +85,14 @@ export function ChatMessages({ messages }: ChatMessagesProps) {
             index === self.findIndex((s) => s.url === source.url),
         );
 
-        // Check if message has text content (response has started)
-        const hasTextContent = textContent.trim().length > 0;
+        // Check if this is the last (currently streaming) message
+        const isLastMessage = index === messages.length - 1;
+
+        // Show sources only after response is finished (not on the currently streaming message)
         const shouldShowSources =
           uniqueSources.length > 0 &&
           message.role === "assistant" &&
-          hasTextContent;
+          (!isLastMessage || !isStreaming);
 
         return (
           <div key={message.id}>
@@ -104,21 +105,10 @@ export function ChatMessages({ messages }: ChatMessagesProps) {
               </Message>
             )}
 
-            {/* Render sources - only when response has started */}
+            {/* Render sources as stacked favicons - show immediately when available */}
             {shouldShowSources && (
-              <div className="max-w-[80%] mb-4">
-                <Sources>
-                  <SourcesTrigger count={uniqueSources.length} />
-                  <SourcesContent>
-                    {uniqueSources.map((source, index) => (
-                      <Source
-                        key={`${message.id}-source-${index}`}
-                        href={source.url}
-                        title={source.title}
-                      />
-                    ))}
-                  </SourcesContent>
-                </Sources>
+              <div className="max-w-[80%]">
+                <FaviconStack sources={uniqueSources} />
               </div>
             )}
           </div>

@@ -34,21 +34,8 @@ export const getStatusMessage = (status?: AgentStatus | null) => {
 };
 
 // Generate user-friendly tool messages
-export const getToolMessage = (
-  toolName: string | null,
-  toolInput?: Record<string, unknown>,
-) => {
+export const getToolMessage = (toolName: string | null) => {
   if (!toolName) return null;
-
-  // Dynamic messages based on tool input
-  if (toolName === "webSearch" && toolInput?.query) {
-    const query = toolInput.query as string;
-    // Truncate long queries for better display
-    if (query.length > 40) {
-      return `Searching for "${query.substring(0, 37)}..."`;
-    }
-    return `Searching for "${query}"`;
-  }
 
   const toolMessages: Record<string, string> = {
     // Reports tools

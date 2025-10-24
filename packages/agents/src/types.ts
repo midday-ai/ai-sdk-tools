@@ -155,6 +155,7 @@ export interface AgentGenerateOptions {
 export interface AgentStreamOptions {
   prompt?: string;
   messages?: ModelMessage[];
+  toolChoice?: string;
 }
 
 export interface AgentGenerateResult {
