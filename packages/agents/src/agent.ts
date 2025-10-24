@@ -368,11 +368,6 @@ export class Agent<
       headers,
     } = options;
 
-    // Store user message text for later use in onFinish
-    const _userMessageText = extractTextFromMessage(
-      convertToModelMessages([message])[0],
-    );
-
     // Declare variable to store chat metadata (will be loaded in execute block)
     let existingChatForSave: any = null;
 
@@ -391,15 +386,28 @@ export class Agent<
         } else {
           try {
             // The AI SDK provides complete messages with all parts in event.messages
-            const userMsg = event.messages[event.messages.length - 2]; // second to last is user message
-            const assistantMsg = event.messages[event.messages.length - 1]; // last is assistant message
+            const userMsg: any = event.messages[event.messages.length - 2]; // second to last is user message
+            const assistantMsg: any = event.messages[event.messages.length - 1]; // last is assistant message
 
-            logger.debug(`Saving messages with all parts included`);
+            // Filter out file parts from user message - files should never be stored in history
+            // They're only needed during initial LLM processing
+            let userMsgToSave: any = userMsg;
+            if (userMsg && Array.isArray(userMsg.content)) {
+              const filteredContent = userMsg.content.filter(
+                (part: any) => part.type !== "file",
+              );
+              userMsgToSave = {
+                ...userMsg,
+                content: filteredContent.length > 0 ? filteredContent : "",
+              };
+            }
+
+            logger.debug(`Saving messages (files excluded from storage)`);
             await this.saveConversation(
               chatId,
               userId,
-              JSON.stringify(userMsg), // Serialize entire message object
-              JSON.stringify(assistantMsg), // Serialize entire message object
+              JSON.stringify(userMsgToSave),
+              JSON.stringify(assistantMsg),
               existingChatForSave,
             );
           } catch (err) {
@@ -1385,12 +1393,12 @@ Good suggestions are:
     const extractMemoryIdentifiers = this.extractMemoryIdentifiers.bind(this);
 
     return tool({
-      description: `Save user information (name, role, company, preferences) to persistent memory for future conversations.`,
+      description: `Save user information to persistent memory for future conversations.`,
       inputSchema: z.object({
         content: z
           .string()
           .describe(
-            "Updated working memory content in markdown format. Include user preferences, role, company, and any important facts to remember.",
+            "Updated working memory content in markdown format. Include user preferences and any important facts to remember.",
           ),
       }),
       execute: async ({ content }, options) => {

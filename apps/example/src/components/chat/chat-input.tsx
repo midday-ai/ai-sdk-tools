@@ -22,11 +22,12 @@ import {
   PromptInputBody,
   PromptInputButton,
   type PromptInputMessage,
-  PromptInputSpeechButton,
   PromptInputSubmit,
   PromptInputToolbar,
   PromptInputTools,
 } from "@/components/ai-elements/prompt-input";
+import { VoiceInputButton } from "@/components/ai-elements/voice-input-button";
+import { LiveWaveform } from "@/components/ui/live-waveform";
 import { useChatInterface } from "@/hooks/use-chat-interface";
 
 export interface ChatInputMessage extends PromptInputMessage {
@@ -70,6 +71,8 @@ function ChatInputInner({
   const { clearPills } = useCommandActions();
   const { setChatId } = useChatInterface();
   const chatId = useChatId();
+  const [isRecording, setIsRecording] = useState(false);
+  const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
 
   const handleSubmit = (message: PromptInputMessage) => {
     if (chatId) {
@@ -100,23 +103,37 @@ function ChatInputInner({
       className="bg-[#fafafa]/80 dark:bg-background/50 backdrop-blur-xl"
     >
       <PromptInputBody>
-        <PromptInputAttachments>
-          {(attachment) => <PromptInputAttachment data={attachment} />}
-        </PromptInputAttachments>
-        <PromptCommandsTextarea
-          onChange={(event) => setText(event.target.value)}
-          ref={textareaRef}
-          value={text}
-          placeholder={
-            rateLimit?.code === "RATE_LIMIT_EXCEEDED"
-              ? "Rate limit exceeded. Please try again tomorrow."
-              : hasMessages
-                ? "Ask me anything (or use @agent or /tool)"
-                : "Ask me anything (or use @agent or /tool)"
-          }
-          disabled={rateLimit?.code === "RATE_LIMIT_EXCEEDED"}
-          autoFocus
-        />
+        {isRecording && audioStream ? (
+          <div className="flex items-center justify-center w-full h-[56px] px-6">
+            <LiveWaveform
+              audioStream={audioStream}
+              barCount={120}
+              minHeight={12}
+              maxHeight={32}
+              className="w-full"
+            />
+          </div>
+        ) : (
+          <>
+            <PromptInputAttachments>
+              {(attachment) => <PromptInputAttachment data={attachment} />}
+            </PromptInputAttachments>
+            <PromptCommandsTextarea
+              onChange={(event) => setText(event.target.value)}
+              ref={textareaRef}
+              value={text}
+              placeholder={
+                rateLimit?.code === "RATE_LIMIT_EXCEEDED"
+                  ? "Rate limit exceeded. Please try again tomorrow."
+                  : hasMessages
+                    ? "Ask me anything (or use @agent or /tool)"
+                    : "Ask me anything (or use @agent or /tool)"
+              }
+              disabled={rateLimit?.code === "RATE_LIMIT_EXCEEDED"}
+              autoFocus
+            />
+          </>
+        )}
       </PromptInputBody>
 
       <PromptInputToolbar>
@@ -127,8 +144,10 @@ function ChatInputInner({
               <PromptInputActionAddAttachments />
             </PromptInputActionMenuContent>
           </PromptInputActionMenu>
-          <PromptInputSpeechButton
+          <VoiceInputButton
             onTranscriptionChange={setText}
+            onRecordingStateChange={setIsRecording}
+            onAudioStreamChange={setAudioStream}
             textareaRef={textareaRef}
           />
           <PromptInputButton

@@ -1,6 +1,8 @@
 "use client";
 
 import type { UIMessage } from "ai";
+import { PaperclipIcon } from "lucide-react";
+import Image from "next/image";
 import { FaviconStack } from "@/components/ai-elements/favicon-stack";
 import { Message, MessageContent } from "@/components/ai-elements/message";
 import { Response } from "@/components/ai-elements/response";
@@ -59,6 +61,13 @@ function extractAiSdkSources(parts: UIMessage["parts"]): SourceItem[] {
   return sources;
 }
 
+/**
+ * Extract file parts from message
+ */
+function extractFileParts(parts: UIMessage["parts"]) {
+  return parts.filter((part) => part.type === "file");
+}
+
 export function ChatMessages({
   messages,
   isStreaming = false,
@@ -71,6 +80,9 @@ export function ChatMessages({
         const textContent = textParts
           .map((part) => (part.type === "text" ? part.text : ""))
           .join("");
+
+        // Extract file parts
+        const fileParts = extractFileParts(parts);
 
         // Extract sources from AI SDK and webSearch
         const aiSdkSources = extractAiSdkSources(parts);
@@ -96,6 +108,60 @@ export function ChatMessages({
 
         return (
           <div key={message.id}>
+            {/* Render file attachments */}
+            {fileParts.length > 0 && (
+              <Message from={message.role}>
+                <MessageContent variant="flat" className="max-w-[80%]">
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {fileParts.map((part) => {
+                      if (part.type !== "file") return null;
+
+                      const file = part as {
+                        type: "file";
+                        url?: string;
+                        mediaType?: string;
+                        filename?: string;
+                      };
+
+                      // Create a unique key from file properties
+                      const fileKey = `${file.url}-${file.filename}`;
+                      const isImage = file.mediaType?.startsWith("image/");
+
+                      if (isImage && file.url) {
+                        return (
+                          <div
+                            key={fileKey}
+                            className="relative rounded-lg border overflow-hidden"
+                          >
+                            <Image
+                              src={file.url}
+                              alt={file.filename || "attachment"}
+                              className="max-w-xs max-h-48 object-cover"
+                              width={300}
+                              height={192}
+                              unoptimized
+                            />
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <div
+                          key={fileKey}
+                          className="flex items-center gap-2 px-3 py-2 rounded-lg border bg-muted/50"
+                        >
+                          <PaperclipIcon className="size-4 shrink-0 text-muted-foreground" />
+                          <span className="text-sm font-medium">
+                            {file.filename || "Unknown file"}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </MessageContent>
+              </Message>
+            )}
+
             {/* Render text content in message */}
             {textParts.length > 0 && (
               <Message from={message.role}>

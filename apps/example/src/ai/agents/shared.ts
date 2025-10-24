@@ -180,9 +180,9 @@ export const createAgent = (config: AgentConfig<AppContext>) => {
 
 <rules>
 - Extract the core topic/intent, not the question itself
-- Use noun phrases (e.g., "Tesla affordability" not "Can I afford Tesla")
+- Use noun phrases (e.g., "Tesla Affordability" not "Can I Afford Tesla")
 - Maximum 30 characters
-- Sentence case (only first word capitalized)
+- Title case (capitalize all major words)
 - No periods unless it's an abbreviation
 - Use proper abbreviations (Q1, Q2, etc.)
 </rules>
