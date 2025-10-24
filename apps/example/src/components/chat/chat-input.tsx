@@ -22,11 +22,11 @@ import {
   PromptInputBody,
   PromptInputButton,
   type PromptInputMessage,
-  PromptInputSpeechButton,
   PromptInputSubmit,
   PromptInputToolbar,
   PromptInputTools,
 } from "@/components/ai-elements/prompt-input";
+import { VoiceInputButton } from "@/components/ai-elements/voice-input-button";
 import { useChatInterface } from "@/hooks/use-chat-interface";
 
 export interface ChatInputMessage extends PromptInputMessage {
@@ -127,7 +127,7 @@ function ChatInputInner({
               <PromptInputActionAddAttachments />
             </PromptInputActionMenuContent>
           </PromptInputActionMenu>
-          <PromptInputSpeechButton
+          <VoiceInputButton
             onTranscriptionChange={setText}
             textareaRef={textareaRef}
           />

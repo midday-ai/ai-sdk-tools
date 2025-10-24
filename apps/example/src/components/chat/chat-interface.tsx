@@ -86,6 +86,7 @@ export function ChatInterface() {
 
     sendMessage({
       text: message.text || "Sent with attachments",
+      files: message.files,
       metadata: {
         agentChoice: message.metadata?.agentChoice,
         toolChoice: message.metadata?.toolChoice,
