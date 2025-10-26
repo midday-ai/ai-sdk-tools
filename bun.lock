@@ -199,6 +199,7 @@
       "name": "@ai-sdk-tools/devtools",
       "version": "0.9.0",
       "dependencies": {
+        "@ai-sdk-tools/store": "workspace:*",
         "@emotion/react": "^11.14.0",
         "@emotion/styled": "^11.14.1",
         "@mui/icons-material": "^7.3.4",
@@ -210,7 +211,6 @@
         "react-json-view-lite": "^2.5.0",
       },
       "devDependencies": {
-        "@ai-sdk-tools/store": "workspace:*",
         "@ai-sdk/react": "^2.0.78",
         "@types/react": "^19.2.2",
         "@types/react-dom": "^19.2.2",
