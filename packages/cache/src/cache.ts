@@ -59,7 +59,7 @@ function serializeValue(value: any): string {
 function createStreamingCachedTool<T extends Tool>(
   tool: T,
   options: CacheOptions,
-): CachedTool {
+): CachedTool<T> {
   const {
     ttl = 5 * 60 * 1000,
     maxSize = 1000,
@@ -311,13 +311,13 @@ function createStreamingCachedTool<T extends Tool>(
       const context = cacheKey?.();
       return keyGenerator(params, context);
     },
-  } as unknown as CachedTool;
+  } as unknown as CachedTool<T>;
 }
 
 export function cached<T extends Tool>(
   tool: T,
   options?: CacheOptions,
-): CachedTool {
+): CachedTool<T> {
   // For streaming tools, implement proper caching
   if (tool.execute?.constructor?.name === "AsyncGeneratorFunction") {
     return createStreamingCachedTool(tool, options || {});
@@ -562,7 +562,7 @@ export function cached<T extends Tool>(
 
       return target[prop as keyof typeof target];
     },
-  }) as unknown as CachedTool;
+  }) as unknown as CachedTool<T>;
 
   return cachedTool;
 }
@@ -577,7 +577,7 @@ export function createCachedFunction(
   return <T extends Tool>(
     tool: T,
     options: Omit<CacheOptions, "store"> = {},
-  ): CachedTool => {
+  ): CachedTool<T> => {
     return cached(tool, { ...defaultOptions, ...options, store });
   };
 }
@@ -585,14 +585,14 @@ export function createCachedFunction(
 /**
  * Cache multiple tools with the same configuration
  */
-export function cacheTools<T extends Record<string, Tool>>(
+export function cacheTools<T extends Tool, TTools extends Record<string, T>>(
   tools: T,
   options: CacheOptions = {},
-): { [K in keyof T]: CachedTool } {
-  const cachedTools = {} as { [K in keyof T]: CachedTool };
+): { [K in keyof TTools]: CachedTool<TTools[K]> } {
+  const cachedTools = {} as { [K in keyof TTools]: CachedTool<TTools[K]> };
 
   for (const [name, tool] of Object.entries(tools)) {
-    cachedTools[name as keyof T] = cached(tool, options);
+    cachedTools[name as keyof TTools] = cached(tool, options);
   }
 
   return cachedTools;
