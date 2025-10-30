@@ -1,6 +1,6 @@
 {
   "name": "@ai-sdk-tools/agents",
-  "version": "0.9.1",
+  "version": "0.32.0",
   "description": "Multi-agent orchestration system built on AI SDK v5 - handoffs, routing, and coordination for any AI provider",
   "keywords": [
     "ai",
@@ -48,10 +48,7 @@
     "clean": "rm -rf dist",
     "type-check": "tsc --noEmit"
   },
-  "dependencies": {
-    "@ai-sdk-tools/debug": "workspace:*",
-    "@ai-sdk-tools/memory": "workspace:*"
-  },
+  "dependencies": {},
   "peerDependencies": {
     "ai": ">=5.0.0",
     "zod": "^3.25.76 || ^4.1.8"
@@ -69,7 +66,9 @@
     "tsup": "^8.5.0",
     "typescript": "^5.9.3",
     "zod": "^4.1.12",
-    "ai": "^5.0.78"
+    "ai": "^5.0.82",
+    "@ai-sdk-tools/debug": "workspace:*",
+    "@ai-sdk-tools/memory": "workspace:*"
   },
   "publishConfig": {
     "access": "public"

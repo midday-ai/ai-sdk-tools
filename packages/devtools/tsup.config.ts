@@ -5,14 +5,22 @@ import { defineConfig } from "tsup";
 export default defineConfig({
   entry: ["src/index.ts"],
   format: ["cjs", "esm"],
-  dts: true,
+  dts: {
+    resolve: true,
+  },
   sourcemap: true,
   clean: true,
   splitting: false,
   treeshake: true,
   minify: false,
   injectStyle: false, // Don't generate separate CSS files
-  external: ["react", "react-dom", "react/jsx-runtime", "@ai-sdk/react"],
+  external: [
+    "react",
+    "react-dom",
+    "react/jsx-runtime",
+    "@ai-sdk/react",
+    "@ai-sdk-tools/store",
+  ],
   esbuildOptions(options) {
     options.loader = {
       ...options.loader,

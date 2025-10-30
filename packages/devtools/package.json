@@ -1,6 +1,6 @@
 {
   "name": "@ai-sdk-tools/devtools",
-  "version": "0.9.0",
+  "version": "0.32.0",
   "description": "AI development tools for debugging and monitoring AI SDKs streams",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -21,7 +21,7 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "clean": "rm -rf dist",
-    "prepublishOnly": "bun run clean && bun run build",
+    "prepublishOnly": "bun run build",
     "type-check": "tsc --noEmit"
   },
   "keywords": [
@@ -37,7 +37,7 @@
   "author": "Pontus Abrahamsson",
   "license": "MIT",
   "peerDependencies": {
-    "@ai-sdk/react": ">=0.0.1",
+    "@ai-sdk/react": ">=2.0.0",
     "react": ">=16.8.0",
     "react-dom": ">=16.8.0",
     "@ai-sdk-tools/store": "*"
@@ -54,17 +54,17 @@
     "react-dom": "^19.2.0",
     "tsup": "^8.5.0",
     "typescript": "^5.9.3",
-    "@ai-sdk/react": "^2.0.78"
+    "@ai-sdk/react": "^2.0.82",
+    "@ai-sdk-tools/store": "workspace:*"
   },
   "dependencies": {
-    "@ai-sdk-tools/store": "workspace:*",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.3.4",
     "@mui/material": "^7.3.4",
     "@types/dagre": "^0.7.53",
     "@xyflow/react": "^12.9.0",
-    "ai": "^5.0.78",
+    "ai": "^5.0.82",
     "dagre": "^0.8.5",
     "react-json-view-lite": "^2.5.0"
   },

@@ -10,9 +10,8 @@ const departureFont = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "AI Burn Rate Analyzer",
-  description:
-    "Interactive burn rate analysis with AI-powered insights and visualizations",
+  title: "AI SDK Tools Example",
+  description: "Example application using AI SDK Tools",
 };
 
 export default function RootLayout({
