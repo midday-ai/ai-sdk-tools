@@ -25,7 +25,7 @@
     "changeset:beta": "changeset pre enter beta",
     "changeset:exit-beta": "changeset pre exit",
     "version-packages:beta": "changeset version",
-    "release:beta": "node scripts/pre-publish.js prepare && changeset publish && node scripts/pre-publish.js restore",
+    "release:beta": "node scripts/pre-publish.js prepare && changeset publish --tag beta && node scripts/pre-publish.js restore",
     "clean": "bun run -r --filter='@ai-sdk-tools/*' clean",
     "clean:beta": "bun run -r --filter='@ai-sdk-tools/store' --filter='@ai-sdk-tools/devtools' --filter='@ai-sdk-tools/artifacts' --filter='@ai-sdk-tools/agents' clean",
     "type-check": "bun run -r --filter='@ai-sdk-tools/*' type-check",

@@ -31,17 +31,45 @@ function bumpPackageVersion(packageName) {
   );
   const packageJson = JSON.parse(fs.readFileSync(packagePath, "utf8"));
 
-  const versionParts = packageJson.version.split(".");
-  const major = parseInt(versionParts[0], 10);
-  const minor = parseInt(versionParts[1], 10);
+  const currentVersion = packageJson.version;
+  let newVersion;
 
-  // Bump minor version, reset patch to 0
-  const newVersion = `${major}.${minor + 1}.0`;
+  // Check if this is a beta version
+  if (currentVersion.includes("-beta.")) {
+    // Handle beta versions: 1.0.0-beta.1 -> 1.0.0-beta.2
+    const betaMatch = currentVersion.match(/^(.+)-beta\.(\d+)$/);
+    if (betaMatch) {
+      const baseVersion = betaMatch[1];
+      const betaNumber = parseInt(betaMatch[2], 10);
+      newVersion = `${baseVersion}-beta.${betaNumber + 1}`;
+    } else {
+      // Fallback: just increment beta number if format is unexpected
+      const betaIndex = currentVersion.lastIndexOf("-beta.");
+      if (betaIndex !== -1) {
+        const before = currentVersion.substring(0, betaIndex);
+        const after = currentVersion.substring(betaIndex + 6);
+        const betaNum = parseInt(after, 10);
+        newVersion = `${before}-beta.${betaNum + 1}`;
+      } else {
+        // Shouldn't happen, but fallback to original logic
+        const versionParts = currentVersion.split(".");
+        const major = parseInt(versionParts[0], 10);
+        const minor = parseInt(versionParts[1], 10);
+        newVersion = `${major}.${minor + 1}.0`;
+      }
+    }
+  } else {
+    // Regular version bump: 0.30.0 -> 0.31.0
+    const versionParts = currentVersion.split(".");
+    const major = parseInt(versionParts[0], 10);
+    const minor = parseInt(versionParts[1], 10);
+    newVersion = `${major}.${minor + 1}.0`;
+  }
+
   packageJson.version = newVersion;
-
   fs.writeFileSync(packagePath, `${JSON.stringify(packageJson, null, 2)}\n`);
   console.log(
-    `📈 Bumped ${packageName} from ${versionParts.join(".")} to ${newVersion}`,
+    `📈 Bumped ${packageName} from ${currentVersion} to ${newVersion}`,
   );
 
   return newVersion;

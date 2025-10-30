@@ -69,7 +69,7 @@ export interface CacheStats {
 /**
  * Cached tool interface - combines CoreTool with cache methods
  */
-export type CachedTool = Tool & {
+export type CachedTool<T extends Tool = Tool> = T & {
   /** Get cache statistics */
   getStats(): CacheStats;
   

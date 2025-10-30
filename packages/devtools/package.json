@@ -1,6 +1,6 @@
 {
   "name": "@ai-sdk-tools/devtools",
-  "version": "0.32.0",
+  "version": "1.0.0-beta.3",
   "description": "AI development tools for debugging and monitoring AI SDKs streams",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
