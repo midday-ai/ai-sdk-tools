@@ -102,12 +102,10 @@
     },
     "packages/agents": {
       "name": "@ai-sdk-tools/agents",
-      "version": "0.20.7",
-      "dependencies": {
+      "version": "0.32.0",
+      "devDependencies": {
         "@ai-sdk-tools/debug": "workspace:*",
         "@ai-sdk-tools/memory": "workspace:*",
-      },
-      "devDependencies": {
         "@types/node": "^24.9.1",
         "ai": "^5.0.82",
         "tsup": "^8.5.0",
@@ -121,16 +119,14 @@
     },
     "packages/ai-sdk-tools": {
       "name": "ai-sdk-tools",
-      "version": "0.20.7",
-      "dependencies": {
+      "version": "0.32.0",
+      "devDependencies": {
         "@ai-sdk-tools/agents": "workspace:*",
         "@ai-sdk-tools/artifacts": "workspace:*",
         "@ai-sdk-tools/cache": "workspace:*",
         "@ai-sdk-tools/devtools": "workspace:*",
         "@ai-sdk-tools/memory": "workspace:*",
         "@ai-sdk-tools/store": "workspace:*",
-      },
-      "devDependencies": {
         "@types/node": "^24.9.1",
         "ai": "^5.0.82",
         "tsup": "^8.5.0",
@@ -154,7 +150,7 @@
     },
     "packages/artifacts": {
       "name": "@ai-sdk-tools/artifacts",
-      "version": "0.20.7",
+      "version": "0.32.0",
       "dependencies": {
         "zod": "^4.1.12",
       },
@@ -173,7 +169,7 @@
     },
     "packages/cache": {
       "name": "@ai-sdk-tools/cache",
-      "version": "0.20.7",
+      "version": "0.32.0",
       "devDependencies": {
         "@ai-sdk-tools/artifacts": "workspace:*",
         "@types/node": "^24.9.1",
@@ -189,7 +185,7 @@
     },
     "packages/debug": {
       "name": "@ai-sdk-tools/debug",
-      "version": "0.20.7",
+      "version": "0.32.0",
       "devDependencies": {
         "@types/node": "^24.9.1",
         "tsup": "^8.5.0",
@@ -198,9 +194,8 @@
     },
     "packages/devtools": {
       "name": "@ai-sdk-tools/devtools",
-      "version": "0.20.7",
+      "version": "0.32.0",
       "dependencies": {
-        "@ai-sdk-tools/store": "workspace:*",
         "@emotion/react": "^11.14.0",
         "@emotion/styled": "^11.14.1",
         "@mui/icons-material": "^7.3.4",
@@ -212,6 +207,7 @@
         "react-json-view-lite": "^2.5.0",
       },
       "devDependencies": {
+        "@ai-sdk-tools/store": "workspace:*",
         "@ai-sdk/react": "^2.0.82",
         "@types/react": "^19.2.2",
         "@types/react-dom": "^19.2.2",
@@ -232,12 +228,12 @@
     },
     "packages/memory": {
       "name": "@ai-sdk-tools/memory",
-      "version": "0.20.7",
+      "version": "0.32.0",
       "dependencies": {
-        "@ai-sdk-tools/debug": "workspace:*",
         "zod": "^4.1.12",
       },
       "devDependencies": {
+        "@ai-sdk-tools/debug": "workspace:*",
         "@types/node": "^24.9.1",
         "@upstash/redis": "^1.35.6",
         "drizzle-orm": "^0.44.7",
@@ -255,7 +251,7 @@
     },
     "packages/store": {
       "name": "@ai-sdk-tools/store",
-      "version": "0.20.7",
+      "version": "0.32.0",
       "dependencies": {
         "ai": "^5.0.82",
       },
@@ -301,7 +297,7 @@
 
     "@ai-sdk/provider-utils": ["@ai-sdk/provider-utils@3.0.14", "", { "dependencies": { "@ai-sdk/provider": "2.0.0", "@standard-schema/spec": "^1.0.0", "eventsource-parser": "^3.0.5" }, "peerDependencies": { "zod": "^3.25.76 || ^4.1.8" } }, "sha512-CYRU6L7IlR7KslSBVxvlqlybQvXJln/PI57O8swhOaDIURZbjRP2AY3igKgUsrmWqqnFFUHP+AwTN8xqJAknnA=="],
 
-    "@ai-sdk/react": ["@ai-sdk/react@3.0.0-beta.87", "", { "dependencies": { "@ai-sdk/provider-utils": "4.0.0-beta.28", "ai": "6.0.0-beta.87", "swr": "^2.2.5", "throttleit": "2.1.0" }, "peerDependencies": { "react": "^18 || ^19 || ^19.0.0-rc" } }, "sha512-Bbwr7hgS2bYWeSCoJJIn+WYjzM5JO7FxV8+gPLbftZnXXtDzuEwmQcnCpt3T33ektN6Fq833jhM7Grfnq7bZAw=="],
+    "@ai-sdk/react": ["@ai-sdk/react@3.0.0-beta.88", "", { "dependencies": { "@ai-sdk/provider-utils": "4.0.0-beta.28", "ai": "6.0.0-beta.88", "swr": "^2.2.5", "throttleit": "2.1.0" }, "peerDependencies": { "react": "^18 || ^19 || ^19.0.0-rc" } }, "sha512-C9VL08MdiHrDPihg2Ycp5bSQjc7nKSf6eS81kAyXQ46NhY67bz1OeylzJOib9E5Wc4T5OZzYighs2CcWUpwSig=="],
 
     "@alloc/quick-lru": ["@alloc/quick-lru@5.2.0", "", {}, "sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw=="],
 
@@ -1881,7 +1877,7 @@
 
     "@ai-sdk/react/@ai-sdk/provider-utils": ["@ai-sdk/provider-utils@4.0.0-beta.28", "", { "dependencies": { "@ai-sdk/provider": "3.0.0-beta.13", "@standard-schema/spec": "^1.0.0", "eventsource-parser": "^3.0.5" }, "peerDependencies": { "@valibot/to-json-schema": "^1.3.0", "arktype": "^2.1.22", "effect": "^3.18.4", "zod": "^3.25.76 || ^4.1.8" }, "optionalPeers": ["@valibot/to-json-schema", "arktype", "effect"] }, "sha512-IJk4or+ultCcWiSHRRx3tP7Dxy8kSplhpkUlw+8c2eoEjXnFbp+Bz/BUI59JlGqSOhcnLMxPCWQqZR/a/IPDCw=="],
 
-    "@ai-sdk/react/ai": ["ai@6.0.0-beta.87", "", { "dependencies": { "@ai-sdk/gateway": "2.0.0-beta.47", "@ai-sdk/provider": "3.0.0-beta.13", "@ai-sdk/provider-utils": "4.0.0-beta.28", "@opentelemetry/api": "1.9.0" }, "peerDependencies": { "zod": "^3.25.76 || ^4.1.8" } }, "sha512-eK0BhzxSE/u8h/hCrqCrpMXaZMeJ+5704tLQtaiT+7uom6Tw/YbGBT6oYTqe7ZdhtnVx81jWvY8FainwOBuZTg=="],
+    "@ai-sdk/react/ai": ["ai@6.0.0-beta.88", "", { "dependencies": { "@ai-sdk/gateway": "2.0.0-beta.47", "@ai-sdk/provider": "3.0.0-beta.13", "@ai-sdk/provider-utils": "4.0.0-beta.28", "@opentelemetry/api": "1.9.0" }, "peerDependencies": { "zod": "^3.25.76 || ^4.1.8" } }, "sha512-vCh537EKaSIhYYbAwODCK/o2giDvSXldRHmz26sf4I2Co9nqxETCfmQL9+D53nkJGBwWmYKAHaSJalYN1cm2zQ=="],
 
     "@antfu/install-pkg/package-manager-detector": ["package-manager-detector@1.5.0", "", {}, "sha512-uBj69dVlYe/+wxj8JOpr97XfsxH/eumMt6HqjNTmJDf/6NO9s+0uxeOneIz3AsPt2m6y9PqzDzd3ATcU17MNfw=="],
 
