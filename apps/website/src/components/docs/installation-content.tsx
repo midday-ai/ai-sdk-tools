@@ -120,7 +120,7 @@ export default function InstallationContent() {
                   className="text-xs font-mono leading-relaxed"
                   dangerouslySetInnerHTML={{
                     __html: highlight(`// Required peer dependencies
-"@ai-sdk/react": "^0.0.66"
+"@ai-sdk/react": "^2.0.82"
 "react": "^18.0.0"
 "zod": "^3.0.0" // For artifacts package`),
                   }}

@@ -16,7 +16,7 @@
     "@ai-sdk-tools/store": "workspace:*",
     "@ai-sdk/openai": "^2.0.56",
     "@openpanel/nextjs": "^1.0.8",
-    "ai": "beta",
+    "ai": "^5.0.82",
     "geist": "^1.5.1",
     "next": "16.0.0",
     "react": "19.2.0",

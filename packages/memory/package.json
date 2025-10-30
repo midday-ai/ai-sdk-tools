@@ -1,6 +1,6 @@
 {
   "name": "@ai-sdk-tools/memory",
-  "version": "0.20.0",
+  "version": "0.32.0",
   "description": "Persistent memory system for AI agents",
   "type": "module",
   "exports": {
@@ -23,7 +23,6 @@
     "dev": "tsup --watch"
   },
   "dependencies": {
-    "@ai-sdk-tools/debug": "workspace:*",
     "zod": "^4.1.12"
   },
   "peerDependencies": {
@@ -43,7 +42,8 @@
     "@upstash/redis": "^1.35.6",
     "drizzle-orm": "^0.44.7",
     "tsup": "^8.5.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "@ai-sdk-tools/debug": "workspace:*"
   },
   "publishConfig": {
     "access": "public"

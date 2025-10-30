@@ -77,6 +77,11 @@ function restoreOriginalVersion(packageName) {
 
 // Define which packages depend on which other packages
 const packageDependencies = {
+  // Core packages (also publish individually)
+  debug: [],
+  store: [],
+
+  // Packages with internal dependencies
   agents: ["debug", "memory"],
   "ai-sdk-tools": [
     "agents",
@@ -93,15 +98,19 @@ const packageDependencies = {
 };
 
 // Generate dynamic package configurations
-const packages = Object.entries(packageDependencies).map(
-  ([packageName, deps]) => {
+// NOTE: This function regenerates packages array with current versions
+function generatePackages() {
+  return Object.entries(packageDependencies).map(([packageName, deps]) => {
     const dependencies = {};
     deps.forEach((dep) => {
       dependencies[`@ai-sdk-tools/${dep}`] = `^${getPackageVersion(dep)}`;
     });
     return { name: packageName, dependencies };
-  },
-);
+  });
+}
+
+// Initial packages array (will be regenerated after version bump)
+let packages = generatePackages();
 
 function updatePackageJson(packageName, dependencies) {
   const packagePath = path.join(
@@ -154,6 +163,82 @@ function restorePackageJson(packageName, dependencies) {
   console.log(`✅ Restored ${packageName} to development mode`);
 }
 
+// Store original prepublishOnly scripts
+const originalPrepublishOnly = {};
+
+function disableCleanInPrepublishOnly(packageName) {
+  const packagePath = path.join(
+    __dirname,
+    "..",
+    "packages",
+    packageName,
+    "package.json",
+  );
+  const packageJson = JSON.parse(fs.readFileSync(packagePath, "utf8"));
+
+  if (packageJson.scripts?.prepublishOnly) {
+    originalPrepublishOnly[packageName] = packageJson.scripts.prepublishOnly;
+    // Replace clean+build with just build since dist already exists
+    packageJson.scripts.prepublishOnly = "bun run build";
+    fs.writeFileSync(packagePath, `${JSON.stringify(packageJson, null, 2)}\n`);
+    console.log(
+      `  🔧 Modified prepublishOnly for ${packageName} to skip clean`,
+    );
+  }
+}
+
+function restorePrepublishOnly(packageName) {
+  const packagePath = path.join(
+    __dirname,
+    "..",
+    "packages",
+    packageName,
+    "package.json",
+  );
+  const packageJson = JSON.parse(fs.readFileSync(packagePath, "utf8"));
+
+  if (originalPrepublishOnly[packageName] !== undefined) {
+    packageJson.scripts.prepublishOnly = originalPrepublishOnly[packageName];
+    fs.writeFileSync(packagePath, `${JSON.stringify(packageJson, null, 2)}\n`);
+    console.log(`  🔧 Restored prepublishOnly for ${packageName}`);
+  }
+}
+
+function buildPackage(packageName) {
+  const packagePath = path.join(__dirname, "..", "packages", packageName);
+  const packageJsonPath = path.join(packagePath, "package.json");
+  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
+  const { execSync } = require("node:child_process");
+
+  console.log(`  🔨 Building ${packageName}...`);
+
+  // Check if clean script exists, otherwise just build
+  const hasCleanScript = packageJson.scripts?.clean;
+  if (hasCleanScript) {
+    execSync("bun run clean && bun run build", {
+      cwd: packagePath,
+      stdio: "inherit",
+    });
+  } else {
+    execSync("bun run build", {
+      cwd: packagePath,
+      stdio: "inherit",
+    });
+  }
+}
+
+// Build order respecting dependencies
+const buildOrder = [
+  "debug",
+  "store",
+  "memory",
+  "artifacts",
+  "devtools",
+  "cache",
+  "agents",
+  "ai-sdk-tools",
+];
+
 const command = process.argv[2];
 
 if (command === "prepare") {
@@ -172,22 +257,50 @@ if (command === "prepare") {
     bumpPackageVersion(pkgName);
   });
 
-  // Finally update dependencies with the new versions
-  console.log("📦 Updating dependencies...");
+  // Regenerate packages array with bumped versions
+  packages = generatePackages();
+
+  // Build all packages FIRST (while still using workspace dependencies)
+  console.log("\n🔨 Building all packages in dependency order...");
+  buildOrder.forEach((pkgName) => {
+    if (allPackages.includes(pkgName)) {
+      buildPackage(pkgName);
+    }
+  });
+
+  // THEN update dependencies with the new versions (after build completes)
+  console.log("\n📦 Updating dependencies...");
   packages.forEach((pkg) => {
     updatePackageJson(pkg.name, pkg.dependencies);
+  });
+
+  // Modify prepublishOnly to skip clean (since dist already exists)
+  console.log("\n🔧 Modifying prepublishOnly scripts to preserve dist...");
+  buildOrder.forEach((pkgName) => {
+    if (allPackages.includes(pkgName)) {
+      disableCleanInPrepublishOnly(pkgName);
+    }
   });
 } else if (command === "restore") {
   console.log("🔄 Restoring packages to development mode...");
 
-  // First restore dependencies
+  // First restore prepublishOnly scripts
+  console.log("🔧 Restoring prepublishOnly scripts...");
+  const allPackages = Object.keys(packageDependencies);
+  buildOrder.forEach((pkgName) => {
+    if (allPackages.includes(pkgName)) {
+      restorePrepublishOnly(pkgName);
+    }
+  });
+
+  // Then restore dependencies
+  console.log("📦 Restoring dependencies...");
   packages.forEach((pkg) => {
     restorePackageJson(pkg.name, pkg.dependencies);
   });
 
-  // Then restore original versions
+  // Finally restore original versions
   console.log("🔄 Restoring original versions...");
-  const allPackages = Object.keys(packageDependencies);
   allPackages.forEach((pkgName) => {
     restoreOriginalVersion(pkgName);
   });

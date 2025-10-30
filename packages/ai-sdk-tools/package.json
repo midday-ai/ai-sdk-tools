@@ -1,6 +1,6 @@
 {
   "name": "ai-sdk-tools",
-  "version": "0.20.0",
+  "version": "0.32.0",
   "description": "Complete toolkit for building AI applications with the Vercel AI SDK - agents, state management, caching, artifacts, devtools, and memory",
   "keywords": [
     "ai",
@@ -62,17 +62,10 @@
     "clean": "rm -rf dist",
     "type-check": "tsc --noEmit"
   },
-  "dependencies": {
-    "@ai-sdk-tools/agents": "workspace:*",
-    "@ai-sdk-tools/artifacts": "workspace:*",
-    "@ai-sdk-tools/cache": "workspace:*",
-    "@ai-sdk-tools/devtools": "workspace:*",
-    "@ai-sdk-tools/memory": "workspace:*",
-    "@ai-sdk-tools/store": "workspace:*"
-  },
+  "dependencies": {},
   "peerDependencies": {
-    "ai": ">=beta",
-    "@ai-sdk/react": "beta",
+    "ai": ">=5.0.0",
+    "@ai-sdk/react": ">=2.0.0",
     "react": ">=18.0.0",
     "react-dom": ">=16.8.0",
     "zod": "^3.25.76 || ^4.1.8",
@@ -103,7 +96,13 @@
     "tsup": "^8.5.0",
     "typescript": "^5.9.3",
     "zod": "^4.1.12",
-    "ai": "beta"
+    "ai": "^5.0.82",
+    "@ai-sdk-tools/agents": "workspace:*",
+    "@ai-sdk-tools/artifacts": "workspace:*",
+    "@ai-sdk-tools/cache": "workspace:*",
+    "@ai-sdk-tools/devtools": "workspace:*",
+    "@ai-sdk-tools/memory": "workspace:*",
+    "@ai-sdk-tools/store": "workspace:*"
   },
   "publishConfig": {
     "access": "public"
