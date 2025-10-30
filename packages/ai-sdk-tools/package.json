@@ -1,6 +1,6 @@
 {
   "name": "ai-sdk-tools",
-  "version": "0.9.0",
+  "version": "0.20.0",
   "description": "Complete toolkit for building AI applications with the Vercel AI SDK - agents, state management, caching, artifacts, devtools, and memory",
   "keywords": [
     "ai",
@@ -71,8 +71,8 @@
     "@ai-sdk-tools/store": "workspace:*"
   },
   "peerDependencies": {
-    "ai": ">=5.0.0",
-    "@ai-sdk/react": ">=2.0.0",
+    "ai": ">=beta",
+    "@ai-sdk/react": "beta",
     "react": ">=18.0.0",
     "react-dom": ">=16.8.0",
     "zod": "^3.25.76 || ^4.1.8",
@@ -103,7 +103,7 @@
     "tsup": "^8.5.0",
     "typescript": "^5.9.3",
     "zod": "^4.1.12",
-    "ai": "^5.0.78"
+    "ai": "beta"
   },
   "publishConfig": {
     "access": "public"

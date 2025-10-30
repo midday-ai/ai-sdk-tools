@@ -1,6 +1,6 @@
 {
   "name": "@ai-sdk-tools/store",
-  "version": "0.9.0",
+  "version": "0.20.0",
   "description": "A drop-in replacement for @ai-sdk/react that automatically syncs chat state to Zustand stores",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -37,7 +37,7 @@
   "author": "Pontus Abrahamsson",
   "license": "MIT",
   "peerDependencies": {
-    "@ai-sdk/react": ">=2.0.0",
+    "@ai-sdk/react": "beta",
     "react": ">=18.0.0",
     "zustand": ">=5.0.0"
   },
@@ -47,7 +47,7 @@
     "tsup": "^8.5.0",
     "typescript": "^5.9.3",
     "zustand": "^5.0.8",
-    "@ai-sdk/react": "^2.0.78"
+    "@ai-sdk/react": "beta"
   },
   "repository": {
     "type": "git",
@@ -61,6 +61,6 @@
     "access": "public"
   },
   "dependencies": {
-    "ai": "^5.0.78"
+    "ai": "beta"
   }
 }

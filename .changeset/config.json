@@ -2,7 +2,18 @@
   "$schema": "https://unpkg.com/@changesets/config@3.1.1/schema.json",
   "changelog": "@changesets/cli/changelog",
   "commit": false,
-  "fixed": [],
+  "fixed": [
+    [
+      "@ai-sdk-tools/agents",
+      "ai-sdk-tools",
+      "@ai-sdk-tools/artifacts",
+      "@ai-sdk-tools/cache",
+      "@ai-sdk-tools/debug",
+      "@ai-sdk-tools/devtools",
+      "@ai-sdk-tools/memory",
+      "@ai-sdk-tools/store"
+    ]
+  ],
   "linked": [],
   "access": "public",
   "baseBranch": "main",

@@ -14,9 +14,9 @@
     "@ai-sdk-tools/artifacts": "workspace:*",
     "@ai-sdk-tools/devtools": "workspace:*",
     "@ai-sdk-tools/store": "workspace:*",
-    "@ai-sdk/openai": "^2.0.53",
+    "@ai-sdk/openai": "^2.0.56",
     "@openpanel/nextjs": "^1.0.8",
-    "ai": "^5.0.76",
+    "ai": "beta",
     "geist": "^1.5.1",
     "next": "16.0.0",
     "react": "19.2.0",
@@ -31,6 +31,6 @@
     "@types/react-dom": "^19",
     "@tailwindcss/postcss": "^4",
     "tailwindcss": "^4",
-    "@biomejs/biome": "2.2.6"
+    "@biomejs/biome": "2.3.1"
   }
 }
