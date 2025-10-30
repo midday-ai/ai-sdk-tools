@@ -21,6 +21,11 @@ function getPackageVersion(packageName) {
   return packageJson.version;
 }
 
+function isInBetaMode() {
+  const preJsonPath = path.join(__dirname, "..", ".changeset", "pre.json");
+  return fs.existsSync(preJsonPath);
+}
+
 function bumpPackageVersion(packageName) {
   const packagePath = path.join(
     __dirname,
@@ -33,29 +38,63 @@ function bumpPackageVersion(packageName) {
 
   const currentVersion = packageJson.version;
   let newVersion;
+  const inBetaMode = isInBetaMode();
 
   // Check if this is a beta version
   if (currentVersion.includes("-beta.")) {
-    // Handle beta versions: 1.0.0-beta.1 -> 1.0.0-beta.2
-    const betaMatch = currentVersion.match(/^(.+)-beta\.(\d+)$/);
-    if (betaMatch) {
-      const baseVersion = betaMatch[1];
-      const betaNumber = parseInt(betaMatch[2], 10);
-      newVersion = `${baseVersion}-beta.${betaNumber + 1}`;
-    } else {
-      // Fallback: just increment beta number if format is unexpected
-      const betaIndex = currentVersion.lastIndexOf("-beta.");
-      if (betaIndex !== -1) {
-        const before = currentVersion.substring(0, betaIndex);
-        const after = currentVersion.substring(betaIndex + 6);
-        const betaNum = parseInt(after, 10);
-        newVersion = `${before}-beta.${betaNum + 1}`;
+    if (inBetaMode) {
+      // Handle beta versions: 1.0.0-beta.1 -> 1.0.0-beta.2
+      const betaMatch = currentVersion.match(/^(.+)-beta\.(\d+)$/);
+      if (betaMatch) {
+        const baseVersion = betaMatch[1];
+        const betaNumber = parseInt(betaMatch[2], 10);
+        newVersion = `${baseVersion}-beta.${betaNumber + 1}`;
       } else {
-        // Shouldn't happen, but fallback to original logic
-        const versionParts = currentVersion.split(".");
+        // Fallback: just increment beta number if format is unexpected
+        const betaIndex = currentVersion.lastIndexOf("-beta.");
+        if (betaIndex !== -1) {
+          const before = currentVersion.substring(0, betaIndex);
+          const after = currentVersion.substring(betaIndex + 6);
+          const betaNum = parseInt(after, 10);
+          newVersion = `${before}-beta.${betaNum + 1}`;
+        } else {
+          // Shouldn't happen, but fallback to original logic
+          const versionParts = currentVersion.split(".");
+          const major = parseInt(versionParts[0], 10);
+          const minor = parseInt(versionParts[1], 10);
+          newVersion = `${major}.${minor + 1}.0`;
+        }
+      }
+    } else {
+      // For stable release, remove beta suffix and bump to next stable version
+      // e.g., 1.0.0-beta.4 -> 1.0.0 (use the base version)
+      const betaMatch = currentVersion.match(/^(.+)-beta\.(\d+)$/);
+      if (betaMatch) {
+        const baseVersion = betaMatch[1];
+        // Use the base version as-is (e.g., 1.0.0-beta.4 -> 1.0.0)
+        // Or bump patch: 1.0.0-beta.4 -> 1.0.1
+        const versionParts = baseVersion.split(".");
         const major = parseInt(versionParts[0], 10);
         const minor = parseInt(versionParts[1], 10);
-        newVersion = `${major}.${minor + 1}.0`;
+        const patch = parseInt(versionParts[2] || 0, 10);
+        newVersion = `${major}.${minor}.${patch + 1}`;
+      } else {
+        // Fallback: remove beta suffix
+        const betaIndex = currentVersion.lastIndexOf("-beta.");
+        if (betaIndex !== -1) {
+          const baseVersion = currentVersion.substring(0, betaIndex);
+          const versionParts = baseVersion.split(".");
+          const major = parseInt(versionParts[0], 10);
+          const minor = parseInt(versionParts[1], 10);
+          const patch = parseInt(versionParts[2] || 0, 10);
+          newVersion = `${major}.${minor}.${patch + 1}`;
+        } else {
+          // Shouldn't happen, but fallback to original logic
+          const versionParts = currentVersion.split(".");
+          const major = parseInt(versionParts[0], 10);
+          const minor = parseInt(versionParts[1], 10);
+          newVersion = `${major}.${minor + 1}.0`;
+        }
       }
     }
   } else {

@@ -1,6 +1,6 @@
 {
   "name": "@ai-sdk-tools/agents",
-  "version": "1.0.0-beta.3",
+  "version": "1.0.0",
   "description": "Multi-agent orchestration system built on AI SDK v5 - handoffs, routing, and coordination for any AI provider",
   "keywords": [
     "ai",
