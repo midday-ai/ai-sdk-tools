@@ -266,7 +266,7 @@
       "name": "@ai-sdk-tools/store",
       "version": "1.0.0",
       "dependencies": {
-        "@types/node": "^24.9.2",
+        "@types/node": "^24.9.1",
         "ai": "^5.0.82",
       },
       "devDependencies": {
