@@ -1,5 +1,17 @@
 # @ai-sdk-tools/devtools
 
+## 1.0.6
+
+### Patch Changes
+
+- @ai-sdk-tools/store@1.0.6
+
+## 1.0.5
+
+### Patch Changes
+
+- @ai-sdk-tools/store@1.0.5
+
 ## 1.0.4
 
 ### Patch Changes

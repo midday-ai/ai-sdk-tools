@@ -244,12 +244,12 @@ export class DrizzleProvider<
       .limit(1);
 
     if (existing.length > 0) {
-      // Update existing
+      // Update existing - preserve title if new chat doesn't have one
       await this.db
         .update(chatsTable)
         .set({
           userId: chat.userId || null,
-          title: chat.title || null,
+          title: chat.title || existing[0].title || null,
           updatedAt: chat.updatedAt,
           messageCount: chat.messageCount,
         })
@@ -354,13 +354,33 @@ export class DrizzleProvider<
     const { chatsTable } = this.config;
     if (!chatsTable) return;
 
-    await this.db
-      .update(chatsTable)
-      .set({
+    // Check if chat exists
+    const existing = await this.db
+      .select()
+      .from(chatsTable)
+      .where(eq(chatsTable.chatId, chatId))
+      .limit(1);
+
+    if (existing.length > 0) {
+      // Chat exists, update it
+      await this.db
+        .update(chatsTable)
+        .set({
+          title,
+          updatedAt: new Date(),
+        })
+        .where(eq(chatsTable.chatId, chatId));
+    } else {
+      // Chat doesn't exist yet, create it with the title
+      // This can happen if title generation completes before the chat is saved
+      await this.saveChat({
+        chatId,
         title,
+        createdAt: new Date(),
         updatedAt: new Date(),
-      })
-      .where(eq(chatsTable.chatId, chatId));
+        messageCount: 0,
+      });
+    }
   }
 
   async deleteChat(chatId: string): Promise<void> {

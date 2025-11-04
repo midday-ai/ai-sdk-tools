@@ -1,6 +1,6 @@
 {
   "name": "@ai-sdk-tools/memory",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "description": "Persistent memory system for AI agents",
   "type": "module",
   "exports": {

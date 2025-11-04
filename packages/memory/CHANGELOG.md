@@ -1,5 +1,19 @@
 # @ai-sdk-tools/memory
 
+## 1.0.6
+
+### Patch Changes
+
+- - Fix `updateChatTitle` to create chat if it doesn't exist yet, ensuring generated titles are always saved
+  - Handle race condition where title generation completes before chat is saved
+
+## 1.0.5
+
+### Patch Changes
+
+- - Fix `updateChatTitle` to create chat if it doesn't exist yet, ensuring generated titles are always saved
+  - Handle race condition where title generation completes before chat is saved
+
 ## 1.0.4
 
 ### Patch Changes

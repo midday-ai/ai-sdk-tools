@@ -150,12 +150,19 @@ export class UpstashProvider implements MemoryProvider {
 
   async saveChat(chat: ChatSession): Promise<void> {
     const chatKey = `${this.prefix}chat:${chat.chatId}`;
+
+    // Get existing chat to preserve title if it exists
+    const existing = await this.redis.hgetall<Record<string, unknown>>(chatKey);
+
     // Convert Dates to timestamps for Redis storage
     const chatData = {
       ...chat,
       createdAt: chat.createdAt.getTime(),
       updatedAt: chat.updatedAt.getTime(),
+      // Preserve existing title if new chat doesn't have one
+      title: chat.title || (existing?.title as string | undefined),
     };
+
     await this.redis.hset(chatKey, chatData);
     await this.redis.expire(chatKey, 60 * 60 * 24 * 30); // 30 days
 
@@ -281,30 +288,45 @@ export class UpstashProvider implements MemoryProvider {
     const chatKey = `${this.prefix}chat:${chatId}`;
     const data = await this.redis.hgetall<Record<string, unknown>>(chatKey);
 
+    const updatedAt = Date.now();
+
     if (data) {
-      const updatedAt = Date.now();
+      // Chat exists, update it
       const chatData = {
         ...data,
         title,
         updatedAt,
       };
       await this.redis.hset(chatKey, chatData);
+    } else {
+      // Chat doesn't exist yet, create it with the title
+      // This can happen if title generation completes before the chat is saved
+      const now = Date.now();
+      const chatData: ChatSession = {
+        chatId,
+        title,
+        createdAt: new Date(now),
+        updatedAt: new Date(updatedAt),
+        messageCount: 0,
+      };
+      await this.saveChat(chatData);
+      return; // saveChat already handles sorted sets, so we can return early
+    }
 
-      // Update score in global sorted set
-      const globalChatsKey = `${this.prefix}chats:global`;
-      await this.redis.zadd(globalChatsKey, {
+    // Update score in global sorted set
+    const globalChatsKey = `${this.prefix}chats:global`;
+    await this.redis.zadd(globalChatsKey, {
+      score: updatedAt,
+      member: chatId,
+    });
+
+    // Update score in user's sorted set if userId exists
+    if (data.userId) {
+      const userChatsKey = `${this.prefix}chats:${data.userId}`;
+      await this.redis.zadd(userChatsKey, {
         score: updatedAt,
         member: chatId,
       });
-
-      // Update score in user's sorted set if userId exists
-      if (data.userId) {
-        const userChatsKey = `${this.prefix}chats:${data.userId as string}`;
-        await this.redis.zadd(userChatsKey, {
-          score: updatedAt,
-          member: chatId,
-        });
-      }
     }
   }
 

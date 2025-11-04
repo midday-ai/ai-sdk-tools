@@ -76,7 +76,13 @@ export class InMemoryProvider implements MemoryProvider {
   }
 
   async saveChat(chat: ChatSession): Promise<void> {
-    this.chats.set(chat.chatId, chat);
+    const existing = this.chats.get(chat.chatId);
+    // Preserve existing title if new chat doesn't have one
+    const title = chat.title || existing?.title;
+    this.chats.set(chat.chatId, {
+      ...chat,
+      title,
+    });
   }
 
   async getChats(params: {
@@ -120,6 +126,17 @@ export class InMemoryProvider implements MemoryProvider {
       chat.title = title;
       chat.updatedAt = new Date();
       this.chats.set(chatId, chat);
+    } else {
+      // Chat doesn't exist yet, create it with the title
+      // This can happen if title generation completes before the chat is saved
+      const now = new Date();
+      this.chats.set(chatId, {
+        chatId,
+        title,
+        createdAt: now,
+        updatedAt: now,
+        messageCount: 0,
+      });
     }
   }
 

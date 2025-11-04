@@ -420,11 +420,16 @@ export class RedisProvider implements MemoryProvider {
 
   async saveChat(chat: ChatSession): Promise<void> {
     const chatKey = `${this.prefix}chat:${chat.chatId}`;
+
+    // Get existing chat to preserve title if it exists
+    const existing = await this.hgetall(chatKey);
+
     // Convert Dates to timestamps for Redis storage
     const chatData: Record<string, string> = {
       chatId: chat.chatId,
       userId: chat.userId || "",
-      title: chat.title || "",
+      // Preserve existing title if new chat doesn't have one
+      title: chat.title || existing?.title || "",
       createdAt: chat.createdAt.getTime().toString(),
       updatedAt: chat.updatedAt.getTime().toString(),
       messageCount: chat.messageCount.toString(),
@@ -576,8 +581,10 @@ export class RedisProvider implements MemoryProvider {
     const chatKey = `${this.prefix}chat:${chatId}`;
     const data = await this.hgetall(chatKey);
 
+    const updatedAt = Date.now();
+
     if (data && Object.keys(data).length > 0) {
-      const updatedAt = Date.now();
+      // Chat exists, update it
       const chatData: Record<string, string> = {
         ...data,
         title,
@@ -595,6 +602,19 @@ export class RedisProvider implements MemoryProvider {
         const userChatsKey = `${this.prefix}chats:${data.userId}`;
         await this.zadd(userChatsKey, updatedAt, chatId);
       }
+    } else {
+      // Chat doesn't exist yet, create it with the title
+      // This can happen if title generation completes before the chat is saved
+      const now = Date.now();
+      const chatData: ChatSession = {
+        chatId,
+        title,
+        createdAt: new Date(now),
+        updatedAt: new Date(updatedAt),
+        messageCount: 0,
+      };
+      await this.saveChat(chatData);
+      return; // saveChat already handles sorted sets, so we can return early
     }
   }
 
