@@ -189,7 +189,7 @@ export interface StoreState<TMessage extends UIMessage = UIMessage> {
   _throttledMessages: TMessage[] | null;
   _messageIndex: MessageIndex<TMessage>;
   _memoizedSelectors: Map<string, { result: any; deps: any[] }>;
-  
+
   // Transient data parts (not persisted in messages)
   _transientDataParts: Map<string, any>;
 
@@ -233,7 +233,7 @@ export interface StoreState<TMessage extends UIMessage = UIMessage> {
 
   // Effects
   registerThrottledMessagesEffect: (effect: () => void) => () => void;
-  
+
   // Transient data methods
   setTransientDataPart: (type: string, data: any) => void;
   getTransientDataPart: (type: string) => any;
@@ -568,7 +568,7 @@ export function createChatStoreCreator<TMessage extends UIMessage>(
           throttledEffects.delete(effect);
         };
       },
-      
+
       // Transient data methods
       setTransientDataPart: (type, data) => {
         markLastAction("chat:setTransientDataPart");
@@ -580,12 +580,12 @@ export function createChatStoreCreator<TMessage extends UIMessage>(
           });
         });
       },
-      
+
       getTransientDataPart: (type) => {
         const state = get();
         return state._transientDataParts.get(type);
       },
-      
+
       removeTransientDataPart: (type) => {
         markLastAction("chat:removeTransientDataPart");
         batchUpdates(() => {
@@ -596,7 +596,7 @@ export function createChatStoreCreator<TMessage extends UIMessage>(
           });
         });
       },
-      
+
       clearTransientDataParts: () => {
         markLastAction("chat:clearTransientDataParts");
         batchUpdates(() => set({ _transientDataParts: new Map() }));
@@ -626,7 +626,7 @@ export const ChatStoreContext = createContext<ChatStoreApi<any> | undefined>(
 
 export function Provider<TMessage extends UIMessage = UIMessage>({
   children,
-  initialMessages = [],
+  initialMessages,
 }: {
   children: React.ReactNode;
   initialMessages?: TMessage[];
@@ -634,7 +634,7 @@ export function Provider<TMessage extends UIMessage = UIMessage>({
   const storeRef = useRef<ChatStoreApi<TMessage> | null>(null);
 
   if (storeRef.current === null) {
-    storeRef.current = createChatStore<TMessage>(initialMessages);
+    storeRef.current = createChatStore<TMessage>(initialMessages ?? []);
   }
 
   return React.createElement(

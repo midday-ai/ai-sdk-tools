@@ -7,5 +7,5 @@ export default defineConfig({
   splitting: false,
   sourcemap: true,
   clean: true,
-  external: ["zod", "@upstash/redis", "drizzle-orm"],
+  external: ["zod", "@upstash/redis", "drizzle-orm", "redis", "ioredis"],
 });

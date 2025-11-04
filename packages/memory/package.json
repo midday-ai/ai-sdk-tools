@@ -1,6 +1,6 @@
 {
   "name": "@ai-sdk-tools/memory",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "description": "Persistent memory system for AI agents",
   "type": "module",
   "exports": {
@@ -27,10 +27,14 @@
   },
   "peerDependencies": {
     "@upstash/redis": "^1.34.3",
+    "ai": "^5.0.0",
     "drizzle-orm": "^0.36.0"
   },
   "peerDependenciesMeta": {
     "@upstash/redis": {
+      "optional": true
+    },
+    "ai": {
       "optional": true
     },
     "drizzle-orm": {

@@ -1,4 +1,10 @@
 /**
+ * Type for UI messages from Vercel AI SDK
+ * Imported from 'ai' package if available, otherwise defaults to any
+ */
+export type UIMessage = any; // Users can override with getMessages<UIMessage>
+
+/**
  * Persistent working memory that agents maintain
  */
 export interface WorkingMemory {
@@ -20,7 +26,7 @@ export interface ConversationMessage {
   chatId: string;
   userId?: string;
   role: "user" | "assistant" | "system";
-  content: string;
+  content: string | unknown; // Can be string or parsed JSON object
   timestamp: Date;
 }
 
@@ -48,7 +54,12 @@ export interface GenerateTitleConfig {
  * Configuration for automatic prompt suggestions generation
  */
 export interface GenerateSuggestionsConfig {
-  enabled: boolean | ((params: { messages: any[]; context?: Record<string, unknown> }) => boolean | Promise<boolean>);
+  enabled:
+    | boolean
+    | ((params: {
+        messages: any[];
+        context?: Record<string, unknown>;
+      }) => boolean | Promise<boolean>);
   model?: any; // Use 'any' to avoid AI SDK dependency
   instructions?: string;
   limit?: number; // Max number of suggestions (default: 5)
@@ -93,23 +104,34 @@ export interface MemoryProvider {
    */
   saveMessage?(message: ConversationMessage): Promise<void>;
 
-  /** Get recent messages (optional) */
-  getMessages?(params: {
+  /** Get recent messages (optional)
+   * Returns UIMessage[] format (Vercel AI SDK format) - extracts content field from stored ConversationMessage
+   * @template T - The message type to return (defaults to UIMessage)
+   */
+  getMessages?<T = UIMessage>(params: {
     chatId: string;
+    userId?: string;
     limit?: number;
-  }): Promise<ConversationMessage[]>;
+  }): Promise<T[]>;
 
   /** Save or update chat session (optional) */
   saveChat?(chat: ChatSession): Promise<void>;
 
   /** Get chat sessions for a user (optional, returns all if userId omitted) */
-  getChats?(userId?: string): Promise<ChatSession[]>;
+  getChats?(params: {
+    userId?: string;
+    search?: string;
+    limit?: number;
+  }): Promise<ChatSession[]>;
 
   /** Get specific chat session (optional) */
   getChat?(chatId: string): Promise<ChatSession | null>;
 
   /** Update chat title (optional) */
   updateChatTitle?(chatId: string, title: string): Promise<void>;
+
+  /** Delete a chat session and its messages (optional) */
+  deleteChat?(chatId: string): Promise<void>;
 }
 
 /**

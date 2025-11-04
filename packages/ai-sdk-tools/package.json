@@ -1,6 +1,6 @@
 {
   "name": "ai-sdk-tools",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "description": "Complete toolkit for building AI applications with the Vercel AI SDK - agents, state management, caching, artifacts, devtools, and memory",
   "keywords": [
     "ai",

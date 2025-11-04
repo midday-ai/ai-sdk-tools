@@ -1,6 +1,5 @@
 import { createLogger } from "@ai-sdk-tools/debug";
 import {
-  type ConversationMessage,
   DEFAULT_TEMPLATE,
   formatWorkingMemory,
   getWorkingMemoryInstructions,
@@ -1523,13 +1522,8 @@ Good suggestions are:
         return convertToModelMessages([message]);
       }
 
-      // Convert stored messages directly to ModelMessages
-      const historyMessages = previousMessages.map(
-        (msg: ConversationMessage) => ({
-          role: msg.role,
-          content: msg.content || "",
-        }),
-      );
+      // Convert stored messages
+      const historyMessages = convertToModelMessages(previousMessages);
 
       logger.debug(
         `Loaded ${historyMessages.length} history messages for context`,

@@ -1,9 +1,10 @@
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, like, or } from "drizzle-orm";
 import type {
   ChatSession,
   ConversationMessage,
   MemoryProvider,
   MemoryScope,
+  UIMessage,
   WorkingMemory,
 } from "../types.js";
 
@@ -61,7 +62,7 @@ export interface ChatsTable {
 export interface DrizzleProviderConfig<
   TWM extends WorkingMemoryTable,
   TMsg extends ConversationMessagesTable,
-  TChat extends ChatsTable = ChatsTable
+  TChat extends ChatsTable = ChatsTable,
 > {
   /** Working memory table */
   workingMemoryTable: TWM;
@@ -89,13 +90,13 @@ export interface DrizzleProviderConfig<
 export class DrizzleProvider<
   TWM extends WorkingMemoryTable,
   TMsg extends ConversationMessagesTable,
-  TChat extends ChatsTable = ChatsTable
+  TChat extends ChatsTable = ChatsTable,
 > implements MemoryProvider
 {
   constructor(
     // Accepts any Drizzle database instance (postgres, mysql, sqlite adapters all have different types)
     private db: any,
-    private config: DrizzleProviderConfig<TWM, TMsg, TChat>
+    private config: DrizzleProviderConfig<TWM, TMsg, TChat>,
   ) {}
 
   async getWorkingMemory(params: {
@@ -173,29 +174,60 @@ export class DrizzleProvider<
     });
   }
 
-  async getMessages(params: {
+  async getMessages<T = UIMessage>(params: {
     chatId: string;
+    userId?: string;
     limit?: number;
-  }): Promise<ConversationMessage[]> {
+  }): Promise<T[]> {
     const { messagesTable } = this.config;
+
+    // Build WHERE conditions
+    const whereConditions: ReturnType<typeof eq>[] = [
+      eq(messagesTable.chatId, params.chatId),
+    ];
+
+    // Filter by userId if provided
+    // Include messages where userId matches OR userId is null (legacy messages)
+    if (params.userId) {
+      whereConditions.push(
+        or(
+          eq(messagesTable.userId, params.userId),
+          eq(messagesTable.userId, null),
+        )!,
+      );
+    }
+
+    const whereCondition =
+      whereConditions.length === 1
+        ? whereConditions[0]
+        : and(...whereConditions);
 
     const result = await this.db
       .select()
       .from(messagesTable)
-      .where(eq(messagesTable.chatId, params.chatId))
+      .where(whereCondition)
       .orderBy(desc(messagesTable.timestamp))
       .limit(params.limit || 100);
 
     return (
       result
         // Drizzle query results have dynamic types based on table schema
-        .map((row: any) => ({
-          chatId: row.chatId,
-          userId: row.userId || undefined,
-          role: row.role as "user" | "assistant" | "system",
-          content: row.content,
-          timestamp: new Date(row.timestamp),
-        }))
+        .map((row: any) => {
+          let content: string | unknown = row.content;
+
+          // Always attempt to parse content as JSON
+          try {
+            if (typeof row.content === "string") {
+              const parsed = JSON.parse(row.content);
+              content = parsed; // Replace content with parsed value
+            }
+          } catch {
+            // If parsing fails, keep original content
+          }
+
+          // Return the content field directly (UIMessage format)
+          return content as T;
+        })
         .reverse()
     );
   }
@@ -235,19 +267,46 @@ export class DrizzleProvider<
     }
   }
 
-  async getChats(userId?: string): Promise<ChatSession[]> {
+  async getChats(params: {
+    userId?: string;
+    search?: string;
+    limit?: number;
+  }): Promise<ChatSession[]> {
     const { chatsTable } = this.config;
     if (!chatsTable) return [];
 
-    let query = this.db.select().from(chatsTable);
+    // Build WHERE conditions
+    const conditions = [];
 
-    if (userId) {
-      query = query.where(eq(chatsTable.userId, userId));
+    if (params.userId) {
+      conditions.push(eq(chatsTable.userId, params.userId));
     }
 
-    const result = await query.orderBy(desc(chatsTable.updatedAt));
+    if (params.search) {
+      // Use LIKE for case-insensitive search
+      // For MySQL/SQLite, we'll handle case-insensitivity in the filter
+      conditions.push(like(chatsTable.title, `%${params.search}%`));
+    }
 
-    return result.map((row: any) => ({
+    let query = this.db.select().from(chatsTable);
+
+    if (conditions.length > 0) {
+      const whereCondition =
+        conditions.length === 1 ? conditions[0] : and(...conditions);
+      query = query.where(whereCondition);
+    }
+
+    // Order by updatedAt descending (most recent first)
+    query = query.orderBy(desc(chatsTable.updatedAt));
+
+    // Apply limit at database level (most efficient)
+    if (params.limit) {
+      query = query.limit(params.limit);
+    }
+
+    const result = await query;
+
+    let chats = result.map((row: any) => ({
       chatId: row.chatId,
       userId: row.userId || undefined,
       title: row.title || undefined,
@@ -255,6 +314,17 @@ export class DrizzleProvider<
       updatedAt: new Date(row.updatedAt),
       messageCount: row.messageCount,
     }));
+
+    // For MySQL/SQLite, apply case-insensitive filter if search was used
+    // (PostgreSQL ILIKE handles it, but LIKE doesn't)
+    if (params.search) {
+      const searchLower = params.search.toLowerCase();
+      chats = chats.filter((chat: ChatSession) =>
+        chat.title?.toLowerCase().includes(searchLower),
+      );
+    }
+
+    return chats;
   }
 
   async getChat(chatId: string): Promise<ChatSession | null> {
@@ -291,6 +361,22 @@ export class DrizzleProvider<
         updatedAt: new Date(),
       })
       .where(eq(chatsTable.chatId, chatId));
+  }
+
+  async deleteChat(chatId: string): Promise<void> {
+    const { chatsTable, messagesTable } = this.config;
+
+    // Delete messages first (if messagesTable exists)
+    if (messagesTable) {
+      await this.db
+        .delete(messagesTable)
+        .where(eq(messagesTable.chatId, chatId));
+    }
+
+    // Delete chat (if chatsTable exists)
+    if (chatsTable) {
+      await this.db.delete(chatsTable).where(eq(chatsTable.chatId, chatId));
+    }
   }
 
   private getId(scope: MemoryScope, chatId?: string, userId?: string): string {

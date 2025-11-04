@@ -1,6 +1,6 @@
 {
   "name": "@ai-sdk-tools/debug",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "description": "Shared debug utilities for AI SDK Tools",
   "license": "MIT",
   "type": "module",

@@ -5,7 +5,7 @@ Persistent memory system for AI agents with built-in providers for development a
 ## Features
 
 - **Simple API** - Just 4 methods to implement
-- **Built-in Providers** - InMemory, Drizzle ORM, and Upstash included
+- **Built-in Providers** - InMemory, Drizzle ORM, Redis, and Upstash included
 - **TypeScript-first** - Full type safety
 - **Flexible Scopes** - Chat-level or user-level memory
 - **Conversation History** - Optional message tracking
@@ -29,8 +29,13 @@ bun add @ai-sdk-tools/memory
 # For Drizzle ORM provider (PostgreSQL, MySQL, or SQLite)
 npm install drizzle-orm
 
-# For Upstash Redis provider
+# For Upstash Redis provider (serverless/edge)
 npm install @upstash/redis
+
+# For standard Redis provider (self-hosted/traditional)
+npm install redis
+# or
+npm install ioredis
 ```
 
 ## Quick Start
@@ -96,17 +101,52 @@ const memory = new DrizzleProvider(db, {
 
 **[Full Drizzle documentation →](./DRIZZLE.md)** - Includes PostgreSQL, MySQL, SQLite/Turso examples
 
+### Redis Provider (Production - Self-Hosted)
+
+Perfect for traditional Redis instances (self-hosted, Redis Cloud, AWS ElastiCache, etc.). Supports both `ioredis` and `redis` npm packages.
+
+**With ioredis:**
+
+```typescript
+import Redis from "ioredis";
+import { RedisProvider } from "@ai-sdk-tools/memory/redis";
+
+const redis = new Redis(process.env.REDIS_URL);
+const memory = new RedisProvider(redis);
+```
+
+**With redis package:**
+
+```typescript
+import { createClient } from "redis";
+import { RedisProvider } from "@ai-sdk-tools/memory/redis";
+
+const redis = createClient({ url: process.env.REDIS_URL });
+await redis.connect();
+const memory = new RedisProvider(redis, {
+  prefix: "my-app:memory:",
+  messageTtl: 60 * 60 * 24 * 30, // Optional: 30 days TTL for messages (default: no expiration)
+});
+```
+
 ### Upstash Provider (Production - Serverless)
 
-Perfect for edge and serverless environments.
+Perfect for edge and serverless environments. Uses HTTP REST API instead of direct TCP connection.
 
 ```typescript
 import { Redis } from "@upstash/redis";
 import { UpstashProvider } from "@ai-sdk-tools/memory/upstash";
 
 const redis = Redis.fromEnv();
-const memory = new UpstashProvider(redis);
+const memory = new UpstashProvider(redis, {
+  prefix: "my-app:memory:",
+  messageTtl: 60 * 60 * 24 * 30, // Optional: 30 days TTL for messages (default: no expiration)
+});
 ```
+
+**When to use Redis vs Upstash:**
+- **Redis Provider**: Use when you have a traditional Redis instance (self-hosted, Redis Cloud, AWS ElastiCache, etc.)
+- **Upstash Provider**: Use for serverless/edge environments where HTTP REST API is preferred
 
 ## Usage with Agents
 
