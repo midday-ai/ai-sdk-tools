@@ -1,4 +1,5 @@
 import { createLogger } from "@ai-sdk-tools/debug";
+import type { RedisClientType } from "redis";
 import type {
   ChatSession,
   ConversationMessage,
@@ -57,7 +58,7 @@ interface RedisPackageClient {
 /**
  * Supported Redis client types (ioredis or redis package)
  */
-type RedisClient = IORedisClient | RedisPackageClient;
+type RedisClient = IORedisClient | RedisPackageClient | RedisClientType;
 
 /**
  * Configuration options for RedisProvider

@@ -1,5 +1,23 @@
 # @ai-sdk-tools/memory
 
+## 1.0.8
+
+### Patch Changes
+
+- - Fix RedisClient type to include RedisClientType from redis package
+  - Add redis and ioredis as optional peer dependencies
+
+## 1.0.7
+
+### Patch Changes
+
+- - Add userId filtering to getMessages for improved security
+  - Add search and limit parameters to getChats
+  - Add deleteChat method to MemoryProvider interface
+  - Optimize Redis/Upstash providers with sorted sets for efficient queries
+  - Improve chat title generation and persistence
+  - Add chat history UI component with search and overlay sidebar
+
 ## 1.0.6
 
 ### Patch Changes

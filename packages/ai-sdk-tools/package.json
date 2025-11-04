@@ -1,6 +1,6 @@
 {
   "name": "ai-sdk-tools",
-  "version": "1.0.6",
+  "version": "1.0.8",
   "description": "Complete toolkit for building AI applications with the Vercel AI SDK - agents, state management, caching, artifacts, devtools, and memory",
   "keywords": [
     "ai",
@@ -92,11 +92,11 @@
     }
   },
   "devDependencies": {
-    "@types/node": "^24.9.1",
+    "@types/node": "^24.10.0",
     "tsup": "^8.5.0",
     "typescript": "^5.9.3",
     "zod": "^4.1.12",
-    "ai": "^5.0.82",
+    "ai": "^5.0.87",
     "@ai-sdk-tools/agents": "workspace:*",
     "@ai-sdk-tools/artifacts": "workspace:*",
     "@ai-sdk-tools/cache": "workspace:*",
