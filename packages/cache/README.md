@@ -87,7 +87,7 @@ import { createCached } from '@ai-sdk-tools/cache';
 
 const cached = createCached({
   cache: Redis.createClient({ url: "redis://localhost:6379" }),
-  keyPrefix: "my-app:",
+  storeName: "my-app",
   ttl: 30 * 60 * 1000,
 });
 ```
@@ -100,7 +100,7 @@ import { createCached } from '@ai-sdk-tools/cache';
 
 const cached = createCached({
   cache: new IORedis("redis://localhost:6379"),
-  keyPrefix: "my-app:",
+  storeName: "my-app",
   ttl: 30 * 60 * 1000,
 });
 ```
@@ -124,22 +124,57 @@ Supported clients:
 
 ```typescript
 const cached = createCached({
-  cache?: any;                    // Redis client (optional, defaults to LRU)
-  keyPrefix?: string;             // Cache key prefix (default: "ai-tools-cache:")
-  ttl?: number;                   // Time to live in ms (default: 10min LRU, 30min Redis)
-  debug?: boolean;                // Debug logging (default: false)
-  onHit?: (key: string) => void;  // Cache hit callback
-  onMiss?: (key: string) => void; // Cache miss callback
+  cache?: any;                      // Redis client (optional, defaults to LRU)
+  storeName?: string;               // Redis store name (default: "ai-tools-cache")
+  ttl?: number;                     // Time to live in ms (default: 10min LRU, 30min Redis)
+  toolName?: string;                // Tool name prefix for cache keys
+  keySeparator?: string;            // Separator between key components (default: ':')
+  cacheKeyContext?: () => string;   // Generate dynamic context suffix (multi-tenant)
+  debug?: boolean;                  // Debug logging (default: false)
+  onHit?: (key: string) => void;    // Cache hit callback
+  onMiss?: (key: string) => void;   // Cache miss callback
 });
+```
+
+**`toolName`** - Prefix cache keys with tool name to prevent collisions between tools using similar parameters.
+
+**`keySeparator`** - Customize separator between key components (default: `':'`). Useful for specific storage backend requirements.
+
+**`cacheKeyContext`** - Function to generate dynamic context suffix for multi-tenant apps. The context is appended to the end of the cache key with a separator in between. Isolates cache by user, team, or other contextual data.
+
+## Per-Tool Cache Key Prefixing
+
+When multiple tools use similar parameters, they can create identical cache keys causing collisions. Use `toolName` to namespace your cache keys:
+
+```typescript
+const cached = createCached({ cache: Redis.fromEnv() });
+
+const weatherTool = cached(originalWeatherTool, {
+  toolName: 'weatherTool',
+});
+
+const translationTool = cached(originalTranslationTool, {
+  toolName: 'translationTool',
+});
+```
+
+This creates a clear Redis key hierarchy:
+
+```
+// Without toolName (collision risk)
+ai-tools-cache:{city:"NYC"}
+
+// With toolName (no collisions)
+ai-tools-cache:weatherTool:{city:"NYC"}
+ai-tools-cache:translationTool:{city:"NYC"}
 ```
 
 ## Multi-Tenant Apps (Context-Aware Caching)
 
-For apps with user/team context, just add `getContext` to the cache config:
+For multi-tenant apps, isolate cache by user/team using `cacheKeyContext`:
 
 ```typescript
 import { cached } from '@ai-sdk-tools/cache';
-// Your app's context system (could be React context, global state, etc.)
 
 const burnRateAnalysisTool = tool({
   description: 'Analyze burn rate',
@@ -148,24 +183,21 @@ const burnRateAnalysisTool = tool({
     to: z.string(),
   }),
   execute: async ({ from, to }) => {
-    // Your app's way of getting current user/team context
-    const currentUser = getCurrentUser(); // or useUser(), getSession(), etc.
-    
+    const currentUser = getCurrentUser();
     return await db.getBurnRate({
-      teamId: currentUser.teamId, // ← Context used here
+      teamId: currentUser.teamId,
       from,
       to,
     });
   },
 });
 
-// Cache with context - that's it!
 export const cachedBurnRateTool = cached(burnRateAnalysisTool, {
-  cacheKey: () => {
+  cacheKeyContext: () => {
     const currentUser = getCurrentUser();
     return `team:${currentUser.teamId}:user:${currentUser.id}`;
   },
-  ttl: 30 * 60 * 1000, // 30 minutes
+  ttl: 30 * 60 * 1000,
 });
 ```
 
@@ -185,15 +217,16 @@ const cacheBackend = createCacheBackend({
   type: 'redis',
   redis: {
     client: Redis.createClient({ url: process.env.REDIS_URL }),
-    keyPrefix: 'my-app:',
+    storeName: 'my-app',
   },
 });
 
 // Export configured cache function
-export function cached<T extends Tool>(tool: T, options = {}) {
+export function cached<T extends Tool>(tool: T, toolName?: string, options = {}) {
   return baseCached(tool, {
     store: cacheBackend,
-    cacheKey: () => {
+    toolName,  // Per-tool prefix
+    cacheKeyContext: () => {
       const currentUser = getCurrentUser();
       return `team:${currentUser.teamId}:user:${currentUser.id}`;
     },
@@ -203,9 +236,10 @@ export function cached<T extends Tool>(tool: T, options = {}) {
   });
 }
 
-// Throughout your app
+// Throughout your app - each tool gets its own prefix
 import { cached } from '@/lib/cache';
-export const myTool = cached(originalTool);
+export const weatherTool = cached(originalWeatherTool, 'weatherTool');
+export const translateTool = cached(originalTranslateTool, 'translateTool');
 ```
 
 ## Streaming Tools with Artifacts

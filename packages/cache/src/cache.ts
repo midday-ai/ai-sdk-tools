@@ -1,25 +1,60 @@
 import type { Tool } from "ai";
-import { createCacheBackend } from "./backends/factory";
+import { createCacheBackend } from "./backends";
 import { LRUCacheStore } from "./cache-store";
+import {DEFAULT_CACHE_KEY_SEPARATOR, DEFAULT_STORE_NAME} from "./constants";
 import type { CachedTool, CacheOptions, CacheStats, CacheStore } from "./types";
 
 /**
- * Default cache key generator - stable and deterministic
+ * Default cache key generator - stable and deterministic.
+ * Example: "weatherTool:{city:NYC}:team:123"
  */
-function defaultKeyGenerator(params: any, context?: any): string {
-  const paramsKey = serializeValue(params);
+function defaultKeyGenerator(options: {
+  params: any;
+  context?: any;
+  toolName?: string;
+  keySeparator?: string;
+}): string {
+  const {
+    params,
+    context,
+    toolName,
+    keySeparator = DEFAULT_CACHE_KEY_SEPARATOR,
+  } = options;
+  const parts: string[] = [];
 
-  if (context) {
-    return `${paramsKey}|${context}`;
+  if (toolName != null) {
+    parts.push(toolName);
   }
 
-  return paramsKey;
+  parts.push(serializeValue(params));
+
+  if (context != null) {
+    parts.push(context);
+  }
+
+  return parts.join(keySeparator);
 }
 
 /**
- * Serialize a value to a stable string representation
+ * Serialize a value to a stable string representation.
+ * Useful for custom keyGenerator functions to ensure consistent serialization.
+ *
+ * @param value - Any value to serialize (primitives, objects, arrays, dates)
+ * @returns Stable string representation of the value
+ *
+ * @example
+ * ```typescript
+ * import { serializeValue } from '@ai-sdk-tools/cache';
+ *
+ * const customKeyGenerator = (params, context, toolName, separator) => {
+ *   const serialized = serializeValue(params);
+ *   return `custom:${toolName}${separator}${serialized}`;
+ * };
+ * ```
+ *
+ * @public
  */
-function serializeValue(value: any): string {
+export function serializeValue(value: any): string {
   // Handle different parameter types like React Query
   if (value === null || value === undefined) {
     return "null";
@@ -66,11 +101,17 @@ function createStreamingCachedTool<T extends Tool>(
     store,
     keyGenerator = defaultKeyGenerator,
     cacheKey,
+    cacheKeyContext,
+    toolName,
+    keySeparator = DEFAULT_CACHE_KEY_SEPARATOR,
     shouldCache = () => true,
     onHit,
     onMiss,
     debug = false,
   } = options;
+
+  // For backward compatibility, support both cacheKeyContext and cacheKey
+  const contextFn = cacheKeyContext ?? cacheKey;
 
   const cacheStore = store || new LRUCacheStore(maxSize);
   let hits = 0;
@@ -81,9 +122,8 @@ function createStreamingCachedTool<T extends Tool>(
     ...tool,
     execute: async function* (...args: any[]) {
       const [params, executionOptions] = args;
-      // Get context from cacheKey function
-      const context = cacheKey?.();
-      const key = keyGenerator(params, context);
+      const context = contextFn?.();
+      const key = keyGenerator({ params, context, toolName, keySeparator });
       const now = Date.now();
 
       // Check cache first
@@ -291,9 +331,9 @@ function createStreamingCachedTool<T extends Tool>(
         cacheStore.clear();
       }
     },
-    async isCached(params: any) {
-      const context = cacheKey?.();
-      const key = keyGenerator(params, context);
+    async isCached(params: any): Promise<boolean> {
+      const context = contextFn?.();
+      const key = keyGenerator({ params, context, toolName, keySeparator });
       const cached = await cacheStore.get(key);
       if (!cached) return false;
 
@@ -307,9 +347,9 @@ function createStreamingCachedTool<T extends Tool>(
 
       return true;
     },
-    getCacheKey(params: any) {
-      const context = cacheKey?.();
-      return keyGenerator(params, context);
+    getCacheKey(params: any): string {
+      const context = contextFn?.();
+      return keyGenerator({ params, context, toolName, keySeparator });
     },
   } as unknown as CachedTool<T>;
 }
@@ -328,11 +368,17 @@ export function cached<T extends Tool>(
     store,
     keyGenerator = defaultKeyGenerator,
     cacheKey,
+    cacheKeyContext,
+    toolName,
+    keySeparator = DEFAULT_CACHE_KEY_SEPARATOR,
     shouldCache = () => true,
     onHit,
     onMiss,
     debug = false,
   } = options || {};
+
+  // For backward compatibility, support both cacheKeyContext and cacheKey
+  const contextFn = cacheKeyContext ?? cacheKey;
 
   const cacheStore = store || new LRUCacheStore(maxSize);
   const effectiveTTL = ttl ?? cacheStore.getDefaultTTL?.() ?? 5 * 60 * 1000;
@@ -365,8 +411,8 @@ export function cached<T extends Tool>(
     },
 
     async isCached(params: any): Promise<boolean> {
-      const context = cacheKey?.();
-      const key = keyGenerator(params, context);
+      const context = contextFn?.();
+      const key = keyGenerator({ params, context, toolName, keySeparator });
       const cached = await cacheStore.get(key);
       if (!cached) return false;
 
@@ -382,8 +428,8 @@ export function cached<T extends Tool>(
     },
 
     getCacheKey(params: any): string {
-      const context = cacheKey?.();
-      return keyGenerator(params, context);
+      const context = contextFn?.();
+      return keyGenerator({ params, context, toolName, keySeparator });
     },
   };
 
@@ -394,8 +440,13 @@ export function cached<T extends Tool>(
         if (target.execute?.constructor?.name === "AsyncGeneratorFunction") {
           return async function* (...args: any[]) {
             const [params, executionOptions] = args;
-            const context = cacheKey?.();
-            const key = keyGenerator(params, context);
+            const context = contextFn?.();
+            const key = keyGenerator({
+              params,
+              context,
+              toolName,
+              keySeparator,
+            });
             const now = Date.now();
 
             // Check cache
@@ -522,8 +573,13 @@ export function cached<T extends Tool>(
           // Regular async function
           return async (...args: any[]) => {
             const [params, executionOptions] = args;
-            const context = cacheKey?.();
-            const key = keyGenerator(params, context);
+            const context = contextFn?.();
+            const key = keyGenerator({
+              params,
+              context,
+              toolName,
+              keySeparator,
+            });
             const now = Date.now();
 
             // Check cache
@@ -586,16 +642,10 @@ export function createCachedFunction(
  * Cache multiple tools with the same configuration
  */
 export function cacheTools<T extends Tool, TTools extends Record<string, T>>(
-  tools: T,
+  tools: TTools,
   options: CacheOptions = {},
 ): { [K in keyof TTools]: CachedTool<TTools[K]> } {
-  const cachedTools = {} as { [K in keyof TTools]: CachedTool<TTools[K]> };
-
-  for (const [name, tool] of Object.entries(tools)) {
-    cachedTools[name as keyof TTools] = cached(tool, options);
-  }
-
-  return cachedTools;
+  return Object.fromEntries(Object.keys(tools).map((name) => ([[name as keyof TTools], cached(tools[name], options)])))
 }
 
 /**
@@ -619,10 +669,13 @@ export function cacheTools<T extends Tool, TTools extends Record<string, T>>(
 export function createCached(
   options: {
     cache?: any; // User's Redis client - we pass it directly
-    keyPrefix?: string;
+    storeName?: string;
     ttl?: number;
     debug?: boolean;
     cacheKey?: () => string;
+    cacheKeyContext?: () => string;
+    toolName?: string;
+    keySeparator?: string;
     onHit?: (key: string) => void;
     onMiss?: (key: string) => void;
   } = {},
@@ -638,6 +691,9 @@ export function createCached(
     return createCachedFunction(lruStore, {
       debug: options.debug || false,
       cacheKey: options.cacheKey,
+      cacheKeyContext: options.cacheKeyContext,
+      toolName: options.toolName,
+      keySeparator: options.keySeparator,
       onHit: options.onHit,
       onMiss: options.onMiss,
     });
@@ -649,13 +705,16 @@ export function createCached(
     defaultTTL: options.ttl || 30 * 60 * 1000, // 30 minutes default
     redis: {
       client: options.cache, // Pass user's Redis client directly
-      keyPrefix: options.keyPrefix || "ai-tools-cache:",
+      storeName: options.storeName || DEFAULT_STORE_NAME,
     },
   });
 
   return createCachedFunction(redisStore, {
     debug: options.debug || false,
     cacheKey: options.cacheKey,
+    cacheKeyContext: options.cacheKeyContext,
+    toolName: options.toolName,
+    keySeparator: options.keySeparator,
     onHit: options.onHit,
     onMiss: options.onMiss,
   });

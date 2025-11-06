@@ -5,16 +5,16 @@ import { cached, cacheTools } from "../index";
 // Example 1: Simple weather tool with caching
 const expensiveWeatherTool = tool({
   description: "Get current weather information for a location",
-  parameters: z.object({
+  inputSchema: z.object({
     location: z.string().describe("The location to get weather for"),
     units: z.enum(["celsius", "fahrenheit"]).optional().default("celsius"),
   }),
   execute: async ({ location, units }) => {
     console.log(`🌤️  Making expensive API call for ${location}...`);
-    
+
     // Simulate expensive API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
     // Mock weather data
     const mockData = {
       location,
@@ -24,7 +24,7 @@ const expensiveWeatherTool = tool({
       windSpeed: 10,
       timestamp: new Date().toISOString(),
     };
-    
+
     return mockData;
   },
 });
@@ -38,16 +38,18 @@ const weatherTool = cached(expensiveWeatherTool, {
 // Example 2: Financial analysis tool
 const burnRateAnalysisTool = tool({
   description: "Analyze company burn rate and financial health",
-  parameters: z.object({
+  inputSchema: z.object({
     companyId: z.string(),
     months: z.number().min(1).max(24),
   }),
   execute: async ({ companyId, months }) => {
-    console.log(`📊 Analyzing burn rate for company ${companyId} over ${months} months...`);
-    
+    console.log(
+      `📊 Analyzing burn rate for company ${companyId} over ${months} months...`,
+    );
+
     // Simulate heavy computation
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
     // Mock analysis result
     return {
       companyId,
@@ -67,8 +69,8 @@ const burnRateAnalysisTool = tool({
 // Cache with custom configuration
 const cachedBurnRateTool = cached(burnRateAnalysisTool, {
   ttl: 30 * 60 * 1000, // 30 minutes
-  keyGenerator: ({ companyId, months }) => `burnrate:${companyId}:${months}`,
-  shouldCache: (params, result) => {
+  keyGenerator: ({ params }) => `burnrate:${params.companyId}:${params.months}`,
+  shouldCache: (_params, result) => {
     // Only cache successful analyses
     return result && !result.error;
   },
@@ -79,15 +81,15 @@ const cachedBurnRateTool = cached(burnRateAnalysisTool, {
 // Example 3: Multiple tools with same cache config
 const calculatorTool = tool({
   description: "Perform mathematical calculations",
-  parameters: z.object({
+  inputSchema: z.object({
     expression: z.string(),
   }),
   execute: async ({ expression }) => {
     console.log(`🧮 Calculating: ${expression}`);
-    
+
     // Simulate some processing time
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
     try {
       // Simple expression evaluation (use a proper math parser in production)
       const result = Function(`"use strict"; return (${expression})`)();
@@ -100,16 +102,16 @@ const calculatorTool = tool({
 
 const databaseTool = tool({
   description: "Query database for information",
-  parameters: z.object({
+  inputSchema: z.object({
     query: z.string(),
     table: z.string(),
   }),
   execute: async ({ query, table }) => {
     console.log(`🗄️  Querying ${table}: ${query}`);
-    
+
     // Simulate database query
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
     return {
       query,
       table,
@@ -123,13 +125,16 @@ const databaseTool = tool({
 });
 
 // Cache multiple tools with same config
-const { calculator, database } = cacheTools({
-  calculator: calculatorTool,
-  database: databaseTool,
-}, {
-  ttl: 5 * 60 * 1000, // 5 minutes
-  debug: true,
-});
+const { calculator, database } = cacheTools(
+  {
+    calculator: calculatorTool,
+    database: databaseTool,
+  },
+  {
+    ttl: 5 * 60 * 1000, // 5 minutes
+    debug: true,
+  },
+);
 
 /**
  * Demo function to show caching in action
@@ -139,17 +144,17 @@ export async function demonstrateCache() {
 
   // Test weather tool caching
   console.log("=== Weather Tool Demo ===");
-  
+
   console.log("First call (should be slow):");
-  const weather1 = await weatherTool.execute({ location: "New York" });
+  const weather1 = await weatherTool.execute?.({ location: "New York", units: 'fahrenheit' }, {toolCallId: 'weatherTool', messages: []});
   console.log("Result:", weather1);
-  
+
   console.log("\nSecond call with same params (should be fast):");
-  const weather2 = await weatherTool.execute({ location: "New York" });
+  const weather2 = await weatherTool.execute?.({ location: "New York", units: 'fahrenheit' }, {toolCallId: 'weatherTool', messages: []});
   console.log("Result:", weather2);
-  
+
   console.log("\nThird call with different params (should be slow):");
-  const weather3 = await weatherTool.execute({ location: "London" });
+  const weather3 = await weatherTool.execute?.({ location: "London", units: 'celsius' },  {toolCallId: 'weatherTool', messages: []});
   console.log("Result:", weather3);
 
   // Show cache stats
@@ -157,30 +162,30 @@ export async function demonstrateCache() {
 
   // Test burn rate tool
   console.log("\n=== Burn Rate Analysis Demo ===");
-  
-  const analysis1 = await cachedBurnRateTool.execute({ 
-    companyId: "company-123", 
-    months: 12 
-  });
+
+  const analysis1 = await cachedBurnRateTool.execute?.({
+    companyId: "company-123",
+    months: 12,
+  },  {toolCallId: 'cachedBurnRateTool', messages: []});
   console.log("Analysis result:", analysis1);
-  
+
   // Same params - should hit cache
-  const analysis2 = await cachedBurnRateTool.execute({ 
-    companyId: "company-123", 
-    months: 12 
-  });
+  const analysis2 = await cachedBurnRateTool.execute?.({
+    companyId: "company-123",
+    months: 12,
+  }, {toolCallId: 'cachedBurnRateTool', messages: []});
   console.log("Cached analysis:", analysis2);
 
   console.log("\nBurn rate tool cache stats:", cachedBurnRateTool.getStats());
 
   // Test multiple tools
   console.log("\n=== Multiple Tools Demo ===");
-  
-  await calculator.execute({ expression: "15 * 8" });
-  await calculator.execute({ expression: "15 * 8" }); // Should hit cache
-  
-  await database.execute({ query: "SELECT * FROM users", table: "users" });
-  await database.execute({ query: "SELECT * FROM users", table: "users" }); // Should hit cache
+
+  await calculator.execute?.({ expression: "15 * 8" }, {toolCallId: 'calculator', messages: []});
+  await calculator.execute?.({ expression: "15 * 8" }, {toolCallId: 'calculator', messages: []}); // Should hit cache
+
+  await database.execute?.({ query: "SELECT * FROM users", table: "users" }, {toolCallId: 'database', messages: []});
+  await database.execute?.({ query: "SELECT * FROM users", table: "users" }, {toolCallId: 'database', messages: []}); // Should hit cache
 
   console.log("\nCalculator cache stats:", calculator.getStats());
   console.log("Database cache stats:", database.getStats());
@@ -197,9 +202,9 @@ export async function demonstrateCacheManagement() {
   const tool = cached(weatherTool, { debug: true });
 
   // Add some entries
-  await tool.execute({ location: "Paris" });
-  await tool.execute({ location: "Tokyo" });
-  await tool.execute({ location: "Sydney" });
+  await tool.execute?.({ location: "Paris", units: 'celsius' }, {toolCallId: 'weatherTool', messages: []});
+  await tool.execute?.({ location: "Tokyo", units: 'celsius' }, {toolCallId: 'weatherTool', messages: []});
+  await tool.execute?.({ location: "Sydney", units: 'celsius' }, {toolCallId: 'weatherTool', messages: []});
 
   console.log("Cache stats after adding entries:", tool.getStats());
 
