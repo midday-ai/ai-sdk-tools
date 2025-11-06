@@ -641,17 +641,16 @@ export function createCachedFunction(
 /**
  * Cache multiple tools with the same configuration
  */
-export function cacheTools<
-  T extends Tool,
-  TTools extends Record<PropertyKey, T>,
->(tools: TTools, options: CacheOptions = {}) {
-  const entries = Object.entries(tools);
-  const cachedEntries = entries.map(
-    ([name, tool]) => [name, cached(tool, options)] as const,
-  ) as { [K in keyof TTools]: [K, CachedTool<TTools[K]>] }[keyof TTools][];
+export function cacheTools<T extends Tool, TTools extends Record<string, T>>(
+  tools: TTools,
+  options: CacheOptions = {},
+): { [K in keyof TTools]: CachedTool<TTools[K]> } {
+  const entries = Object.entries(tools).map(
+    ([name, tool]) => [name as keyof TTools, cached(tool, options)] as const,
+  );
 
-  return Object.fromEntries(cachedEntries) as {
-    [K in (typeof cachedEntries)[number] as K[0]]: K[1];
+  return Object.fromEntries(entries) as {
+    [K in keyof TTools]: CachedTool<TTools[K]>;
   };
 }
 
