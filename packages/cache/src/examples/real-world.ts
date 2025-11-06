@@ -6,7 +6,7 @@ import { cached } from "../";
 const weatherApiTool = cached(
   tool({
     description: "Get real weather data from external API",
-    parameters: z.object({
+    inputSchema: z.object({
       location: z.string(),
       units: z.enum(["metric", "imperial"]).default("metric"),
     }),
@@ -14,40 +14,41 @@ const weatherApiTool = cached(
       // In real app, this would be an actual API call
       const apiKey = process.env.WEATHER_API_KEY;
       const response = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${location}&units=${units}&appid=${apiKey}`
+        `https://api.openweathermap.org/data/2.5/weather?q=${location}&units=${units}&appid=${apiKey}`,
       );
-      
+
       if (!response.ok) {
         throw new Error(`Weather API error: ${response.statusText}`);
       }
-      
+
       return response.json();
     },
   }),
   {
     ttl: 10 * 60 * 1000, // 10 minutes - weather doesn't change that fast
-    keyGenerator: ({ location, units }) => `weather:${location.toLowerCase()}:${units}`,
+    keyGenerator: ({ params }) =>
+      `weather:${params.location.toLowerCase()}:${params.units}`,
     shouldCache: (_, result) => {
       // Don't cache errors
       return !result.error && result.main;
     },
     onHit: (key) => console.log(`💰 Saved API call: ${key}`),
     onMiss: (key) => console.log(`🌐 Making API call: ${key}`),
-  }
+  },
 );
 
 // Example 2: Database query caching
 const userProfileTool = cached(
   tool({
     description: "Get user profile information",
-    parameters: z.object({
+    inputSchema: z.object({
       userId: z.string(),
       includePreferences: z.boolean().default(false),
     }),
     execute: async ({ userId, includePreferences }) => {
       // Simulate database query
       console.log(`🗄️  Querying database for user ${userId}`);
-      
+
       // In real app, this would be a database query
       const baseProfile = {
         id: userId,
@@ -58,7 +59,7 @@ const userProfileTool = cached(
 
       if (includePreferences) {
         // Additional expensive query
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise((resolve) => setTimeout(resolve, 200));
         return {
           ...baseProfile,
           preferences: {
@@ -74,27 +75,29 @@ const userProfileTool = cached(
   }),
   {
     ttl: 5 * 60 * 1000, // 5 minutes - user data changes occasionally
-    keyGenerator: ({ userId, includePreferences }) => 
-      `user:${userId}:prefs:${includePreferences}`,
+    keyGenerator: ({ params }) =>
+      `user:${params.userId}:prefs:${params.includePreferences}`,
     onHit: () => console.log("💾 Database query avoided"),
-  }
+  },
 );
 
 // Example 3: Heavy computation caching
 const financialAnalysisTool = cached(
   tool({
     description: "Perform complex financial analysis",
-    parameters: z.object({
+    inputSchema: z.object({
       companyId: z.string(),
       analysisType: z.enum(["burnRate", "growth", "profitability"]),
       timeframe: z.number().min(1).max(36), // months
     }),
     execute: async ({ companyId, analysisType, timeframe }) => {
-      console.log(`📊 Running ${analysisType} analysis for ${companyId} over ${timeframe} months`);
-      
+      console.log(
+        `📊 Running ${analysisType} analysis for ${companyId} over ${timeframe} months`,
+      );
+
       // Simulate heavy computation
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+
       // Mock complex analysis result
       const baseMetrics = {
         companyId,
@@ -133,33 +136,33 @@ const financialAnalysisTool = cached(
   }),
   {
     ttl: 60 * 60 * 1000, // 1 hour - financial analysis is expensive
-    keyGenerator: ({ companyId, analysisType, timeframe }) => 
-      `analysis:${companyId}:${analysisType}:${timeframe}`,
+    keyGenerator: ({ params }) =>
+      `analysis:${params.companyId}:${params.analysisType}:${params.timeframe}`,
     shouldCache: (_, result) => {
       // Only cache successful analyses
       return result && !result.error && result.generatedAt;
     },
     onHit: (key) => console.log(`🎯 Avoided expensive computation: ${key}`),
     onMiss: (key) => console.log(`⚡ Running expensive computation: ${key}`),
-  }
+  },
 );
 
 // Example 4: Translation service with long-term caching
 const translationTool = cached(
   tool({
     description: "Translate text to different languages",
-    parameters: z.object({
+    inputSchema: z.object({
       text: z.string(),
       targetLanguage: z.string(),
       sourceLanguage: z.string().default("auto"),
     }),
     execute: async ({ text, targetLanguage, sourceLanguage }) => {
       console.log(`🌍 Translating "${text}" to ${targetLanguage}`);
-      
+
       // In real app, this would call a translation API
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
+      await new Promise((resolve) => setTimeout(resolve, 800));
+
       // Mock translation result
       return {
         originalText: text,
@@ -172,36 +175,41 @@ const translationTool = cached(
   }),
   {
     ttl: 24 * 60 * 60 * 1000, // 24 hours - translations don't change
-    keyGenerator: ({ text, targetLanguage, sourceLanguage }) => {
+    keyGenerator: ({ params }) => {
       // Use base64 encoding for text to handle special characters
-      const encodedText = Buffer.from(text).toString("base64");
-      return `translate:${encodedText}:${sourceLanguage}:${targetLanguage}`;
+      const encodedText = Buffer.from(params.text).toString("base64");
+      return `translate:${encodedText}:${params.sourceLanguage}:${params.targetLanguage}`;
     },
     maxSize: 5000, // Store more translations
-    onHit: (key) => console.log(`💬 Translation cache hit: ${key.slice(0, 50)}...`),
-  }
+    onHit: (key) =>
+      console.log(`💬 Translation cache hit: ${key.slice(0, 50)}...`),
+  },
 );
 
 // Example 5: File processing with conditional caching
 const documentAnalysisTool = cached(
   tool({
     description: "Analyze document content and extract insights",
-    parameters: z.object({
+    inputSchema: z.object({
       documentId: z.string(),
       analysisDepth: z.enum(["basic", "detailed", "comprehensive"]),
     }),
     execute: async ({ documentId, analysisDepth }) => {
-      console.log(`📄 Analyzing document ${documentId} with ${analysisDepth} depth`);
-      
+      console.log(
+        `📄 Analyzing document ${documentId} with ${analysisDepth} depth`,
+      );
+
       // Simulate document processing time based on depth
       const processingTime = {
         basic: 500,
         detailed: 2000,
         comprehensive: 5000,
       };
-      
-      await new Promise(resolve => setTimeout(resolve, processingTime[analysisDepth]));
-      
+
+      await new Promise((resolve) =>
+        setTimeout(resolve, processingTime[analysisDepth]),
+      );
+
       const baseAnalysis = {
         documentId,
         analysisDepth,
@@ -242,15 +250,15 @@ const documentAnalysisTool = cached(
   }),
   {
     ttl: 30 * 60 * 1000, // 30 minutes
-    keyGenerator: ({ documentId, analysisDepth }) => 
-      `doc:${documentId}:${analysisDepth}`,
-    shouldCache: (params, result) => {
+    keyGenerator: ({ params }) =>
+      `doc:${params.documentId}:${params.analysisDepth}`,
+    shouldCache: (toolParams, result) => {
       // Only cache successful analyses for detailed/comprehensive
-      return result && !result.error && params.analysisDepth !== "basic";
+      return result && !result.error && toolParams.analysisDepth !== "basic";
     },
     onHit: (key) => console.log(`📋 Document analysis cache hit: ${key}`),
     onMiss: (key) => console.log(`🔍 Processing document: ${key}`),
-  }
+  },
 );
 
 /**
@@ -261,65 +269,92 @@ export async function demonstrateRealWorldCaching() {
 
   // Weather API caching
   console.log("=== Weather API Caching ===");
-  await weatherApiTool.execute({ location: "New York" });
-  await weatherApiTool.execute({ location: "New York" }); // Cache hit
-  await weatherApiTool.execute({ location: "New York", units: "imperial" }); // Different cache key
-  
+  await weatherApiTool.execute?.(
+    { location: "New York", units: "metric" },
+    { toolCallId: "weatherApiTool", messages: [] },
+  );
+  await weatherApiTool.execute?.(
+    { location: "New York", units: "metric" },
+    { toolCallId: "weatherApiTool", messages: [] },
+  ); // Cache hit
+  await weatherApiTool.execute?.(
+    { location: "New York", units: "imperial" },
+    { toolCallId: "weatherApiTool", messages: [] },
+  ); // Different cache key
+
   console.log("Weather tool stats:", weatherApiTool.getStats());
 
   // User profile caching
   console.log("\n=== User Profile Caching ===");
-  await userProfileTool.execute({ userId: "user123" });
-  await userProfileTool.execute({ userId: "user123" }); // Cache hit
-  await userProfileTool.execute({ userId: "user123", includePreferences: true }); // Different cache key
-  
+  await userProfileTool.execute?.(
+    { userId: "user123", includePreferences: false },
+    { toolCallId: "userProfileTool", messages: [] },
+  );
+  await userProfileTool.execute?.(
+    { userId: "user123", includePreferences: false },
+    { toolCallId: "userProfileTool", messages: [] },
+  ); // Cache hit
+  await userProfileTool.execute?.(
+    { userId: "user123", includePreferences: true },
+    { toolCallId: "userProfileTool", messages: [] },
+  ); // Different cache key
+
   console.log("User profile tool stats:", userProfileTool.getStats());
 
   // Financial analysis caching
   console.log("\n=== Financial Analysis Caching ===");
-  await financialAnalysisTool.execute({ 
-    companyId: "company-abc", 
-    analysisType: "burnRate", 
-    timeframe: 12 
-  });
-  await financialAnalysisTool.execute({ 
-    companyId: "company-abc", 
-    analysisType: "burnRate", 
-    timeframe: 12 
-  }); // Cache hit - saves 3 seconds!
-  
-  console.log("Financial analysis tool stats:", financialAnalysisTool.getStats());
+  await financialAnalysisTool.execute?.(
+    { companyId: "company-abc", analysisType: "burnRate", timeframe: 12 },
+    { toolCallId: "financialAnalysisTool", messages: [] },
+  );
+  await financialAnalysisTool.execute?.(
+    { companyId: "company-abc", analysisType: "burnRate", timeframe: 12 },
+    { toolCallId: "financialAnalysisTool", messages: [] },
+  ); // Cache hit - saves 3 seconds!
+
+  console.log(
+    "Financial analysis tool stats:",
+    financialAnalysisTool.getStats(),
+  );
 
   // Translation caching
   console.log("\n=== Translation Caching ===");
-  await translationTool.execute({ 
-    text: "Hello, how are you?", 
-    targetLanguage: "es" 
-  });
-  await translationTool.execute({ 
-    text: "Hello, how are you?", 
-    targetLanguage: "es" 
-  }); // Cache hit
-  
+  await translationTool.execute?.(
+    {
+      text: "Hello, how are you?",
+      targetLanguage: "es",
+      sourceLanguage: "auto",
+    },
+    { toolCallId: "translationTool", messages: [] },
+  );
+  await translationTool.execute?.(
+    {
+      text: "Hello, how are you?",
+      targetLanguage: "es",
+      sourceLanguage: "auto",
+    },
+    { toolCallId: "translationTool", messages: [] },
+  ); // Cache hit
+
   console.log("Translation tool stats:", translationTool.getStats());
 
   // Document analysis with conditional caching
   console.log("\n=== Document Analysis Caching ===");
-  await documentAnalysisTool.execute({ 
-    documentId: "doc123", 
-    analysisDepth: "basic" 
-  }); // Won't be cached (basic analysis)
-  
-  await documentAnalysisTool.execute({ 
-    documentId: "doc123", 
-    analysisDepth: "detailed" 
-  }); // Will be cached
-  
-  await documentAnalysisTool.execute({ 
-    documentId: "doc123", 
-    analysisDepth: "detailed" 
-  }); // Cache hit
-  
+  await documentAnalysisTool.execute?.(
+    { documentId: "doc123", analysisDepth: "basic" },
+    { toolCallId: "documentAnalysisTool", messages: [] },
+  ); // Won't be cached (basic analysis)
+
+  await documentAnalysisTool.execute?.(
+    { documentId: "doc123", analysisDepth: "detailed" },
+    { toolCallId: "documentAnalysisTool", messages: [] },
+  ); // Will be cached
+
+  await documentAnalysisTool.execute?.(
+    { documentId: "doc123", analysisDepth: "detailed" },
+    { toolCallId: "documentAnalysisTool", messages: [] },
+  ); // Cache hit
+
   console.log("Document analysis tool stats:", documentAnalysisTool.getStats());
 
   console.log("\n✅ Real-world caching demo complete!");
@@ -334,32 +369,38 @@ export async function demonstratePerformanceGains() {
   // Create uncached version for comparison
   const uncachedAnalysisTool = tool({
     description: "Uncached financial analysis",
-    parameters: z.object({
+    inputSchema: z.object({
       companyId: z.string(),
       analysisType: z.enum(["burnRate"]),
+      timeframe: z.number().min(1).max(36),
     }),
     execute: async ({ companyId, analysisType }) => {
       console.log(`🐌 Running uncached analysis for ${companyId}`);
-      await new Promise(resolve => setTimeout(resolve, 2000)); // 2 second delay
+      await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 second delay
       return { companyId, analysisType, result: "analysis complete" };
     },
   });
 
-  const params = { companyId: "test-company", analysisType: "burnRate" as const };
+  const params = {
+    companyId: "test-company",
+    analysisType: "burnRate" as const,
+    timeframe: 12,
+  };
+  const executeOptions = { toolCallId: "analysisTools", messages: [] };
 
   // Test uncached performance
   console.log("Testing uncached tool (2 calls):");
   const uncachedStart = Date.now();
-  await uncachedAnalysisTool.execute(params);
-  await uncachedAnalysisTool.execute(params);
+  await uncachedAnalysisTool.execute?.(params, executeOptions);
+  await uncachedAnalysisTool.execute?.(params, executeOptions);
   const uncachedTime = Date.now() - uncachedStart;
   console.log(`Uncached total time: ${uncachedTime}ms\n`);
 
   // Test cached performance
   console.log("Testing cached tool (2 calls):");
   const cachedStart = Date.now();
-  await financialAnalysisTool.execute(params);
-  await financialAnalysisTool.execute(params); // This should be instant
+  await financialAnalysisTool.execute?.(params, executeOptions);
+  await financialAnalysisTool.execute?.(params, executeOptions); // This should be instant
   const cachedTime = Date.now() - cachedStart;
   console.log(`Cached total time: ${cachedTime}ms`);
 

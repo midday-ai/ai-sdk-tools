@@ -1,3 +1,4 @@
+import { DEFAULT_CACHE_KEY_SEPARATOR, DEFAULT_STORE_NAME } from "../constants";
 import type { CacheEntry, CacheStore } from "../types";
 
 /**
@@ -8,9 +9,14 @@ export class RedisCacheStore<T = any> implements CacheStore<T> {
   private redis: any;
   private keyPrefix: string;
 
-  constructor(redisClient: any, keyPrefix = "ai-tools-cache:") {
+  constructor(redisClient: any, storeName = DEFAULT_STORE_NAME) {
     this.redis = redisClient;
-    this.keyPrefix = keyPrefix;
+    // Append separator if storeName doesn't end with a common separator
+    const endsWithSeparator = /[:|\-_]$/.test(storeName);
+    this.keyPrefix =
+      storeName && !endsWithSeparator
+        ? `${storeName}${DEFAULT_CACHE_KEY_SEPARATOR}`
+        : storeName;
   }
 
   private getKey(key: string): string {
@@ -21,12 +27,12 @@ export class RedisCacheStore<T = any> implements CacheStore<T> {
     try {
       const data = await this.redis.get(this.getKey(key));
       if (!data) return undefined;
-      
+
       // Handle different Redis client return types
       let jsonString: string;
-      if (typeof data === 'string') {
+      if (typeof data === "string") {
         jsonString = data;
-      } else if (typeof data === 'object') {
+      } else if (typeof data === "object") {
         // Some Redis clients return objects directly
         return {
           result: data.result,
@@ -37,7 +43,7 @@ export class RedisCacheStore<T = any> implements CacheStore<T> {
         // Convert other types to string
         jsonString = String(data);
       }
-      
+
       const parsed = JSON.parse(jsonString);
       return {
         result: parsed.result,
@@ -57,21 +63,25 @@ export class RedisCacheStore<T = any> implements CacheStore<T> {
         timestamp: entry.timestamp,
         key: entry.key,
       });
-      
+
       await this.redis.set(this.getKey(key), data);
     } catch (error) {
       console.warn(`Redis cache set error for key ${key}:`, error);
     }
   }
 
-  async setWithTTL(key: string, entry: CacheEntry<T>, ttlSeconds: number): Promise<void> {
+  async setWithTTL(
+    key: string,
+    entry: CacheEntry<T>,
+    ttlSeconds: number,
+  ): Promise<void> {
     try {
       const data = JSON.stringify({
         result: entry.result,
         timestamp: entry.timestamp,
         key: entry.key,
       });
-      
+
       await this.redis.setex(this.getKey(key), ttlSeconds, data);
     } catch (error) {
       console.warn(`Redis cache setex error for key ${key}:`, error);

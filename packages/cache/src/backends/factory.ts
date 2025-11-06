@@ -1,5 +1,5 @@
-import type { CacheStore } from "../types";
 import { LRUCacheStore, SimpleCacheStore } from "../cache-store";
+import type { CacheStore } from "../types";
 import { MemoryCacheStore } from "./memory";
 import { RedisCacheStore } from "./redis";
 
@@ -12,45 +12,50 @@ export interface CacheBackendConfig {
   defaultTTL?: number;
   redis?: {
     client: any;
-    keyPrefix?: string;
+    storeName?: string;
   };
 }
 
 /**
  * Factory function to create cache backends
  */
-export function createCacheBackend<T = any>(config: CacheBackendConfig): CacheStore<T> {
+export function createCacheBackend<T = any>(
+  config: CacheBackendConfig,
+): CacheStore<T> {
   let store: CacheStore<T>;
-  
+
   switch (config.type) {
     case "memory":
       store = new MemoryCacheStore<T>(config.maxSize);
       break;
-    
+
     case "lru":
       store = new LRUCacheStore<T>(config.maxSize);
       break;
-    
+
     case "simple":
       store = new SimpleCacheStore<T>(config.maxSize);
       break;
-    
+
     case "redis":
       if (!config.redis?.client) {
         throw new Error("Redis client is required for redis cache backend");
       }
-      store = new RedisCacheStore<T>(config.redis.client, config.redis.keyPrefix);
+      store = new RedisCacheStore<T>(
+        config.redis.client,
+        config.redis.storeName,
+      );
       break;
-    
+
     default:
       throw new Error(`Unknown cache backend type: ${(config as any).type}`);
   }
-  
+
   // Add default TTL support if configured
   if (config.defaultTTL) {
     (store as any).getDefaultTTL = () => config.defaultTTL;
   }
-  
+
   return store;
 }
 
