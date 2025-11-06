@@ -175,6 +175,7 @@ For multi-tenant apps, isolate cache by user/team using `cacheKeyContext`:
 
 ```typescript
 import { cached } from '@ai-sdk-tools/cache';
+// Your app's context system (could be React context, global state, etc.)
 
 const burnRateAnalysisTool = tool({
   description: 'Analyze burn rate',
@@ -183,7 +184,9 @@ const burnRateAnalysisTool = tool({
     to: z.string(),
   }),
   execute: async ({ from, to }) => {
+    // Your app's way of getting current user/team context
     const currentUser = getCurrentUser();
+    
     return await db.getBurnRate({
       teamId: currentUser.teamId,
       from,
@@ -192,6 +195,7 @@ const burnRateAnalysisTool = tool({
   },
 });
 
+// Cache with context - that's it!
 export const cachedBurnRateTool = cached(burnRateAnalysisTool, {
   cacheKeyContext: () => {
     const currentUser = getCurrentUser();
