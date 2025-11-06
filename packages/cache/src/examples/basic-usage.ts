@@ -199,7 +199,7 @@ export async function demonstrateCache() {
 export async function demonstrateCacheManagement() {
   console.log("🔧 Cache Management Demo\n");
 
-  const tool = cached(weatherTool, { debug: true });
+  const tool = cached(expensiveWeatherTool, { debug: true });
 
   // Add some entries
   await tool.execute?.({ location: "Paris", units: 'celsius' }, {toolCallId: 'weatherTool', messages: []});
