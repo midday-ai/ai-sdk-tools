@@ -645,7 +645,12 @@ export function cacheTools<T extends Tool, TTools extends Record<string, T>>(
   tools: TTools,
   options: CacheOptions = {},
 ): { [K in keyof TTools]: CachedTool<TTools[K]> } {
-  return Object.fromEntries(Object.keys(tools).map((name) => ([[name as keyof TTools], cached(tools[name], options)])))
+  const entries =  Object.entries(tools).map(([name, tool]) => [
+    name as keyof TTools,
+    cached(tool, options),
+  ] as const)
+
+  return Object.fromEntries(entries) as { [K in keyof TTools]: CachedTool<TTools[K]> }
 }
 
 /**
