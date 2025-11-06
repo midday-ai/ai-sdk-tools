@@ -94,7 +94,7 @@ const calculatorTool = tool({
       // Simple expression evaluation (use a proper math parser in production)
       const result = Function(`"use strict"; return (${expression})`)();
       return { expression, result, success: true };
-    } catch (error) {
+    } catch (_error) {
       return { expression, error: "Invalid expression", success: false };
     }
   },
