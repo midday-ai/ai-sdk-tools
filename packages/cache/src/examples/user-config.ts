@@ -16,7 +16,7 @@ const redisClient = Redis.createClient({
   socket: {
     host: "localhost",
     port: 6379,
-  }
+  },
 });
 
 const redisBackend = createCacheBackend({

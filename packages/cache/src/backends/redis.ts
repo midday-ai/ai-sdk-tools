@@ -1,7 +1,4 @@
-import {
-	DEFAULT_CACHE_KEY_SEPARATOR,
-	DEFAULT_STORE_NAME,
-} from "../constants";
+import { DEFAULT_CACHE_KEY_SEPARATOR, DEFAULT_STORE_NAME } from "../constants";
 import type { CacheEntry, CacheStore } from "../types";
 
 /**
@@ -16,9 +13,10 @@ export class RedisCacheStore<T = any> implements CacheStore<T> {
     this.redis = redisClient;
     // Append separator if storeName doesn't end with a common separator
     const endsWithSeparator = /[:|\-_]$/.test(storeName);
-    this.keyPrefix = storeName && !endsWithSeparator
-      ? `${storeName}${DEFAULT_CACHE_KEY_SEPARATOR}`
-      : storeName;
+    this.keyPrefix =
+      storeName && !endsWithSeparator
+        ? `${storeName}${DEFAULT_CACHE_KEY_SEPARATOR}`
+        : storeName;
   }
 
   private getKey(key: string): string {

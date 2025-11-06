@@ -146,15 +146,24 @@ export async function demonstrateCache() {
   console.log("=== Weather Tool Demo ===");
 
   console.log("First call (should be slow):");
-  const weather1 = await weatherTool.execute?.({ location: "New York", units: 'fahrenheit' }, {toolCallId: 'weatherTool', messages: []});
+  const weather1 = await weatherTool.execute?.(
+    { location: "New York", units: "fahrenheit" },
+    { toolCallId: "weatherTool", messages: [] },
+  );
   console.log("Result:", weather1);
 
   console.log("\nSecond call with same params (should be fast):");
-  const weather2 = await weatherTool.execute?.({ location: "New York", units: 'fahrenheit' }, {toolCallId: 'weatherTool', messages: []});
+  const weather2 = await weatherTool.execute?.(
+    { location: "New York", units: "fahrenheit" },
+    { toolCallId: "weatherTool", messages: [] },
+  );
   console.log("Result:", weather2);
 
   console.log("\nThird call with different params (should be slow):");
-  const weather3 = await weatherTool.execute?.({ location: "London", units: 'celsius' },  {toolCallId: 'weatherTool', messages: []});
+  const weather3 = await weatherTool.execute?.(
+    { location: "London", units: "celsius" },
+    { toolCallId: "weatherTool", messages: [] },
+  );
   console.log("Result:", weather3);
 
   // Show cache stats
@@ -163,17 +172,23 @@ export async function demonstrateCache() {
   // Test burn rate tool
   console.log("\n=== Burn Rate Analysis Demo ===");
 
-  const analysis1 = await cachedBurnRateTool.execute?.({
-    companyId: "company-123",
-    months: 12,
-  },  {toolCallId: 'cachedBurnRateTool', messages: []});
+  const analysis1 = await cachedBurnRateTool.execute?.(
+    {
+      companyId: "company-123",
+      months: 12,
+    },
+    { toolCallId: "cachedBurnRateTool", messages: [] },
+  );
   console.log("Analysis result:", analysis1);
 
   // Same params - should hit cache
-  const analysis2 = await cachedBurnRateTool.execute?.({
-    companyId: "company-123",
-    months: 12,
-  }, {toolCallId: 'cachedBurnRateTool', messages: []});
+  const analysis2 = await cachedBurnRateTool.execute?.(
+    {
+      companyId: "company-123",
+      months: 12,
+    },
+    { toolCallId: "cachedBurnRateTool", messages: [] },
+  );
   console.log("Cached analysis:", analysis2);
 
   console.log("\nBurn rate tool cache stats:", cachedBurnRateTool.getStats());
@@ -181,11 +196,23 @@ export async function demonstrateCache() {
   // Test multiple tools
   console.log("\n=== Multiple Tools Demo ===");
 
-  await calculator.execute?.({ expression: "15 * 8" }, {toolCallId: 'calculator', messages: []});
-  await calculator.execute?.({ expression: "15 * 8" }, {toolCallId: 'calculator', messages: []}); // Should hit cache
+  await calculator.execute?.(
+    { expression: "15 * 8" },
+    { toolCallId: "calculator", messages: [] },
+  );
+  await calculator.execute?.(
+    { expression: "15 * 8" },
+    { toolCallId: "calculator", messages: [] },
+  ); // Should hit cache
 
-  await database.execute?.({ query: "SELECT * FROM users", table: "users" }, {toolCallId: 'database', messages: []});
-  await database.execute?.({ query: "SELECT * FROM users", table: "users" }, {toolCallId: 'database', messages: []}); // Should hit cache
+  await database.execute?.(
+    { query: "SELECT * FROM users", table: "users" },
+    { toolCallId: "database", messages: [] },
+  );
+  await database.execute?.(
+    { query: "SELECT * FROM users", table: "users" },
+    { toolCallId: "database", messages: [] },
+  ); // Should hit cache
 
   console.log("\nCalculator cache stats:", calculator.getStats());
   console.log("Database cache stats:", database.getStats());
@@ -202,9 +229,18 @@ export async function demonstrateCacheManagement() {
   const tool = cached(expensiveWeatherTool, { debug: true });
 
   // Add some entries
-  await tool.execute?.({ location: "Paris", units: 'celsius' }, {toolCallId: 'weatherTool', messages: []});
-  await tool.execute?.({ location: "Tokyo", units: 'celsius' }, {toolCallId: 'weatherTool', messages: []});
-  await tool.execute?.({ location: "Sydney", units: 'celsius' }, {toolCallId: 'weatherTool', messages: []});
+  await tool.execute?.(
+    { location: "Paris", units: "celsius" },
+    { toolCallId: "weatherTool", messages: [] },
+  );
+  await tool.execute?.(
+    { location: "Tokyo", units: "celsius" },
+    { toolCallId: "weatherTool", messages: [] },
+  );
+  await tool.execute?.(
+    { location: "Sydney", units: "celsius" },
+    { toolCallId: "weatherTool", messages: [] },
+  );
 
   console.log("Cache stats after adding entries:", tool.getStats());
 
