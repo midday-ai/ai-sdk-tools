@@ -51,7 +51,7 @@ import type {
   OutputGuardrail,
   ToolPermissions,
 } from "./types.js";
-import { extractTextFromMessage } from "./utils.js";
+import { extractTextFromMessage, stripMetadata } from "./utils.js";
 
 const logger = createLogger("AGENT");
 
@@ -1522,8 +1522,9 @@ Good suggestions are:
         return convertToModelMessages([message]);
       }
 
-      // Convert stored messages
-      const historyMessages = convertToModelMessages(previousMessages);
+      const historyMessages = convertToModelMessages(
+        stripMetadata(previousMessages),
+      );
 
       logger.debug(
         `Loaded ${historyMessages.length} history messages for context`,
