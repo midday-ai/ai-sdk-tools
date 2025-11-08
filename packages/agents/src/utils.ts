@@ -1,4 +1,4 @@
-import type { ModelMessage } from "ai";
+import { isToolUIPart, type ModelMessage, type UIMessage } from "ai";
 
 /**
  * Extract text content from a ModelMessage.
@@ -35,4 +35,30 @@ export function extractTextFromMessage(
   }
 
   return "";
+}
+
+/**
+ * Strip metadata from UI messages to prevent duplicate ID errors.
+ * Provider metadata (like OpenAI item IDs) should not be reused across API calls.
+ */
+export function stripMetadata(messages: UIMessage[]): UIMessage[] {
+  return messages.map((msg) => ({
+    ...msg,
+    parts: msg.parts?.map((part) => {
+      const sanitizedPart: typeof part = { ...part };
+
+      if ("providerMetadata" in sanitizedPart) {
+        sanitizedPart.providerMetadata = undefined;
+      }
+
+      if (
+        isToolUIPart(sanitizedPart) &&
+        "callProviderMetadata" in sanitizedPart
+      ) {
+        sanitizedPart.callProviderMetadata = undefined;
+      }
+
+      return sanitizedPart;
+    }),
+  }));
 }
