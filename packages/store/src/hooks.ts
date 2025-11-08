@@ -83,13 +83,28 @@ function startFreezeDetector({
       );
     }
     __freezeLastTs = now;
-    __freezeRafId = window.requestAnimationFrame(tick);
+    if (
+      typeof window !== "undefined" &&
+      typeof window.requestAnimationFrame === "function"
+    ) {
+      __freezeRafId = window.requestAnimationFrame(tick);
+    }
   };
 
-  __freezeRafId = window.requestAnimationFrame(tick);
-  window.addEventListener("beforeunload", () => {
-    if (__freezeRafId) cancelAnimationFrame(__freezeRafId);
-  });
+  if (
+    typeof window !== "undefined" &&
+    typeof window.requestAnimationFrame === "function"
+  ) {
+    __freezeRafId = window.requestAnimationFrame(tick);
+  }
+
+  if (typeof window !== "undefined" && typeof window.addEventListener === "function") {
+    window.addEventListener("beforeunload", () => {
+      if (__freezeRafId && typeof cancelAnimationFrame === "function") {
+        cancelAnimationFrame(__freezeRafId);
+      }
+    });
+  }
 }
 
 if (typeof window !== "undefined") {

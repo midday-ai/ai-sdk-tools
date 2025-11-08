@@ -132,11 +132,14 @@ export function useChat<TMessage extends UIMessage = UIMessage>(
 
     if (enableBatching) {
       // Use requestAnimationFrame for batching if available
-      if (window?.requestAnimationFrame) {
-        window.requestAnimationFrame(() => syncState(chatState));
-      } else {
-        syncState(chatState);
-      }
+    if (
+      typeof window !== "undefined" &&
+      typeof window.requestAnimationFrame === "function"
+    ) {
+      window.requestAnimationFrame(() => syncState(chatState));
+    } else {
+      syncState(chatState);
+    }
     } else {
       syncState(chatState);
     }
