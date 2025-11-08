@@ -50,11 +50,6 @@ export function useChatStatus(
       return textPart.text?.trim();
     });
 
-    const _textLength = textParts.reduce((acc, part) => {
-      const textPart = part as { text?: string };
-      return acc + (textPart.text?.length || 0);
-    }, 0);
-
     // Find active tool calls - check ALL tool-related parts
     const allParts = lastMessage.parts;
 

@@ -1,6 +1,6 @@
 {
   "name": "@ai-sdk-tools/cache",
-  "version": "1.0.0",
+  "version": "1.0.8",
   "description": "Simple caching wrapper for AI SDK tools - cache expensive tool executions with zero configuration",
   "keywords": [
     "ai",
@@ -54,12 +54,12 @@
     }
   },
   "devDependencies": {
-    "@types/node": "^24.9.1",
+    "@types/node": "^24.10.0",
     "tsup": "^8.5.0",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.4",
+    "vitest": "^4.0.7",
     "zod": "^4.1.12",
-    "ai": "^5.0.82",
+    "ai": "^5.0.87",
     "@ai-sdk-tools/artifacts": "workspace:*"
   },
   "publishConfig": {

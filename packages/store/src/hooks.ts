@@ -652,7 +652,7 @@ type CompatibleChatStoreApi<TMessage extends UIMessage = UIMessage> = Omit<
 
 export function Provider<TMessage extends UIMessage = UIMessage>({
   children,
-  initialMessages = [],
+  initialMessages,
   store,
 }: {
   children: React.ReactNode;
@@ -662,7 +662,8 @@ export function Provider<TMessage extends UIMessage = UIMessage>({
   const storeRef = useRef<CompatibleChatStoreApi<TMessage> | null>(null);
 
   if (storeRef.current === null) {
-    storeRef.current = store || createChatStore<TMessage>(initialMessages);
+    storeRef.current =
+      store || createChatStore<TMessage>(initialMessages || []);
   }
 
   return React.createElement(

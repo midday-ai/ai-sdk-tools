@@ -32,7 +32,7 @@
     "type-check:beta": "bun run -r --filter='@ai-sdk-tools/store' --filter='@ai-sdk-tools/devtools' --filter='@ai-sdk-tools/artifacts' --filter='@ai-sdk-tools/agents' type-check"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.3.1",
+    "@biomejs/biome": "^2.3.3",
     "@changesets/cli": "^2.29.7"
   },
   "dependencies": {

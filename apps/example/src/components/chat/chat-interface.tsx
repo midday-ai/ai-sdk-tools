@@ -12,6 +12,7 @@ import {
 import { ArtifactCanvas } from "@/components/canvas";
 import {
   ChatHeader,
+  ChatHistory,
   ChatInput,
   type ChatInputMessage,
   ChatMessages,
@@ -30,6 +31,7 @@ export function ChatInterface() {
 
   const [text, setText] = useState<string>("");
   const [useWebSearch, setUseWebSearch] = useState<boolean>(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState<boolean>(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { messages, sendMessage, status, stop } = useChat({
@@ -110,7 +112,26 @@ export function ChatInterface() {
 
   return (
     <div className="relative flex size-full overflow-hidden min-h-screen">
-      {isHome && <Header />}
+      {isHome && (
+        <Header onToggleHistory={() => setIsHistoryOpen(!isHistoryOpen)} />
+      )}
+
+      {/* Chat History Sidebar */}
+      {isHistoryOpen && (
+        <>
+          {/* Overlay - closes sidebar when clicking outside */}
+          <button
+            type="button"
+            className="fixed inset-0 bg-black/50 z-30"
+            onClick={() => setIsHistoryOpen(false)}
+            aria-label="Close chat history"
+          />
+          {/* Sidebar */}
+          <div className="fixed left-0 top-0 bottom-0 z-40 w-64 bg-background border-r border-border">
+            <ChatHistory />
+          </div>
+        </>
+      )}
 
       {/* Canvas slides in from right when artifacts are present */}
       <div
@@ -127,8 +148,7 @@ export function ChatInterface() {
       {/* Main chat area - container that slides left when canvas opens */}
       <div
         className={cn(
-          "relative flex-1",
-          hasMessages && "transition-all duration-300 ease-in-out",
+          "relative flex-1 transition-all duration-300 ease-in-out",
           hasArtifacts && "mr-[600px]",
           !hasMessages && "flex items-center justify-center",
         )}
@@ -139,8 +159,7 @@ export function ChatInterface() {
             <div className="absolute inset-0 flex flex-col">
               <div
                 className={cn(
-                  "fixed top-0 left-0 z-10 shrink-0",
-                  hasMessages && "transition-all duration-300 ease-in-out",
+                  "fixed left-0 z-50 shrink-0 transition-all duration-300 ease-in-out",
                   hasArtifacts ? "right-[600px]" : "right-0",
                 )}
               >
@@ -173,8 +192,7 @@ export function ChatInterface() {
             {/* Fixed input at bottom - respects parent container boundaries */}
             <div
               className={cn(
-                "fixed bottom-0 left-0",
-                hasMessages && "transition-all duration-300 ease-in-out",
+                "fixed bottom-0 left-0 z-50 transition-all duration-300 ease-in-out",
                 hasArtifacts ? "right-[600px]" : "right-0",
               )}
             >
