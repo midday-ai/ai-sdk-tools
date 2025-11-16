@@ -7,13 +7,14 @@
     "apps/*"
   ],
   "scripts": {
-    "build": "bun run build:debug && bun run build:store && bun run build:artifacts && bun run build:devtools && bun run build:memory && bun run build:agents && bun run build:cache && bun run build:ai-sdk-tools",
+    "build": "bun run build:debug && bun run build:store && bun run build:artifacts && bun run build:devtools && bun run build:memory && bun run build:agents && bun run build:cache && bun run build:ocr && bun run build:ai-sdk-tools",
     "build:store": "cd packages/store && bun run build",
     "build:artifacts": "cd packages/artifacts && bun run build",
     "build:devtools": "cd packages/devtools && bun run build",
     "build:memory": "cd packages/memory && bun run build",
     "build:agents": "cd packages/agents && bun run build",
     "build:cache": "cd packages/cache && bun run build",
+    "build:ocr": "cd packages/ocr && bun run build",
     "build:ai-sdk-tools": "cd packages/ai-sdk-tools && bun run build",
     "build:debug": "cd packages/debug && bun run build",
     "build:example": "bun run build && cd apps/example && bun run build",
