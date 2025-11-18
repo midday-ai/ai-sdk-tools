@@ -1,7 +1,25 @@
 import type { Tool } from "ai";
 import { createCacheBackend } from "./backends/factory";
 import { LRUCacheStore } from "./cache-store";
-import type { CachedTool, CacheOptions, CacheStats, CacheStore } from "./types";
+import type { CachedTool, CacheOptions, CacheStats, CacheStore, CacheEntry } from "./types";
+
+/**
+ * Helper function to set cache entry with TTL support
+ * Uses setWithTTL if available (Redis), otherwise falls back to regular set
+ */
+async function setCacheEntryWithTTL<T>(
+  store: CacheStore<T>,
+  key: string,
+  entry: CacheEntry<T>,
+  ttlMs: number,
+): Promise<void> {
+  if (store.setWithTTL && ttlMs > 0) {
+    const ttlSeconds = Math.floor(ttlMs / 1000);
+    await store.setWithTTL(key, entry, ttlSeconds);
+  } else {
+    await store.set(key, entry);
+  }
+}
 
 /**
  * Default cache key generator - stable and deterministic
@@ -237,11 +255,11 @@ function createStreamingCachedTool<T extends Tool>(
             };
 
             if (shouldCache(params, completeResult)) {
-              await cacheStore.set(key, {
+              await setCacheEntryWithTTL(cacheStore, key, {
                 result: completeResult,
                 timestamp: now,
                 key,
-              });
+              }, ttl);
               if (debug) {
                 const cacheItems =
                   typeof cacheStore.size === "function"
@@ -491,11 +509,11 @@ export function cached<T extends Tool>(
                   };
 
                   if (shouldCache(params, completeResult)) {
-                    await cacheStore.set(key, {
+                    await setCacheEntryWithTTL(cacheStore, key, {
                       result: completeResult,
                       timestamp: now,
                       key,
-                    });
+                    }, effectiveTTL);
                     log(
                       `[Cache] STORED streaming result with ${capturedMessages.length} messages`,
                     );
@@ -508,11 +526,11 @@ export function cached<T extends Tool>(
 
             // Regular tool
             if (shouldCache(params, result)) {
-              await cacheStore.set(key, {
+              await setCacheEntryWithTTL(cacheStore, key, {
                 result,
                 timestamp: now,
                 key,
-              });
+              }, effectiveTTL);
               log(`[Cache] STORED result`);
             }
 
@@ -543,11 +561,11 @@ export function cached<T extends Tool>(
             const result = await target.execute?.(params, executionOptions);
 
             if (shouldCache(params, result)) {
-              await cacheStore.set(key, {
+              await setCacheEntryWithTTL(cacheStore, key, {
                 result,
                 timestamp: now,
                 key,
-              });
+              }, effectiveTTL);
               log(`[Cache] STORED result`);
             }
 
@@ -636,6 +654,7 @@ export function createCached(
     });
 
     return createCachedFunction(lruStore, {
+      ttl: options.ttl,
       debug: options.debug || false,
       cacheKey: options.cacheKey,
       onHit: options.onHit,
@@ -654,6 +673,7 @@ export function createCached(
   });
 
   return createCachedFunction(redisStore, {
+    ttl: options.ttl,
     debug: options.debug || false,
     cacheKey: options.cacheKey,
     onHit: options.onHit,

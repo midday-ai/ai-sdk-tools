@@ -94,6 +94,9 @@ export interface CacheStore<T = any> {
   /** Set cache entry */
   set(key: string, entry: CacheEntry<T>): void | Promise<void>;
   
+  /** Set cache entry with TTL (time-to-live) in seconds */
+  setWithTTL?(key: string, entry: CacheEntry<T>, ttlSeconds: number): void | Promise<void>;
+  
   /** Delete cache entry */
   delete(key: string): boolean | Promise<boolean>;
   
