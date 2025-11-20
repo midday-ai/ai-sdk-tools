@@ -1,4 +1,4 @@
-import { and, desc, eq, like, or } from "drizzle-orm";
+import { and, desc, eq, like, or, sql } from "drizzle-orm";
 import type {
   ChatSession,
   ConversationMessage,
@@ -62,7 +62,7 @@ export interface ChatsTable {
 export interface DrizzleProviderConfig<
   TWM extends WorkingMemoryTable,
   TMsg extends ConversationMessagesTable,
-  TChat extends ChatsTable = ChatsTable,
+  TChat extends ChatsTable = ChatsTable
 > {
   /** Working memory table */
   workingMemoryTable: TWM;
@@ -90,13 +90,13 @@ export interface DrizzleProviderConfig<
 export class DrizzleProvider<
   TWM extends WorkingMemoryTable,
   TMsg extends ConversationMessagesTable,
-  TChat extends ChatsTable = ChatsTable,
+  TChat extends ChatsTable = ChatsTable
 > implements MemoryProvider
 {
   constructor(
     // Accepts any Drizzle database instance (postgres, mysql, sqlite adapters all have different types)
     private db: any,
-    private config: DrizzleProviderConfig<TWM, TMsg, TChat>,
+    private config: DrizzleProviderConfig<TWM, TMsg, TChat>
   ) {}
 
   async getWorkingMemory(params: {
@@ -192,8 +192,8 @@ export class DrizzleProvider<
       whereConditions.push(
         or(
           eq(messagesTable.userId, params.userId),
-          eq(messagesTable.userId, null),
-        )!,
+          eq(messagesTable.userId, null)
+        )!
       );
     }
 
@@ -206,7 +206,12 @@ export class DrizzleProvider<
       .select()
       .from(messagesTable)
       .where(whereCondition)
-      .orderBy(desc(messagesTable.timestamp))
+      .orderBy(
+        desc(messagesTable.timestamp),
+        desc(
+          sql`CASE WHEN ${messagesTable.role} = 'assistant' THEN 1 ELSE 0 END`
+        )
+      )
       .limit(params.limit || 100);
 
     return (
@@ -320,7 +325,7 @@ export class DrizzleProvider<
     if (params.search) {
       const searchLower = params.search.toLowerCase();
       chats = chats.filter((chat: ChatSession) =>
-        chat.title?.toLowerCase().includes(searchLower),
+        chat.title?.toLowerCase().includes(searchLower)
       );
     }
 
