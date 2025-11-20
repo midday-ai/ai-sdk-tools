@@ -624,17 +624,46 @@ export const ChatStoreContext = createContext<ChatStoreApi<any> | undefined>(
   undefined,
 );
 
+type CompatibleChatStoreApi<TMessage extends UIMessage = UIMessage> = Omit<
+  ChatStoreApi<TMessage>,
+  "setState"
+> & {
+  setState(
+    partial:
+      | StoreState<TMessage>
+      | Partial<StoreState<TMessage>>
+      | ((
+          state: StoreState<TMessage>,
+        ) => StoreState<TMessage> | Partial<StoreState<TMessage>>),
+    replace?: boolean,
+    action?:
+      | (
+          | string
+          | {
+              [x: string]: unknown;
+              [x: number]: unknown;
+              [x: symbol]: unknown;
+              type: string;
+            }
+        )
+      | undefined,
+  ): void;
+};
+
 export function Provider<TMessage extends UIMessage = UIMessage>({
   children,
   initialMessages,
+  store,
 }: {
   children: React.ReactNode;
   initialMessages?: TMessage[];
+  store?: CompatibleChatStoreApi<TMessage>;
 }) {
-  const storeRef = useRef<ChatStoreApi<TMessage> | null>(null);
+  const storeRef = useRef<CompatibleChatStoreApi<TMessage> | null>(null);
 
   if (storeRef.current === null) {
-    storeRef.current = createChatStore<TMessage>(initialMessages ?? []);
+    storeRef.current =
+      store || createChatStore<TMessage>(initialMessages || []);
   }
 
   return React.createElement(

@@ -6,6 +6,7 @@ export {
   type ChatActions,
   ChatStoreContext,
   createChatStoreCreator,
+  createChatStore,
   Provider,
   type StoreState,
   useChatActions,
