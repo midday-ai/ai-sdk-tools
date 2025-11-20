@@ -1,5 +1,11 @@
 # @ai-sdk-tools/debug
 
+## 2.0.0
+
+### Minor Changes
+
+- Release version 1.1.0
+
 ## 1.0.8
 
 ## 1.0.7

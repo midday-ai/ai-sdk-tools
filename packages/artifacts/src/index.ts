@@ -9,6 +9,7 @@ export type {
   ArtifactConfig,
   ArtifactData,
   ArtifactStatus,
+  UseArtifactActions,
   UseArtifactReturn,
   UseArtifactsOptions,
   UseArtifactsReturn,

@@ -48,6 +48,10 @@ export interface ArtifactCallbacks<T = unknown> {
   onStatusChange?: (status: ArtifactStatus, prevStatus: ArtifactStatus) => void;
 }
 
+export interface UseArtifactOptions<T = unknown> extends ArtifactCallbacks<T> {
+  version?: number;
+}
+
 export interface UseArtifactReturn<T = unknown> {
   data: T | null;
   status: ArtifactStatus;
@@ -55,6 +59,12 @@ export interface UseArtifactReturn<T = unknown> {
   error?: string;
   isActive: boolean;
   hasData: boolean;
+  versions: ArtifactData<T>[];
+  currentIndex?: number;
+}
+
+export interface UseArtifactActions {
+  delete: (artifactId: string) => void;
 }
 
 export interface UseArtifactsOptions {

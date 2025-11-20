@@ -28,6 +28,7 @@ interface IORedisClient {
     ...args: Array<{ score: number; member: string }>
   ): Promise<number>;
   zrange(key: string, start: number, stop: number): Promise<string[]>;
+  zrevrange(key: string, start: number, stop: number): Promise<string[]>;
   keys(pattern: string): Promise<string[]>;
   del(key: string): Promise<number>;
   zrem(key: string, member: string): Promise<number>;
@@ -50,6 +51,7 @@ interface RedisPackageClient {
     ...args: Array<{ score: number; value: string }>
   ): Promise<number>;
   zRange(key: string, start: number, stop: number): Promise<string[]>;
+  zRevRange(key: string, start: number, stop: number): Promise<string[]>;
   keys(pattern: string): Promise<string[]>;
   del(key: string): Promise<number>;
   zRem(key: string, member: string): Promise<number>;
@@ -224,6 +226,34 @@ export class RedisProvider implements MemoryProvider {
     }
     if (this.ioredis) {
       return this.ioredis.zrange(key, start, stop);
+    }
+    throw new Error("Redis client not properly initialized");
+  }
+
+  private async zrevrange(
+    key: string,
+    start: number,
+    stop: number,
+  ): Promise<string[]> {
+    if (this.ioredis) {
+      // ioredis has zrevrange method
+      return this.ioredis.zrevrange(key, start, stop);
+    }
+    if (this.isRedisPackage && this.redisPkg) {
+      // For redis package, use negative indices with zRange to get items from the end
+      // zRange returns items in ascending order, so we get from the end and reverse
+      if (stop === -1) {
+        // Get all items and reverse to get most recent first
+        const result = await this.redisPkg.zRange(key, 0, -1);
+        return result.reverse();
+      }
+      // Calculate how many items we need from the end
+      const count = stop - start + 1;
+      // Get last N items using negative indices (from end of sorted set)
+      // Negative indices: -1 is the last item, -count is the count-th item from the end
+      const result = await this.redisPkg.zRange(key, -count, -1);
+      // Reverse to get most recent first (highest score = most recent)
+      return result.reverse();
     }
     throw new Error("Redis client not properly initialized");
   }
@@ -474,7 +504,8 @@ export class RedisProvider implements MemoryProvider {
       // If search is needed, we may need to fetch more to find enough matches
       const fetchLimit = params.search ? undefined : params.limit;
       const endIndex = fetchLimit ? fetchLimit - 1 : -1;
-      const chatIds = await this.zrange(userChatsKey, 0, endIndex);
+      // Use zrevrange to get most recent chats first (highest score = most recent)
+      const chatIds = await this.zrevrange(userChatsKey, 0, endIndex);
 
       if (chatIds.length === 0) return [];
 
@@ -500,9 +531,6 @@ export class RedisProvider implements MemoryProvider {
       chats = userChats.filter(
         (chat: ChatSession | null): chat is ChatSession => chat !== null,
       );
-
-      // Reverse to get most recent first (sorted sets store by score = updatedAt)
-      chats.reverse();
     } else {
       // Use global sorted set for efficient sorting and limiting
       const globalChatsKey = `${this.prefix}chats:global`;
@@ -515,12 +543,10 @@ export class RedisProvider implements MemoryProvider {
             ? undefined // No limit, fetch all for search
             : params.limit; // No search, use exact limit
       const endIndex = fetchLimit ? fetchLimit - 1 : -1;
-      const chatIds = await this.zrange(globalChatsKey, 0, endIndex);
+      // Use zrevrange to get most recent chats first (highest score = most recent)
+      const chatIds = await this.zrevrange(globalChatsKey, 0, endIndex);
 
       if (chatIds.length === 0) return [];
-
-      // Reverse to get most recent first (sorted sets store by score = updatedAt)
-      chatIds.reverse();
 
       // Fetch all chats in parallel
       const allChats = await Promise.all(

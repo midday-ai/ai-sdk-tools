@@ -1,5 +1,16 @@
 # @ai-sdk-tools/devtools
 
+## 2.0.0
+
+### Minor Changes
+
+- Release version 1.1.0
+
+### Patch Changes
+
+- Updated dependencies
+  - @ai-sdk-tools/store@2.0.0
+
 ## 1.0.8
 
 ### Patch Changes

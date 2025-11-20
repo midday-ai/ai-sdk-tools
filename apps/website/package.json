@@ -14,14 +14,14 @@
     "@ai-sdk-tools/artifacts": "workspace:*",
     "@ai-sdk-tools/devtools": "workspace:*",
     "@ai-sdk-tools/store": "workspace:*",
-    "@ai-sdk/openai": "^2.0.56",
-    "@openpanel/nextjs": "^1.0.8",
-    "ai": "^5.0.82",
+    "@ai-sdk/openai": "^2.0.69",
+    "@openpanel/nextjs": "^1.0.16",
+    "ai": "^5.0.97",
     "geist": "^1.5.1",
-    "next": "16.0.0",
+    "next": "16.0.3",
     "react": "19.2.0",
     "react-dom": "19.2.0",
-    "sugar-high": "^0.9.4",
+    "sugar-high": "^0.9.5",
     "zod": "^4.1.12"
   },
   "devDependencies": {
@@ -31,6 +31,6 @@
     "@types/react-dom": "^19",
     "@tailwindcss/postcss": "^4",
     "tailwindcss": "^4",
-    "@biomejs/biome": "2.3.1"
+    "@biomejs/biome": "2.3.6"
   }
 }

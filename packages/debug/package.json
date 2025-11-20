@@ -1,6 +1,6 @@
 {
   "name": "@ai-sdk-tools/debug",
-  "version": "1.0.8",
+  "version": "1.1.0",
   "description": "Shared debug utilities for AI SDK Tools",
   "license": "MIT",
   "type": "module",
@@ -18,8 +18,8 @@
     "dist"
   ],
   "devDependencies": {
-    "@types/node": "^24.10.0",
-    "tsup": "^8.5.0",
+    "@types/node": "^24.10.1",
+    "tsup": "^8.5.1",
     "typescript": "^5.9.3"
   },
   "scripts": {

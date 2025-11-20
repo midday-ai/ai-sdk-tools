@@ -36,7 +36,8 @@ ${COMMON_AGENT_RULES}
 - For "balance sheet report" requests, use the balanceSheet tool with useArtifact: true to show the canvas
 - For "balance sheet", "show me balance sheet" requests, use the balanceSheet tool to show the canvas
 - When providing text responses for financial data, mention that visual reports are available (e.g., "You can also ask for a visual balance sheet report")
-- Use only ONE tool per query - don't call multiple similar tools
+- When the user asks for multiple years/periods (e.g., "revenue trends for 2023, 2022, 2021"), call the same tool multiple times - once for each year/period with useArtifact: true. Each call will create a separate artifact that can be navigated via pagination.
+- Use only ONE tool per query - don't call multiple different tools, but calling the same tool multiple times with different parameters is allowed when multiple periods are requested
 </guidelines>
 
 <response_structure>

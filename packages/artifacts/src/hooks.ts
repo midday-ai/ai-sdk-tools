@@ -1,11 +1,12 @@
 import type { UIMessage } from "@ai-sdk/react";
-import { useChatMessages } from "@ai-sdk-tools/store";
-import { useEffect, useState, useMemo } from "react";
+import { useChatActions, useChatMessages } from "@ai-sdk-tools/store";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { z } from "zod";
 import type {
-  ArtifactCallbacks,
   ArtifactData,
   ArtifactStatus,
+  UseArtifactActions,
+  UseArtifactOptions,
   UseArtifactReturn,
 } from "./types";
 
@@ -20,87 +21,307 @@ interface ArtifactPart<T = unknown> {
   data?: ArtifactData<T>;
 }
 
+/**
+ * Remove artifact part from a message by artifact ID
+ */
+function removeArtifactFromMessage(
+  message: UIMessage,
+  artifactId: string,
+): UIMessage | null {
+  if (!message.parts || !Array.isArray(message.parts)) {
+    return message;
+  }
+
+  const updatedParts = message.parts.filter((part) => {
+    // Check if this part is an artifact part
+    if (part.type.startsWith("data-artifact-") && "data" in part) {
+      const artifactPart = part as { type: string; data?: { id?: string } };
+      if (artifactPart.data?.id === artifactId) {
+        return false; // Remove this part
+      }
+    }
+
+    // Check tool call results that might contain artifacts
+    if (part.type.startsWith("tool-") && "result" in part && part.result) {
+      const result = part.result;
+      if (typeof result === "object" && result && "parts" in result) {
+        const parts = (result as { parts?: unknown[] }).parts;
+        if (Array.isArray(parts)) {
+          const filteredParts = parts.filter((nestedPart: unknown) => {
+            const part = nestedPart as {
+              type?: string;
+              data?: { id?: string };
+            };
+            if (
+              part.type?.startsWith("data-artifact-") &&
+              part.data?.id === artifactId
+            ) {
+              return false; // Remove this nested part
+            }
+            return true;
+          });
+
+          // If we removed parts, update the result
+          if (filteredParts.length !== parts.length) {
+            const toolPart = part as {
+              type: string;
+              result?: unknown;
+            };
+            toolPart.result = {
+              ...(result as Record<string, unknown>),
+              parts: filteredParts,
+            };
+          }
+        }
+      }
+    }
+
+    return true;
+  });
+
+  // If no parts remain, return null to indicate message should be removed
+  if (updatedParts.length === 0) {
+    return null;
+  }
+
+  return {
+    ...message,
+    parts: updatedParts,
+  };
+}
+
 export function useArtifact<
   T extends { id: string; schema: z.ZodSchema<unknown> },
 >(
   artifactDef: T,
-  callbacks?: ArtifactCallbacks<InferArtifactType<T>>,
-): UseArtifactReturn<InferArtifactType<T>> {
+  options?: UseArtifactOptions<InferArtifactType<T>>,
+): [UseArtifactReturn<InferArtifactType<T>>, UseArtifactActions] {
   // Get messages from the chat store
   const messages = useChatMessages();
+  const { replaceMessageById } = useChatActions();
+  const { version: versionIndex } = options || {};
+  const includeVersions = versionIndex !== undefined;
+
+  // Store callbacks in ref to avoid dependency issues
+  const callbacksRef = useRef(options);
+  useEffect(() => {
+    callbacksRef.current = options;
+  }, [options]);
 
   const [currentArtifact, setCurrentArtifact] = useState<ArtifactData<
     InferArtifactType<T>
   > | null>(null);
 
-  useEffect(() => {
-    const artifacts = extractArtifactsFromMessages<InferArtifactType<T>>(
-      messages,
-      artifactDef.id,
-    );
-    const latest = artifacts[0] || null;
+  // Get all artifacts (needed for both version selection and latest tracking)
+  const allArtifacts = useMemo(
+    () =>
+      extractArtifactsFromMessages<InferArtifactType<T>>(
+        messages,
+        artifactDef.id,
+      ),
+    [messages, artifactDef.id],
+  );
+  const latest = allArtifacts[0] || null;
 
+  useEffect(() => {
     if (
       latest &&
-      (!currentArtifact || 
-       latest.version > currentArtifact.version ||
-       (latest.version === currentArtifact.version && latest.createdAt > currentArtifact.createdAt))
+      (!currentArtifact ||
+        latest.version > currentArtifact.version ||
+        (latest.version === currentArtifact.version &&
+          latest.createdAt > currentArtifact.createdAt))
     ) {
       const prevData = currentArtifact?.payload || null;
+      const currentCallbacks = callbacksRef.current;
 
-      // Fire callbacks
-      if (callbacks?.onUpdate && latest.payload !== prevData) {
-        callbacks.onUpdate(latest.payload, prevData);
-      }
+      // Fire callbacks only for latest artifact (when not using version selection)
+      if (!includeVersions) {
+        if (
+          currentCallbacks &&
+          "onUpdate" in currentCallbacks &&
+          currentCallbacks.onUpdate &&
+          latest.payload !== prevData
+        ) {
+          currentCallbacks.onUpdate(latest.payload, prevData);
+        }
 
-      if (
-        callbacks?.onComplete &&
-        latest.status === "complete" &&
-        currentArtifact?.status !== "complete"
-      ) {
-        callbacks.onComplete(latest.payload);
-      }
+        if (
+          currentCallbacks &&
+          "onComplete" in currentCallbacks &&
+          currentCallbacks.onComplete &&
+          latest.status === "complete" &&
+          currentArtifact?.status !== "complete"
+        ) {
+          currentCallbacks.onComplete(latest.payload);
+        }
 
-      if (
-        callbacks?.onError &&
-        latest.status === "error" &&
-        currentArtifact?.status !== "error"
-      ) {
-        callbacks.onError(latest.error || "Unknown error", latest.payload);
-      }
+        if (
+          currentCallbacks &&
+          "onError" in currentCallbacks &&
+          currentCallbacks.onError &&
+          latest.status === "error" &&
+          currentArtifact?.status !== "error"
+        ) {
+          currentCallbacks.onError(
+            latest.error || "Unknown error",
+            latest.payload,
+          );
+        }
 
-      if (
-        callbacks?.onProgress &&
-        latest.progress !== currentArtifact?.progress
-      ) {
-        callbacks.onProgress(latest.progress || 0, latest.payload);
-      }
+        if (
+          currentCallbacks &&
+          "onProgress" in currentCallbacks &&
+          currentCallbacks.onProgress &&
+          latest.progress !== currentArtifact?.progress
+        ) {
+          currentCallbacks.onProgress(latest.progress || 0, latest.payload);
+        }
 
-      if (
-        callbacks?.onStatusChange &&
-        latest.status !== currentArtifact?.status
-      ) {
-        callbacks.onStatusChange(
-          latest.status,
-          currentArtifact?.status || "idle",
-        );
+        if (
+          currentCallbacks &&
+          "onStatusChange" in currentCallbacks &&
+          currentCallbacks.onStatusChange &&
+          latest.status !== currentArtifact?.status
+        ) {
+          currentCallbacks.onStatusChange(
+            latest.status,
+            currentArtifact?.status || "idle",
+          );
+        }
       }
 
       setCurrentArtifact(latest);
     }
-  }, [messages, artifactDef.id, currentArtifact, callbacks]);
+  }, [latest, currentArtifact, includeVersions]);
 
-  const status: ArtifactStatus = currentArtifact?.status || "idle";
-  const isActive = status === "loading" || status === "streaming";
+  // Memoize stable empty versions array for default case
+  const emptyVersions = useMemo(
+    () => [] as ArtifactData<InferArtifactType<T>>[],
+    [],
+  );
 
-  return {
-    data: currentArtifact?.payload || null,
-    status,
-    progress: currentArtifact?.progress,
-    error: currentArtifact?.error,
-    isActive,
-    hasData: currentArtifact !== null,
-  };
+  // Create delete function
+  const deleteArtifact = useCallback(
+    (artifactId: string) => {
+      // Find the message containing this artifact
+      for (const message of messages) {
+        if (!message.parts || !Array.isArray(message.parts)) continue;
+
+        // Check message parts
+        for (const part of message.parts) {
+          if (part.type.startsWith("data-artifact-") && "data" in part) {
+            const artifactPart = part as {
+              type: string;
+              data?: { id?: string };
+            };
+            if (artifactPart.data?.id === artifactId) {
+              const updatedMessage = removeArtifactFromMessage(
+                message,
+                artifactId,
+              );
+              if (updatedMessage) {
+                replaceMessageById(message.id, updatedMessage);
+              }
+              return;
+            }
+          }
+
+          // Check tool call results
+          if (
+            part.type.startsWith("tool-") &&
+            "result" in part &&
+            part.result
+          ) {
+            const result = part.result;
+            if (typeof result === "object" && result && "parts" in result) {
+              const parts = (result as { parts?: unknown[] }).parts;
+              if (Array.isArray(parts)) {
+                const hasArtifact = parts.some((p: unknown) => {
+                  const part = p as { type?: string; data?: { id?: string } };
+                  return (
+                    part.type?.startsWith("data-artifact-") &&
+                    part.data?.id === artifactId
+                  );
+                });
+                if (hasArtifact) {
+                  const updatedMessage = removeArtifactFromMessage(
+                    message,
+                    artifactId,
+                  );
+                  if (updatedMessage) {
+                    replaceMessageById(message.id, updatedMessage);
+                  }
+                  return;
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    [messages, replaceMessageById],
+  );
+
+  // Memoize actions object
+  const actions = useMemo(
+    (): UseArtifactActions => ({
+      delete: deleteArtifact,
+    }),
+    [deleteArtifact],
+  );
+
+  // Memoize return value - handle both version selection and latest artifact cases
+  const artifactData = useMemo(() => {
+    // If version index is provided, return that specific version
+    if (includeVersions && versionIndex !== undefined) {
+      // Clamp version index to valid range
+      const clampedIndex = Math.max(
+        0,
+        Math.min(versionIndex, allArtifacts.length - 1),
+      );
+      const selectedArtifact =
+        allArtifacts[clampedIndex] || allArtifacts[0] || null;
+
+      const status: ArtifactStatus = selectedArtifact?.status || "idle";
+      const isActive = status === "loading" || status === "streaming";
+
+      return {
+        data: selectedArtifact?.payload || null,
+        status,
+        progress: selectedArtifact?.progress,
+        error: selectedArtifact?.error,
+        isActive,
+        hasData: selectedArtifact !== null,
+        versions: allArtifacts,
+        currentIndex: clampedIndex,
+      };
+    }
+
+    // Default behavior: return latest artifact
+    const status: ArtifactStatus = currentArtifact?.status || "idle";
+    const isActive = status === "loading" || status === "streaming";
+
+    return {
+      data: currentArtifact?.payload || null,
+      status,
+      progress: currentArtifact?.progress,
+      error: currentArtifact?.error,
+      isActive,
+      hasData: currentArtifact !== null,
+      versions: emptyVersions,
+    };
+  }, [
+    includeVersions,
+    versionIndex,
+    allArtifacts,
+    currentArtifact,
+    emptyVersions,
+  ]);
+
+  return [artifactData, actions] as [
+    UseArtifactReturn<InferArtifactType<T>>,
+    UseArtifactActions,
+  ];
 }
 
 // Listening to all artifacts with filtering options
@@ -123,16 +344,20 @@ export function useArtifacts(
   const { onData, include, exclude } = options;
   const messages = useChatMessages();
 
-  const includeKey = include?.join(',');
-  const excludeKey = exclude?.join(',');
+  // Store onData in ref to avoid dependency issues
+  const onDataRef = useRef(onData);
+  useEffect(() => {
+    onDataRef.current = onData;
+  }, [onData]);
 
   return useMemo(() => {
     const allArtifacts = extractAllArtifactsFromMessages(messages);
 
     // Filter artifacts based on include/exclude options
-    const filteredArtifacts = allArtifacts.filter(artifact => {
-      if (include?.length) return include.includes(artifact.type);
-      if (exclude?.length) return !exclude.includes(artifact.type);
+    const filteredArtifacts = allArtifacts.filter((artifact) => {
+      if (include && include.length > 0) return include.includes(artifact.type);
+      if (exclude && exclude.length > 0)
+        return !exclude.includes(artifact.type);
       return true;
     });
 
@@ -150,16 +375,22 @@ export function useArtifacts(
       if (
         !latest[artifact.type] ||
         artifact.version > latest[artifact.type].version ||
-        (artifact.version === latest[artifact.type].version && artifact.createdAt > latest[artifact.type].createdAt)
+        (artifact.version === latest[artifact.type].version &&
+          artifact.createdAt > latest[artifact.type].createdAt)
       ) {
         const prevLatest = latest[artifact.type];
         latest[artifact.type] = artifact;
 
         // Fire callback if this is a new or updated artifact
-        if (onData && (!prevLatest || 
-                       artifact.version > prevLatest.version ||
-                       (artifact.version === prevLatest.version && artifact.createdAt > prevLatest.createdAt))) {
-          onData(artifact.type, artifact);
+        const currentOnData = onDataRef.current;
+        if (
+          currentOnData &&
+          (!prevLatest ||
+            artifact.version > prevLatest.version ||
+            (artifact.version === prevLatest.version &&
+              artifact.createdAt > prevLatest.createdAt))
+        ) {
+          currentOnData(artifact.type, artifact);
         }
       }
     }
@@ -175,7 +406,7 @@ export function useArtifacts(
       artifacts: filteredArtifacts,
       current: filteredArtifacts[0] || null,
     };
-  }, [messages, onData, includeKey, excludeKey]);
+  }, [messages, include, exclude]);
 }
 
 function extractAllArtifactsFromMessages(
@@ -192,9 +423,12 @@ function extractAllArtifactsFromMessages(
           const artifactPart = part as ArtifactPart<unknown>;
           if (artifactPart.data) {
             const existing = artifacts.get(artifactPart.data.id);
-            if (!existing || 
-                artifactPart.data.version > existing.version ||
-                (artifactPart.data.version === existing.version && artifactPart.data.createdAt > existing.createdAt)) {
+            if (
+              !existing ||
+              artifactPart.data.version > existing.version ||
+              (artifactPart.data.version === existing.version &&
+                artifactPart.data.createdAt > existing.createdAt)
+            ) {
               artifacts.set(artifactPart.data.id, artifactPart.data);
             }
           }
@@ -212,9 +446,12 @@ function extractAllArtifactsFromMessages(
                   nestedPart.data
                 ) {
                   const existing = artifacts.get(nestedPart.data.id);
-                  if (!existing || 
-                      nestedPart.data.version > existing.version ||
-                      (nestedPart.data.version === existing.version && nestedPart.data.createdAt > existing.createdAt)) {
+                  if (
+                    !existing ||
+                    nestedPart.data.version > existing.version ||
+                    (nestedPart.data.version === existing.version &&
+                      nestedPart.data.createdAt > existing.createdAt)
+                  ) {
                     artifacts.set(nestedPart.data.id, nestedPart.data);
                   }
                 }
@@ -246,9 +483,12 @@ function extractArtifactsFromMessages<T>(
           const artifactPart = part as ArtifactPart<T>;
           if (artifactPart.data) {
             const existing = artifacts.get(artifactPart.data.id);
-            if (!existing || 
-                artifactPart.data.version > existing.version ||
-                (artifactPart.data.version === existing.version && artifactPart.data.createdAt > existing.createdAt)) {
+            if (
+              !existing ||
+              artifactPart.data.version > existing.version ||
+              (artifactPart.data.version === existing.version &&
+                artifactPart.data.createdAt > existing.createdAt)
+            ) {
               artifacts.set(artifactPart.data.id, artifactPart.data);
             }
           }
@@ -266,9 +506,12 @@ function extractArtifactsFromMessages<T>(
                   nestedPart.data
                 ) {
                   const existing = artifacts.get(nestedPart.data.id);
-                  if (!existing || 
-                      nestedPart.data.version > existing.version ||
-                      (nestedPart.data.version === existing.version && nestedPart.data.createdAt > existing.createdAt)) {
+                  if (
+                    !existing ||
+                    nestedPart.data.version > existing.version ||
+                    (nestedPart.data.version === existing.version &&
+                      nestedPart.data.createdAt > existing.createdAt)
+                  ) {
                     artifacts.set(nestedPart.data.id, nestedPart.data);
                   }
                 }

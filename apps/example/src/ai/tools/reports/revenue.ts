@@ -4,6 +4,7 @@ import { z } from "zod";
 import { RevenueArtifact } from "@/ai/artifacts/revenue";
 import { currencyFilterSchema, dateRangeSchema } from "@/ai/types/filters";
 import { generateRevenueMetrics } from "@/ai/utils/fake-data";
+import { generateArtifactTitle } from "@/lib/artifact-title";
 import { delay } from "@/lib/delay";
 
 /**
@@ -38,10 +39,13 @@ export const revenueDashboardTool = tool({
 
       const writer = getWriter(executionOptions);
 
+      // Generate title based on date range
+      const title = generateArtifactTitle(from, to);
+
       // Artifact mode - stream the revenue dashboard with visualization
       const analysis = RevenueArtifact.stream(
         {
-          title: "Revenue Dashboard",
+          title,
           asOfDate: to,
           stage: "generating",
           progress: 0,
@@ -219,7 +223,7 @@ export const revenueDashboardTool = tool({
 
       // Complete the artifact with all data
       const finalData = {
-        title: "Revenue Dashboard",
+        title,
         asOfDate: to,
         stage: "complete" as const,
         progress: 1,
