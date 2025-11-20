@@ -100,6 +100,7 @@ export function useArtifact<
     error: currentArtifact?.error,
     isActive,
     hasData: currentArtifact !== null,
+    setCurrentArtifact,
   };
 }
 

@@ -55,6 +55,7 @@ export interface UseArtifactReturn<T = unknown> {
   error?: string;
   isActive: boolean;
   hasData: boolean;
+  setCurrentArtifact: (artifact: ArtifactData<T> | null) => void;
 }
 
 export interface UseArtifactsOptions {
