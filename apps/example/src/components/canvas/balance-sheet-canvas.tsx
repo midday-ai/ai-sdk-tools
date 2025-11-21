@@ -6,7 +6,6 @@ import { memo } from "react";
 import { BalanceSheetArtifact } from "@/ai/artifacts/balance-sheet";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProgressToast } from "@/components/ui/progress-toast";
-import { ArtifactVersionSelect } from "./artifact-version-select";
 
 function BalanceSheetCanvasInner() {
   const [currentIndex] = useQueryState(
@@ -43,12 +42,7 @@ function BalanceSheetCanvasInner() {
               <h2 className="text-2xl tracking-tight font-mono">
                 Balance Sheet
               </h2>
-              {artifact.versions.length > 1 ? (
-                <ArtifactVersionSelect
-                  versions={artifact.versions}
-                  paramName="version"
-                />
-              ) : (
+              {data.description && (
                 <p className="text-sm text-muted-foreground">
                   {data.description}
                 </p>

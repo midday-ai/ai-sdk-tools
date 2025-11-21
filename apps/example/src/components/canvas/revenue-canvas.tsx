@@ -13,7 +13,6 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { ProgressToast } from "@/components/ui/progress-toast";
-import { ArtifactVersionSelect } from "./artifact-version-select";
 
 // Chart configuration for monochrome theme - static, doesn't need to be recreated
 const CHART_CONFIG = {
@@ -68,12 +67,7 @@ function RevenueCanvasInner() {
               <h2 className="text-2xl tracking-tight font-mono">
                 Revenue trend
               </h2>
-              {artifact.versions.length > 1 ? (
-                <ArtifactVersionSelect
-                  versions={artifact.versions}
-                  paramName="version"
-                />
-              ) : (
+              {data.description && (
                 <p className="text-sm text-muted-foreground">
                   {data.description}
                 </p>

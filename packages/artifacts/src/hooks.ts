@@ -569,6 +569,26 @@ export function useArtifacts(
     }
   }, [artifactsData.activeType, dismissedSet, restore]);
 
+  // Auto-activate first available tab when there's no valid activeType
+  // But don't auto-activate if user explicitly closed the canvas (externalValue is null/undefined)
+  useEffect(() => {
+    if (
+      artifactsData.available.length > 0 &&
+      (!artifactsData.activeType ||
+        !artifactsData.available.includes(artifactsData.activeType)) &&
+      onChange &&
+      externalValue != null // Don't auto-activate if user explicitly closed (check for both null and undefined)
+    ) {
+      // Set the first available tab as active
+      onChange(artifactsData.available[0]);
+    }
+  }, [
+    artifactsData.available,
+    artifactsData.activeType,
+    onChange,
+    externalValue,
+  ]);
+
   // Create actions
   const actions = useMemo(
     (): UseArtifactsActions => ({
