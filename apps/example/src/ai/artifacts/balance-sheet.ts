@@ -5,7 +5,7 @@ import { z } from "zod";
 export const BalanceSheetArtifact = artifact(
   "balance-sheet",
   z.object({
-    title: z.string(),
+    description: z.string(),
     stage: z
       .enum(["loading", "processing", "analyzing", "complete"])
       .default("loading"),

@@ -6,7 +6,7 @@ import { memo } from "react";
 import { BalanceSheetArtifact } from "@/ai/artifacts/balance-sheet";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProgressToast } from "@/components/ui/progress-toast";
-import { ArtifactTabs } from "./artifact-tabs";
+import { ArtifactVersionSelect } from "./artifact-version-select";
 
 function BalanceSheetCanvasInner() {
   const [currentIndex] = useQueryState(
@@ -14,7 +14,7 @@ function BalanceSheetCanvasInner() {
     parseAsInteger.withDefault(0),
   );
 
-  const [artifact, actions] = useArtifact(BalanceSheetArtifact, {
+  const [artifact] = useArtifact(BalanceSheetArtifact, {
     version: currentIndex,
   });
 
@@ -35,9 +35,6 @@ function BalanceSheetCanvasInner() {
 
   return (
     <div className="flex flex-col h-full">
-      {artifact.versions.length > 1 && (
-        <ArtifactTabs versions={artifact.versions} onDelete={actions.delete} />
-      )}
       <div className="flex-1 overflow-auto p-6 space-y-8">
         {/* Header */}
         <div className="space-y-1 pb-4 border-b">
@@ -46,7 +43,16 @@ function BalanceSheetCanvasInner() {
               <h2 className="text-2xl tracking-tight font-mono">
                 Balance Sheet
               </h2>
-              <p className="text-sm text-muted-foreground">{data.title}</p>
+              {artifact.versions.length > 1 ? (
+                <ArtifactVersionSelect
+                  versions={artifact.versions}
+                  paramName="version"
+                />
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  {data.description}
+                </p>
+              )}
             </div>
           </div>
         </div>

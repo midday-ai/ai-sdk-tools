@@ -2,6 +2,7 @@
 
 import { DefaultChatTransport, generateId } from "ai";
 import { useArtifacts, useChat, useDataPart } from "ai-sdk-tools/client";
+import { parseAsString, useQueryState } from "nuqs";
 import { type RefObject, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -59,8 +60,21 @@ export function ChatInterface() {
 
   const { agentStatus, currentToolCall } = useChatStatus(messages, status);
 
-  const { artifacts } = useArtifacts();
-  const hasArtifacts = artifacts && artifacts.length > 0;
+  const [selectedType, setSelectedType] = useQueryState(
+    "artifact-type",
+    parseAsString,
+  );
+
+  const [data] = useArtifacts({
+    // Pass undefined when query param is null (not set) to allow auto-opening
+    // The hook uses explicitlyClosedRef to track when explicitly closed
+    value: selectedType ?? undefined,
+    onChange: (v: string | null) => setSelectedType(v ?? null),
+  });
+  const hasArtifacts = data.artifacts.length > 0;
+  // Canvas is open if we have artifacts and an active type is set
+  // Use data.activeType so it stays open even if query param is temporarily null
+  const isCanvasOpen = hasArtifacts && data.activeType !== null;
   const hasMessages = messages.length > 0;
 
   const [suggestions] = useDataPart<{ prompts: string[] }>("suggestions");
@@ -133,11 +147,11 @@ export function ChatInterface() {
         </>
       )}
 
-      {/* Canvas slides in from right when artifacts are present */}
+      {/* Canvas slides in from right when artifacts are present and canvas is open */}
       <div
         className={cn(
           "fixed right-0 top-0 bottom-0 z-20",
-          hasArtifacts ? "translate-x-0" : "translate-x-full",
+          isCanvasOpen ? "translate-x-0" : "translate-x-full",
           hasMessages && "transition-transform duration-300 ease-in-out",
         )}
         style={{ width: "600px" }}
@@ -149,7 +163,7 @@ export function ChatInterface() {
       <div
         className={cn(
           "relative flex-1 transition-all duration-300 ease-in-out",
-          hasArtifacts && "mr-[600px]",
+          isCanvasOpen && "mr-[600px]",
           !hasMessages && "flex items-center justify-center",
         )}
       >
@@ -160,7 +174,7 @@ export function ChatInterface() {
               <div
                 className={cn(
                   "fixed left-0 z-50 shrink-0 transition-all duration-300 ease-in-out",
-                  hasArtifacts ? "right-[600px]" : "right-0",
+                  isCanvasOpen ? "right-[600px]" : "right-0",
                 )}
               >
                 <div className="bg-background/80 dark:bg-background/50 backdrop-blur-sm p-2 pt-6">
@@ -193,7 +207,7 @@ export function ChatInterface() {
             <div
               className={cn(
                 "fixed bottom-0 left-0 z-50 transition-all duration-300 ease-in-out",
-                hasArtifacts ? "right-[600px]" : "right-0",
+                isCanvasOpen ? "right-[600px]" : "right-0",
               )}
             >
               <div className="w-full pb-4 max-w-2xl mx-auto">

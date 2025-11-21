@@ -1,5 +1,5 @@
 /**
- * Generate formatted artifact titles based on date ranges
+ * Generate formatted artifact descriptions based on date ranges
  */
 
 import { format, getMonth, getYear, isValid, parseISO } from "date-fns";
@@ -21,14 +21,14 @@ function parseDate(dateStr: string): Date | null {
 }
 
 /**
- * Format a date range into a human-readable title
+ * Format a date range into a human-readable description
  *
  * Examples:
  * - Same month: "Aug 2024"
  * - Same year, different months: "Jan-Aug 2024"
  * - Different years: "2022-2024"
  */
-export function generateArtifactTitle(from: string, to: string): string {
+export function generateArtifactDescription(from: string, to: string): string {
   const fromDate = parseDate(from);
   const toDate = parseDate(to);
 

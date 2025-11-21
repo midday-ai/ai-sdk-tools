@@ -11,6 +11,7 @@ export type {
   ArtifactStatus,
   UseArtifactActions,
   UseArtifactReturn,
+  UseArtifactsActions,
   UseArtifactsOptions,
   UseArtifactsReturn,
 } from "./types";

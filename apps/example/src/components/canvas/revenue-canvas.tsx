@@ -13,7 +13,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { ProgressToast } from "@/components/ui/progress-toast";
-import { ArtifactTabs } from "./artifact-tabs";
+import { ArtifactVersionSelect } from "./artifact-version-select";
 
 // Chart configuration for monochrome theme - static, doesn't need to be recreated
 const CHART_CONFIG = {
@@ -27,12 +27,9 @@ const CHART_CONFIG = {
 };
 
 function RevenueCanvasInner() {
-  const [currentIndex] = useQueryState(
-    "version",
-    parseAsInteger.withDefault(0),
-  );
-  const [artifact, actions] = useArtifact(RevenueArtifact, {
-    version: currentIndex,
+  const [version] = useQueryState("version", parseAsInteger.withDefault(0));
+  const [artifact] = useArtifact(RevenueArtifact, {
+    version,
   });
 
   // Memoize chart data to prevent recalculation on every render
@@ -63,9 +60,6 @@ function RevenueCanvasInner() {
 
   return (
     <div className="flex flex-col h-full">
-      {artifact.versions.length > 1 && (
-        <ArtifactTabs versions={artifact.versions} onDelete={actions.delete} />
-      )}
       <div className="flex-1 overflow-auto p-6 space-y-6">
         {/* Header */}
         <div className="space-y-1">
@@ -74,7 +68,16 @@ function RevenueCanvasInner() {
               <h2 className="text-2xl tracking-tight font-mono">
                 Revenue trend
               </h2>
-              <p className="text-sm text-muted-foreground">{data.title}</p>
+              {artifact.versions.length > 1 ? (
+                <ArtifactVersionSelect
+                  versions={artifact.versions}
+                  paramName="version"
+                />
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  {data.description}
+                </p>
+              )}
             </div>
           </div>
         </div>

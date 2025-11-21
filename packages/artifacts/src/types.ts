@@ -70,11 +70,29 @@ export interface UseArtifactActions {
 export interface UseArtifactsOptions {
   onData?: (artifactType: string, data: ArtifactData<unknown>) => void;
   storeId?: string;
+  include?: string[]; // Only listen to these artifact types
+  exclude?: string[]; // Ignore these artifact types
+  value?: string | null; // Optional: externally controlled active type
+  onChange?: (value: string | null) => void; // Optional: callback when active type changes
+  dismissed?: string[]; // Optional: externally controlled dismissed types
+  onDismissedChange?: (dismissed: string[]) => void; // Optional: callback when dismissed types change
 }
 
 export interface UseArtifactsReturn {
   byType: Record<string, ArtifactData<unknown>[]>;
-  latest: Record<string, ArtifactData<unknown>>;
+  latestByType: Record<string, ArtifactData<unknown>>;
   artifacts: ArtifactData<unknown>[];
   current: ArtifactData<unknown> | null;
+  activeType: string | null;
+  activeArtifacts: ArtifactData<unknown>[];
+  types: string[];
+  latestArtifactType: string | null;
+  available: string[];
+  dismissed: string[];
+}
+
+export interface UseArtifactsActions {
+  setValue: (value: string | null) => void;
+  dismiss: (type: string) => void;
+  restore: (type: string) => void;
 }

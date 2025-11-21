@@ -8,6 +8,9 @@ import type {
   UseArtifactActions,
   UseArtifactOptions,
   UseArtifactReturn,
+  UseArtifactsActions,
+  UseArtifactsOptions,
+  UseArtifactsReturn,
 } from "./types";
 
 // Type to extract the inferred type from an artifact definition
@@ -325,24 +328,77 @@ export function useArtifact<
 }
 
 // Listening to all artifacts with filtering options
-export interface UseArtifactsOptions {
-  onData?: (artifactType: string, data: ArtifactData<unknown>) => void;
-  include?: string[]; // Only listen to these artifact types
-  exclude?: string[]; // Ignore these artifact types
-}
-
-export interface UseArtifactsReturn {
-  byType: Record<string, ArtifactData<unknown>[]>;
-  latest: Record<string, ArtifactData<unknown>>;
-  artifacts: ArtifactData<unknown>[];
-  current: ArtifactData<unknown> | null;
-}
 
 export function useArtifacts(
   options: UseArtifactsOptions = {},
-): UseArtifactsReturn {
-  const { onData, include, exclude } = options;
+): [UseArtifactsReturn, UseArtifactsActions] {
+  const {
+    onData,
+    include,
+    exclude,
+    value: externalValue,
+    onChange,
+    dismissed: externalDismissed,
+    onDismissedChange,
+  } = options;
   const messages = useChatMessages();
+
+  // Track if we've had artifacts before to detect first appearance (for auto-open)
+  const hadArtifactsRef = useRef(false);
+  // Track the previous latest artifact type to detect when a new artifact type appears
+  const prevLatestTypeRef = useRef<string | null>(null);
+
+  // Internal dismissed types state (for uncontrolled mode)
+  const [internalDismissed, setInternalDismissed] = useState<Set<string>>(
+    new Set(),
+  );
+
+  // Use external dismissed if provided, otherwise use internal
+  const dismissedSet = useMemo(() => {
+    if (externalDismissed) {
+      return new Set(externalDismissed);
+    }
+    return internalDismissed;
+  }, [externalDismissed, internalDismissed]);
+
+  const setValue = useCallback(
+    (value: string | null) => {
+      onChange?.(value);
+    },
+    [onChange],
+  );
+
+  const dismiss = useCallback(
+    (type: string) => {
+      const newDismissed = new Set(dismissedSet);
+      newDismissed.add(type);
+
+      if (externalDismissed) {
+        // Controlled mode - notify parent
+        onDismissedChange?.(Array.from(newDismissed));
+      } else {
+        // Uncontrolled mode - update internal state
+        setInternalDismissed(newDismissed);
+      }
+    },
+    [dismissedSet, externalDismissed, onDismissedChange],
+  );
+
+  const restore = useCallback(
+    (type: string) => {
+      const newDismissed = new Set(dismissedSet);
+      newDismissed.delete(type);
+
+      if (externalDismissed) {
+        // Controlled mode - notify parent
+        onDismissedChange?.(Array.from(newDismissed));
+      } else {
+        // Uncontrolled mode - update internal state
+        setInternalDismissed(newDismissed);
+      }
+    },
+    [dismissedSet, externalDismissed, onDismissedChange],
+  );
 
   // Store onData in ref to avoid dependency issues
   const onDataRef = useRef(onData);
@@ -350,7 +406,7 @@ export function useArtifacts(
     onDataRef.current = onData;
   }, [onData]);
 
-  return useMemo(() => {
+  const artifactsData = useMemo(() => {
     const allArtifacts = extractAllArtifactsFromMessages(messages);
 
     // Filter artifacts based on include/exclude options
@@ -363,7 +419,7 @@ export function useArtifacts(
 
     // Group by type
     const byType: Record<string, ArtifactData<unknown>[]> = {};
-    const latest: Record<string, ArtifactData<unknown>> = {};
+    const latestByType: Record<string, ArtifactData<unknown>> = {};
 
     for (const artifact of filteredArtifacts) {
       if (!byType[artifact.type]) {
@@ -373,13 +429,13 @@ export function useArtifacts(
 
       // Track latest version for each type
       if (
-        !latest[artifact.type] ||
-        artifact.version > latest[artifact.type].version ||
-        (artifact.version === latest[artifact.type].version &&
-          artifact.createdAt > latest[artifact.type].createdAt)
+        !latestByType[artifact.type] ||
+        artifact.version > latestByType[artifact.type].version ||
+        (artifact.version === latestByType[artifact.type].version &&
+          artifact.createdAt > latestByType[artifact.type].createdAt)
       ) {
-        const prevLatest = latest[artifact.type];
-        latest[artifact.type] = artifact;
+        const prevLatest = latestByType[artifact.type];
+        latestByType[artifact.type] = artifact;
 
         // Fire callback if this is a new or updated artifact
         const currentOnData = onDataRef.current;
@@ -400,13 +456,130 @@ export function useArtifacts(
       byType[type].sort((a, b) => b.createdAt - a.createdAt);
     }
 
+    // Determine active type
+    const types = Object.keys(byType).filter(
+      (type) => byType[type] && byType[type].length > 0,
+    );
+
+    const hasArtifacts = types.length > 0;
+    const hadArtifacts = hadArtifactsRef.current;
+
+    // Update ref for next render
+    hadArtifactsRef.current = hasArtifacts;
+
+    // Find the most recently created artifact across all types
+    let latestArtifact: ArtifactData<unknown> | null = null;
+    for (const type in latestByType) {
+      const artifact = latestByType[type];
+      if (!latestArtifact || artifact.createdAt > latestArtifact.createdAt) {
+        latestArtifact = artifact;
+      }
+    }
+    const latestArtifactType = latestArtifact
+      ? latestArtifact.type
+      : types[0] || null;
+
+    // Determine activeType - simple derivation from externalValue:
+    // 1. If externalValue is a valid type string → use it (canvas open)
+    // 2. If externalValue is null/undefined AND artifacts just appeared (first time) → auto-open to latest
+    // 3. Otherwise → null (closed)
+    let activeType: string | null = null;
+
+    if (externalValue && types.includes(externalValue)) {
+      // Valid type provided - use it
+      activeType = externalValue;
+    } else if (
+      (externalValue === null || externalValue === undefined) &&
+      hasArtifacts &&
+      !hadArtifacts &&
+      types.length > 0
+    ) {
+      // Artifacts first appeared and no query param - auto-open to latest
+      activeType = latestArtifactType;
+    }
+
+    const activeArtifacts = activeType ? byType[activeType] || [] : [];
+
+    // Filter available types (non-dismissed)
+    const available = types.filter((type) => !dismissedSet.has(type));
+    const dismissed = Array.from(dismissedSet).filter((type) =>
+      types.includes(type),
+    );
+
     return {
       byType,
-      latest,
+      latestByType,
       artifacts: filteredArtifacts,
       current: filteredArtifacts[0] || null,
+      activeType,
+      activeArtifacts,
+      types,
+      latestArtifactType,
+      available,
+      dismissed,
     };
-  }, [messages, include, exclude]);
+  }, [messages, include, exclude, externalValue, dismissedSet]);
+
+  // Auto-switch to latest artifact: when a new artifact appears, switch to it
+  useEffect(() => {
+    const currentLatestType = artifactsData.latestArtifactType;
+    const prevLatestType = prevLatestTypeRef.current;
+
+    // Update ref for next render
+    prevLatestTypeRef.current = currentLatestType;
+
+    if (!onChange || !currentLatestType) {
+      return;
+    }
+
+    // Only auto-switch when:
+    // 1. A NEW artifact type appears (latestArtifactType changed from something to something else)
+    // 2. OR first artifact appears and no query param set (initial auto-open)
+    if (
+      prevLatestType !== null &&
+      currentLatestType !== prevLatestType &&
+      artifactsData.types.includes(currentLatestType)
+    ) {
+      // A new artifact appeared - auto-switch to it
+      onChange(currentLatestType);
+    } else if (
+      prevLatestType === null &&
+      currentLatestType !== null &&
+      (externalValue === null || externalValue === undefined) &&
+      artifactsData.activeType !== null
+    ) {
+      // First artifact appeared and no query param - sync to open it
+      onChange(currentLatestType);
+    }
+  }, [
+    artifactsData.activeType,
+    artifactsData.latestArtifactType,
+    artifactsData.types,
+    externalValue,
+    onChange,
+  ]);
+
+  // Auto-restore when a type becomes active (un-dismiss it)
+  useEffect(() => {
+    if (
+      artifactsData.activeType &&
+      dismissedSet.has(artifactsData.activeType)
+    ) {
+      restore(artifactsData.activeType);
+    }
+  }, [artifactsData.activeType, dismissedSet, restore]);
+
+  // Create actions
+  const actions = useMemo(
+    (): UseArtifactsActions => ({
+      setValue,
+      dismiss,
+      restore,
+    }),
+    [setValue, dismiss, restore],
+  );
+
+  return [artifactsData, actions] as [UseArtifactsReturn, UseArtifactsActions];
 }
 
 function extractAllArtifactsFromMessages(

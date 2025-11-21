@@ -4,7 +4,7 @@ import { z } from "zod";
 import { BalanceSheetArtifact } from "@/ai/artifacts/balance-sheet";
 import { currencyFilterSchema, dateRangeSchema } from "@/ai/types/filters";
 import { generateBalanceSheet } from "@/ai/utils/fake-data";
-import { generateArtifactTitle } from "@/lib/artifact-title";
+import { generateArtifactDescription } from "@/lib/artifact-title";
 import { delay } from "@/lib/delay";
 
 /**
@@ -48,14 +48,14 @@ export const balanceSheetTool = tool({
         return data;
       }
 
-      // Generate title based on date range
-      const title = generateArtifactTitle(from, to);
+      // Generate description based on date range
+      const description = generateArtifactDescription(from, to);
 
       // Artifact mode - stream the balance sheet with visualization
       const analysis = BalanceSheetArtifact.stream(
         {
           stage: "loading",
-          title,
+          description,
           asOfDate: to,
           currency: currency || "USD",
           progress: 0,
@@ -199,7 +199,7 @@ export const balanceSheetTool = tool({
 
       // Complete the artifact with all required fields
       const finalData = {
-        title,
+        description,
         stage: "complete" as const,
         currency: currency || "USD",
         asOfDate: to,

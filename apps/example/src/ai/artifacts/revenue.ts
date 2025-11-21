@@ -4,7 +4,7 @@ import { z } from "zod";
 export const RevenueArtifact = artifact(
   "revenue",
   z.object({
-    title: z.string(),
+    description: z.string(),
     asOfDate: z.string(),
     stage: z.enum(["generating", "complete"]),
     progress: z.number().min(0).max(1),

@@ -7,7 +7,7 @@ import type { ArtifactData } from "../types";
  */
 export function ArtifactsDisplay() {
   // Example 1: Using callback pattern to listen for new artifacts
-  const { byType, latest, artifacts, current } = useArtifacts({
+  const { byType, latestByType, artifacts, current } = useArtifacts({
     onData: (artifactType, artifactData) => {
       console.log(`New artifact received: ${artifactType}`, artifactData);
 
@@ -40,7 +40,7 @@ export function ArtifactsDisplay() {
       {/* Display latest artifact of each type */}
       <div className="latest-artifacts">
         <h3>Latest by Type</h3>
-        {Object.entries(latest).map(([type, artifact]) => (
+        {Object.entries(latestByType).map(([type, artifact]) => (
           <ArtifactRenderer key={type} type={type} artifact={artifact} />
         ))}
       </div>
@@ -218,12 +218,12 @@ export function ArtifactsListener() {
  * Example showing data access pattern without callbacks
  */
 export function SimpleArtifactsDisplay() {
-  const { latest } = useArtifacts();
+  const { latestByType } = useArtifacts();
 
   return (
     <div>
       <h2>Latest Artifacts</h2>
-      {Object.entries(latest).map(([type, artifact]) => (
+      {Object.entries(latestByType).map(([type, artifact]) => (
         <div key={type}>
           <h3>{type}</h3>
           <p>Status: {artifact.status}</p>

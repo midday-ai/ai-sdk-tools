@@ -38,8 +38,9 @@ export function useChatInterface() {
 
   const setChatId = (id: string) => {
     // Always replace with just the chat ID - no nesting
-
-    const newPath = `/${id}`;
+    // Preserve query parameters when updating the URL
+    const currentSearch = window.location.search;
+    const newPath = `/${id}${currentSearch}`;
     window.history.pushState({}, "", newPath);
     setChatIdState(id);
   };

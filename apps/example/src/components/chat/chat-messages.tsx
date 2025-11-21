@@ -6,6 +6,7 @@ import Image from "next/image";
 import { FaviconStack } from "@/components/ai-elements/favicon-stack";
 import { Message, MessageContent } from "@/components/ai-elements/message";
 import { Response } from "@/components/ai-elements/response";
+import { MessageArtifactButton } from "./message-artifact-button";
 
 interface ChatMessagesProps {
   messages: UIMessage[];
@@ -74,7 +75,9 @@ export function ChatMessages({
 }: ChatMessagesProps) {
   return (
     <>
-      {messages.map(({ parts, ...message }, index) => {
+      {messages.map((message, index) => {
+        const parts = message.parts || [];
+
         // Extract text parts
         const textParts = parts.filter((part) => part.type === "text");
         const textContent = textParts
@@ -167,6 +170,11 @@ export function ChatMessages({
               <Message from={message.role}>
                 <MessageContent variant="flat" className="max-w-[80%]">
                   <Response>{textContent}</Response>
+                  {message.role === "assistant" && (
+                    <div className="mt-2">
+                      <MessageArtifactButton message={message} />
+                    </div>
+                  )}
                 </MessageContent>
               </Message>
             )}
