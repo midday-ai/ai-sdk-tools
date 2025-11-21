@@ -1,6 +1,6 @@
 {
   "name": "@ai-sdk-tools/cache",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Simple caching wrapper for AI SDK tools - cache expensive tool executions with zero configuration",
   "keywords": [
     "ai",

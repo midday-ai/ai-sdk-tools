@@ -9,4 +9,4 @@
 "ai-sdk-tools": minor
 ---
 
-Release version 1.1.0
+Release version 1.2.0 - Add uncontrolled mode support for useArtifacts hook

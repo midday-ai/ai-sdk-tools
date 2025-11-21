@@ -4,6 +4,17 @@
 
 ### Minor Changes
 
+- 1d87332: Release version 1.2.0 - Add uncontrolled mode support for useArtifacts hook
+
+### Patch Changes
+
+- Updated dependencies [1d87332]
+  - @ai-sdk-tools/store@2.0.0
+
+## 2.0.0
+
+### Minor Changes
+
 - Release version 1.1.0
 
 ### Patch Changes

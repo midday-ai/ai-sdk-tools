@@ -4,6 +4,12 @@
 
 ### Minor Changes
 
+- 1d87332: Release version 1.2.0 - Add uncontrolled mode support for useArtifacts hook
+
+## 2.0.0
+
+### Minor Changes
+
 - Release version 1.1.0
 
 ## 1.0.8
