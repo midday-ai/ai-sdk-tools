@@ -21,11 +21,16 @@ export function ArtifactCanvas() {
     onChange: (v: string | null) => setSelectedType(v ?? null),
   });
 
-  if (data.activeType === null) {
+  // Only render if there are available artifacts
+  if (data.available.length === 0) {
     return null;
   }
 
   const renderCanvas = () => {
+    if (data.activeType === null) {
+      return null;
+    }
+
     switch (data.activeType) {
       case "balance-sheet":
         return <BalanceSheetCanvas />;
