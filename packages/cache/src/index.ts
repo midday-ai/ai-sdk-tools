@@ -1,15 +1,12 @@
 /**
  * @ai-sdk-tools/cache
- * 
- * Simple caching wrapper for AI SDK tools. Cache expensive tool executions 
+ *
+ * Simple caching wrapper for AI SDK tools. Cache expensive tool executions
  * with zero configuration.
  */
 
-export { cached, createCached, cacheTools } from "./cache";
+export { cached, cacheTools, createCached, serializeValue } from "./cache";
 export type {
-  CacheOptions,
   CachedTool,
+  CacheOptions,
 } from "./types";
-
-// Re-export useful types from ai package
-export type { Tool } from "ai";
