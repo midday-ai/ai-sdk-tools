@@ -347,11 +347,16 @@ export function useArtifacts(
   const hadArtifactsRef = useRef(false);
   // Track the previous latest artifact type to detect when a new artifact type appears
   const prevLatestTypeRef = useRef<string | null>(null);
+  // Track if value has ever been set (to distinguish initial null from user-closed null)
+  const valueWasSetRef = useRef(false);
 
   // Internal dismissed types state (for uncontrolled mode)
   const [internalDismissed, setInternalDismissed] = useState<Set<string>>(
     new Set(),
   );
+
+  // Internal value state (for uncontrolled mode)
+  const [internalValue, setInternalValue] = useState<string | null>(null);
 
   // Use external dismissed if provided, otherwise use internal
   const dismissedSet = useMemo(() => {
@@ -361,9 +366,26 @@ export function useArtifacts(
     return internalDismissed;
   }, [externalDismissed, internalDismissed]);
 
+  // Use external value if provided (controlled), otherwise use internal (uncontrolled)
+  const currentValue = useMemo(() => {
+    if (externalValue !== undefined) {
+      return externalValue;
+    }
+    return internalValue;
+  }, [externalValue, internalValue]);
+
   const setValue = useCallback(
     (value: string | null) => {
-      onChange?.(value);
+      // Mark that value has been set (to distinguish initial null from user-closed null)
+      valueWasSetRef.current = true;
+
+      if (onChange) {
+        // Controlled mode - notify parent
+        onChange(value);
+      } else {
+        // Uncontrolled mode - update internal state
+        setInternalValue(value);
+      }
     },
     [onChange],
   );
@@ -479,17 +501,17 @@ export function useArtifacts(
       ? latestArtifact.type
       : types[0] || null;
 
-    // Determine activeType - simple derivation from externalValue:
-    // 1. If externalValue is a valid type string → use it (canvas open)
-    // 2. If externalValue is null/undefined AND artifacts just appeared (first time) → auto-open to latest
+    // Determine activeType - simple derivation from currentValue:
+    // 1. If currentValue is a valid type string → use it (canvas open)
+    // 2. If currentValue is null/undefined AND artifacts just appeared (first time) → auto-open to latest
     // 3. Otherwise → null (closed)
     let activeType: string | null = null;
 
-    if (externalValue && types.includes(externalValue)) {
+    if (currentValue && types.includes(currentValue)) {
       // Valid type provided - use it
-      activeType = externalValue;
+      activeType = currentValue;
     } else if (
-      (externalValue === null || externalValue === undefined) &&
+      (currentValue === null || currentValue === undefined) &&
       hasArtifacts &&
       !hadArtifacts &&
       types.length > 0
@@ -518,7 +540,7 @@ export function useArtifacts(
       available,
       dismissed,
     };
-  }, [messages, include, exclude, externalValue, dismissedSet]);
+  }, [messages, include, exclude, currentValue, dismissedSet]);
 
   // Auto-switch to latest artifact: when a new artifact appears, switch to it
   useEffect(() => {
@@ -528,7 +550,7 @@ export function useArtifacts(
     // Update ref for next render
     prevLatestTypeRef.current = currentLatestType;
 
-    if (!onChange || !currentLatestType) {
+    if (!currentLatestType) {
       return;
     }
 
@@ -541,21 +563,29 @@ export function useArtifacts(
       artifactsData.types.includes(currentLatestType)
     ) {
       // A new artifact appeared - auto-switch to it
-      onChange(currentLatestType);
+      if (onChange) {
+        onChange(currentLatestType);
+      } else {
+        setInternalValue(currentLatestType);
+      }
     } else if (
       prevLatestType === null &&
       currentLatestType !== null &&
-      (externalValue === null || externalValue === undefined) &&
+      (currentValue === null || currentValue === undefined) &&
       artifactsData.activeType !== null
     ) {
       // First artifact appeared and no query param - sync to open it
-      onChange(currentLatestType);
+      if (onChange) {
+        onChange(currentLatestType);
+      } else {
+        setInternalValue(currentLatestType);
+      }
     }
   }, [
     artifactsData.activeType,
     artifactsData.latestArtifactType,
     artifactsData.types,
-    externalValue,
+    currentValue,
     onChange,
   ]);
 
@@ -570,23 +600,32 @@ export function useArtifacts(
   }, [artifactsData.activeType, dismissedSet, restore]);
 
   // Auto-activate first available tab when there's no valid activeType
-  // But don't auto-activate if user explicitly closed the canvas (externalValue is null/undefined)
+  // But don't auto-activate if user explicitly closed the canvas
   useEffect(() => {
+    // Skip auto-activation if:
+    // 1. Controlled mode: user explicitly set externalValue to null
+    // 2. Uncontrolled mode: value was previously set and is now null (user closed it)
+    const shouldSkipAutoActivate =
+      (externalValue !== undefined && externalValue === null) ||
+      (externalValue === undefined &&
+        valueWasSetRef.current &&
+        currentValue === null);
+
     if (
       artifactsData.available.length > 0 &&
       (!artifactsData.activeType ||
         !artifactsData.available.includes(artifactsData.activeType)) &&
-      onChange &&
-      externalValue != null // Don't auto-activate if user explicitly closed (check for both null and undefined)
+      !shouldSkipAutoActivate
     ) {
-      // Set the first available tab as active
-      onChange(artifactsData.available[0]);
+      // Set the first available tab as active (use setValue to mark ref)
+      setValue(artifactsData.available[0]);
     }
   }, [
     artifactsData.available,
     artifactsData.activeType,
-    onChange,
     externalValue,
+    currentValue,
+    setValue,
   ]);
 
   // Create actions

@@ -18,7 +18,7 @@ export function ArtifactCanvas() {
     // - undefined = not possible with nuqs parseAsString
     // - string = open to specific type
     value: selectedType,
-    onChange: (v: string | null) => setSelectedType(v ?? null),
+    onChange: (v) => setSelectedType(v ?? null),
   });
 
   // Only render if there are available artifacts
