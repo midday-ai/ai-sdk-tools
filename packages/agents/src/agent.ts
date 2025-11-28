@@ -56,7 +56,7 @@ import { extractTextFromMessage, stripMetadata } from "./utils.js";
 const logger = createLogger("AGENT");
 
 export class Agent<
-  TContext extends Record<string, unknown> = Record<string, unknown>,
+  TContext extends Record<string, unknown> = Record<string, unknown>
 > implements IAgent<TContext>
 {
   public readonly name: string;
@@ -166,13 +166,15 @@ export class Agent<
       };
     } catch (error) {
       throw new Error(
-        `Agent ${this.name} failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+        `Agent ${this.name} failed: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
       );
     }
   }
 
   stream(
-    options: AgentStreamOptions | { messages: ModelMessage[] },
+    options: AgentStreamOptions | { messages: ModelMessage[] }
   ): AgentStreamResult {
     logger.debug(`${this.name} stream called`, { name: this.name });
 
@@ -200,7 +202,11 @@ export class Agent<
     const memoryAddition = extendedContext._memoryAddition || "";
 
     // Build cache key for static parts
-    const cacheKey = `${typeof this.instructions === "string" ? this.instructions : "dynamic"}_${this.handoffAgents.length}_${this.memory?.workingMemory?.enabled || false}`;
+    const cacheKey = `${
+      typeof this.instructions === "string" ? this.instructions : "dynamic"
+    }_${this.handoffAgents.length}_${
+      this.memory?.workingMemory?.enabled || false
+    }`;
 
     // Build system prompt with caching for static parts
     let systemPrompt: string;
@@ -221,7 +227,7 @@ export class Agent<
       // Add working memory instructions if enabled
       if (this.memory?.workingMemory?.enabled) {
         const workingMemoryInstructions = getWorkingMemoryInstructions(
-          this.memory.workingMemory.template || DEFAULT_TEMPLATE,
+          this.memory.workingMemory.template || DEFAULT_TEMPLATE
         );
         basePrompt += `\n\n${workingMemoryInstructions}`;
       }
@@ -251,7 +257,7 @@ export class Agent<
     // Add working memory update tool if enabled
     // Give to all agents that can do work (have tools beyond just handoff)
     const hasOtherTools = Object.keys(resolvedTools).some(
-      (key) => key !== HANDOFF_TOOL_NAME,
+      (key) => key !== HANDOFF_TOOL_NAME
     );
     const isPureOrchestrator = this.handoffAgents.length > 0 && !hasOtherTools;
 
@@ -372,12 +378,12 @@ export class Agent<
 
     // Wrap onFinish to save messages after streaming
     const wrappedOnFinish: UIMessageStreamOnFinishCallback<never> = async (
-      event,
+      event
     ) => {
       // Save messages and update chat session after stream completes
       if (this.memory?.history?.enabled && context) {
         const { chatId, userId } = this.extractMemoryIdentifiers(
-          context as TContext,
+          context as TContext
         );
 
         if (!chatId) {
@@ -393,7 +399,7 @@ export class Agent<
             let userMsgToSave: any = userMsg;
             if (userMsg && Array.isArray(userMsg.content)) {
               const filteredContent = userMsg.content.filter(
-                (part: any) => part.type !== "file",
+                (part: any) => part.type !== "file"
               );
               userMsgToSave = {
                 ...userMsg,
@@ -407,7 +413,7 @@ export class Agent<
               userId,
               JSON.stringify(userMsgToSave),
               JSON.stringify(assistantMsg),
-              existingChatForSave,
+              existingChatForSave
             );
           } catch (err) {
             logger.error("Failed to save conversation", { error: err });
@@ -425,9 +431,188 @@ export class Agent<
       onError,
       generateId,
       execute: async ({ writer }) => {
+        // Get handoff agents (specialists)
+        const specialists = this.getHandoffs();
+
+        // Determine starting agent using programmatic routing
+        let currentAgent: IAgent<any> = this;
+
+        // Check for explicit agent or tool choice (highest priority)
+        if (agentChoice && specialists.length > 0) {
+          const chosenAgent = specialists.find(
+            (agent) => agent.name === agentChoice
+          );
+          if (chosenAgent) {
+            currentAgent = chosenAgent;
+            logger.debug(`Explicit agent choice: ${currentAgent.name}`, {
+              agent: currentAgent.name,
+            });
+
+            // Mark orchestrator as completing
+            writeAgentStatus(writer, {
+              status: "completing",
+              agent: this.name,
+            });
+
+            if (onEvent) {
+              await onEvent({
+                type: "agent-finish",
+                agent: this.name,
+                round: 0,
+              });
+            }
+
+            // Emit handoff event for explicit choice
+            writer.write({
+              type: "data-agent-handoff",
+              data: {
+                from: this.name,
+                to: chosenAgent.name,
+                reason: "User selected agent",
+                routingStrategy: "explicit",
+              },
+              transient: true,
+            } as never);
+
+            if (onEvent) {
+              await onEvent({
+                type: "agent-handoff",
+                from: this.name,
+                to: chosenAgent.name,
+                reason: "User selected agent",
+              });
+            }
+          }
+        } else if (toolChoice && specialists.length > 0) {
+          // Find agent that has the requested tool
+          const agentWithTool = specialists.find((agent) => {
+            const agentImpl = agent as Agent<any>;
+            return (
+              agentImpl.configuredTools &&
+              toolChoice in agentImpl.configuredTools
+            );
+          });
+
+          if (agentWithTool) {
+            currentAgent = agentWithTool;
+            logger.debug(
+              `Tool choice routing: ${toolChoice} → ${currentAgent.name}`,
+              { toolChoice, agent: currentAgent.name }
+            );
+
+            // Mark orchestrator as completing
+            writeAgentStatus(writer, {
+              status: "completing",
+              agent: this.name,
+            });
+
+            if (onEvent) {
+              await onEvent({
+                type: "agent-finish",
+                agent: this.name,
+                round: 0,
+              });
+            }
+
+            // Emit handoff event for tool choice
+            writer.write({
+              type: "data-agent-handoff",
+              data: {
+                from: this.name,
+                to: agentWithTool.name,
+                reason: `User requested tool: ${toolChoice}`,
+                routingStrategy: "tool-choice",
+                preferredTool: toolChoice,
+              },
+              transient: true,
+            } as never);
+
+            if (onEvent) {
+              await onEvent({
+                type: "agent-handoff",
+                from: this.name,
+                to: agentWithTool.name,
+                reason: `User requested tool: ${toolChoice}`,
+              });
+            }
+          }
+        } else if (strategy === "auto" && specialists.length > 0) {
+          // Try programmatic classification
+          const matchedAgent = specialists.find((agent) => {
+            if (!agent.matchOn) return false;
+            if (typeof agent.matchOn === "function") {
+              return agent.matchOn(input);
+            }
+            if (Array.isArray(agent.matchOn)) {
+              return agent.matchOn.some((pattern) => {
+                if (typeof pattern === "string") {
+                  return input.toLowerCase().includes(pattern.toLowerCase());
+                }
+                if (pattern instanceof RegExp) {
+                  return pattern.test(input);
+                }
+                return false;
+              });
+            }
+            return false;
+          });
+
+          if (matchedAgent) {
+            currentAgent = matchedAgent;
+            logger.debug(`Programmatic match: ${currentAgent.name}`, {
+              agent: currentAgent.name,
+            });
+
+            // Mark orchestrator as completing
+            writeAgentStatus(writer, {
+              status: "completing",
+              agent: this.name,
+            });
+
+            if (onEvent) {
+              await onEvent({
+                type: "agent-finish",
+                agent: this.name,
+                round: 0,
+              });
+            }
+
+            // Emit handoff event for programmatic routing
+            writer.write({
+              type: "data-agent-handoff",
+              data: {
+                from: this.name,
+                to: matchedAgent.name,
+                reason: "Programmatic routing match",
+                routingStrategy: "programmatic",
+              },
+              transient: true,
+            } as never);
+
+            if (onEvent) {
+              await onEvent({
+                type: "agent-handoff",
+                from: this.name,
+                to: matchedAgent.name,
+                reason: "Programmatic routing match",
+              });
+            }
+          }
+        }
+
+        // Get context window size from agent config, with sensible defaults
+        // Use lower default for specialists (no handoffs) to reduce token usage
+        const defaultLastMessages =
+          currentAgent.getHandoffs().length > 0 ? 10 : 5;
+        const lastMessages = currentAgent.lastMessages ?? defaultLastMessages;
+
         // Load history and working memory in parallel for better performance
         const [messages, memoryAddition] = await Promise.all([
-          this.loadMessagesWithHistory(message, context as TContext),
+          this.loadMessagesWithHistory(
+            message,
+            context as TContext,
+            lastMessages
+          ),
           context && this.memory?.workingMemory?.enabled
             ? this.loadWorkingMemory(context as TContext)
             : Promise.resolve(""),
@@ -448,14 +633,16 @@ export class Agent<
           context as TContext,
           input,
           writer,
-          existingChatForSave,
+          existingChatForSave
         );
 
         // Create AgentRunContext for the workflow
         const runContext = new AgentRunContext(context || {});
         runContext.metadata = {
           agent: this.name,
-          requestId: `req_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+          requestId: `req_${Date.now()}_${Math.random()
+            .toString(36)
+            .substring(7)}`,
         };
 
         // Create execution context with user context and writer
@@ -492,9 +679,6 @@ export class Agent<
           // Prepare conversation messages
           const conversationMessages = [...messages];
 
-          // Get handoff agents (specialists)
-          const specialists = this.getHandoffs();
-
           // Emit orchestrator start (even if we skip to specialist via programmatic routing)
           writeAgentStatus(writer, {
             status: "routing",
@@ -507,172 +691,6 @@ export class Agent<
               agent: this.name,
               round: 0,
             });
-          }
-
-          // Determine starting agent using programmatic routing
-          let currentAgent: IAgent<any> = this;
-
-          // Check for explicit agent or tool choice (highest priority)
-          if (agentChoice && specialists.length > 0) {
-            const chosenAgent = specialists.find(
-              (agent) => agent.name === agentChoice,
-            );
-            if (chosenAgent) {
-              currentAgent = chosenAgent;
-              logger.debug(`Explicit agent choice: ${currentAgent.name}`, {
-                agent: currentAgent.name,
-              });
-
-              // Mark orchestrator as completing
-              writeAgentStatus(writer, {
-                status: "completing",
-                agent: this.name,
-              });
-
-              if (onEvent) {
-                await onEvent({
-                  type: "agent-finish",
-                  agent: this.name,
-                  round: 0,
-                });
-              }
-
-              // Emit handoff event for explicit choice
-              writer.write({
-                type: "data-agent-handoff",
-                data: {
-                  from: this.name,
-                  to: chosenAgent.name,
-                  reason: "User selected agent",
-                  routingStrategy: "explicit",
-                },
-                transient: true,
-              } as never);
-
-              if (onEvent) {
-                await onEvent({
-                  type: "agent-handoff",
-                  from: this.name,
-                  to: chosenAgent.name,
-                  reason: "User selected agent",
-                });
-              }
-            }
-          } else if (toolChoice && specialists.length > 0) {
-            // Find agent that has the requested tool
-            const agentWithTool = specialists.find((agent) => {
-              const agentImpl = agent as Agent<any>;
-              return (
-                agentImpl.configuredTools &&
-                toolChoice in agentImpl.configuredTools
-              );
-            });
-
-            if (agentWithTool) {
-              currentAgent = agentWithTool;
-              logger.debug(
-                `Tool choice routing: ${toolChoice} → ${currentAgent.name}`,
-                { toolChoice, agent: currentAgent.name },
-              );
-
-              // Mark orchestrator as completing
-              writeAgentStatus(writer, {
-                status: "completing",
-                agent: this.name,
-              });
-
-              if (onEvent) {
-                await onEvent({
-                  type: "agent-finish",
-                  agent: this.name,
-                  round: 0,
-                });
-              }
-
-              // Emit handoff event for tool choice
-              writer.write({
-                type: "data-agent-handoff",
-                data: {
-                  from: this.name,
-                  to: agentWithTool.name,
-                  reason: `User requested tool: ${toolChoice}`,
-                  routingStrategy: "tool-choice",
-                  preferredTool: toolChoice,
-                },
-                transient: true,
-              } as never);
-
-              if (onEvent) {
-                await onEvent({
-                  type: "agent-handoff",
-                  from: this.name,
-                  to: agentWithTool.name,
-                  reason: `User requested tool: ${toolChoice}`,
-                });
-              }
-            }
-          } else if (strategy === "auto" && specialists.length > 0) {
-            // Try programmatic classification
-            const matchedAgent = specialists.find((agent) => {
-              if (!agent.matchOn) return false;
-              if (typeof agent.matchOn === "function") {
-                return agent.matchOn(input);
-              }
-              if (Array.isArray(agent.matchOn)) {
-                return agent.matchOn.some((pattern) => {
-                  if (typeof pattern === "string") {
-                    return input.toLowerCase().includes(pattern.toLowerCase());
-                  }
-                  if (pattern instanceof RegExp) {
-                    return pattern.test(input);
-                  }
-                  return false;
-                });
-              }
-              return false;
-            });
-
-            if (matchedAgent) {
-              currentAgent = matchedAgent;
-              logger.debug(`Programmatic match: ${currentAgent.name}`, {
-                agent: currentAgent.name,
-              });
-
-              // Mark orchestrator as completing
-              writeAgentStatus(writer, {
-                status: "completing",
-                agent: this.name,
-              });
-
-              if (onEvent) {
-                await onEvent({
-                  type: "agent-finish",
-                  agent: this.name,
-                  round: 0,
-                });
-              }
-
-              // Emit handoff event for programmatic routing
-              writer.write({
-                type: "data-agent-handoff",
-                data: {
-                  from: this.name,
-                  to: matchedAgent.name,
-                  reason: "Programmatic routing match",
-                  routingStrategy: "programmatic",
-                },
-                transient: true,
-              } as never);
-
-              if (onEvent) {
-                await onEvent({
-                  type: "agent-handoff",
-                  from: this.name,
-                  to: matchedAgent.name,
-                  reason: "Programmatic routing match",
-                });
-              }
-            }
           }
 
           let round = 0;
@@ -690,19 +708,6 @@ export class Agent<
               agent: currentAgent.name,
             });
 
-            // Get context window size from agent config, with sensible defaults
-            // Use lower default for specialists (no handoffs) to reduce token usage
-            const defaultLastMessages =
-              currentAgent.getHandoffs().length > 0 ? 10 : 5;
-            const lastMessages =
-              currentAgent.lastMessages ?? defaultLastMessages;
-
-            // Ensure we have at least the original user message
-            let messagesToSend = conversationMessages.slice(-lastMessages);
-            if (messagesToSend.length === 0 && messages.length > 0) {
-              messagesToSend = messages.slice(-1); // Use the last user message
-            }
-
             // Emit agent start event
             if (onEvent) {
               await onEvent({
@@ -716,7 +721,7 @@ export class Agent<
             // Note: toolChoice is NOT passed here - it was only used for routing
             // Passing it would force the tool to be called on every turn
             const result = currentAgent.stream({
-              messages: messagesToSend,
+              messages: conversationMessages,
               executionContext: executionContext,
               maxSteps, // Limit tool calls per round
               onStepFinish: async (step: unknown) => {
@@ -768,7 +773,7 @@ export class Agent<
                     toolCallId: chunk.toolCallId,
                     agent: currentAgent.name,
                     round,
-                  },
+                  }
                 );
               }
 
@@ -891,13 +896,13 @@ export class Agent<
                 // Mark specialist as used and route to it
                 usedSpecialists.add(handoffData.targetAgent);
                 const nextAgent = specialists.find(
-                  (a) => a.name === handoffData.targetAgent,
+                  (a) => a.name === handoffData.targetAgent
                 );
                 if (nextAgent) {
                   // Apply handoff input filter if configured
                   const configuredHandoffs = this.getConfiguredHandoffs();
                   const configuredHandoff = configuredHandoffs.find(
-                    (ch) => ch.agent.name === handoffData.targetAgent,
+                    (ch) => ch.agent.name === handoffData.targetAgent
                   );
 
                   // Apply handoff input filter if configured
@@ -912,7 +917,7 @@ export class Agent<
                           ([name, result]) => ({
                             toolName: name,
                             result: result,
-                          }),
+                          })
                         ),
                         runContext,
                       };
@@ -943,7 +948,7 @@ export class Agent<
                         ([name, result]) => ({
                           toolName: name,
                           result: result,
-                        }),
+                        })
                       ),
                       runContext,
                     };
@@ -1019,13 +1024,13 @@ export class Agent<
                 // Route to next specialist
                 usedSpecialists.add(handoffData.targetAgent);
                 const nextAgent = specialists.find(
-                  (a) => a.name === handoffData.targetAgent,
+                  (a) => a.name === handoffData.targetAgent
                 );
                 if (nextAgent) {
                   // Apply handoff input filter if configured
                   const configuredHandoffs = this.getConfiguredHandoffs();
                   const configuredHandoff = configuredHandoffs.find(
-                    (ch) => ch.agent.name === handoffData.targetAgent,
+                    (ch) => ch.agent.name === handoffData.targetAgent
                   );
 
                   if (configuredHandoff?.config?.inputFilter) {
@@ -1046,7 +1051,7 @@ export class Agent<
                       conversationMessages.length = 0;
                       conversationMessages.push(
                         ...filteredData.inputHistory,
-                        ...filteredData.newItems,
+                        ...filteredData.newItems
                       );
                     } catch (error) {
                       logger.error("Error applying handoff input filter", {
@@ -1115,7 +1120,7 @@ export class Agent<
 
           // Get accumulated text length from conversation messages
           const assistantMessages = conversationMessages.filter(
-            (m) => m.role === "assistant",
+            (m) => m.role === "assistant"
           );
           const totalTextLength = assistantMessages.reduce((sum, m) => {
             return sum + (typeof m.content === "string" ? m.content.length : 0);
@@ -1131,13 +1136,17 @@ export class Agent<
 
             // Get last N exchanges (user + assistant pairs)
             const recentMessages = conversationMessages.slice(
-              -(contextWindow * 2),
+              -(contextWindow * 2)
             );
 
             const conversationContext = recentMessages
               .map((msg) => {
                 const role = msg.role === "user" ? "User" : "Assistant";
-                return `${role}: ${typeof msg.content === "string" ? msg.content : JSON.stringify(msg.content)}`;
+                return `${role}: ${
+                  typeof msg.content === "string"
+                    ? msg.content
+                    : JSON.stringify(msg.content)
+                }`;
               })
               .join("\n\n");
 
@@ -1146,9 +1155,9 @@ export class Agent<
               conversationContext,
               conversationMessages,
               writer,
-              context as TContext,
+              context as TContext
             ).catch((err) =>
-              logger.error("Suggestion generation error", { error: err }),
+              logger.error("Suggestion generation error", { error: err })
             );
           }
 
@@ -1204,7 +1213,7 @@ export class Agent<
     chatId: string,
     userMessage: string,
     writer: UIMessageStreamWriter,
-    _context?: TContext,
+    _context?: TContext
   ): Promise<void> {
     if (!this.memory?.chats?.generateTitle) return;
 
@@ -1266,11 +1275,11 @@ Return only the title.
         typeof this.configuredTools === "function" && context
           ? this.configuredTools(context)
           : typeof this.configuredTools === "object"
-            ? this.configuredTools
-            : {};
+          ? this.configuredTools
+          : {};
 
       const toolNames = Object.keys(resolvedTools).filter(
-        (name) => name !== "handoff_to_agent" && name !== "updateWorkingMemory",
+        (name) => name !== "handoff_to_agent" && name !== "updateWorkingMemory"
       );
 
       if (toolNames.length > 0) {
@@ -1306,7 +1315,7 @@ Return only the title.
     conversationContext: string,
     conversationMessages: ModelMessage[],
     writer: UIMessageStreamWriter,
-    context?: TContext,
+    context?: TContext
   ): Promise<void> {
     const config = this.memory?.chats?.generateSuggestions;
     if (!config) return;
@@ -1397,7 +1406,7 @@ Good suggestions are:
         content: z
           .string()
           .describe(
-            "Updated working memory content in markdown format. Include user preferences and any important facts to remember.",
+            "Updated working memory content in markdown format. Include user preferences and any important facts to remember."
           ),
       }),
       execute: async ({ content }, options) => {
@@ -1412,7 +1421,7 @@ Good suggestions are:
 
         const { getContext } = await import("./context.js");
         const ctx = getContext(
-          options as { experimental_context?: Record<string, unknown> },
+          options as { experimental_context?: Record<string, unknown> }
         );
         const contextData = ctx as TContext | undefined;
 
@@ -1483,11 +1492,12 @@ Good suggestions are:
   private async loadMessagesWithHistory(
     message: UIMessage,
     context: TContext | undefined,
+    limit?: number
   ): Promise<ModelMessage[]> {
     // No memory - just convert the message
     if (!this.memory?.history?.enabled || !context) {
       logger.debug(
-        "History disabled or no context - using single message only",
+        "History disabled or no context - using single message only"
       );
       return convertToModelMessages([message]);
     }
@@ -1522,15 +1532,23 @@ Good suggestions are:
         return convertToModelMessages([message]);
       }
 
+      if (limit && previousMessages.length > limit) {
+        // Trim to the specified limit
+        return [
+          ...previousMessages.slice(-limit),
+          ...convertToModelMessages([message]),
+        ];
+      }
+
       const historyMessages = convertToModelMessages(
-        stripMetadata(previousMessages),
+        stripMetadata(previousMessages)
       );
 
       logger.debug(
         `Loaded ${historyMessages.length} history messages for context`,
         {
           count: historyMessages.length,
-        },
+        }
       );
       return [...historyMessages, ...convertToModelMessages([message])];
     } catch (err) {
@@ -1557,7 +1575,7 @@ Good suggestions are:
     userId: string | undefined,
     userMessage: string,
     assistantMessage: string,
-    existingChat?: any,
+    existingChat?: any
   ): Promise<void> {
     if (!this.memory?.provider || !this.memory?.history?.enabled) return;
 
@@ -1591,7 +1609,7 @@ Good suggestions are:
             role: "assistant",
             content: assistantMessage,
             timestamp: new Date(),
-          }),
+          })
         );
       } else {
         logger.warn(`Skipping assistant message save - empty or undefined`);
@@ -1606,7 +1624,7 @@ Good suggestions are:
             ...(existingChat || { chatId, userId, createdAt: new Date() }),
             messageCount: (existingChat?.messageCount || 0) + messageCount,
             updatedAt: new Date(),
-          }),
+          })
         );
       }
 
@@ -1638,7 +1656,7 @@ Good suggestions are:
     context: TContext | undefined,
     userMessage: string,
     writer: UIMessageStreamWriter,
-    existingChat?: any,
+    existingChat?: any
   ): Promise<void> {
     if (
       !this.memory?.chats?.enabled ||
@@ -1659,13 +1677,13 @@ Good suggestions are:
     const isFirstMessage = !existingChat || existingChat.messageCount === 0;
     if (isFirstMessage) {
       this.generateChatTitle(chatId, userMessage, writer, context).catch(
-        (err) => logger.error("Title generation error", { error: err }),
+        (err) => logger.error("Title generation error", { error: err })
       );
     }
   }
 
   static create<
-    TContext extends Record<string, unknown> = Record<string, unknown>,
+    TContext extends Record<string, unknown> = Record<string, unknown>
   >(config: AgentConfig<TContext>): Agent<TContext> {
     return new Agent<TContext>(config);
   }
