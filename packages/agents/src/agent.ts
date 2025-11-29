@@ -188,6 +188,8 @@ export class Agent<
     const toolChoice = (options as Record<string, unknown>).toolChoice as
       | string
       | undefined;
+    const experimentalTelemetry = (options as Record<string, unknown>)
+      .experimental_telemetry as Record<string, unknown> | undefined;
 
     // Resolve instructions dynamically (static string or function)
     const resolvedInstructions =
@@ -284,6 +286,8 @@ export class Agent<
 
     if (maxSteps) additionalOptions.maxSteps = maxSteps;
     if (onStepFinish) additionalOptions.onStepFinish = onStepFinish;
+    if (experimentalTelemetry)
+      additionalOptions.experimental_telemetry = experimentalTelemetry;
 
     // Handle simple { messages } format (like working code)
     if ("messages" in options && !("prompt" in options) && options.messages) {
@@ -361,6 +365,8 @@ export class Agent<
       sendFinish,
       sendStart,
       messageMetadata,
+      // AI SDK telemetry
+      experimental_telemetry,
       // Response options
       status,
       statusText,
@@ -749,6 +755,7 @@ export class Agent<
               messages: messagesToSend,
               executionContext: executionContext,
               maxSteps, // Limit tool calls per round
+              experimental_telemetry,
               onStepFinish: async (step: unknown) => {
                 if (onEvent) {
                   await onEvent({

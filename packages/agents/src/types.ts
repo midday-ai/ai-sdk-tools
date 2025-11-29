@@ -6,6 +6,7 @@ import type {
   ModelMessage,
   StepResult,
   StreamTextResult,
+  TelemetrySettings,
   Tool,
   UIMessage,
   UIMessageStreamWriter,
@@ -351,6 +352,11 @@ export interface AgentStreamOptionsUI<
   // AI SDK response options
   /** AI SDK transform - stream transform function */
   experimental_transform?: unknown;
+  /**
+   * Telemetry settings for OpenTelemetry tracing.
+   * Enable to track agent execution with your observability platform.
+   */
+  experimental_telemetry?: TelemetrySettings;
   /** HTTP status code */
   status?: number;
   /** HTTP status text */
