@@ -15,9 +15,9 @@ import {
   ContextTrigger,
 } from "@/components/ai-elements/context";
 
-// Model ID for cost calculation (Claude Sonnet 4)
-const MODEL_ID = "anthropic/claude-sonnet-4-20250514";
-const MAX_TOKENS = 200_000; // Claude Sonnet context window
+// Model ID for cost calculation (GPT-4o-mini - primary model used)
+const MODEL_ID = "openai/gpt-4o-mini";
+const MAX_TOKENS = 128_000; // GPT-4o-mini context window
 
 interface UsageDataPart {
   usage: LanguageModelUsage;
