@@ -62,5 +62,16 @@ export async function POST(request: NextRequest) {
     }),
     sendReasoning: true,
     sendSources: true,
+    // Token usage tracking - available in onFinish callback
+    onFinish: async (event) => {
+      if (event.usage) {
+        console.log("[Usage]", {
+          chatId: id,
+          inputTokens: event.usage.inputTokens,
+          outputTokens: event.usage.outputTokens,
+          totalTokens: event.usage.totalTokens,
+        });
+      }
+    },
   });
 }

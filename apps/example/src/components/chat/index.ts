@@ -10,3 +10,4 @@ export { EmptyState } from "./empty-state";
 export { RateLimitIndicator } from "./rate-limit-indicator";
 export { SuggestedPrompts } from "./suggested-prompts";
 export { SuggestionPills } from "./suggestion-pills";
+export { TokenUsage } from "./token-usage";

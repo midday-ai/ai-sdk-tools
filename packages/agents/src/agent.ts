@@ -13,13 +13,13 @@ import {
   generateObject,
   generateText,
   type LanguageModel,
+  type LanguageModelUsage,
   type ModelMessage,
   type StepResult,
   stepCountIs,
   type Tool,
   tool,
   type UIMessage,
-  type UIMessageStreamOnFinishCallback,
   type UIMessageStreamWriter,
 } from "ai";
 import { z } from "zod";
@@ -31,7 +31,7 @@ import {
 } from "./handoff.js";
 import { promptWithHandoffInstructions } from "./handoff-prompt.js";
 import { AgentRunContext } from "./run-context.js";
-import { writeAgentStatus, writeSuggestions } from "./streaming.js";
+import { writeAgentStatus, writeSuggestions, writeUsage } from "./streaming.js";
 import { createDefaultInputFilter } from "./tool-result-extractor.js";
 import type {
   AgentConfig,
@@ -188,6 +188,8 @@ export class Agent<
     const toolChoice = (options as Record<string, unknown>).toolChoice as
       | string
       | undefined;
+    const experimentalTelemetry = (options as Record<string, unknown>)
+      .experimental_telemetry as Record<string, unknown> | undefined;
 
     // Resolve instructions dynamically (static string or function)
     const resolvedInstructions =
@@ -284,6 +286,8 @@ export class Agent<
 
     if (maxSteps) additionalOptions.maxSteps = maxSteps;
     if (onStepFinish) additionalOptions.onStepFinish = onStepFinish;
+    if (experimentalTelemetry)
+      additionalOptions.experimental_telemetry = experimentalTelemetry;
 
     // Handle simple { messages } format (like working code)
     if ("messages" in options && !("prompt" in options) && options.messages) {
@@ -361,6 +365,8 @@ export class Agent<
       sendFinish,
       sendStart,
       messageMetadata,
+      // AI SDK telemetry
+      experimental_telemetry,
       // Response options
       status,
       statusText,
@@ -370,10 +376,34 @@ export class Agent<
     // Declare variable to store chat metadata (will be loaded in execute block)
     let existingChatForSave: any = null;
 
-    // Wrap onFinish to save messages after streaming
-    const wrappedOnFinish: UIMessageStreamOnFinishCallback<never> = async (
-      event,
-    ) => {
+    // Accumulate token usage across all agent rounds
+    let accumulatedUsage: LanguageModelUsage = {
+      inputTokens: 0,
+      outputTokens: 0,
+      totalTokens: 0,
+    };
+
+    // Helper to add usage from a stream result
+    const addUsage = (usage: LanguageModelUsage | undefined) => {
+      if (usage) {
+        accumulatedUsage = {
+          inputTokens:
+            (accumulatedUsage.inputTokens ?? 0) + (usage.inputTokens ?? 0),
+          outputTokens:
+            (accumulatedUsage.outputTokens ?? 0) + (usage.outputTokens ?? 0),
+          totalTokens:
+            (accumulatedUsage.totalTokens ?? 0) + (usage.totalTokens ?? 0),
+        };
+      }
+    };
+
+    // Wrap onFinish to save messages after streaming and include usage
+    const wrappedOnFinish = async (event: {
+      isAborted: boolean;
+      isContinuation: boolean;
+      responseMessage: UIMessage;
+      messages: UIMessage[];
+    }): Promise<void> => {
       // Save messages and update chat session after stream completes
       if (this.memory?.history?.enabled && context) {
         const { chatId, userId } = this.extractMemoryIdentifiers(
@@ -415,8 +445,12 @@ export class Agent<
         }
       }
 
-      // Call user's onFinish
-      await onFinish?.(event);
+      // Call user's onFinish with usage data
+      const hasUsage = (accumulatedUsage.totalTokens ?? 0) > 0;
+      await onFinish?.({
+        ...event,
+        usage: hasUsage ? accumulatedUsage : undefined,
+      });
     };
 
     const stream = createUIMessageStream({
@@ -434,7 +468,9 @@ export class Agent<
         ]);
 
         // Load chat metadata once for the entire request (stored in closure for wrappedOnFinish)
-        const { chatId } = this.extractMemoryIdentifiers(context as TContext);
+        const { chatId } = context
+          ? this.extractMemoryIdentifiers(context as TContext)
+          : { chatId: undefined };
         if (this.memory?.chats?.enabled && chatId) {
           existingChatForSave = await this.memory.provider?.getChat?.(chatId);
         }
@@ -719,6 +755,7 @@ export class Agent<
               messages: messagesToSend,
               executionContext: executionContext,
               maxSteps, // Limit tool calls per round
+              experimental_telemetry,
               onStepFinish: async (step: unknown) => {
                 if (onEvent) {
                   await onEvent({
@@ -845,6 +882,25 @@ export class Agent<
               if (chunk.type === "text-delta") {
                 textAccumulated += chunk.delta;
               }
+            }
+
+            // Capture usage from the stream result after consumption
+            try {
+              // Use totalUsage for multi-step generations, fallback to usage for single step
+              const streamUsage =
+                (await result.totalUsage) || (await result.usage);
+              addUsage(streamUsage);
+              logger.debug("Captured usage from stream", {
+                agent: currentAgent.name,
+                round,
+                inputTokens: streamUsage?.inputTokens,
+                outputTokens: streamUsage?.outputTokens,
+                totalTokens: streamUsage?.totalTokens,
+              });
+            } catch (usageError) {
+              logger.debug("Could not capture usage from stream", {
+                error: usageError,
+              });
             }
 
             // Update conversation - only add text if it's a complete response
@@ -1150,6 +1206,16 @@ export class Agent<
             ).catch((err) =>
               logger.error("Suggestion generation error", { error: err }),
             );
+          }
+
+          // Stream usage data if available
+          if ((accumulatedUsage.totalTokens ?? 0) > 0) {
+            writeUsage(writer, accumulatedUsage);
+            logger.debug("Streamed usage data", {
+              inputTokens: accumulatedUsage.inputTokens,
+              outputTokens: accumulatedUsage.outputTokens,
+              totalTokens: accumulatedUsage.totalTokens,
+            });
           }
 
           writer.write({ type: "finish" });

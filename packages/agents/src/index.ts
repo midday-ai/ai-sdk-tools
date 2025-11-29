@@ -39,6 +39,7 @@ export {
   writeAgentStatus,
   writeDataPart,
   writeRateLimit,
+  writeUsage,
 } from "./streaming.js";
 // Types
 export type {
@@ -47,6 +48,8 @@ export type {
   AgentEvent,
   AgentGenerateOptions,
   AgentGenerateResult,
+  AgentStreamOnFinishCallback,
+  AgentStreamOnFinishEvent,
   AgentStreamOptions,
   AgentStreamOptionsUI,
   AgentStreamResult,
