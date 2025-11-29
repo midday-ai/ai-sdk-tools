@@ -5,7 +5,7 @@
  * to the UI message stream following the AI SDK's streaming data pattern.
  */
 
-import type { UIMessageStreamWriter } from "ai";
+import type { LanguageModelUsage, UIMessageStreamWriter } from "ai";
 import type { AgentDataParts } from "./types.js";
 
 /**
@@ -113,4 +113,29 @@ export function writeSuggestions(
   prompts: string[],
 ): void {
   writeDataPart(writer, "data-suggestions", { prompts }, { transient: true });
+}
+
+/**
+ * Write transient token usage information.
+ *
+ * Usage data is ephemeral and won't be added to message history.
+ * It's only available via the onData callback in useChat.
+ *
+ * @param writer - The UI message stream writer
+ * @param usage - Token usage data from the language model
+ *
+ * @example
+ * ```typescript
+ * writeUsage(writer, {
+ *   inputTokens: 150,
+ *   outputTokens: 200,
+ *   totalTokens: 350
+ * });
+ * ```
+ */
+export function writeUsage(
+  writer: UIMessageStreamWriter,
+  usage: LanguageModelUsage,
+): void {
+  writeDataPart(writer, "data-usage", { usage }, { transient: true });
 }
