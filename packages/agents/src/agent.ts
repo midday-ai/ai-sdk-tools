@@ -1544,7 +1544,7 @@ Good suggestions are:
 
   /**
    * Save user and assistant messages, then update chat session.
-   * Messages are saved in parallel for better performance.
+   * Ensures chat row is saved/updated before messages (avoids FK errors)
    *
    * @param chatId - The chat identifier
    * @param userId - Optional user identifier
@@ -1569,22 +1569,43 @@ Good suggestions are:
 
     // Save messages and update chat session in parallel for better performance
     try {
-      const savePromises = [
+      const shouldSaveAssistant = !!assistantMessage && assistantMessage.length > 0;
+
+      // If chats are enabled, create or update the chat first (so FK constraints on messages succeed).
+      if (this.memory?.chats?.enabled) {
+        const messageCount = 1 + (shouldSaveAssistant ? 1 : 0);
+        // Build chat payload (use existingChat if provided)
+        const chatPayload = {
+          ...(existingChat || { chatId, userId, createdAt: new Date() }),
+          messageCount: (existingChat?.messageCount || 0) + messageCount,
+          updatedAt: new Date()
+        };
+        logger.debug(`Saving/updating chat before messages`, { chatId, messageCount });
+        // await chat save BEFORE saving messages
+        await this.memory.provider.saveChat?.(chatPayload);
+      }
+      
+      // Now save messages in parallel (chat row exists/updated)
+      const saveMessagePromises = [];
+
+      // user message (always)
+      saveMessagePromises.push(
         this.memory.provider.saveMessage?.({
           chatId,
           userId,
           role: "user",
           content: userMessage,
           timestamp: new Date(),
-        }),
-      ];
+        })
+      );
 
-      // Only save assistant message if it has content
-      if (assistantMessage && assistantMessage.length > 0) {
+      if (shouldSaveAssistant) {
+        // Only save assistant message if it has content
         logger.debug(`Will save assistant message`, {
           length: assistantMessage.length,
         });
-        savePromises.push(
+        
+        saveMessagePromises.push(
           this.memory.provider.saveMessage?.({
             chatId,
             userId,
@@ -1597,24 +1618,11 @@ Good suggestions are:
         logger.warn(`Skipping assistant message save - empty or undefined`);
       }
 
-      // Batch chat session update with message saves (using passed existingChat to avoid duplicate query)
-      if (this.memory?.chats?.enabled) {
-        const messageCount = savePromises.length;
+      await Promise.all(saveMessagePromises);
 
-        savePromises.push(
-          this.memory.provider.saveChat?.({
-            ...(existingChat || { chatId, userId, createdAt: new Date() }),
-            messageCount: (existingChat?.messageCount || 0) + messageCount,
-            updatedAt: new Date(),
-          }),
-        );
-      }
-
-      await Promise.all(savePromises);
-
-      logger.debug(`Successfully saved ${savePromises.length} items`, {
+      logger.debug(`Successfully saved ${saveMessagePromises.length} items`, {
         chatId,
-        count: savePromises.length,
+        count: saveMessagePromises.length,
       });
     } catch (error) {
       logger.error(`Failed to save messages for chatId=${chatId}`, {
