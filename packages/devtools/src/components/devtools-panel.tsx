@@ -121,8 +121,6 @@ export function DevtoolsPanel({
 
   // Resize functionality
   const [isResizing, setIsResizing] = useState(false);
-  const [panelHeight, setPanelHeight] = useState(config.height || 300);
-  const [panelWidth, setPanelWidth] = useState(config.width || 500);
   const panelRef = useRef<HTMLDivElement>(null);
   const resizeRef = useRef<HTMLButtonElement>(null);
 
@@ -229,12 +227,18 @@ export function DevtoolsPanel({
         const newHeight = window.innerHeight - e.clientY;
         const minHeight = 200;
         const maxHeight = window.innerHeight * 0.8;
-        setPanelHeight(Math.max(minHeight, Math.min(maxHeight, newHeight)));
+        const newPanelHeight = Math.max(minHeight, Math.min(maxHeight, newHeight));
+        
+        document.documentElement.style.removeProperty('--ai-devtools-panel-width');
+        document.documentElement.style.setProperty('--ai-devtools-panel-height', `${newPanelHeight}px`);
       } else {
         const newWidth = window.innerWidth - e.clientX;
         const minWidth = 500;
         const maxWidth = window.innerWidth * 0.8;
-        setPanelWidth(Math.max(minWidth, Math.min(maxWidth, newWidth)));
+        const newPanelWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
+
+        document.documentElement.style.removeProperty('--ai-devtools-panel-height');
+        document.documentElement.style.setProperty('--ai-devtools-panel-width', `${newPanelWidth}px`);
       }
     },
     [isResizing, config.position],
@@ -350,8 +354,8 @@ export function DevtoolsPanel({
       ref={panelRef}
       className={`ai-devtools-panel ai-devtools-panel-${config.position} ${className}`}
       style={{
-        height: config.position === "bottom" ? panelHeight : undefined,
-        width: config.position === "right" ? panelWidth : undefined,
+        height: config.position === "bottom" ? 'var(--ai-devtools-panel-height)' : undefined,
+        width: config.position === "right" ? 'var(--ai-devtools-panel-width)' : undefined,
       }}
     >
       {/* Resize Handle */}
