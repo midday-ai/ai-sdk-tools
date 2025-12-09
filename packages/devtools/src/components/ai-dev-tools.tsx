@@ -140,7 +140,12 @@ export function AIDevtools({
           isCapturing={isCapturing}
           onToggleCapturing={toggleCapturing}
           onClearEvents={clearEvents}
-          onClose={() => setIsOpen(false)}
+          onClose={() => {
+            document.documentElement.style.removeProperty('--ai-devtools-panel-width');
+            document.documentElement.style.removeProperty('--ai-devtools-panel-height');
+            
+            setIsOpen(false)
+          }}
           onTogglePosition={togglePosition}
           config={finalConfig}
         />
