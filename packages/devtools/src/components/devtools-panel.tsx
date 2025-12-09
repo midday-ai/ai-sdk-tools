@@ -123,6 +123,8 @@ export function DevtoolsPanel({
   const [isResizing, setIsResizing] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const resizeRef = useRef<HTMLButtonElement>(null);
+  const minHeight = 400;
+  const minWidth = 500;
 
   // Animation state for REC indicator
   const [isReceivingEvents, setIsReceivingEvents] = useState(false);
@@ -225,7 +227,6 @@ export function DevtoolsPanel({
 
       if (config.position === "bottom") {
         const newHeight = window.innerHeight - e.clientY;
-        const minHeight = 200;
         const maxHeight = window.innerHeight * 0.8;
         const newPanelHeight = Math.max(minHeight, Math.min(maxHeight, newHeight));
         
@@ -233,7 +234,6 @@ export function DevtoolsPanel({
         document.documentElement.style.setProperty('--ai-devtools-panel-height', `${newPanelHeight}px`);
       } else {
         const newWidth = window.innerWidth - e.clientX;
-        const minWidth = 500;
         const maxWidth = window.innerWidth * 0.8;
         const newPanelWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
 
@@ -354,8 +354,8 @@ export function DevtoolsPanel({
       ref={panelRef}
       className={`ai-devtools-panel ai-devtools-panel-${config.position} ${className}`}
       style={{
-        height: config.position === "bottom" ? 'var(--ai-devtools-panel-height)' : undefined,
-        width: config.position === "right" ? 'var(--ai-devtools-panel-width)' : undefined,
+        height: config.position === "bottom" ? `var(--ai-devtools-panel-height, ${minHeight}px)` : undefined,
+        width: config.position === "right" ? `var(--ai-devtools-panel-width, ${minWidth}px)` : undefined,
       }}
     >
       {/* Resize Handle */}
