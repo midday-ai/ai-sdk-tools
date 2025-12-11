@@ -1,12 +1,11 @@
 "use client";
 
 import {
-  ViewList as BottomPanelIcon,
-  Clear as ClearIcon,
+  CallToAction as BottomPanelIcon,
+  NotInterested as ClearIcon,
   Close as CloseIcon,
-  Pause as PauseIcon,
-  PlayArrow as PlayArrowIcon,
-  ViewSidebar as RightPanelIcon,
+  PlayCircle as PlayArrowIcon,
+  StopCircle as StopIcon,
 } from "@mui/icons-material";
 import React, {
   useCallback,
@@ -406,7 +405,7 @@ export function DevtoolsPanel({
                 // Delay hiding to allow clicking on suggestions
                 setTimeout(() => setShowSearchSuggestions(false), 200);
               }}
-              placeholder={`${filteredEvents.length} total events found...`}
+              placeholder={`${filteredEvents.length} events found…`}
               className="ai-devtools-search-input-main"
             />
 
@@ -543,10 +542,10 @@ export function DevtoolsPanel({
           <button
             type="button"
             onClick={onToggleCapturing}
-            className={`ai-devtools-btn ${isReceivingEvents ? "receiving" : ""}`}
+            className={`ai-devtools-btn ai-devtools-btn--with-icon ${isReceivingEvents ? "receiving" : ""}`}
           >
             {isCapturing ? (
-              <PauseIcon className="ai-devtools-btn-icon" />
+              <StopIcon className="ai-devtools-btn-icon" />
             ) : (
               <PlayArrowIcon className="ai-devtools-btn-icon" />
             )}
@@ -557,31 +556,33 @@ export function DevtoolsPanel({
           <button
             type="button"
             onClick={onClearEvents}
-            className="ai-devtools-btn"
+            className="ai-devtools-btn ai-devtools-btn--with-icon"
           >
             <ClearIcon className="ai-devtools-btn-icon" />
-            <span>clear</span>
+            <span>Clear</span>
           </button>
 
           {/* Position Toggle Button */}
           <button
             type="button"
             onClick={onTogglePosition}
-            className="ai-devtools-position-toggle-btn"
+            className="ai-devtools-btn ai-devtools-btn--icon"
             title={`Switch to ${config.position === "bottom" ? "right" : "bottom"} panel`}
           >
-            {config.position === "bottom" ? (
-              <RightPanelIcon className="ai-devtools-position-toggle-icon" />
-            ) : (
-              <BottomPanelIcon className="ai-devtools-position-toggle-icon" />
-            )}
+            <BottomPanelIcon
+              className="ai-devtools-position-toggle-icon"
+              style={{
+                transform:
+                  config.position === "bottom" ? "rotate(-90deg)" : "none",
+              }}
+            />
           </button>
 
           {/* Close */}
           <button
             type="button"
             onClick={onClose}
-            className="ai-devtools-close-btn"
+            className="ai-devtools-btn ai-devtools-btn--icon ai-devtools-btn--close"
           >
             <CloseIcon className="ai-devtools-close-icon" />
           </button>
@@ -706,56 +707,26 @@ export function DevtoolsPanel({
       )}
 
       {/* Tabs Navigation */}
-      <div
-        style={{
-          display: "flex",
-          gap: 0,
-          borderBottom: "1px solid #27272a",
-        }}
-      >
+      <div className="ai-devtools-tabs-navigation">
         <button
+          className={`ai-devtools-btn ai-devtools-btn--tab ${activeTab === "events" ? "ai-devtools-btn--tab-active" : ""}`}
           type="button"
           onClick={() => setActiveTab("events")}
-          style={{
-            padding: "8px 16px",
-            background: "transparent",
-            border: "none",
-            color: activeTab === "events" ? "#e5e7eb" : "#666666",
-            fontSize: 11,
-            cursor: "pointer",
-            transition: "all 0.2s",
-          }}
         >
           Events
         </button>
         <button
+          className={`ai-devtools-btn ai-devtools-btn--tab ${activeTab === "agents" ? "ai-devtools-btn--tab-active" : ""}`}
           type="button"
           onClick={() => setActiveTab("agents")}
-          style={{
-            padding: "8px 16px",
-            background: "transparent",
-            border: "none",
-            color: activeTab === "agents" ? "#e5e7eb" : "#666666",
-            fontSize: 11,
-            cursor: "pointer",
-            transition: "all 0.2s",
-          }}
         >
           Agents
         </button>
         {isStoreAvailable && (
           <button
+            className={`ai-devtools-btn ai-devtools-btn--tab ${activeTab === "state" ? "ai-devtools-btn--tab-active" : ""}`}
             type="button"
             onClick={() => setActiveTab("state")}
-            style={{
-              padding: "8px 16px",
-              background: "transparent",
-              border: "none",
-              color: activeTab === "state" ? "#e5e7eb" : "#666666",
-              fontSize: 11,
-              cursor: "pointer",
-              transition: "all 0.2s",
-            }}
           >
             State
           </button>
@@ -802,7 +773,6 @@ export function DevtoolsPanel({
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );
