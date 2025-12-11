@@ -36,10 +36,10 @@ export function StateDataExplorer({
       <div className={`ai-devtools-state-explorer-empty ${className}`}>
         <div className="ai-devtools-state-explorer-empty-content">
           <div className="ai-devtools-state-explorer-empty-icon">⚡</div>
-          <div className="ai-devtools-state-explorer-empty-title">
+          <div className="ai-devtools-empty-title">
             No State Data
           </div>
-          <div className="ai-devtools-state-explorer-empty-description">
+          <div className="ai-devtools-empty-subtitle">
             Select a store to view its current state
           </div>
         </div>
