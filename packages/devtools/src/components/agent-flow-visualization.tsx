@@ -413,16 +413,15 @@ export function AgentFlowVisualization({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#09090b",
+          background: "#000000",
         }}
       >
         <div className="ai-devtools-state-explorer-empty-content">
-          <div className="ai-devtools-state-explorer-empty-title">
-            No Agent Activity
+          <div className="ai-devtools-empty-title">
+            Waiting for agents...
           </div>
-          <div className="ai-devtools-state-explorer-empty-description">
-            Start a conversation with an agent-based
-            <br /> system to see the orchestration flow here
+          <div className="ai-devtools-empty-subtitle">
+            Start a conversation with an agent-based system to see the orchestration flow.
           </div>
         </div>
       </div>
