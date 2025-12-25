@@ -1,6 +1,6 @@
 {
   "name": "@ai-sdk-tools/store",
-  "version": "1.2.0",
+  "version": "2.0.0-beta.0",
   "description": "A drop-in replacement for @ai-sdk/react that automatically syncs chat state to Zustand stores",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -42,12 +42,12 @@
     "zustand": ">=5.0.0"
   },
   "devDependencies": {
-    "@types/react": "^19.2.6",
-    "react": "^19.2.0",
+    "@types/react": "^19.2.7",
+    "react": "^19.2.3",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
-    "zustand": "^5.0.8",
-    "@ai-sdk/react": "^2.0.97"
+    "zustand": "^5.0.9",
+    "@ai-sdk/react": "^3.0.3"
   },
   "repository": {
     "type": "git",
@@ -61,7 +61,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@types/node": "^24.10.1",
-    "ai": "^5.0.97"
+    "@types/node": "^25.0.3",
+    "ai": "^6.0.3"
   }
 }

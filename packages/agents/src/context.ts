@@ -160,7 +160,7 @@ export function createExecutionContext<
  */
 export function getContext<
   T extends Record<string, unknown> = Record<string, unknown>,
->(executionOptions?: { experimental_context?: T }): T | undefined {
-  // AI SDK passes context via experimental_context
-  return executionOptions?.experimental_context;
+>(executionOptions?: { experimental_context?: unknown }): T | undefined {
+  // AI SDK passes context via experimental_context (typed as unknown in v6)
+  return executionOptions?.experimental_context as T | undefined;
 }

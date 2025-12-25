@@ -1,7 +1,7 @@
 {
   "name": "@ai-sdk-tools/artifacts",
   "private": false,
-  "version": "1.2.0",
+  "version": "2.0.0-beta.0",
   "description": "Advanced streaming interfaces for AI applications",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -52,18 +52,18 @@
     "access": "public"
   },
   "dependencies": {
-    "zod": "^4.1.12"
+    "zod": "^4.2.1"
   },
   "devDependencies": {
-    "@types/node": "^24.10.1",
+    "@types/node": "^25.0.3",
     "@ai-sdk/react": "beta",
-    "@types/react": "^19.2.6",
+    "@types/react": "^19.2.7",
     "typescript": "^5.9.3",
     "tsup": "^8.5.1",
     "@ai-sdk-tools/store": "workspace:*"
   },
   "peerDependencies": {
-    "ai": "^5.0.82",
+    "ai": "^6.0.3",
     "react": "^18.0.0 || ^19.0.0"
   }
 }

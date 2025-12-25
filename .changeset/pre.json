@@ -1,0 +1,18 @@
+{
+  "mode": "exit",
+  "tag": "beta",
+  "initialVersions": {
+    "@ai-sdk-tools/example": "0.1.0",
+    "@ai-sdk-tools/website": "0.1.0",
+    "@ai-sdk-tools/agents": "2.0.0-beta.0",
+    "ai-sdk-tools": "2.0.0-beta.0",
+    "@ai-sdk-tools/artifacts": "2.0.0-beta.0",
+    "@ai-sdk-tools/cache": "2.0.0-beta.0",
+    "@ai-sdk-tools/debug": "2.0.0-beta.0",
+    "@ai-sdk-tools/devtools": "2.0.0-beta.0",
+    "@ai-sdk-tools/memory": "2.0.0-beta.0",
+    "@ai-sdk-tools/ocr": "2.0.0-beta.0",
+    "@ai-sdk-tools/store": "2.0.0-beta.0"
+  },
+  "changesets": []
+}

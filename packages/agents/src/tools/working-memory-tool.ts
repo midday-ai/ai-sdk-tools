@@ -1,7 +1,7 @@
 import type { MemoryConfig } from "@ai-sdk-tools/memory";
 import { tool } from "ai";
 import { z } from "zod";
-import { getContext } from "../context.js";
+import { getContext, type ExecutionContext } from "../context.js";
 
 /**
  * Create updateWorkingMemory tool
@@ -18,7 +18,7 @@ export function createWorkingMemoryTool(memoryConfig: MemoryConfig) {
         .describe("Updated working memory following the template structure"),
     }),
     execute: async ({ content }, options) => {
-      const ctx = getContext(options);
+      const ctx = getContext<ExecutionContext>(options);
       const { chatId, userId } = ctx?.metadata || {};
 
       await memoryConfig.provider.updateWorkingMemory({

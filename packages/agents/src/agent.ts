@@ -6,7 +6,7 @@ import {
   type MemoryConfig,
 } from "@ai-sdk-tools/memory";
 import {
-  Experimental_Agent as AISDKAgent,
+  ToolLoopAgent as AISDKAgent,
   convertToModelMessages,
   createUIMessageStream,
   createUIMessageStreamResponse,
@@ -71,7 +71,7 @@ export class Agent<
   public readonly lastMessages?: number;
   private readonly memory?: MemoryConfig;
   private readonly model: LanguageModel;
-  private readonly aiAgent: AISDKAgent<Record<string, Tool>>;
+  private readonly aiAgent: AISDKAgent<never, Record<string, Tool>>;
   private readonly handoffAgents: Array<IAgent<any> | ConfiguredHandoff<any>>;
   private readonly configuredTools:
     | Record<string, Tool>
@@ -102,9 +102,9 @@ export class Agent<
     // Extract toolChoice from modelSettings (needs to be a top-level param per AI SDK)
     const { toolChoice, ...otherModelSettings } = config.modelSettings || {};
 
-    this.aiAgent = new AISDKAgent<Record<string, Tool>>({
+    this.aiAgent = new AISDKAgent<never, Record<string, Tool>>({
       model: config.model,
-      system: "", // Will be overridden per-request with resolved instructions
+      instructions: "", // Will be overridden per-request with resolved instructions
       tools: {}, // Will be overridden per-request with resolved tools
       stopWhen: stepCountIs(config.maxTurns || 10),
       temperature: config.temperature,
@@ -171,9 +171,9 @@ export class Agent<
     }
   }
 
-  stream(
+  async stream(
     options: AgentStreamOptions | { messages: ModelMessage[] },
-  ): AgentStreamResult {
+  ): Promise<AgentStreamResult> {
     logger.debug(`${this.name} stream called`, { name: this.name });
 
     // Extract our internal execution context (we map to/from AI SDK's experimental_context at boundaries)
@@ -272,7 +272,7 @@ export class Agent<
       : configuredToolChoice;
 
     const additionalOptions: Record<string, unknown> = {
-      system: systemPrompt, // Override system prompt per call
+      instructions: systemPrompt, // Override system prompt per call
       tools: resolvedTools, // Add resolved tools here
       toolChoice: effectiveToolChoice, // Pass toolChoice as top-level param
       ...otherSettings, // Include other model settings
@@ -290,10 +290,10 @@ export class Agent<
       logger.debug(`Stream with messages only`, {
         messageCount: options.messages.length,
       });
-      return this.aiAgent.stream({
+      return (await this.aiAgent.stream({
         messages: options.messages,
         ...additionalOptions,
-      }) as unknown as AgentStreamResult;
+      })) as unknown as AgentStreamResult;
     }
 
     // Handle full AgentStreamOptions format
@@ -309,18 +309,18 @@ export class Agent<
 
     // If we have messages, append prompt as user message
     if (opts.messages && opts.messages.length > 0 && opts.prompt) {
-      return this.aiAgent.stream({
+      return (await this.aiAgent.stream({
         messages: [...opts.messages, { role: "user", content: opts.prompt }],
         ...additionalOptions,
-      }) as unknown as AgentStreamResult;
+      })) as unknown as AgentStreamResult;
     }
 
     // Prompt only
     if (opts.prompt) {
-      return this.aiAgent.stream({
+      return (await this.aiAgent.stream({
         prompt: opts.prompt,
         ...additionalOptions,
-      }) as unknown as AgentStreamResult;
+      })) as unknown as AgentStreamResult;
     }
 
     throw new Error("No valid options provided to stream method");
@@ -715,7 +715,8 @@ export class Agent<
             // Type assertion needed: executionContext and onStepFinish types don't strictly match
             // Note: toolChoice is NOT passed here - it was only used for routing
             // Passing it would force the tool to be called on every turn
-            const result = currentAgent.stream({
+            // In AI SDK v6, stream() returns a Promise
+            const result = await currentAgent.stream({
               messages: messagesToSend,
               executionContext: executionContext,
               maxSteps, // Limit tool calls per round
@@ -1371,7 +1372,6 @@ Good suggestions are:
         system: instructions,
         prompt: conversationContext,
         schema: suggestionsSchema,
-        mode: "json",
       });
 
       const { prompts } = object;
@@ -1489,20 +1489,20 @@ Good suggestions are:
       logger.debug(
         "History disabled or no context - using single message only",
       );
-      return convertToModelMessages([message]);
+      return await convertToModelMessages([message]);
     }
 
     const { chatId } = this.extractMemoryIdentifiers(context);
 
     if (!chatId) {
       logger.warn("Cannot load history: chatId missing from context");
-      return convertToModelMessages([message]);
+      return await convertToModelMessages([message]);
     }
 
     // Check if provider exists
     if (!this.memory.provider) {
       logger.warn("No memory provider configured - using single message only");
-      return convertToModelMessages([message]);
+      return await convertToModelMessages([message]);
     }
 
     try {
@@ -1519,10 +1519,10 @@ Good suggestions are:
 
       if (previousMessages.length === 0) {
         logger.debug("No previous messages found - starting new conversation");
-        return convertToModelMessages([message]);
+        return await convertToModelMessages([message]);
       }
 
-      const historyMessages = convertToModelMessages(
+      const historyMessages = await convertToModelMessages(
         stripMetadata(previousMessages),
       );
 
@@ -1532,13 +1532,13 @@ Good suggestions are:
           count: historyMessages.length,
         },
       );
-      return [...historyMessages, ...convertToModelMessages([message])];
+      return [...historyMessages, ...(await convertToModelMessages([message]))];
     } catch (err) {
       logger.error(`Load history failed for chatId=${chatId}`, {
         chatId,
         error: err,
       });
-      return convertToModelMessages([message]);
+      return await convertToModelMessages([message]);
     }
   }
 

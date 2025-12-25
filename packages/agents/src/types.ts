@@ -73,7 +73,7 @@ export interface Agent<
   permissions?: ToolPermissions;
   lastMessages?: number;
   generate(options: AgentGenerateOptions): Promise<AgentGenerateResult>;
-  stream(options: AgentStreamOptions): AgentStreamResult;
+  stream(options: AgentStreamOptions): Promise<AgentStreamResult>;
   getHandoffs(): Array<Agent<any>>;
 }
 

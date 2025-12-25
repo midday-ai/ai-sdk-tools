@@ -1,6 +1,6 @@
 {
   "name": "@ai-sdk-tools/devtools",
-  "version": "1.2.0",
+  "version": "2.0.0-beta.0",
   "description": "AI development tools for debugging and monitoring AI SDKs streams",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -48,23 +48,23 @@
     }
   },
   "devDependencies": {
-    "@types/react": "^19.2.2",
-    "@types/react-dom": "^19.2.2",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
-    "tsup": "^8.5.0",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "tsup": "^8.5.1",
     "typescript": "^5.9.3",
-    "@ai-sdk/react": "^2.0.82",
+    "@ai-sdk/react": "^3.0.3",
     "@ai-sdk-tools/store": "workspace:*"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@mui/icons-material": "^7.3.4",
-    "@mui/material": "^7.3.4",
+    "@mui/icons-material": "^7.3.6",
+    "@mui/material": "^7.3.6",
     "@types/dagre": "^0.7.53",
-    "@xyflow/react": "^12.9.0",
-    "ai": "^5.0.82",
+    "@xyflow/react": "^12.10.0",
+    "ai": "^6.0.3",
     "dagre": "^0.8.5",
     "react-json-view-lite": "^2.5.0"
   },

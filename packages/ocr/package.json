@@ -1,6 +1,6 @@
 {
   "name": "@ai-sdk-tools/ocr",
-  "version": "1.2.0",
+  "version": "2.0.0-beta.0",
   "description": "Extract structured data from invoices and receipts using AI SDK with intelligent provider fallback",
   "keywords": [
     "ai",
@@ -45,7 +45,7 @@
     "type-check": "tsc --noEmit"
   },
   "peerDependencies": {
-    "ai": "^5.0.82",
+    "ai": "^6.0.3",
     "zod": "^4.1.12"
   },
   "peerDependenciesMeta": {
@@ -61,7 +61,7 @@
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
     "zod": "^4.1.12",
-    "ai": "^5.0.97"
+    "ai": "^6.0.3"
   },
   "optionalDependencies": {
     "unpdf": "^1.4.0"
