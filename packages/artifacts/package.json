@@ -51,19 +51,19 @@
   "publishConfig": {
     "access": "public"
   },
-  "dependencies": {
-    "zod": "^4.1.12"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/node": "^24.10.1",
     "@ai-sdk/react": "beta",
     "@types/react": "^19.2.6",
     "typescript": "^5.9.3",
     "tsup": "^8.5.1",
+    "zod": "^4.1.12",
     "@ai-sdk-tools/store": "workspace:*"
   },
   "peerDependencies": {
     "ai": "^5.0.82",
-    "react": "^18.0.0 || ^19.0.0"
+    "react": "^18.0.0 || ^19.0.0",
+    "zod": "^3.25.76 || ^4.1.12"
   }
 }
