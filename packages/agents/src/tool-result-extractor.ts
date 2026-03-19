@@ -127,10 +127,12 @@ export function createDefaultInputFilter(): (input: HandoffInputData) => Handoff
         })
         .join('\n');
       
-      // Add a system message with the available data
+      // Add context as a user message for compatibility with all providers.
+      // Anthropic and Bedrock don't support system messages after user/assistant
+      // messages in the conversation, while OpenAI tolerates them.
       const dataMessage: ModelMessage = {
-        role: 'system',
-        content: `Available data from previous agent:\n${dataSummary}\n\n**IMPORTANT**: Only use this data if it's DIRECTLY relevant to the current user question. If the user is asking about something different, ignore this data and call the appropriate tools.`
+        role: 'user',
+        content: `[Context from previous agent]\n${dataSummary}\n\n**IMPORTANT**: Only use this data if it's DIRECTLY relevant to the current user question. If the user is asking about something different, ignore this data and call the appropriate tools.`
       };
       
       // Ensure we keep the original conversation and add the data message
