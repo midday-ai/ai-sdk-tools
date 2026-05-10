@@ -84,6 +84,52 @@ Visit our [website](https://ai-sdk-tools.dev) to explore interactive demos and d
   <img src="https://pbs.twimg.com/profile_images/1930607581971501057/vz4YyNOV_400x400.png" alt="Midday" width="48" height="48" style="vertical-align:middle; border-radius:8px;" />
 </a>
 
+
+
+## FAQ
+
+### What is AI SDK Tools?
+
+AI SDK Tools is a collection of essential utilities for building production-ready AI applications with Vercel AI SDK. It includes state management, debugging tools, structured streaming, intelligent agents, caching, and persistent memory.
+
+### What packages are included?
+
+- **@ai-sdk-tools/store**: AI chat state management
+- **@ai-sdk-tools/devtools**: Development debugging tools
+- **@ai-sdk-tools/artifacts**: Stream structured, type-safe artifacts
+- **@ai-sdk-tools/agents**: Multi-agent orchestration
+- **@ai-sdk-tools/cache**: Universal caching for AI SDK tools
+- **@ai-sdk-tools/memory**: Persistent memory system
+
+### How do I install AI SDK Tools?
+
+```bash
+npm install ai-sdk-tools
+```
+
+Or install individual packages:
+
+```bash
+npm i @ai-sdk-tools/store @ai-sdk-tools/devtools @ai-sdk-tools/artifacts
+```
+
+### Can I use AI SDK Tools with any AI provider?
+
+Yes, the agents package works with any AI provider supported by Vercel AI SDK.
+
+### What storage backends does memory support?
+
+Memory supports In-Memory, Upstash Redis, and Drizzle storage backends.
+
+### Is this package stable?
+
+The package is in active development. Pin to specific versions in production and check the changelog for updates.
+
+### Where can I get help?
+
+- Website: https://ai-sdk-tools.dev
+- GitHub Issues: https://github.com/midday-ai/ai-sdk-tools/issues
+
 ## License
 
 MIT
